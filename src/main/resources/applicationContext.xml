@@ -1,0 +1,87 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://www.springframework.org/schema/tx 
+     	http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+     	http://www.springframework.org/schema/aop 
+     	http://www.springframework.org/schema/aop/spring-aop-3.0.xsd"
+>
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+	    <property name="url" value="jdbc:mysql://localhost/freedb"/>
+	    <property name="username" value="root"/>
+		<property name="password" value="obe1kenobi"/>
+	</bean>
+	
+	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<tx:annotation-driven transaction-manager="txManager"/>
+	
+	<bean id="jdbcDao" class="com.andrewoberstar.library.meta.dao.impl.FreeDbJdbcDaoImpl">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<bean id="cueDao" class="com.andrewoberstar.library.meta.dao.impl.CueSheetDaoImpl" />
+	<bean id="albumXmlDao" class="com.andrewoberstar.library.meta.dao.impl.AlbumXmlDaoImpl" />
+	
+	<bean id="libManager" class="com.andrewoberstar.library.impl.LibraryManagerImpl">
+		<property name="refLib">
+			<bean class="com.andrewoberstar.library.impl.ReferenceLibraryImpl">
+				<property name="cueSheetDao" ref="cueDao" />
+				<property name="albumXmlDao" ref="albumXmlDao" />
+				<property name="freeDbDao" ref="jdbcDao" />
+				<property name="rootDir" value="C:\Users\Andy\Desktop\Beardfish" />
+				<property name="type" value="FLAC" />
+			</bean>
+		</property>
+		<property name="libs">
+			<list>
+				<bean class="com.andrewoberstar.library.impl.LibraryImpl">
+					<property name="rootDir" value="C:\Users\Andy\Desktop\BeardfishFlacLib" />
+					<property name="type" value="FLAC" />
+				</bean>
+				<bean class="com.andrewoberstar.library.impl.LibraryImpl">
+					<property name="rootDir" value="C:\Users\Andy\Desktop\BeardfishAacLib" />
+					<property name="type" value="AAC" />
+				</bean>
+			</list>
+		</property>
+		<property name="codecConfig">
+				<bean class="com.andrewoberstar.library.audio.impl.CodecConfigImpl">
+					<property name="codecs">
+						<map>
+							<entry key="FLAC">
+								<bean class="com.andrewoberstar.library.audio.impl.FlacCodecImpl">
+									<property name="path" value="flac" />
+									<property name="compressionLevel" value="8" />
+								</bean>
+							</entry>
+							<entry key="AAC">
+								<bean class="com.andrewoberstar.library.audio.impl.NeroAacCodecImpl">
+									<property name="encPath" value="neroAacEnc" />
+									<property name="decPath" value="neroAacDec" />
+									<property name="quality" value="0.8" />
+								</bean>			
+							</entry>
+						</map>
+					</property>
+					<property name="metaUtils">
+						<map>
+							
+						</map>
+					</property>
+					<property name="audioUtil">
+						<bean class="com.andrewoberstar.library.audio.impl.ShnToolUtil">
+							<property name="path" value="shntool" />
+						</bean>
+					</property>
+				</bean>
+		</property>
+	</bean>
+</beans>

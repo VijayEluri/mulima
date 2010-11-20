@@ -1,0 +1,115 @@
+apply plugin: 'groovy'
+apply plugin: 'code-quality' 
+apply from: 'emma.gradle'
+apply from: gradleCommonDir + 'repositories.gradle'
+
+defaultTasks 'clean', 'build', 'javadoc'
+	
+group = 'com.andrewoberstar'
+version = '0.1'
+
+checkstyleResultsDirName = 'reports/checkstyle'
+checkstyleMain.ignoreFailures = true
+checkstyleTest.ignoreFailures = true
+
+codeNarcConfigFileName = 'config/codenarc/codenarc.groovy'
+codeNarcResultsDirName = 'reports/codenarc'
+
+configurations {
+	findbugsConf
+}
+	
+spring = { name ->
+	def group = 'org.springframework'
+	return [group:"${group}", name:"${group}.${name}", version:'3.0.5.RELEASE', configuration:'compile']
+}
+slf4j = { name ->
+	return [group:'org.slf4j', name:"${name}", version:'1.6.1', transitive:'false']
+}
+logback = { name ->
+	return [group:'ch.qos.logback', name:"${name}", version:'0.9.24', transitive:'false']
+}
+
+dependencies {
+	compile (
+		slf4j('slf4j-api'),
+		spring('context'),
+		spring('beans'),
+		spring('jdbc'),
+		spring('transaction'),
+		[group:'org.apache.commons', name:'commons-compress', version:'1.1']
+	)
+	
+	runtime (
+		slf4j('jcl-over-slf4j'),
+		logback('logback-classic'),
+		logback('logback-core'),
+		[group:'mysql', name:'mysql-connector-java', version:'5.1.13']
+	)
+	
+	groovy (
+		[group:'org.codehaus.groovy', name:'groovy-all', version:'1.7.5']
+	)
+	
+	findbugsConf (
+		[group:'com.google.code.findbugs', name:'findbugs', version:'1.3.9'],
+		[group:'com.google.code.findbugs', name:'findbugs-ant', version:'1.3.9']
+	)
+	
+	emma (
+		[group:'emma', name:'emma', version:'2.0.5312'],
+		[group:'emma', name:'emma_ant', version:'2.0.5312']
+	)
+	
+	testCompile(
+		[group:'junit', name:'junit', version:'4.8.2'],
+		[group:'org.mockito', name:'mockito-core', version:'1.8.5']
+	)
+}
+
+ant {
+	taskdef(name:'findbugs', classname:'edu.umd.cs.findbugs.anttask.FindBugsTask', classpath: configurations.findbugsConf.asPath)
+	findbugsJarFiles = configurations.findbugsConf.resolve()
+	
+	findbugsHome = 'NOT_FOUND'
+	findbugsJarFiles.each() { jarPath ->
+		if (jarPath.getName().matches(/findbugs-([0-9]\.)*jar/)) {
+			findbugsHome = jarPath.getParentFile().getCanonicalPath()
+		}
+	}
+	
+	findbugsSrc = ''
+	sourceSets.main.java.srcDirs.each {
+		findbugsSrc += it.getPath() + ';'
+	}
+	sourceSets.test.java.srcDirs.each {
+		findbugsSrc += it.getPath() + ';'
+	}
+}
+
+task findbugs << {
+	new File('build/reports/findbugs').mkdirs()
+	project(':').ant {
+		findbugs(home: '/opt/findbugs/findbugs', output:'xml', outputFile:'build/reports/findbugs/findbugs.xml', warningsProperty:'foundBugs') {
+			auxClasspath(path: configurations.runtime.asPath)
+			sourcePath(path: findbugsSrc)
+			"class"(location: 'build/classes')
+		}
+		fail(message:'FindBugs reported warnings.', if:'foundBugs')
+	}
+}
+
+check.dependsOn findbugs
+
+uploadArchives {
+	uploadDescriptor = true
+	repositories {
+		add project.repositories.local
+	}
+}
+
+task deploy(dependsOn: configurations.default.buildArtifacts, type: Copy) {
+	into 'C:/data/library/lib'
+	from configurations.default
+	from configurations.default.allArtifactFiles
+}
