@@ -1,10 +1,9 @@
 apply plugin: 'groovy'
 apply plugin: 'code-quality' 
 apply from: 'emma.gradle'
-apply from: gradleCommonDir + 'repositories.gradle'
 
-defaultTasks 'clean', 'build', 'javadoc'
-	
+defaultTasks 'build', 'javadoc'
+
 group = 'com.andrewoberstar'
 version = '0.1'
 
@@ -14,6 +13,20 @@ checkstyleTest.ignoreFailures = true
 
 codeNarcConfigFileName = 'config/codenarc/codenarc.groovy'
 codeNarcResultsDirName = 'reports/codenarc'
+
+repositories {
+	mavenCentral()
+	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+		name = 'com.springsource.repository.bundles.release'
+		addIvyPattern 'http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]'
+		addArtifactPattern 'http://repository.springsource.com/ivy/bundles/release/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]'
+	}
+	add(new org.apache.ivy.plugins.resolver.URLResolver()) {
+		name = 'com.springsource.repository.bundles.external'
+		addIvyPattern 'http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]'
+		addArtifactPattern 'http://repository.springsource.com/ivy/bundles/external/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]'
+	}
+}
 
 configurations {
 	findbugsConf
@@ -101,15 +114,8 @@ task findbugs << {
 
 check.dependsOn findbugs
 
-uploadArchives {
-	uploadDescriptor = true
-	repositories {
-		add project.repositories.local
-	}
-}
-
 task deploy(dependsOn: configurations.default.buildArtifacts, type: Copy) {
-	into 'C:/data/library/lib'
+	into '~/dist/library/lib'
 	from configurations.default
 	from configurations.default.allArtifactFiles
 }
