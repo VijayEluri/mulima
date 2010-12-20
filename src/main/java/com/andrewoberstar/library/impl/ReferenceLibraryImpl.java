@@ -37,6 +37,7 @@ import com.andrewoberstar.library.meta.GenericTag;
 import com.andrewoberstar.library.meta.dao.FileMetadataDao;
 import com.andrewoberstar.library.meta.dao.FreeDbDao;
 import com.andrewoberstar.library.ui.UICallback;
+import com.andrewoberstar.library.util.FileUtil;
 
 public class ReferenceLibraryImpl extends LibraryImpl implements ReferenceLibrary {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -73,7 +74,7 @@ public class ReferenceLibraryImpl extends LibraryImpl implements ReferenceLibrar
 		this.allAlbums = new ArrayList<AlbumFolder>();
 		this.newAlbums = new ArrayList<AlbumFolder>();
 		
-		List<File> dirs = findDirs(getRootDir(), new ArrayList<File>());
+		List<File> dirs = FileUtil.listDirsRecursive(getRootDir());
 		for (File dir : dirs) {
 			AlbumFolder folder = processDir(dir);
 			if (folder != null) {
@@ -105,18 +106,6 @@ public class ReferenceLibraryImpl extends LibraryImpl implements ReferenceLibrar
 			return null;
 		} else {
 			return folder;
-		}
-	}
-	
-	private List<File> findDirs(File file, List<File> dirs) {
-		if (file.isDirectory()) {
-			dirs.add(file);
-			for (File child : file.listFiles()) {
-				findDirs(child, dirs);
-			}
-			return dirs;
-		} else {
-			return dirs;
 		}
 	}
 	

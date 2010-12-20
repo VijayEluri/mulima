@@ -20,6 +20,8 @@ package com.andrewoberstar.library.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper methods for <code>File</code> operations.
@@ -81,5 +83,34 @@ public class FileUtil {
 			tempFile.deleteOnExit();
 			return tempFile;
 		}
+	}
+	
+	/**
+	 * Returns a list of directories underneath this directory.  This
+	 * <strong>is</strong> recursive.
+	 * @param dir the directory to search
+	 * @return a list of all child directories
+	 */
+	public static List<File> listDirsRecursive(File dir) {
+		return listDirsRecursive(dir, new ArrayList<File>());
+	}
+	
+	/**
+	 * Helper method for recursion of {@link #listDirsRecursive(File)}.
+	 * @param dir directory to search for child directories
+	 * @param dirs list of directories to add children to
+	 * @return list of child directories (including any already included in <code>dirs</code>)
+	 */
+	private static List<File> listDirsRecursive(File dir, List<File> dirs) {
+		if (!dir.isDirectory()) {
+			throw new IllegalArgumentException("Must pass a directory in as \"dir\".");
+		}
+		dirs.add(dir);
+		for (File child : dir.listFiles()) {
+			if (child.isDirectory()) {
+				listDirsRecursive(child, dirs);
+			}
+		}
+		return dirs;
 	}
 }

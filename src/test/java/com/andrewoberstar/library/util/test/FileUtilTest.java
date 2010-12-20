@@ -18,9 +18,12 @@
 
 package com.andrewoberstar.library.util.test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Test;
 
@@ -38,5 +41,43 @@ public class FileUtilTest {
 		File file = new File("Temp" + File.separator + "testPotatoe.txt");
 		File temp = FileUtil.changeExtension(file, "cue");
 		assertEquals("Temp" + File.separator + "testPotatoe.cue", temp.getPath());
+	}
+	
+	@Test
+	public void listDirsRecursiveSuccess() {
+		File[] child4 = { mockFile(false, null), mockFile(false, null)};
+		File dir4 = mockFile(true, child4);
+		
+		File[] child3 = { mockFile(false, null), dir4, mockFile(false, null)};
+		File dir3 = mockFile(true, child3);
+		
+		File[] child2 = { mockFile(false, null) };
+		File dir2 = mockFile(true, child2);
+		
+		File[] child1 = { mockFile(false, null), dir2, dir3 };
+		File dir1 = mockFile(true, child1);
+		
+		List<File> expected = new ArrayList<File>();
+		expected.add(dir1);
+		expected.add(dir2);
+		expected.add(dir3);
+		expected.add(dir4);
+		
+		assertEquals(expected, FileUtil.listDirsRecursive(dir1));
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void listDirsRecursiveException() {
+		File file = mockFile(false, null);
+		FileUtil.listDirsRecursive(file);
+	}
+	
+	private File mockFile(boolean isDirectory, File[] children) {
+		File file = mock(File.class);
+		when(file.isDirectory()).thenReturn(isDirectory);
+		if (isDirectory && children != null) {
+			when(file.listFiles()).thenReturn(children);
+		}
+		return file;
 	}
 }
