@@ -16,20 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.andrewoberstar.library.ui;
-
-import java.util.Map;
-
 /**
- * Defines methods for a callback on a UI element.
- * 
- * @param <T> return type of the <code>call</code> method.
+ * Contains implementations of user interface classes. 
  */
-public interface UICallback<T> {
-	/**
-	 * The method to called on this element.
-	 * @param parms a <code>Map</code> of parameters.
-	 * @return the value from this execution.
-	 */
-	T call(Map<String, Object> parms);
-}
+package com.andrewoberstar.library.ui.cli;

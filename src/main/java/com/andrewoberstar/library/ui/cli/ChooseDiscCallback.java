@@ -28,10 +28,24 @@ import com.andrewoberstar.library.meta.Disc;
 import com.andrewoberstar.library.meta.GenericTag;
 import com.andrewoberstar.library.ui.UICallback;
 
+/**
+ * A user interface callback that uses <code>System.in</code> to get input from the user.
+ * The user can choose best match for a given disc. 
+ */
 public class ChooseDiscCallback implements UICallback<Disc> {
 
 	@SuppressWarnings("unchecked")
 	@Override
+	/**
+	 * Will choose the closest match for a given <code>CueSheet</code> and list of
+	 * candidate <code>Disc</code>s.  Candidates will be ranked by the Levenshtien
+	 * distance of their names to the cue sheet.  If the distance of the closest 
+	 * is more than 10, the user will be queried for their choice.
+	 * @param parms A map with two pairs.  The key "cue" should have a 
+	 * <code>CueSheet</code> as a value.  The key "candidates" should have a 
+	 * <code>List</code> of <code>Disc</code> elements.
+	 * @return the best or user-selected match.
+	 */
 	public Disc call(Map<String, Object> parms) {
 		CueSheet cue = (CueSheet) parms.get("cue");
 		List<Disc> candidates = (List<Disc>) parms.get("candidates");
@@ -50,9 +64,15 @@ public class ChooseDiscCallback implements UICallback<Disc> {
 		}
 	}
 	
+	/**
+	 * Asks user for his/her choice of best match.
+	 * @param candidates list of candidate matches
+	 * @return the user's choice
+	 */
 	private Disc askUser(List<Disc> candidates) {
 		for (int i = 0; i < candidates.size(); i++) {
-			System.out.println("#" + (i + 1) + ":\tArtist: " + candidates.get(i).getTags().getFlat(GenericTag.ARTIST));
+			System.out.println("#" + (i + 1) + ":\tArtist: " + 
+				candidates.get(i).getTags().getFlat(GenericTag.ARTIST));
 			System.out.println("\tAlbum: " + candidates.get(i).getTags().getFlat(GenericTag.ALBUM));
 		}
 		
@@ -61,7 +81,7 @@ public class ChooseDiscCallback implements UICallback<Disc> {
 		int num = console.nextInt();
 		if (num == -1) {
 			return null;
-		} else if (num > 0 && num <= candidates.size()){
+		} else if (num > 0 && num <= candidates.size()) {
 			return candidates.get(num - 1);
 		} else {
 			System.out.println("Invalid choice.");
