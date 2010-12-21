@@ -56,4 +56,60 @@ public class StringUtilTest {
 		String expected = "com.andrewoberstar.library.util";
 		assertEquals(expected, StringUtil.join(values, "."));
 	}
+	
+	@Test
+	public void makeSafeBackslash() {
+		String original = "Testing\\123";
+		String expected = "Testing_123";
+		assertEquals(expected, StringUtil.makeSafe(original));
+	}
+	
+	@Test
+	public void makeSafeSlash() {
+		String original = "Testing/123";
+		String expected = "Testing_123";
+		assertEquals(expected, StringUtil.makeSafe(original));
+	}
+	
+	@Test
+	public void makeSafeColon() {
+		String original = "Testing:123";
+		String expected = "Testing_123";
+		assertEquals(expected, StringUtil.makeSafe(original));
+	}
+	
+	@Test
+	public void makeSafeQuestion() {
+		String original = "Testing?123";
+		String expected = "Testing_123";
+		assertEquals(expected, StringUtil.makeSafe(original));
+	}
+	
+	@Test
+	public void makeSafeAsterisk() {
+		String original = "Testing*123";
+		String expected = "Testing_123";
+		assertEquals(expected, StringUtil.makeSafe(original));
+	}
+	
+	@Test
+	public void makeSafeGreater() {
+		String original = "Testing>123";
+		String expected = "Testing_123";
+		assertEquals(expected, StringUtil.makeSafe(original));
+	}
+	
+	@Test
+	public void makeSafeLess() {
+		String original = "Testing<123";
+		String expected = "Testing_123";
+		assertEquals(expected, StringUtil.makeSafe(original));
+	}
+	
+	@Test
+	public void makeSafePipe() {
+		String original = "Testing|123";
+		String expected = "Testing_123";
+		assertEquals(expected, StringUtil.makeSafe(original));
+	}
 }

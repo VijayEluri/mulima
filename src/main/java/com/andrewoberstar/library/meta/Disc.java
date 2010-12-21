@@ -52,6 +52,13 @@ public class Disc extends AbstractMetadata {
 		this.tracks = tracks;
 	}
 	
+	/**
+	 * Tidies the tags on this disc.
+	 */
+	public void tidy() {
+		tidy(tracks);
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null)

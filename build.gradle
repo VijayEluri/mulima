@@ -115,7 +115,7 @@ task findbugs << {
 check.dependsOn findbugs
 
 task deploy(dependsOn: configurations.default.buildArtifacts, type: Copy) {
-	into '~/dist/library/lib'
+	into 'C:/data/library/lib'
 	from configurations.default
 	from configurations.default.allArtifactFiles
 }

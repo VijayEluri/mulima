@@ -18,6 +18,8 @@
 
 package com.andrewoberstar.library.meta;
 
+import java.util.List;
+
 public abstract class AbstractMetadata implements Metadata {
 	private TagSupport tags = new TagSupportImpl();
 	
@@ -27,5 +29,33 @@ public abstract class AbstractMetadata implements Metadata {
 	
 	public void setTags(TagSupport tags) {
 		this.tags = tags;
+	}
+	
+	protected <T extends AbstractMetadata> void tidy(List<T> children) {
+		for (Tag tag : GenericTag.values()) {
+			if (GenericTag.DISC_NUMBER.equals(tag) || GenericTag.TRACK_NUMBER.equals(tag)) {
+				continue;
+			}
+			List<String> values = this.getTags().getAll(tag);
+			if (values == null || values.size() == 0) {
+				values = null;
+				for (AbstractMetadata child : children) {
+					List<String> temp = child.getTags().getAll(tag);
+					if (values == null) {
+						values = temp;
+					} else if (!values.equals(temp)) {
+						values = null;
+						break;
+					}
+				}
+				
+				if (values != null) {
+					this.getTags().add(tag, values);
+					for (AbstractMetadata child : children) {
+						child.getTags().remove(tag);
+					}
+				}
+			}
+		}
 	}
 }

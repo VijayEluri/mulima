@@ -72,6 +72,16 @@ public class Album extends AbstractMetadata {
 		}
 		return tracks;
 	}
+	
+	/**
+	 * Tidies the tags on this album.
+	 */
+	public void tidy() {
+		for (Disc disc : discs) {
+			disc.tidy();
+		}
+		tidy(discs);
+	}
 
 	@Override
 	public boolean equals(Object obj) {

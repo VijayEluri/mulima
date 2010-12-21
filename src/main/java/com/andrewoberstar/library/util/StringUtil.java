@@ -97,4 +97,8 @@ public class StringUtil {
 		}
 		return builder.toString();
 	}
+	
+	public static String makeSafe(String arg0) {
+		return arg0.replaceAll("[\\\\/:\\*\\?\"<>\\|]", "_");
+	}
 }

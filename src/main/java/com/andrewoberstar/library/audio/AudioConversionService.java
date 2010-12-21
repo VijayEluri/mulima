@@ -28,6 +28,9 @@ import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.andrewoberstar.library.AlbumFolder;
 import com.andrewoberstar.library.Library;
 import com.andrewoberstar.library.exception.UnknownCodecException;
@@ -37,6 +40,7 @@ import com.andrewoberstar.library.meta.Track;
 import com.andrewoberstar.library.util.FileUtil;
 
 public class AudioConversionService {
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private ExecutorService executor;
 	private CodecService codecSrv;
 	
@@ -75,18 +79,23 @@ public class AudioConversionService {
 		
 		@Override
 		public List<AlbumFolder> call() throws Exception {
+			logger.info("Starting conversion of " + refFolder.getFolder().getName());
 			List<AudioFile> decoded = decode();
+			logger.debug("Decoded " + decoded.size() + " file(s) for " + refFolder.getFolder().getName());
 			List<AudioFile> tempFiles = split(decoded);
+			logger.debug("Split " + tempFiles.size() + " file(s) for " + refFolder.getFolder().getName());
 			
 			List<AlbumFolder> folders = new ArrayList<AlbumFolder>();
 			for (Library lib : destLibs) {
 				folders.add(encode(lib, tempFiles));
 			}
 			
+			logger.info("Completed conversion of " + refFolder.getFolder().getName());
 			return folders;
 		}
 		
 		private List<AudioFile> decode() throws Exception {
+			logger.info("Decoding " + refFolder.getFolder().getName());
 			List<Future<AudioFile>> futures = new ArrayList<Future<AudioFile>>();
 			for (AudioFile file : refFolder.getAudioFiles()) {
 				futures.add(codecSrv.submitDecode(file, AudioFile.createTempFile(AudioFileType.WAVE)));
@@ -100,6 +109,7 @@ public class AudioConversionService {
 		}
 		
 		private List<AudioFile> split(List<AudioFile> decoded) throws Exception {
+			logger.info("Splitting " + refFolder.getFolder().getName());
 			File tempFolder = FileUtil.createTempDir("library", "wav");
 			
 			List<Future<List<AudioFile>>> futures = new ArrayList<Future<List<AudioFile>>>();
@@ -116,6 +126,7 @@ public class AudioConversionService {
 		}
 		
 		private AlbumFolder encode(Library lib, List<AudioFile> tempFiles) throws Exception {
+			logger.info("Encoding " + refFolder.getFolder().getName());
 			AlbumFolder folder = AlbumFolder.createAlbumFolder(lib.getRootDir(), refFolder.getAlbum()); 
 			
 			List<Future<AudioFile>> encFutures = new ArrayList<Future<AudioFile>>();
@@ -129,7 +140,7 @@ public class AudioConversionService {
 			for (Future<AudioFile> future : encFutures) {
 				AudioFile file = future.get();
 				String name = file.getFile().getName();
-				Matcher matcher = Pattern.compile("^D([0-9]+)T([0-9]+)").matcher(name);
+				Matcher matcher = Pattern.compile("^D([0-9]+)T([0-9]+).*").matcher(name);
 				if (!matcher.matches())
 					throw new UnknownCodecException("Invalid name.");
 				Track track = findTrack(tracks, Integer.valueOf(matcher.group(1)), Integer.valueOf(matcher.group(2)));

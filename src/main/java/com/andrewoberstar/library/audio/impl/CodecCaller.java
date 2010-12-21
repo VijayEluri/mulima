@@ -25,9 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.andrewoberstar.library.audio.AudioFile;
-import com.andrewoberstar.library.exception.CodecDestExistsException;
 import com.andrewoberstar.library.exception.CodecFailureException;
-import com.andrewoberstar.library.exception.CodecSourceMissingException;
 import com.andrewoberstar.library.util.ProcessFuture;
 
 public class CodecCaller implements Callable<AudioFile> {
@@ -44,23 +42,16 @@ public class CodecCaller implements Callable<AudioFile> {
 	
 	@Override
 	public AudioFile call() throws Exception {
-		if (!source.getFile().exists()) {
-			throw new CodecSourceMissingException("Source file does not exist: " + source.getFile().getName());
-		} else if (!dest.getFile().exists()) {
-			throw new CodecDestExistsException("Must set overwrite to true: " + dest.getFile().getName());
+		logger.debug("Executing command: " + command);
+		ProcessFuture proc = new ProcessFuture(new ProcessBuilder(command).start());
+		int exit = proc.get();
+		if (exit > 0) {
+			logger.error("Command failed.");
+			logger.error("Stdout: " + proc.getOutput());
+			logger.error("Stderr: " + proc.getError());
+			throw new CodecFailureException("Coding failed for source (" + source.getFile().getName() + ") to dest (" + dest.getFile().getName() + ").");
 		} else {
-			logger.info("Executing command: " + command);
-			ProcessFuture proc = new ProcessFuture(new ProcessBuilder(command).start());
-			int exit = proc.get();
-			if (exit > 0) {
-				logger.error("Command failed.");
-				logger.error("Stdout: " + proc.getOutput());
-				logger.error("Stderr: " + proc.getError());
-				throw new CodecFailureException("Coding failed for source (" + source.getFile().getName() + ") to dest (" + dest.getFile().getName() + ").");
-			} else {
-				return dest;
-			}
+			return dest;
 		}
 	}
-
 }

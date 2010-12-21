@@ -125,6 +125,15 @@ public class TagSupportImpl implements TagSupport {
 		return builder.toString();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void remove(Tag tag) {
+		GenericTag generic = tag.getGeneric();
+		map.remove(generic);
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null)

@@ -58,14 +58,14 @@
 						<map>
 							<entry key="FLAC">
 								<bean class="com.andrewoberstar.library.audio.impl.FlacCodecImpl">
-									<property name="path" value="flac" />
+									<property name="path" value="C:\Program Files (x86)\FLAC\flac.exe" />
 									<property name="compressionLevel" value="8" />
 								</bean>
 							</entry>
 							<entry key="AAC">
 								<bean class="com.andrewoberstar.library.audio.impl.NeroAacCodecImpl">
-									<property name="encPath" value="neroAacEnc" />
-									<property name="decPath" value="neroAacDec" />
+									<property name="encPath" value="C:\Users\Andy\Downloads\AudioEncoders\NeroAACCodec-1.5.1\win32\neroAacEnc" />
+									<property name="decPath" value="C:\Users\Andy\Downloads\AudioEncoders\NeroAACCodec-1.5.1\win32\neroAacDec" />
 									<property name="quality" value="0.8" />
 								</bean>			
 							</entry>

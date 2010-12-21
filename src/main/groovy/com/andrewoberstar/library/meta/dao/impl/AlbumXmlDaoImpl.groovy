@@ -33,6 +33,7 @@ class AlbumXmlDaoImpl implements FileMetadataDao<Album> {
 	private final Logger logger = LoggerFactory.getLogger(getClass())
 	
 	void write(File file, Album album) {
+		album.tidy();
 		def writer = new PrintWriter(file, "UTF-8")
 		def indenter = new IndentPrinter(writer, '\t')
 		def xml = new MarkupBuilder(indenter)
@@ -100,6 +101,7 @@ class AlbumXmlDaoImpl implements FileMetadataDao<Album> {
 		readTags(xml.tag, album.tags)
 		readDiscs(xml.disc, album.discs)
 		
+		album.tidy();
 		return album
 	}
 	

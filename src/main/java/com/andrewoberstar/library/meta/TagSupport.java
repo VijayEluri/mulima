@@ -75,4 +75,10 @@ public interface TagSupport {
 	 * @return map of values
 	 */
 	Map<GenericTag, List<String>> getMap();
+	
+	/**
+	 * Removes all values for a tag.
+	 * @param tag that tag to remove
+	 */
+	void remove(Tag tag);
 }

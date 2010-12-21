@@ -29,6 +29,7 @@ import com.andrewoberstar.library.audio.AudioFile;
 import com.andrewoberstar.library.meta.Album;
 import com.andrewoberstar.library.meta.CueSheet;
 import com.andrewoberstar.library.meta.GenericTag;
+import com.andrewoberstar.library.util.StringUtil;
 
 /**
  * Represents a filesystem folder with it's associated <code>Album</code>,
@@ -158,8 +159,8 @@ public class AlbumFolder {
 	public static AlbumFolder createAlbumFolder(File rootDir, Album album) throws IOException {
 		String artist = album.getTags().getFlat(GenericTag.ARTIST);
 		String title = album.getTags().getFlat(GenericTag.ALBUM);
-		File dir = new File(rootDir, artist + File.separator + title);
-		if (!dir.mkdirs()) {
+		File dir = new File(rootDir, StringUtil.makeSafe(artist) + File.separator + StringUtil.makeSafe(title));
+		if (!dir.exists() && !dir.mkdirs()) {
 			throw new IOException("Could not make directory: " + dir.getCanonicalPath());
 		}
 		

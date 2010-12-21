@@ -22,6 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
+
+import com.andrewoberstar.library.meta.Disc;
+import com.andrewoberstar.library.ui.UICallback;
+import com.andrewoberstar.library.ui.cli.ChooseDiscCallback;
 
 public class LibraryUpdater implements Runnable {
 	private final Logger logger = LoggerFactory.getLogger(FreeDbExport.class);
@@ -32,10 +37,19 @@ public class LibraryUpdater implements Runnable {
 		manager = context.getBean("libManager", LibraryManager.class);
 	}
 	
+	public void init(String file) {
+		ApplicationContext context = new FileSystemXmlApplicationContext(file);
+		manager = context.getBean("libManager", LibraryManager.class);
+	}
+	
 	@Override
 	public void run() {
+		logger.info("Beginning update.");
 		manager.getRefLib().findAlbums();
+		UICallback<Disc> chooser = new ChooseDiscCallback();
+		manager.getRefLib().processNewAlbums(chooser);
 		manager.updateLibraries();
+		logger.info("Update complete.");
 	}
 	
 	/**
@@ -43,7 +57,11 @@ public class LibraryUpdater implements Runnable {
 	 */
 	public static void main(String[] args) {
 		LibraryUpdater driver = new LibraryUpdater();
-		driver.init();
+		if (args.length == 0) {
+			driver.init();
+		} else {
+			driver.init(args[0]);
+		}
 		driver.run();
 	}
 }

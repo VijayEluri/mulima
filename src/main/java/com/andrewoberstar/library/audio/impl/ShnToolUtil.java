@@ -31,9 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import com.andrewoberstar.library.audio.AudioFile;
 import com.andrewoberstar.library.audio.AudioFileUtil;
-import com.andrewoberstar.library.exception.CodecDestExistsException;
 import com.andrewoberstar.library.exception.CodecFailureException;
-import com.andrewoberstar.library.exception.CodecSourceMissingException;
 import com.andrewoberstar.library.meta.CueSheet;
 import com.andrewoberstar.library.util.ProcessFuture;
 
@@ -90,6 +88,7 @@ public class ShnToolUtil implements AudioFileUtil {
 		
 		List<String> command = new ArrayList<String>();
 		command.add(path);
+		command.add("split");
 		if (!"".equals(opts))
 			command.add(opts);
 		command.add("-O");
@@ -99,7 +98,7 @@ public class ShnToolUtil implements AudioFileUtil {
 		command.add("-t");
 		command.add("\"D" + cue.getNum() + "T%n\"");
 		command.add("-f");
-		command.add(cuePath);
+		command.add("\"" + cuePath + "\"");
 		command.add("\"" + sourcePath + "\"");
 		
 		return new Splitter(command, source, destDir);
@@ -125,29 +124,23 @@ public class ShnToolUtil implements AudioFileUtil {
 		
 		@Override
 		public List<AudioFile> call() throws Exception {
-			if (!source.getFile().exists()) {
-				throw new CodecSourceMissingException("Source file does not exist: " + source.getFile().getName());
-			} else if (!destDir.exists()) {
-				throw new CodecDestExistsException("Must set overwrite to true: " + destDir.getName());
+			logger.debug("Executing command: " + command);
+			ProcessFuture proc = new ProcessFuture(new ProcessBuilder(command).start());
+			int exit = proc.get();
+			if (exit > 0) {
+				logger.error("Command failed.");
+				logger.error("Stdout: " + proc.getOutput());
+				logger.error("Stderr: " + proc.getError());
+				throw new CodecFailureException("Coding failed for source (" + source.getFile().getName() + ") to destDir (" + destDir.getName() + ").");
 			} else {
-				logger.info("Executing command: " + command);
-				ProcessFuture proc = new ProcessFuture(new ProcessBuilder(command).start());
-				int exit = proc.get();
-				if (exit > 0) {
-					logger.error("Command failed.");
-					logger.error("Stdout: " + proc.getOutput());
-					logger.error("Stderr: " + proc.getError());
-					throw new CodecFailureException("Coding failed for source (" + source.getFile().getName() + ") to destDir (" + destDir.getName() + ").");
-				} else {
-					List<AudioFile> files = new ArrayList<AudioFile>();
-					for (File file : destDir.listFiles()) {
-						Matcher matcher = Pattern.compile("^D([0-9]+)T([0-9]+)").matcher(file.getName());
-						if (matcher.matches()) {
-							files.add(new AudioFile(file));
-						}
+				List<AudioFile> files = new ArrayList<AudioFile>();
+				for (File file : destDir.listFiles()) {
+					Matcher matcher = Pattern.compile("^D([0-9]+)T([0-9]+).*").matcher(file.getName());
+					if (matcher.matches()) {
+						files.add(new AudioFile(file));
 					}
-					return files;
 				}
+				return files;
 			}
 		}
 	}
