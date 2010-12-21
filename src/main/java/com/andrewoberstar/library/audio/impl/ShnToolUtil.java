@@ -124,11 +124,12 @@ public class ShnToolUtil implements AudioFileUtil {
 		
 		@Override
 		public List<AudioFile> call() throws Exception {
+			logger.info("Starting split " + source.getFile().getCanonicalPath());
 			logger.debug("Executing command: " + command);
 			ProcessFuture proc = new ProcessFuture(new ProcessBuilder(command).start());
 			int exit = proc.get();
 			if (exit > 0) {
-				logger.error("Command failed.");
+				logger.info("Failed: split " + source.getFile().getCanonicalPath());
 				logger.error("Stdout: " + proc.getOutput());
 				logger.error("Stderr: " + proc.getError());
 				throw new CodecFailureException("Coding failed for source (" + source.getFile().getName() + ") to destDir (" + destDir.getName() + ").");
@@ -140,6 +141,7 @@ public class ShnToolUtil implements AudioFileUtil {
 						files.add(new AudioFile(file));
 					}
 				}
+				logger.info("Success: split " + source.getFile().getCanonicalPath());
 				return files;
 			}
 		}

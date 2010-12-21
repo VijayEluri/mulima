@@ -77,7 +77,9 @@ public class LibraryManagerImpl implements LibraryManager {
 				future.get();
 			} catch (ExecutionException e) {
 				logger.error("Error converting folder.", e.getCause());
+				service.shutdown();
 			} catch (InterruptedException e) {
+				service.shutdown();
 				throw new RuntimeException(e);
 			}
 		}

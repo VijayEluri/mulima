@@ -32,7 +32,7 @@ public enum FreeDbTag implements Tag {
 	TTITLE(GenericTag.TITLE),
 	TRACK_NUM(GenericTag.TRACK_NUMBER);	
 	
-	private GenericTag tag;
+	private final GenericTag tag;
 	
 	private FreeDbTag(GenericTag tag) {
 		this.tag = tag;

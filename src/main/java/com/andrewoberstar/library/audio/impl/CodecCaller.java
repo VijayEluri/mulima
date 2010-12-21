@@ -30,11 +30,13 @@ import com.andrewoberstar.library.util.ProcessFuture;
 
 public class CodecCaller implements Callable<AudioFile> {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
+	private final String name;
 	private final List<String> command;
 	private final AudioFile source;
 	private final AudioFile dest;
 	
-	public CodecCaller(List<String> command, AudioFile source, AudioFile dest) {
+	public CodecCaller(String name, List<String> command, AudioFile source, AudioFile dest) {
+		this.name = name;
 		this.command = command;
 		this.source = source;
 		this.dest = dest;
@@ -42,15 +44,17 @@ public class CodecCaller implements Callable<AudioFile> {
 	
 	@Override
 	public AudioFile call() throws Exception {
+		logger.info("Starting: " + name);
 		logger.debug("Executing command: " + command);
 		ProcessFuture proc = new ProcessFuture(new ProcessBuilder(command).start());
 		int exit = proc.get();
 		if (exit > 0) {
-			logger.error("Command failed.");
+			logger.error("Failed: " + name);
 			logger.error("Stdout: " + proc.getOutput());
 			logger.error("Stderr: " + proc.getError());
 			throw new CodecFailureException("Coding failed for source (" + source.getFile().getName() + ") to dest (" + dest.getFile().getName() + ").");
 		} else {
+			logger.info("Success: " + name);
 			return dest;
 		}
 	}

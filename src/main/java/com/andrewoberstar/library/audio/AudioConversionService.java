@@ -40,16 +40,15 @@ import com.andrewoberstar.library.meta.Track;
 import com.andrewoberstar.library.util.FileUtil;
 
 public class AudioConversionService {
-	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private ExecutorService executor;
 	private CodecService codecSrv;
 	
 	public AudioConversionService() {
-		this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		this(null);
 	}
 	
 	public AudioConversionService(CodecService codecSrv) {
-		this();
+		this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 		this.codecSrv = codecSrv;
 	}
 	
@@ -61,20 +60,30 @@ public class AudioConversionService {
 	}
 
 	public Future<List<AlbumFolder>> submitConvert(AlbumFolder refFolder, List<Library> destLibs) {
-		return executor.submit(new AudioConversion(refFolder, destLibs));
+		return executor.submit(new AudioConversion(refFolder, destLibs, codecSrv));
 	}
 	
 	public void shutdown() {
 		executor.shutdown();
+		codecSrv.shutdown();
 	}
 	
-	private class AudioConversion implements Callable<List<AlbumFolder>> {
+	public List<Runnable> shutdownNow() {
+		List<Runnable> left = executor.shutdownNow();
+		left.addAll(codecSrv.shutdownNow());
+		return left;
+	}
+	
+	private static class AudioConversion implements Callable<List<AlbumFolder>> {
+		private final Logger logger = LoggerFactory.getLogger(getClass());
 		private final AlbumFolder refFolder;
 		private final List<Library> destLibs;
+		private final CodecService codecSrv;
 		
-		public AudioConversion(AlbumFolder refFolder, List<Library> destLibs) {
+		public AudioConversion(AlbumFolder refFolder, List<Library> destLibs, CodecService codecSrv) {
 			this.refFolder = refFolder;
 			this.destLibs = destLibs;
+			this.codecSrv = codecSrv;
 		}
 		
 		@Override
@@ -98,7 +107,7 @@ public class AudioConversionService {
 			logger.info("Decoding " + refFolder.getFolder().getName());
 			List<Future<AudioFile>> futures = new ArrayList<Future<AudioFile>>();
 			for (AudioFile file : refFolder.getAudioFiles()) {
-				futures.add(codecSrv.submitDecode(file, AudioFile.createTempFile(AudioFileType.WAVE)));
+				futures.add(codecSrv.submitDecode(file, AudioFile.createTempFile(file)));
 			}
 			
 			List<AudioFile> tempFiles = new ArrayList<AudioFile>();

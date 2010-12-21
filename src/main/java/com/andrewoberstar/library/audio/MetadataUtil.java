@@ -23,8 +23,8 @@ import java.util.concurrent.Callable;
 import com.andrewoberstar.library.meta.Metadata;
 
 public interface MetadataUtil {
-	AudioFile write(AudioFile file, Metadata meta);
-	Metadata read(AudioFile file);
+	AudioFile write(AudioFile file, Metadata meta) throws Exception;
+	Metadata read(AudioFile file) throws Exception;
 	Callable<AudioFile> writeLater(AudioFile file, Metadata meta);
 	Callable<Metadata> readLater(AudioFile file);
 }

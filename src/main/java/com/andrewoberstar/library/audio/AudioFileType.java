@@ -26,7 +26,8 @@ public enum AudioFileType {
 	WAVE("wav"),
 	FLAC("flac"),
 	VORBIS("ogg"),
-	AAC("m4a");
+	AAC("m4a"),
+	MP3("mp3");
 	
 	private final String ext;
 	

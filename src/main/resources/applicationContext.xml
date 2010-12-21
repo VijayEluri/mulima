@@ -43,11 +43,11 @@
 		<property name="libs">
 			<list>
 				<bean class="com.andrewoberstar.library.impl.LibraryImpl">
-					<property name="rootDir" value="C:\Users\Andy\Desktop\BeardfishFlacLib" />
+					<property name="rootDir" value="C:\Users\Andy\Desktop\Temp\Flac" />
 					<property name="type" value="FLAC" />
 				</bean>
 				<bean class="com.andrewoberstar.library.impl.LibraryImpl">
-					<property name="rootDir" value="C:\Users\Andy\Desktop\BeardfishAacLib" />
+					<property name="rootDir" value="C:\Users\Andy\Desktop\Temp\Aac" />
 					<property name="type" value="AAC" />
 				</bean>
 			</list>
@@ -73,7 +73,16 @@
 					</property>
 					<property name="metaUtils">
 						<map>
-							
+							<entry key="FLAC">
+								<bean class="com.andrewoberstar.library.audio.impl.MetaflacDaoImpl">
+									<property name="path" value="C:\Program Files (x86)\FLAC\metaflac.exe" />
+								</bean>
+							</entry>
+							<entry key="AAC">
+								<bean class="com.andrewoberstar.library.audio.impl.NeroAacDaoImpl">
+									<property name="path" value="C:\Users\Andy\Downloads\AudioEncoders\NeroAACCodec-1.5.1\win32\neroAacTag" />
+								</bean>
+							</entry>
 						</map>
 					</property>
 					<property name="audioUtil">

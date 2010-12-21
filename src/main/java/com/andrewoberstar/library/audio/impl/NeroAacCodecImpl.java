@@ -97,7 +97,7 @@ public class NeroAacCodecImpl implements Codec {
 		command.add("-of");
 		command.add("\"" + destPath + "\"");
 		 
-		return new CodecCaller(command, source, dest);
+		return new CodecCaller("encoding " + destPath, command, source, dest);
 	}
 
 	@Override
@@ -121,7 +121,7 @@ public class NeroAacCodecImpl implements Codec {
 		command.add("-of");
 		command.add("\"" + destPath + "\"");
 		 
-		return new CodecCaller(command, source, dest);
+		return new CodecCaller("decoding " + destPath, command, source, dest);
 	}
 
 }

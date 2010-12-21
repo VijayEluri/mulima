@@ -88,7 +88,7 @@ public class FlacCodecImpl implements Codec {
 		command.add("\"" + destPath + "\"");
 		command.add("\"" + sourcePath + "\"");
 		 
-		return new CodecCaller(command, source, dest);
+		return new CodecCaller("encoding " + sourcePath, command, source, dest);
 	}
 
 	@Override
@@ -113,6 +113,6 @@ public class FlacCodecImpl implements Codec {
 		command.add("\"" + destPath + "\"");
 		command.add("\"" + sourcePath + "\"");
 		 
-		return new CodecCaller(command, source, dest);
+		return new CodecCaller("decoding " + sourcePath, command, source, dest);
 	}
 }

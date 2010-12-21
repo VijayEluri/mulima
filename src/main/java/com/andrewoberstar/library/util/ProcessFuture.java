@@ -18,7 +18,9 @@
 
 package com.andrewoberstar.library.util;
 
+import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -186,4 +188,7 @@ public class ProcessFuture implements Future<Integer> {
 		}
 	}
 	
+	public static ProcessFuture execute(List<String> command) throws IOException {
+		return new ProcessFuture(new ProcessBuilder(command).start());
+	}
 }

@@ -38,6 +38,7 @@ public enum GenericTag implements Tag {
 	ARTIST_SORT,
 	GUEST_ARTIST,
 	COMPOSER,
+	LYRICIST,
 	PERFORMER,
 	PRODUCER,
 	ENGINEER,

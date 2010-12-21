@@ -20,6 +20,8 @@ package com.andrewoberstar.library.audio;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.andrewoberstar.library.util.FileUtil;
 
@@ -62,6 +64,22 @@ public class AudioFile {
 		File temp = File.createTempFile("library", "." + type.getExtension());
 		temp.deleteOnExit();
 		return new AudioFile(temp);
+	}
+	
+	public static AudioFile createTempFile(AudioFile model) throws IOException {
+		File temp = File.createTempFile("library", " (" + parseNum(model.getFile()) + ")." + model.getType().getExtension());
+		temp.deleteOnExit();
+		return new AudioFile(temp);
+	}
+	
+	/**
+	 * Parses the disc/cue number out of a file name.
+	 * @param file the file to parse
+	 * @return the number of the file.
+	 */
+	private static int parseNum(File file) {
+		Matcher m = Pattern.compile(".*\\(([0-9]+)\\)\\.(flac|cue)").matcher(file.getName());
+		return m.matches() ? Integer.valueOf(m.group(1)) : 1;
 	}
 	
 	public static AudioFile createAudioFile(File dir, AudioFile model, AudioFileType type) throws IOException {
