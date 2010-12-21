@@ -1,5 +1,5 @@
-Music Library Manager
-org.uncoverthe.library
+Mulima (Music Library Manager)
+org.mulima
 
 This is a free (GPLv3 licensed) tool to manage your music library.  Your master copies are maintained in FLAC images with metadata stored in XML files.  The Music Library Manager can then maintain copies in different formats (e.g. for iPod, desktop, etc.).
 
