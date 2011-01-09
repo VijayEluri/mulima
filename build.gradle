@@ -4,7 +4,7 @@ apply from: 'emma.gradle'
 
 defaultTasks 'build', 'javadoc'
 
-group = 'com.andrewoberstar'
+group = 'org.mulima'
 version = '0.1'
 
 checkstyleResultsDirName = 'reports/checkstyle'
