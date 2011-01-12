@@ -20,40 +20,37 @@ package org.mulima.util.io;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
-import org.mulima.exception.ProcessFailureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProcessCaller implements Callable<String> {
+public class ProcessCaller implements Callable<ProcessResult> {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-	private final String description;
 	private final List<String> command;
+	private Future<String> output;
+	private Future<String> error;
 	
-	public ProcessCaller(String description, List<String> command) {
-		this.description = description;
+	public ProcessCaller(List<String> command) {
 		this.command = command;
 	}
 	
-	public ProcessCaller(String description, String... command) {
-		this.description = description;
+	public ProcessCaller(String... command) {
 		this.command = Arrays.asList(command);
 	}
 	
 	@Override
-	public String call() throws Exception {
-		logger.info("Starting: " + description);
+	public ProcessResult call() throws Exception {
 		logger.debug("Executing command: " + command);
-		ProcessFuture proc = new ProcessFuture(new ProcessBuilder(command).start());
-		int exit = proc.get();
-		if (exit > 0) {
-			logger.error("Failed: " + description);
-			logger.error("Stdout: " + proc.getOutput());
-			logger.error("Stderr: " + proc.getError());
-			throw new ProcessFailureException("Command failed: " + command);
-		} else {
-			logger.info("Success: " + description);
-			return proc.getOutput();
-		}
+		Process proc = new ProcessBuilder(command).start();
+		ExecutorService threadPool = Executors.newFixedThreadPool(2);
+		output = threadPool.submit(new StreamDumper(proc.getInputStream()));
+		error = threadPool.submit(new StreamDumper(proc.getErrorStream()));
+		int exit = proc.waitFor();
+		String out = output.get();
+		String err = error.get();
+		return new ProcessResult(exit, out, err);
 	}
 }

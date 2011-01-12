@@ -18,7 +18,6 @@
 package org.mulima.meta.dao.impl;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -29,7 +28,9 @@ import org.mulima.meta.GenericTag;
 import org.mulima.meta.Track;
 import org.mulima.meta.dao.MetadataFileDao;
 import org.mulima.meta.impl.ITunesTag;
+import org.mulima.util.FileUtil;
 import org.mulima.util.io.ProcessCaller;
+import org.mulima.util.io.ProcessResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,18 +73,11 @@ public class NeroAacDaoImpl implements MetadataFileDao<Track> {
 		
 		@Override
 		public Void call() throws Exception {
-			String filePath;
-			try {
-				filePath = file.getCanonicalPath();
-			} catch (IOException e) {
-				logger.error("Problem getting path.", e);
-				return null;
-			}
+			String filePath = FileUtil.getSafeCanonicalPath(file);
 			
 			List<String> command = new ArrayList<String>();
 			command.add(path);
 			command.add("\"" + filePath + "\"");
-			
 			for (GenericTag generic : meta.getMap().keySet()) {
 				ITunesTag tag = ITunesTag.valueOf(generic);
 				if (tag != null) {
@@ -93,7 +87,8 @@ public class NeroAacDaoImpl implements MetadataFileDao<Track> {
 				}
 			}
 			
-			new ProcessCaller("setting tags on " + filePath, command).call();
+			logger.info("Starting: setting tags on " + filePath);
+			new ProcessCaller(command).call();
 			return null;
 		}
 	}
@@ -107,24 +102,19 @@ public class NeroAacDaoImpl implements MetadataFileDao<Track> {
 		
 		@Override
 		public Track call() throws Exception {
-			String filePath;
-			try {
-				filePath = file.getCanonicalPath();
-			} catch (IOException e) {
-				logger.error("Problem getting path.", e);
-				return null;
-			}
+			String filePath = FileUtil.getSafeCanonicalPath(file);
 			
 			List<String> command = new ArrayList<String>();
 			command.add(path);
 			command.add("\"" + filePath + "\"");
 			command.add("-list-meta");
 			
-			String output = new ProcessCaller("reading tags from " + filePath, command).call();
+			logger.info("Starting: reading tags from " + filePath);
+			ProcessResult result = new ProcessCaller(command).call();
 			
 			Track track = new Track();
 			Pattern regex = Pattern.compile("([A-Za-z]+) = (.+)");
-			for (String line : output.split("\n")) {
+			for (String line : result.getOutput().split("\n")) {
 				Matcher matcher = regex.matcher(line.trim());
 				if (matcher.matches()) {
 					String name = matcher.group(1).toLowerCase();

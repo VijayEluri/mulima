@@ -60,6 +60,21 @@ public class FileUtil {
 	}
 	
 	/**
+	 * Gets the canonical path of a file.  If an exception is thrown
+	 * while getting the path, null is returned.
+	 * @param file the file to return the path of
+	 * @return the canonical path of the file, or null if there
+	 * was an exception
+	 */
+	public static String getSafeCanonicalPath(File file) {
+		try {
+			return file.getCanonicalPath();
+		} catch (IOException e) {
+			return null;
+		}
+	}
+	
+	/**
 	 * Creates an empty directory in the default temporary-file directory,
 	 * using the given prefix and suffix to generate its name.
 	 * @param prefix The prefix string to be used in generating the dir's

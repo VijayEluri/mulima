@@ -41,6 +41,10 @@ public class AudioFile extends File {
 	public AudioFile(URI uri) {
 		super(uri);
 	}
+	
+	public AudioFile(File file) {
+		super(file.getPath());
+	}
 
 	public AudioFileType getType() {
 		return AudioFileType.valueOf(this);
