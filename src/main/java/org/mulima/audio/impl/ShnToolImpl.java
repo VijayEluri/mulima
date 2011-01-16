@@ -114,7 +114,10 @@ public class ShnToolImpl implements Splitter {
 			for (File file : destDir.listFiles()) {
 				Matcher matcher = Pattern.compile("^D([0-9]+)T([0-9]+).*").matcher(file.getName());
 				if (matcher.matches()) {
-					dest.add(new AudioFile(file));
+					AudioFile audioFile = new AudioFile(file);
+					audioFile.setDiscNum(Integer.valueOf(matcher.group(1)));
+					audioFile.setTrackNum(Integer.valueOf(matcher.group(2)));
+					dest.add(audioFile);
 				}
 			}
 			

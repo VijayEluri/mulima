@@ -31,9 +31,10 @@ import org.mulima.audio.Joiner;
 import org.mulima.audio.JoinerResult;
 import org.mulima.audio.Splitter;
 import org.mulima.audio.SplitterResult;
+import org.mulima.audio.Tagger;
+import org.mulima.audio.TaggerResult;
 import org.mulima.meta.CueSheet;
 import org.mulima.meta.Track;
-import org.mulima.meta.dao.MetadataFileDao;
 
 public class CodecService {
 	private CodecConfig config;
@@ -68,13 +69,13 @@ public class CodecService {
 		return executor.submit(util.joinLater(sources, dest));
 	}
 	
-	public Future<Track> submitReadMeta(AudioFile file) {
-		MetadataFileDao<Track> util = config.getMetadataFileDao(file);
+	public Future<TaggerResult> submitReadMeta(AudioFile file) {
+		Tagger util = config.getTagger(file);
 		return executor.submit(util.readLater(file));
 	}
 	
-	public Future<Void> submitWriteMeta(AudioFile file, Track meta) {
-		MetadataFileDao<Track> util = config.getMetadataFileDao(file);
+	public Future<TaggerResult> submitWriteMeta(AudioFile file, Track meta) {
+		Tagger util = config.getTagger(file);
 		return executor.submit(util.writeLater(file, meta));
 	}
 	

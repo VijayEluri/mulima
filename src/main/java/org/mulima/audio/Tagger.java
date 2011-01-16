@@ -17,12 +17,16 @@
  */
 package org.mulima.audio;
 
+import java.util.concurrent.Callable;
 
-public interface CodecConfig {
-	Codec getCodec(AudioFileType type);
-	Codec getCodec(AudioFile file);
-	Tagger getTagger(AudioFileType type);
-	Tagger getTagger(AudioFile file);
-	Splitter getSplitter();
-	Joiner getJoiner();
+import org.mulima.meta.Track;
+
+/**
+ * Defines operations to read and write metadata to a file.
+ */
+public interface Tagger {
+	TaggerResult write(AudioFile file, Track track) throws Exception;
+	TaggerResult read(AudioFile file) throws Exception;
+	Callable<TaggerResult> writeLater(AudioFile file, Track track);
+	Callable<TaggerResult> readLater(AudioFile file);
 }

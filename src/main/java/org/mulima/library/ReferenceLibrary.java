@@ -15,14 +15,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mulima.audio;
+package org.mulima.library;
 
+/**
+ *
+ */
+public interface ReferenceLibrary extends Library {
 
-public interface CodecConfig {
-	Codec getCodec(AudioFileType type);
-	Codec getCodec(AudioFile file);
-	Tagger getTagger(AudioFileType type);
-	Tagger getTagger(AudioFile file);
-	Splitter getSplitter();
-	Joiner getJoiner();
 }

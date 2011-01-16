@@ -18,6 +18,7 @@
 package org.mulima.audio;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 
 /**
@@ -25,6 +26,8 @@ import java.net.URI;
  */
 public class AudioFile extends File {
 	private static final long serialVersionUID = 1L;
+	private Integer discNum = null;
+	private Integer trackNum = null;
 
 	public AudioFile(File parent, String child) {
 		super(parent, child);
@@ -48,5 +51,38 @@ public class AudioFile extends File {
 
 	public AudioFileType getType() {
 		return AudioFileType.valueOf(this);
+	}
+	
+	/**
+	 * @return the discNum
+	 */
+	public Integer getDiscNum() {
+		return discNum;
+	}
+
+	/**
+	 * @param discNum the discNum to set
+	 */
+	public void setDiscNum(Integer discNum) {
+		this.discNum = discNum;
+	}
+
+	/**
+	 * @return the trackNum
+	 */
+	public Integer getTrackNum() {
+		return trackNum;
+	}
+
+	/**
+	 * @param trackNum the trackNum to set
+	 */
+	public void setTrackNum(Integer trackNum) {
+		this.trackNum = trackNum;
+	}
+
+	public static AudioFile createTempFile(AudioFile model) throws IOException { 
+		File temp = File.createTempFile("library", "." + model.getType().getExtension());
+		return new AudioFile(temp);
 	}
 }

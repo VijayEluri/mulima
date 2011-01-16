@@ -17,12 +17,39 @@
  */
 package org.mulima.audio;
 
+import org.mulima.meta.Track;
+import org.mulima.util.io.ProcessResult;
 
-public interface CodecConfig {
-	Codec getCodec(AudioFileType type);
-	Codec getCodec(AudioFile file);
-	Tagger getTagger(AudioFileType type);
-	Tagger getTagger(AudioFile file);
-	Splitter getSplitter();
-	Joiner getJoiner();
+/**
+ * Represents the result of a tagger operation.  Provides access to the
+ * process's exit value, the file and metadata.
+ */
+public class TaggerResult extends ProcessResult {
+	private final AudioFile file;
+	private final Track track;
+	
+	public TaggerResult(AudioFile file, Track track, ProcessResult result) {
+		this(file, track, result.getExitVal(), result.getOutput(), result.getError());
+	}
+	
+	public TaggerResult(AudioFile file, Track track, int exitVal, String output, String error) {
+		super(exitVal, output, error);
+		this.file = file;
+		this.track = track;
+	}
+
+	/**
+	 * @return the file
+	 */
+	public AudioFile getFile() {
+		return file;
+	}
+
+	/**
+	 * @return the track
+	 */
+	public Track getTrack() {
+		return track;
+	}
+
 }

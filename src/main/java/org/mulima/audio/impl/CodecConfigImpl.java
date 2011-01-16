@@ -26,12 +26,11 @@ import org.mulima.audio.Codec;
 import org.mulima.audio.CodecConfig;
 import org.mulima.audio.Joiner;
 import org.mulima.audio.Splitter;
-import org.mulima.meta.Track;
-import org.mulima.meta.dao.MetadataFileDao;
+import org.mulima.audio.Tagger;
 
 public class CodecConfigImpl implements CodecConfig {
 	private Map<AudioFileType, Codec> codecs = new HashMap<AudioFileType, Codec>();
-	private Map<AudioFileType, MetadataFileDao<Track>> metaDaos = new HashMap<AudioFileType, MetadataFileDao<Track>>();
+	private Map<AudioFileType, Tagger> taggers = new HashMap<AudioFileType, Tagger>();
 	private Splitter splitter = null;
 	private Joiner joiner = null;
 	
@@ -43,10 +42,10 @@ public class CodecConfigImpl implements CodecConfig {
 	}
 
 	/**
-	 * @param metaDaos the metaDaos to set
+	 * @param taggers the taggers to set
 	 */
-	public void setMetaDaos(Map<AudioFileType, MetadataFileDao<Track>> metaDaos) {
-		this.metaDaos = metaDaos;
+	public void setTaggers(Map<AudioFileType, Tagger> taggers) {
+		this.taggers = taggers;
 	}
 
 	/**
@@ -74,13 +73,13 @@ public class CodecConfigImpl implements CodecConfig {
 	}
 
 	@Override
-	public MetadataFileDao<Track> getMetadataFileDao(AudioFileType type) {
-		return metaDaos.get(type);
+	public Tagger getTagger(AudioFileType type) {
+		return taggers.get(type);
 	}
 
 	@Override
-	public MetadataFileDao<Track> getMetadataFileDao(AudioFile file) {
-		return getMetadataFileDao(file.getType());
+	public Tagger getTagger(AudioFile file) {
+		return getTagger(file.getType());
 	}
 
 	@Override

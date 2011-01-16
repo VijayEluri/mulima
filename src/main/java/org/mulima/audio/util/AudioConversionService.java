@@ -24,9 +24,17 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+import org.mulima.audio.AudioFile;
+import org.mulima.audio.CodecResult;
+import org.mulima.audio.SplitterResult;
+import org.mulima.audio.TaggerResult;
+import org.mulima.exception.ProcessFailureException;
+import org.mulima.library.LibraryAlbum;
+import org.mulima.meta.CueSheet;
+import org.mulima.meta.GenericTag;
+import org.mulima.meta.Track;
+import org.mulima.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,9 +57,9 @@ public class AudioConversionService {
 	public void setCodecSrv(CodecService codecSrv) {
 		this.codecSrv = codecSrv;
 	}
-
-	public Future<List<AlbumFolder>> submitConvert(AlbumFolder refFolder, List<Library> destLibs) {
-		return executor.submit(new AudioConversion(refFolder, destLibs, codecSrv));
+	
+	public Future<List<LibraryAlbum>> submitConvert(LibraryAlbum refAlbum, List<LibraryAlbum> destAlbums) {
+		return executor.submit(new AudioConversion(refAlbum, destAlbums));
 	}
 	
 	public void shutdown() {
@@ -65,99 +73,126 @@ public class AudioConversionService {
 		return left;
 	}
 	
-	private static class AudioConversion implements Callable<List<AlbumFolder>> {
+	private class AudioConversion implements Callable<List<LibraryAlbum>> {
 		private final Logger logger = LoggerFactory.getLogger(getClass());
-		private final AlbumFolder refFolder;
-		private final List<Library> destLibs;
-		private final CodecService codecSrv;
+		private final LibraryAlbum refAlbum;
+		private final List<LibraryAlbum> destAlbums;
 		
-		public AudioConversion(AlbumFolder refFolder, List<Library> destLibs, CodecService codecSrv) {
-			this.refFolder = refFolder;
-			this.destLibs = destLibs;
-			this.codecSrv = codecSrv;
+		public AudioConversion(LibraryAlbum refAlbum, List<LibraryAlbum> destAlbums) {
+			this.refAlbum = refAlbum;
+			this.destAlbums = destAlbums;
 		}
 		
 		@Override
-		public List<AlbumFolder> call() throws Exception {
-			logger.info("Starting conversion of " + refFolder.getFolder().getName());
+		public List<LibraryAlbum> call() throws Exception {
+			logger.info("Starting conversion of " + refAlbum.getDir().getName());
 			List<AudioFile> decoded = decode();
-			logger.debug("Decoded " + decoded.size() + " file(s) for " + refFolder.getFolder().getName());
 			List<AudioFile> tempFiles = split(decoded);
-			logger.debug("Split " + tempFiles.size() + " file(s) for " + refFolder.getFolder().getName());
 			
-			List<AlbumFolder> folders = new ArrayList<AlbumFolder>();
-			for (Library lib : destLibs) {
-				folders.add(encode(lib, tempFiles));
+			for (LibraryAlbum destAlbum : destAlbums) {
+				encode(destAlbum, tempFiles);
 			}
 			
-			logger.info("Completed conversion of " + refFolder.getFolder().getName());
-			return folders;
+			for (LibraryAlbum destAlbum : destAlbums) {
+				tag(destAlbum);
+			}
+			
+			logger.info("Completed conversion of " + refAlbum.getDir().getName());
+			return destAlbums;
 		}
 		
 		private List<AudioFile> decode() throws Exception {
-			logger.info("Decoding " + refFolder.getFolder().getName());
-			List<Future<AudioFile>> futures = new ArrayList<Future<AudioFile>>();
-			for (AudioFile file : refFolder.getAudioFiles()) {
+			logger.info("Decoding " + refAlbum.getDir().getName());
+			List<Future<CodecResult>> futures = new ArrayList<Future<CodecResult>>();
+			for (AudioFile file : refAlbum.getAudioFiles()) {
 				futures.add(codecSrv.submitDecode(file, AudioFile.createTempFile(file)));
 			}
 			
 			List<AudioFile> tempFiles = new ArrayList<AudioFile>();
-			for (Future<AudioFile> future : futures) {
-				tempFiles.add(future.get());
+			for (Future<CodecResult> future : futures) {
+				CodecResult result = future.get();
+				if (result.getExitVal() != 0) {
+					Exception e = new ProcessFailureException("Failed decoding " + result.getSource().getCanonicalPath());
+					logger.error("Decoding failed", e);
+					throw e;
+				} else {
+					tempFiles.add(result.getDest());
+				}
 			}
+			logger.debug("Decoded " + tempFiles.size() + " file(s) for " + refAlbum.getDir().getName());
 			return tempFiles;
 		}
 		
 		private List<AudioFile> split(List<AudioFile> decoded) throws Exception {
-			logger.info("Splitting " + refFolder.getFolder().getName());
+			logger.info("Splitting " + refAlbum.getDir().getName());
 			File tempFolder = FileUtil.createTempDir("library", "wav");
 			
-			List<Future<List<AudioFile>>> futures = new ArrayList<Future<List<AudioFile>>>();
+			List<Future<SplitterResult>> futures = new ArrayList<Future<SplitterResult>>();
 			for (AudioFile file : decoded) {
-				CueSheet cue = refFolder.getCue(file);
+				CueSheet cue = refAlbum.getCues().get(file.getDiscNum());
 				futures.add(codecSrv.submitSplit(file, cue, tempFolder));
 			}
 			
 			List<AudioFile> tempFiles = new ArrayList<AudioFile>();
-			for (Future<List<AudioFile>> future : futures) {
-				tempFiles.addAll(future.get());
+			for (Future<SplitterResult> future : futures) {
+				SplitterResult result = future.get();
+				if (result.getExitVal() != 0) {
+					Exception e = new ProcessFailureException("Failed splitting " + result.getSource().getCanonicalPath());
+					logger.error("Splitting failed", e);
+					throw e;
+				} else {
+					tempFiles.addAll(result.getDest());
+				}
 			}
+			logger.debug("Split " + tempFiles.size() + " file(s) for " + refAlbum.getDir().getName());
 			return tempFiles;
 		}
 		
-		private AlbumFolder encode(Library lib, List<AudioFile> tempFiles) throws Exception {
-			logger.info("Encoding " + refFolder.getFolder().getName());
-			AlbumFolder folder = AlbumFolder.createAlbumFolder(lib.getRootDir(), refFolder.getAlbum()); 
+		private void encode(LibraryAlbum libAlbum, List<AudioFile> tempFiles) throws Exception {
+			logger.info("Encoding " + refAlbum.getDir().getName()); 
 			
-			List<Future<AudioFile>> encFutures = new ArrayList<Future<AudioFile>>();
+			List<Future<CodecResult>> encFutures = new ArrayList<Future<CodecResult>>();
 			for (AudioFile tempFile : tempFiles) {
-				AudioFile destFile = AudioFile.createAudioFile(folder.getFolder(), tempFile, lib.getType());
+				AudioFile destFile = new AudioFile(libAlbum.getDir(), FileUtil.getBaseName(tempFile) + "." + libAlbum.getLib().getType().getExtension());
 				encFutures.add(codecSrv.submitEncode(tempFile, destFile));
 			}
 			
-			List<Track> tracks = folder.getAlbum().flat();
-			List<Future<AudioFile>> tagFutures = new ArrayList<Future<AudioFile>>();
-			for (Future<AudioFile> future : encFutures) {
-				AudioFile file = future.get();
-				String name = file.getFile().getName();
-				Matcher matcher = Pattern.compile("^D([0-9]+)T([0-9]+).*").matcher(name);
-				if (!matcher.matches())
-					throw new UnknownCodecException("Invalid name.");
-				Track track = findTrack(tracks, Integer.valueOf(matcher.group(1)), Integer.valueOf(matcher.group(2)));
+			for (Future<CodecResult> future : encFutures) {
+				CodecResult result = future.get();
+				if (result.getExitVal() != 0) {
+					Exception e = new ProcessFailureException("Failed encoding " + result.getSource().getCanonicalPath());
+					logger.error("Encoding failed", e);
+					throw e;
+				} else {
+					libAlbum.getAudioFiles().add(result.getDest());
+				}
+			}
+		}
+		
+		private void tag(LibraryAlbum libAlbum) throws Exception {
+			logger.info("Tagging " + refAlbum.getDir().getName());
+			
+			List<Track> tracks = libAlbum.flat();
+			List<Future<TaggerResult>> tagFutures = new ArrayList<Future<TaggerResult>>();
+			for (AudioFile file : libAlbum.getAudioFiles()) {
+				Track track = findTrack(tracks, file.getDiscNum(), file.getTrackNum());
 				tagFutures.add(codecSrv.submitWriteMeta(file, track));
 			}
 			
-			for (Future<AudioFile> future : tagFutures) {
-				folder.getAudioFiles().add(future.get());
+			for (Future<TaggerResult> future : tagFutures) {
+				TaggerResult result = future.get();
+				if (result.getExitVal() != 0) {
+					Exception e = new ProcessFailureException("Failed tagging " + result.getFile().getCanonicalPath());
+					logger.error("Encoding failed", e);
+					throw e;
+				}
 			}
-			
-			return folder;
 		}
 		
 		private Track findTrack(List<Track> tracks, int discNum, int trackNum) {
 			for (Track track : tracks) {
-				int tempDisc = Integer.parseInt(track.getTags().getFirst(GenericTag.DISC_NUMBER));
-				int tempTrack = Integer.parseInt(track.getTags().getFirst(GenericTag.TRACK_NUMBER));
+				int tempDisc = Integer.parseInt(track.getFirst(GenericTag.DISC_NUMBER));
+				int tempTrack = Integer.parseInt(track.getFirst(GenericTag.TRACK_NUMBER));
 				if (tempDisc == discNum && tempTrack == trackNum)
 					return track;				
 			}

@@ -15,14 +15,20 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mulima.audio;
+package org.mulima.library;
 
+import java.io.File;
+import java.util.List;
 
-public interface CodecConfig {
-	Codec getCodec(AudioFileType type);
-	Codec getCodec(AudioFile file);
-	Tagger getTagger(AudioFileType type);
-	Tagger getTagger(AudioFile file);
-	Splitter getSplitter();
-	Joiner getJoiner();
+import org.mulima.audio.AudioFileType;
+
+/**
+ *
+ */
+public interface Library {
+	File getRootDir();
+	void setRootDir(File file);
+	AudioFileType getType();
+	void setType(AudioFileType type);
+	List<LibraryAlbum> getAlbums();
 }

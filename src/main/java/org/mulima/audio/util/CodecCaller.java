@@ -46,6 +46,8 @@ public class CodecCaller implements Callable<CodecResult> {
 		logger.info("Starting: " + description);
 		logger.debug("Executing command: " + command);
 		ProcessResult procResult = new ProcessCaller(command).call();
+		dest.setDiscNum(source.getDiscNum());
+		dest.setTrackNum(source.getTrackNum());
 		logger.info("Finished: " + description);
 		return new CodecResult(source, dest, procResult);
 	}
