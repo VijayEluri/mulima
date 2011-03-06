@@ -1,5 +1,5 @@
 /*  
- *  Copyright (C) 2010  Andrew Oberstar.  All rights reserved.
+ *  Copyright (C) 2011  Andrew Oberstar.  All rights reserved.
  *  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -15,21 +15,23 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-package com.andrewoberstar.library;
+package org.mulima.main;
 
 import java.util.List;
 
+import org.mulima.meta.Disc;
+import org.mulima.meta.dao.FreeDbDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import com.andrewoberstar.library.meta.Disc;
-import com.andrewoberstar.library.meta.dao.FreeDbDao;
-
+/**
+ * @author Andy
+ *
+ */
 public class FreeDbImport implements Runnable {
-	private final Logger logger = LoggerFactory.getLogger(FreeDbImport.class);
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private FreeDbDao jdbcDao;
 	private FreeDbDao tarDao;
 	
