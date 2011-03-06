@@ -1,5 +1,5 @@
 /*  
- *  Copyright (C) 2010  Andrew Oberstar.  All rights reserved.
+ *  Copyright (C) 2011  Andrew Oberstar.  All rights reserved.
  *  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -15,21 +15,21 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.mulima.main;
 
-package com.andrewoberstar.library;
-
+import org.mulima.library.LibraryManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
-import com.andrewoberstar.library.meta.Disc;
-import com.andrewoberstar.library.ui.UICallback;
-import com.andrewoberstar.library.ui.cli.ChooseDiscCallback;
-
+/**
+ * @author Andy
+ *
+ */
 public class LibraryUpdater implements Runnable {
-	private final Logger logger = LoggerFactory.getLogger(FreeDbExport.class);
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private LibraryManager manager;
 	
 	public void init() {
@@ -45,10 +45,9 @@ public class LibraryUpdater implements Runnable {
 	@Override
 	public void run() {
 		logger.info("Beginning update.");
-		manager.getRefLib().findAlbums();
-		UICallback<Disc> chooser = new ChooseDiscCallback();
-		manager.getRefLib().processNewAlbums(chooser);
-		manager.updateLibraries();
+		manager.scanAll();
+		manager.processNew();
+		manager.updateAll();
 		logger.info("Update complete.");
 	}
 	

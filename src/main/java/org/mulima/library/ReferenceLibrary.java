@@ -17,9 +17,11 @@
  */
 package org.mulima.library;
 
+import java.util.List;
+
 /**
  *
  */
 public interface ReferenceLibrary extends Library {
-
+	List<LibraryAlbum> getNew();
 }

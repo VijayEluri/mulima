@@ -1,5 +1,5 @@
 /*  
- *  Copyright (C) 2010  Andrew Oberstar.  All rights reserved.
+ *  Copyright (C) 2011  Andrew Oberstar.  All rights reserved.
  *  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -15,8 +15,20 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.mulima.library;
+
+import java.util.List;
 
 /**
- * Contains implementations of user interface classes. 
+ * 
  */
-package com.andrewoberstar.library.ui.cli;
+public interface LibraryManager {
+	List<ReferenceLibrary> getRefLibs();
+	void setRefLibs(List<ReferenceLibrary> refLibs);
+	List<Library> getDestLibs();
+	void setDestLibs(List<Library> destLibs);
+	void processNew();
+	void scanAll();
+	void updateAll();
+	void updateLib(Library lib);
+}

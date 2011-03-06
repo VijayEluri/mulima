@@ -1,5 +1,5 @@
 /*  
- *  Copyright (C) 2010  Andrew Oberstar.  All rights reserved.
+ *  Copyright (C) 2011  Andrew Oberstar.  All rights reserved.
  *  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -15,21 +15,26 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.mulima.library.impl;
 
-package com.andrewoberstar.library.ui;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.util.Map;
+import org.mulima.library.LibraryAlbum;
+import org.mulima.library.ReferenceLibrary;
 
 /**
- * Defines methods for a callback on a UI element.
  * 
- * @param <T> return type of the <code>call</code> method.
  */
-public interface UICallback<T> {
-	/**
-	 * The method to called on this element.
-	 * @param parms a <code>Map</code> of parameters.
-	 * @return the value from this execution.
-	 */
-	T call(Map<String, Object> parms);
+public class ReferenceLibraryImpl extends LibraryImpl implements ReferenceLibrary {
+	@Override
+	public List<LibraryAlbum> getNew() {
+		List<LibraryAlbum> newAlbums = new ArrayList<LibraryAlbum>();
+		for (LibraryAlbum libAlbum : getAll()) {
+			if (libAlbum.getAlbum() == null) {
+				newAlbums.add(libAlbum);
+			}
+		}
+		return newAlbums;
+	}
 }

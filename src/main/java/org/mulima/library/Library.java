@@ -27,8 +27,12 @@ import org.mulima.audio.AudioFileType;
  */
 public interface Library {
 	File getRootDir();
-	void setRootDir(File file);
+	void setRootDir(File rootDir);
 	AudioFileType getType();
 	void setType(AudioFileType type);
-	List<LibraryAlbum> getAlbums();
+	void scanAlbums();
+	List<LibraryAlbum> getAll();
+	List<LibraryAlbum> getModified();
+	List<LibraryAlbum> getOld();
+	LibraryAlbum newAlbum(LibraryAlbum libAlbum);
 }

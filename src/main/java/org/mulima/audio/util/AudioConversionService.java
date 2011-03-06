@@ -129,7 +129,7 @@ public class AudioConversionService {
 			
 			List<Future<SplitterResult>> futures = new ArrayList<Future<SplitterResult>>();
 			for (AudioFile file : decoded) {
-				CueSheet cue = refAlbum.getCues().get(file.getDiscNum());
+				CueSheet cue = refAlbum.getAlbum().getCues().get(file.getDiscNum());
 				futures.add(codecSrv.submitSplit(file, cue, tempFolder));
 			}
 			
@@ -172,7 +172,7 @@ public class AudioConversionService {
 		private void tag(LibraryAlbum libAlbum) throws Exception {
 			logger.info("Tagging " + refAlbum.getDir().getName());
 			
-			List<Track> tracks = libAlbum.flat();
+			List<Track> tracks = libAlbum.getAlbum().flat();
 			List<Future<TaggerResult>> tagFutures = new ArrayList<Future<TaggerResult>>();
 			for (AudioFile file : libAlbum.getAudioFiles()) {
 				Track track = findTrack(tracks, file.getDiscNum(), file.getTrackNum());
