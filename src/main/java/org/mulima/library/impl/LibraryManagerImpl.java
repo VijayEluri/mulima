@@ -48,7 +48,8 @@ public class LibraryManagerImpl implements LibraryManager {
 	private List<Library> destLibs = null;
 	private AudioConversionService service = null;
 	private FreeDbDao freeDbDao = null;
-	private MetadataFileDao<Album> albumXmlDao = null;
+	private MetadataFileDao<Album> albumDao = null;
+	private MetadataFileDao<CueSheet> cueDao = null;
 	
 	/**
 	 * {@inheritDoc}
@@ -80,6 +81,34 @@ public class LibraryManagerImpl implements LibraryManager {
 	@Override
 	public void setDestLibs(List<Library> destLibs) {
 		this.destLibs = destLibs;
+	}
+
+	/**
+	 * @param service the service to set
+	 */
+	public void setService(AudioConversionService service) {
+		this.service = service;
+	}
+
+	/**
+	 * @param freeDbDao the freeDbDao to set
+	 */
+	public void setFreeDbDao(FreeDbDao freeDbDao) {
+		this.freeDbDao = freeDbDao;
+	}
+
+	/**
+	 * @param albumDao the albumDao to set
+	 */
+	public void setAlbumDao(MetadataFileDao<Album> albumDao) {
+		this.albumDao = albumDao;
+	}
+
+	/**
+	 * @param cueDao the cueDao to set
+	 */
+	public void setCueDao(MetadataFileDao<CueSheet> cueDao) {
+		this.cueDao = cueDao;
 	}
 
 	/**
@@ -160,7 +189,7 @@ public class LibraryManagerImpl implements LibraryManager {
 				
 				libAlbum.setAlbum(album);
 				try {
-					albumXmlDao.write(new File(libAlbum.getDir(), "album.xml"), album);
+					albumDao.write(new File(libAlbum.getDir(), "album.xml"), album);
 				} catch (Exception e) {
 					logger.error("Problem writing album.xml", e);
 				}
@@ -174,10 +203,10 @@ public class LibraryManagerImpl implements LibraryManager {
 	@Override
 	public void scanAll() {
 		for (Library lib : getRefLibs()) {
-			lib.scanAlbums();
+			lib.scanAlbums(cueDao, albumDao);
 		}
 		for (Library lib : getDestLibs()) {
-			lib.scanAlbums();
+			lib.scanAlbums(cueDao, albumDao);
 		}
 	}
 }

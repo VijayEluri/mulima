@@ -81,6 +81,11 @@ public class AudioFile extends File {
 		this.trackNum = trackNum;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		return super.equals(obj);
+	}
+	
 	public static AudioFile createTempFile(AudioFile model) throws IOException { 
 		File temp = File.createTempFile("library", "." + model.getType().getExtension());
 		return new AudioFile(temp);

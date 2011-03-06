@@ -41,8 +41,6 @@ public class LibraryImpl implements Library {
 	private File rootDir = null;
 	private AudioFileType type = null;
 	private List<LibraryAlbum> albums = null;
-	private MetadataFileDao<CueSheet> cueDao = null;
-	private MetadataFileDao<Album> albumDao = null;
 	
 	/**
 	 * {@inheritDoc}
@@ -106,18 +104,18 @@ public class LibraryImpl implements Library {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void scanAlbums() {
+	public void scanAlbums(MetadataFileDao<CueSheet> cueDao, MetadataFileDao<Album> albumDao) {
 		this.albums = new ArrayList<LibraryAlbum>();
 		List<File> dirs = FileUtil.listDirsRecursive(getRootDir());
 		for (File dir : dirs)  {
-			LibraryAlbum album = processDir(dir);
+			LibraryAlbum album = processDir(dir, cueDao, albumDao);
 			if (album != null) {
 				albums.add(album);
 			}
 		}
 	}
 	
-	protected LibraryAlbum processDir(File dir) {
+	protected LibraryAlbum processDir(File dir, MetadataFileDao<CueSheet> cueDao, MetadataFileDao<Album> albumDao) {
 		LibraryAlbum libAlbum = new LibraryAlbum();
 		libAlbum.setLib(this);
 		libAlbum.setDir(dir);

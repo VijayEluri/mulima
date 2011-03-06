@@ -21,6 +21,9 @@ import java.io.File;
 import java.util.List;
 
 import org.mulima.audio.AudioFileType;
+import org.mulima.meta.Album;
+import org.mulima.meta.CueSheet;
+import org.mulima.meta.dao.MetadataFileDao;
 
 /**
  *
@@ -30,7 +33,7 @@ public interface Library {
 	void setRootDir(File rootDir);
 	AudioFileType getType();
 	void setType(AudioFileType type);
-	void scanAlbums();
+	void scanAlbums(MetadataFileDao<CueSheet> cueDao, MetadataFileDao<Album> albumDao);
 	List<LibraryAlbum> getAll();
 	List<LibraryAlbum> getModified();
 	List<LibraryAlbum> getOld();
