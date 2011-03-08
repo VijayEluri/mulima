@@ -29,7 +29,7 @@ class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 	
 	def tagHelper(def writer, def item) {
 		return { tag, indent ->
-			def value = item.tags.getFlat(tag)			
+			def value = item.getFlat(tag)			
 			writer.println "${indent}${tag.toString(value)}"	
 		}
 	}
@@ -94,7 +94,7 @@ class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 					logger.debug(e.getMessage(), e)
 					return
 				}
-				cue.tags.add(tag, value)
+				cue.add(tag, value)
 			} else if ("INDEX" == name) {
 				def index = new CueSheet.Index()
 				value = value.split(" ")
@@ -109,7 +109,7 @@ class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 					logger.debug(e.getMessage(), e)
 					return
 				}
-				track.tags.add(tag, value)
+				track.add(tag, value)
 			}
 		}
 		
@@ -117,7 +117,7 @@ class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 			cue.tracks.add(track)
 		}
 		
-		def m = cue.tags.getFirst(CueSheetTag.Cue.FILE) =~ /.*\(([0-9])\)\.flac/
+		def m = cue.getFirst(CueSheetTag.Cue.FILE) =~ /.*\(([0-9])\)\.flac/
 		cue.num = m ? Integer.valueOf(m[0][1]) : 1
 		
 		return cue

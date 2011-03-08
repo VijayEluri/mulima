@@ -17,16 +17,17 @@
  */
 package org.mulima.audio.impl;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.mulima.audio.AudioFile;
+import org.mulima.audio.Tagger;
+import org.mulima.audio.TaggerResult;
 import org.mulima.meta.GenericTag;
 import org.mulima.meta.Track;
-import org.mulima.meta.dao.MetadataFileDao;
 import org.mulima.meta.impl.ITunesTag;
 import org.mulima.util.FileUtil;
 import org.mulima.util.io.ProcessCaller;
@@ -34,7 +35,7 @@ import org.mulima.util.io.ProcessResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NeroAacDaoImpl implements MetadataFileDao<Track> {
+public class NeroAacDaoImpl implements Tagger {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private String path = "neroAacTag";
 	
@@ -43,36 +44,36 @@ public class NeroAacDaoImpl implements MetadataFileDao<Track> {
 	}
 	
 	@Override
-	public void write(File file, Track meta) throws Exception {
-		writeLater(file, meta).call();
+	public TaggerResult write(AudioFile file, Track meta) throws Exception {
+		return writeLater(file, meta).call();
 	}
 
 	@Override
-	public Track read(File file) throws Exception {
+	public TaggerResult read(AudioFile file) throws Exception {
 		return readLater(file).call();
 	}
 
 	@Override
-	public Callable<Void> writeLater(File file, Track meta) {
+	public Callable<TaggerResult> writeLater(AudioFile file, Track meta) {
 		return new Writer(file, meta);
 	}
 
 	@Override
-	public Callable<Track> readLater(File file) {
+	public Callable<TaggerResult> readLater(AudioFile file) {
 		return new Reader(file);
 	}
 
-	private class Writer implements Callable<Void> {
-		private final File file;
+	private class Writer implements Callable<TaggerResult> {
+		private final AudioFile file;
 		private final Track meta;
 		
-		public Writer(File file, Track meta) {
+		public Writer(AudioFile file, Track meta) {
 			this.file = file;
 			this.meta = meta;
 		}
 		
 		@Override
-		public Void call() throws Exception {
+		public TaggerResult call() throws Exception {
 			String filePath = FileUtil.getSafeCanonicalPath(file);
 			
 			List<String> command = new ArrayList<String>();
@@ -88,20 +89,20 @@ public class NeroAacDaoImpl implements MetadataFileDao<Track> {
 			}
 			
 			logger.info("Starting: setting tags on " + filePath);
-			new ProcessCaller(command).call();
-			return null;
+			ProcessResult result = new ProcessCaller(command).call();
+			return new TaggerResult(file, meta, result);
 		}
 	}
 	
-	private class Reader implements Callable<Track> {
-		private final File file;
+	private class Reader implements Callable<TaggerResult> {
+		private final AudioFile file;
 		
-		public Reader(File file) {
+		public Reader(AudioFile file) {
 			this.file = file;
 		}
 		
 		@Override
-		public Track call() throws Exception {
+		public TaggerResult call() throws Exception {
 			String filePath = FileUtil.getSafeCanonicalPath(file);
 			
 			List<String> command = new ArrayList<String>();
@@ -127,7 +128,7 @@ public class NeroAacDaoImpl implements MetadataFileDao<Track> {
 				}
 			}
 			
-			return track;
+			return new TaggerResult(file, track, result);
 		}
 	}
 }

@@ -32,11 +32,11 @@ public class JoinerResult extends ProcessResult {
 	private final CueSheet cue;
 	
 	public JoinerResult(List<AudioFile> source, AudioFile dest, CueSheet cue, ProcessResult result) {
-		this(source, dest, cue, result.getExitVal(), result.getOutput(), result.getError());
+		this(source, dest, cue, result.getCommand(), result.getExitVal(), result.getOutput(), result.getError());
 	}
 	
-	public JoinerResult(List<AudioFile> source, AudioFile dest, CueSheet cue, int exitVal, String output, String error) {
-		super(exitVal, output, error);
+	public JoinerResult(List<AudioFile> source, AudioFile dest, CueSheet cue, String command, int exitVal, String output, String error) {
+		super(command, exitVal, output, error);
 		this.dest = dest;
 		this.source = source;
 		this.cue = cue;

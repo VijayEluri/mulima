@@ -17,6 +17,8 @@
  */
 package org.mulima.util;
 
+import java.util.List;
+
 /**
  * Contains helper methods for <code>String</code> operations.
  */
@@ -98,6 +100,26 @@ public class StringUtil {
 	}
 	
 	/**
+	 * Joins a <code>List<String></code> using <code>glue</code> to separate
+	 * the elements of the array.
+	 * 
+	 * @param strings an array of <code>String</code>s to be joined together
+	 * @param glue the <code>String</code> to use in between elements of the array 
+	 * @return a <code>String</code> of the combined contents of the array.
+	 */
+	public static String join(List<String> strings, String glue) {
+		StringBuilder builder = new StringBuilder();
+		
+		for (int i = 0; i < strings.size(); i++) {
+			builder.append(strings.get(i));
+			if (i != strings.size() - 1) {
+				builder.append(glue);
+			}
+		}
+		return builder.toString();
+	}
+	
+	/**
 	 * Makes a string safe for use in a file system path.
 	 * @param arg0 the string to make safe
 	 * @return a 
@@ -145,5 +167,20 @@ public class StringUtil {
 			}				
 		}
 		return builder.toString();
+	}
+	
+	/**
+	 * 
+	 * @param arg0
+	 * @param arg1
+	 * @return
+	 */
+	public static String commonString(String arg0, String arg1) {
+		for (int i = 0; i < arg0.length(); i++) {
+			if (arg0.charAt(i) != arg1.charAt(i)) {
+				return arg0.substring(0, i);
+			}
+		}
+		return "";
 	}
 }

@@ -20,6 +20,8 @@ package org.mulima.library.impl;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.mulima.audio.AudioFile;
 import org.mulima.audio.AudioFileType;
@@ -27,9 +29,11 @@ import org.mulima.library.Library;
 import org.mulima.library.LibraryAlbum;
 import org.mulima.meta.Album;
 import org.mulima.meta.CueSheet;
+import org.mulima.meta.Disc;
 import org.mulima.meta.GenericTag;
 import org.mulima.meta.dao.MetadataFileDao;
 import org.mulima.util.FileUtil;
+import org.mulima.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +41,9 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class LibraryImpl implements Library {
+	private static final Pattern IMAGE_REGEX = Pattern.compile(".*\\(([0-9])\\)\\.[^\\.]+$");
+	private static final Pattern TRACK_REGEX = Pattern.compile("^D([0-9]+)T([0-9]+).*");
+	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private File rootDir = null;
 	private AudioFileType type = null;
@@ -123,11 +130,25 @@ public class LibraryImpl implements Library {
 		for (File file : dir.listFiles()) {
 			if (getType().isOfType(file)) {
 				AudioFile aud = new AudioFile(file);
+				
+				Matcher trackM = TRACK_REGEX.matcher(file.getName());
+				Matcher imageM = IMAGE_REGEX.matcher(file.getName());
+				
+				if (trackM.find()) {
+					aud.setDiscNum(Integer.parseInt(trackM.group(1)));
+					aud.setTrackNum(Integer.parseInt(trackM.group(2)));
+				} else if (imageM.find()) {
+					aud.setDiscNum(Integer.parseInt(imageM.group(1)));
+				} else {
+					aud.setDiscNum(1);
+					aud.setTrackNum(1);
+				}
+				
 				libAlbum.getAudioFiles().add(aud);
 			} else if (file.getName().endsWith(".cue")) {
 				try {
 					CueSheet cue = cueDao.read(file);
-					libAlbum.getAlbum().getCues().add(cue);
+					libAlbum.getCues().add(cue);
 				} catch (Exception e) {
 					logger.error("Problem reading cue sheet: " + FileUtil.getSafeCanonicalPath(file), e);
 				}
@@ -153,9 +174,28 @@ public class LibraryImpl implements Library {
 	 */
 	@Override
 	public LibraryAlbum newAlbum(LibraryAlbum libAlbum) {
-		String relPath = libAlbum.getAlbum().getFlat(GenericTag.ARTIST) + File.separator + libAlbum.getAlbum().getFlat(GenericTag.ALBUM);
+		String album = null;
+		if (libAlbum.getAlbum().isSet(GenericTag.ALBUM)) {
+			album = libAlbum.getAlbum().getFlat(GenericTag.ALBUM);
+		} else {
+			for (Disc disc : libAlbum.getAlbum().getDiscs()) {
+				if (disc.isSet(GenericTag.ALBUM)) {
+					if (album == null) {
+						album = disc.getFlat(GenericTag.ALBUM);
+					} else {
+						album = StringUtil.commonString(album, disc.getFlat(GenericTag.ALBUM));
+					}
+				}
+			}
+		}
+		String relPath = StringUtil.makeSafe(libAlbum.getAlbum().getFlat(GenericTag.ARTIST)) + File.separator + StringUtil.makeSafe(album);
 		LibraryAlbum newAlbum = new LibraryAlbum();
+		newAlbum.setAlbum(libAlbum.getAlbum());
+		newAlbum.setLib(this);
 		newAlbum.setDir(new File(this.getRootDir(), relPath));
+		if (!newAlbum.getDir().exists() && !newAlbum.getDir().mkdirs()) {
+			logger.error("Problem making directory: " + newAlbum.getDir());
+		}
 		albums.add(newAlbum);
 		return newAlbum;
 	}

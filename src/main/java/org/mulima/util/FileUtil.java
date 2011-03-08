@@ -22,10 +22,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Helper methods for <code>File</code> operations.
  */
 public class FileUtil {
+	private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
+	
 	/**
 	 * This class should never be instantiated.
 	 * @throws UnsupportedOperationException always
@@ -70,6 +75,7 @@ public class FileUtil {
 		try {
 			return file.getCanonicalPath();
 		} catch (IOException e) {
+			logger.warn("Problem getting canonical path: " + file.getAbsolutePath());
 			return null;
 		}
 	}

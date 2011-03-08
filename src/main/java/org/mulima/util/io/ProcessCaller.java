@@ -51,6 +51,6 @@ public class ProcessCaller implements Callable<ProcessResult> {
 		int exit = proc.waitFor();
 		String out = output.get();
 		String err = error.get();
-		return new ProcessResult(exit, out, err);
+		return new ProcessResult(command, exit, out, err);
 	}
 }

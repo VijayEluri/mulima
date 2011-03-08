@@ -40,7 +40,7 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		
 		xml.album {
 			writeCues(xml, album.cues)
-			writeTags(xml, album.tags)
+			writeTags(xml, album)
 			writeDiscs(xml, album.discs)
 		}
 	}
@@ -53,8 +53,8 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 	}
 	
-	private def writeTags(def xml, def tags) {
-		tags.map.each { key, values ->
+	private def writeTags(def xml, def meta) {
+		meta.map.each { key, values ->
 			values.each { value ->
 				xml.tag(name:key.camelCase(), value:value)
 			}
@@ -78,7 +78,7 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 	private writeDiscs(def xml, def discs) {
 		discs.each { albumDisc ->
 			xml.disc {
-				writeTags(xml, albumDisc.tags)
+				writeTags(xml, albumDisc)
 				writeTracks(xml, albumDisc.tracks)
 			}
 		}
@@ -87,7 +87,7 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 	private writeTracks(def xml, def tracks) {
 		tracks.each { albumTrack ->
 			xml.track {
-				writeTags(xml, albumTrack.tags)
+				writeTags(xml, albumTrack)
 				//if (albumTrack.cueRef != null) {
 				//	cueRef(cueNum:albumTrack.cueRef.cueNum, startNum:albumTrack.cueRef.startNum, endNum:albumTrack.cueRef.endNum)
 				//}
@@ -106,7 +106,7 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		def album = new Album()
 		
 		readCues(xml.cue, album.cues)
-		readTags(xml.tag, album.tags)
+		readTags(xml.tag, album)
 		readDiscs(xml.disc, album.discs)
 		
 		album.tidy();
@@ -121,9 +121,9 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 	}
 	
-	private def readTags(def xml, def tags) {
+	private def readTags(def xml, def meta) {
 		xml.each { tagNode ->
-			tags.add(GenericTag.valueOfCamelCase(tagNode.'@name'), tagNode.'@value')
+			meta.add(GenericTag.valueOfCamelCase(tagNode.'@name'), tagNode.'@value')
 		}
 	}
 	
@@ -153,7 +153,7 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 	private def readDiscs(def xml, def discs) {
 		xml.each { discNode ->
 			def disc = new Disc()
-			readTags(discNode.tag, disc.tags)
+			readTags(discNode.tag, disc)
 			readTracks(discNode.track, disc.tracks)
 			discs.add(disc)
 		}
@@ -162,7 +162,7 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 	private def readTracks(def xml, def tracks) {
 		xml.each { trackNode ->
 			def track = new Track()
-			readTags(trackNode.tag, track.tags)
+			readTags(trackNode.tag, track)
 			
 			//trackNode.cueRef.each {
 			//	def cueRef = new Track.CueRef()

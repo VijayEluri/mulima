@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.mulima.audio.CodecConfig;
 import org.mulima.audio.util.AudioConversionService;
+import org.mulima.audio.util.CodecService;
 import org.mulima.library.Library;
 import org.mulima.library.LibraryAlbum;
 import org.mulima.library.LibraryManager;
@@ -84,10 +86,11 @@ public class LibraryManagerImpl implements LibraryManager {
 	}
 
 	/**
-	 * @param service the service to set
+	 * @param codecConfig the codeConfig to set
 	 */
-	public void setService(AudioConversionService service) {
-		this.service = service;
+	public void setCodecConfig(CodecConfig codecConfig) {
+		CodecService codecService = new CodecService(codecConfig);
+		this.service = new AudioConversionService(codecService);
 	}
 
 	/**
@@ -166,7 +169,7 @@ public class LibraryManagerImpl implements LibraryManager {
 			for (LibraryAlbum libAlbum : refLib.getNew()) {
 				Album album = new Album();
 				
-				for (CueSheet cue : libAlbum.getAlbum().getCues()) {
+				for (CueSheet cue : libAlbum.getCues()) {
 					album.getCues().add(cue);
 					logger.info("*** Searching for disc ***");
 					logger.info("Cue: DiscId: " + cue.getFlat(GenericTag.CDDB_ID) +

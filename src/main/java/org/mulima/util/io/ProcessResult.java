@@ -17,6 +17,10 @@
  */
 package org.mulima.util.io;
 
+import java.util.List;
+
+import org.mulima.util.StringUtil;
+
 /**
  * Represents the result of a Process execution.  Provides
  * access to the exit value as well as the standard out
@@ -25,16 +29,29 @@ package org.mulima.util.io;
  * @see Process, ProcessCaller, ProcessFuture
  */
 public class ProcessResult {
+	protected final String command;
 	protected final int exitVal;
 	protected final String output;
 	protected final String error;
 	
-	public ProcessResult(int exitVal, String output, String error) {
+	public ProcessResult(List<String> command, int exitVal, String output, String error) {
+		this(StringUtil.join(command, " "), exitVal, output, error);
+	}
+	
+	public ProcessResult(String command, int exitVal, String output, String error) {
+		this.command = command;
 		this.exitVal = exitVal;
 		this.output = output;
 		this.error = error;
 	}
 
+	/**
+	 * @return the command
+	 */
+	public String getCommand() {
+		return command;
+	}
+	
 	/**
 	 * @return the exitVal
 	 */

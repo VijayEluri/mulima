@@ -29,11 +29,11 @@ public class TaggerResult extends ProcessResult {
 	private final Track track;
 	
 	public TaggerResult(AudioFile file, Track track, ProcessResult result) {
-		this(file, track, result.getExitVal(), result.getOutput(), result.getError());
+		this(file, track, result.getCommand(), result.getExitVal(), result.getOutput(), result.getError());
 	}
 	
-	public TaggerResult(AudioFile file, Track track, int exitVal, String output, String error) {
-		super(exitVal, output, error);
+	public TaggerResult(AudioFile file, Track track, String command, int exitVal, String output, String error) {
+		super(command, exitVal, output, error);
 		this.file = file;
 		this.track = track;
 	}

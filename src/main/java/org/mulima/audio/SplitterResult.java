@@ -30,11 +30,11 @@ public class SplitterResult extends ProcessResult {
 	private final List<AudioFile> dest;
 	
 	public SplitterResult(AudioFile source, List<AudioFile> dest, ProcessResult result) {
-		this(source, dest, result.getExitVal(), result.getOutput(), result.getError());
+		this(source, dest, result.getCommand(), result.getExitVal(), result.getOutput(), result.getError());
 	}
 	
-	public SplitterResult(AudioFile source, List<AudioFile> dest, int exitVal, String output, String error) {
-		super(exitVal, output, error);
+	public SplitterResult(AudioFile source, List<AudioFile> dest, String command, int exitVal, String output, String error) {
+		super(command, exitVal, output, error);
 		this.source = source;
 		this.dest = dest;
 	}

@@ -114,6 +114,9 @@ public class AudioConversionService {
 				if (result.getExitVal() != 0) {
 					Exception e = new ProcessFailureException("Failed decoding " + result.getSource().getCanonicalPath());
 					logger.error("Decoding failed", e);
+					logger.error("Command: " + result.getCommand());
+					logger.error("Stdout: " + result.getOutput());
+					logger.error("StdErr: " + result.getError());
 					throw e;
 				} else {
 					tempFiles.add(result.getDest());
@@ -129,7 +132,8 @@ public class AudioConversionService {
 			
 			List<Future<SplitterResult>> futures = new ArrayList<Future<SplitterResult>>();
 			for (AudioFile file : decoded) {
-				CueSheet cue = refAlbum.getAlbum().getCues().get(file.getDiscNum());
+				//CueSheet cue = refAlbum.getAlbum().getCues().get(file.getDiscNum() - 1);
+				CueSheet cue = refAlbum.getCues().get(file.getDiscNum() - 1);
 				futures.add(codecSrv.submitSplit(file, cue, tempFolder));
 			}
 			
@@ -139,6 +143,9 @@ public class AudioConversionService {
 				if (result.getExitVal() != 0) {
 					Exception e = new ProcessFailureException("Failed splitting " + result.getSource().getCanonicalPath());
 					logger.error("Splitting failed", e);
+					logger.error("Command: " + result.getCommand());
+					logger.error("Stdout: " + result.getOutput());
+					logger.error("StdErr: " + result.getError());
 					throw e;
 				} else {
 					tempFiles.addAll(result.getDest());
@@ -162,6 +169,9 @@ public class AudioConversionService {
 				if (result.getExitVal() != 0) {
 					Exception e = new ProcessFailureException("Failed encoding " + result.getSource().getCanonicalPath());
 					logger.error("Encoding failed", e);
+					logger.error("Command: " + result.getCommand());
+					logger.error("Stdout: " + result.getOutput());
+					logger.error("StdErr: " + result.getError());
 					throw e;
 				} else {
 					libAlbum.getAudioFiles().add(result.getDest());
@@ -183,7 +193,10 @@ public class AudioConversionService {
 				TaggerResult result = future.get();
 				if (result.getExitVal() != 0) {
 					Exception e = new ProcessFailureException("Failed tagging " + result.getFile().getCanonicalPath());
-					logger.error("Encoding failed", e);
+					logger.error("Tagging failed", e);
+					logger.error("Command: " + result.getCommand());
+					logger.error("Stdout: " + result.getOutput());
+					logger.error("StdErr: " + result.getError());
 					throw e;
 				}
 			}
@@ -196,6 +209,7 @@ public class AudioConversionService {
 				if (tempDisc == discNum && tempTrack == trackNum)
 					return track;				
 			}
+			logger.warn("Track (Disc: " + discNum + ", Track: " + trackNum + ") not found for: " + refAlbum.getAlbum().getFlat(GenericTag.ALBUM));
 			return null;
 		}
 	}

@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.mulima.audio.AudioFile;
 import org.mulima.meta.Album;
+import org.mulima.meta.CueSheet;
 
 /**
  *
@@ -32,6 +33,7 @@ public class LibraryAlbum {
 	private Library lib = null;
 	private File dir = null;
 	private List<AudioFile> audioFiles = new ArrayList<AudioFile>();
+	private List<CueSheet> cues = new ArrayList<CueSheet>();
 	
 	/**
 	 * @return the album
@@ -86,5 +88,19 @@ public class LibraryAlbum {
 	 */
 	public void setAudioFiles(List<AudioFile> audioFiles) {
 		this.audioFiles = audioFiles;
+	}
+
+	/**
+	 * @return the cues
+	 */
+	public List<CueSheet> getCues() {
+		return cues;
+	}
+
+	/**
+	 * @param cues the cues to set
+	 */
+	public void setCues(List<CueSheet> cues) {
+		this.cues = cues;
 	}
 }

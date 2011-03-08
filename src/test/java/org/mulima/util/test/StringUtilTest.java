@@ -111,4 +111,9 @@ public class StringUtilTest {
 		String expected = "Testing_123";
 		assertEquals(expected, StringUtil.makeSafe(original));
 	}
+	
+	@Test
+	public void commonString() {
+		assertEquals("The Sane Day (Disk ", StringUtil.commonString("The Sane Day (Disk 1)", "The Sane Day (Disk 2)"));
+	}
 }

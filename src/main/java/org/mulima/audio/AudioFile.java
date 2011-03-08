@@ -81,9 +81,20 @@ public class AudioFile extends File {
 		this.trackNum = trackNum;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		return super.equals(obj);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		return super.hashCode();
 	}
 	
 	public static AudioFile createTempFile(AudioFile model) throws IOException { 
