@@ -42,6 +42,9 @@ import org.mulima.util.SLF4JProgressBar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Provides access to a * .tar or .tar.bz2 file containing FreeDb information.
+ */
 public class FreeDbTarDaoImpl implements FreeDbDao {
 	private Logger logger = LoggerFactory.getLogger(FreeDbTarDaoImpl.class);
 	private File bz2Archive;
@@ -62,6 +65,10 @@ public class FreeDbTarDaoImpl implements FreeDbDao {
 		this.tarArchive = tarArchive;
 	}
 
+	/**
+	 * Extracts BZip2 archive, if it exists.  This leaves the instance
+	 * with a Tar archive to manipulate.
+	 */
 	public void init() {
 		logger.trace("Entering init");
 		if (tarArchive == null) {
@@ -110,6 +117,9 @@ public class FreeDbTarDaoImpl implements FreeDbDao {
 		logger.trace("Exiting init");
 	}
 
+	/**
+	 * Cleans up the temporary archive, if it exists.
+	 */
 	public void destroy() {
 		logger.trace("Entering destroy");
 		if (tempArchive != null) {
@@ -119,21 +129,35 @@ public class FreeDbTarDaoImpl implements FreeDbDao {
 		logger.trace("Exiting destroy");
 	}
 
+	/**
+	 * Not supported by this implementation.
+	 * @throws UnsupportedOperationException always
+	 */
 	@Override
 	public List<Disc> getDiscsById(String cddbId) {
 		throw new UnsupportedOperationException("This is not implemented by this DAO.");
 	}
 	
+	/**
+	 * Not supported by this implementation.
+	 * @throws UnsupportedOperationException always
+	 */
 	@Override
 	public List<Disc> getDiscsById(List<String> cddbId) {
 		throw new UnsupportedOperationException("This is not implemented by this DAO.");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<Disc> getAllDiscs() {
 		return getAllDiscsFromOffset(0, -1);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<Disc> getAllDiscsFromOffset(int startNum, int numToRead) {
 		FileInputStream fin = null;
@@ -234,11 +258,17 @@ public class FreeDbTarDaoImpl implements FreeDbDao {
 			return disc;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void addDisc(Disc disc) {
 		throw new UnsupportedOperationException("This is not implemented by this DAO.");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void addAllDiscs(List<Disc> discs) {
 		throw new UnsupportedOperationException("This is not implemented by this DAO.");

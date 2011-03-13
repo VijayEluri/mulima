@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ * Basic version of a library.
  */
 public class LibraryImpl implements Library {
 	private static final Pattern IMAGE_REGEX = Pattern.compile(".*\\(([0-9])\\)\\.[^\\.]+$");
@@ -122,6 +122,13 @@ public class LibraryImpl implements Library {
 		}
 	}
 	
+	/**
+	 * Processes a directory to generate a library album.
+	 * @param dir directory to process
+	 * @param cueDao dao to process cues
+	 * @param albumDao dao to process albums
+	 * @return library album representing this directory
+	 */
 	protected LibraryAlbum processDir(File dir, MetadataFileDao<CueSheet> cueDao, MetadataFileDao<Album> albumDao) {
 		LibraryAlbum libAlbum = new LibraryAlbum();
 		libAlbum.setLib(this);

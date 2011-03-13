@@ -17,6 +17,6 @@
  */
 
 /**
- * Provides general utility classes. 
+ * Implementations of metadata classes.
  */
-package org.mulima.util;
+package org.mulima.meta.impl;

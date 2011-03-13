@@ -26,16 +26,27 @@ import org.mulima.meta.GenericTag;
 import org.mulima.meta.util.MetadataUtil;
 
 /**
- * @author Andy
- *
+ * Chooser for picking discs from the command line.
  */
 public class DiscCliChooser implements Chooser<Disc> {
 	private final CueSheet cue;
 	
+	/**
+	 * Constructs the chooser to be based on
+	 * the specified cue sheet.
+	 * @param cue cue sheet to base the choice on
+	 */
 	public DiscCliChooser(CueSheet cue) {
 		this.cue = cue;
 	}
 	
+	/**
+	 * Will automatically make the choice if the closest disc
+	 * is within 10.  The user will be asked via stdout if the
+	 * closest is farther than that.
+	 * 
+	 * @see MetadataUtil#discDistance
+	 */
 	@Override
 	public Disc choose(List<Disc> choices) {
 		int min = Integer.MAX_VALUE;

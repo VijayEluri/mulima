@@ -26,8 +26,36 @@ import org.mulima.meta.Metadata;
  * Defines operations to read and write metadata to a file.
  */
 public interface MetadataFileDao<T extends Metadata> {
+	/**
+	 * Write a metadata object to a file.
+	 * @param file the file to write to
+	 * @param meta the metadata to write
+	 * @throws Exception if there is a problem writing
+	 */
 	void write(File file, T meta) throws Exception;
+	
+	/**
+	 * Reads a metadata object from a file.
+	 * @param file the file to read from
+	 * @return the metadata object parsed from the file
+	 * @throws Exception if there is a problem reading
+	 */
 	T read(File file) throws Exception;
+	
+	/**
+	 * Prepares a callable instance that will write a
+	 * metadata object to a file.
+	 * @param file the file to write to
+	 * @param meta the metadata object to write
+	 * @return a callable that will write the metadata to the file
+	 */
 	Callable<Void> writeLater(File file, T meta);
+	
+	/**
+	 * Prepares a callable instance that will read a
+	 * metadata object from a file.
+	 * @param file the file to read from
+	 * @return a callable that will read metadata from the file
+	 */
 	Callable<T> readLater(File file);
 }

@@ -22,33 +22,53 @@ import java.io.IOException;
 import java.net.URI;
 
 /**
- * 
+ * A wrapper around a traditional <code>File</code> object
+ * providing access to the type of file.
  */
 public class AudioFile extends File {
 	private static final long serialVersionUID = 1L;
 	private Integer discNum = null;
 	private Integer trackNum = null;
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public AudioFile(File parent, String child) {
 		super(parent, child);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public AudioFile(String parent, String child) {
 		super(parent, child);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public AudioFile(String pathname) {
 		super(pathname);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public AudioFile(URI uri) {
 		super(uri);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	public AudioFile(File file) {
 		super(file.getPath());
 	}
 
+	/**
+	 * Gets the type of audio file.
+	 * @return type of audio file
+	 */
 	public AudioFileType getType() {
 		return AudioFileType.valueOf(this);
 	}
@@ -97,6 +117,12 @@ public class AudioFile extends File {
 		return super.hashCode();
 	}
 	
+	/**
+	 * Creates a temporary audio file.
+	 * @param model the file to model
+	 * @return the temporary file
+	 * @throws IOException if the file cannot be created
+	 */
 	public static AudioFile createTempFile(AudioFile model) throws IOException { 
 		File temp = File.createTempFile("library", "." + model.getType().getExtension());
 		return new AudioFile(temp);

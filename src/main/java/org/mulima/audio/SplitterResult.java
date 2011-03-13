@@ -19,7 +19,7 @@ package org.mulima.audio;
 
 import java.util.List;
 
-import org.mulima.util.io.ProcessResult;
+import org.mulima.proc.ProcessResult;
 
 /**
  * Represents the result of a splitter operation.  Provides access to the

@@ -29,40 +29,64 @@ import org.mulima.audio.TaggerResult;
 import org.mulima.meta.GenericTag;
 import org.mulima.meta.Track;
 import org.mulima.meta.impl.VorbisTag;
+import org.mulima.proc.ProcessCaller;
+import org.mulima.proc.ProcessResult;
 import org.mulima.util.FileUtil;
-import org.mulima.util.io.ProcessCaller;
-import org.mulima.util.io.ProcessResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Support for reading and writing tags via Metaflac.
+ */
 public class MetaflacDaoImpl implements Tagger {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private String path = "metaflac";
 	private String opts = "";
 	
+	/**
+	 * Sets the path to the metaflac executable.
+	 * @param path the path to the exe
+	 */
 	public void setPath(String path) {
 		this.path = path;
 	}
 	
+	/**
+	 * Sets additional options for this codec.  These will
+	 * be used on both reads and writes.
+	 * @param opts the options
+	 */
 	public void setOpts(String opts) {
 		this.opts = opts;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public TaggerResult write(AudioFile file, Track meta) throws Exception {
 		return writeLater(file, meta).call();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public TaggerResult read(AudioFile file) throws Exception {
 		return readLater(file).call();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Callable<TaggerResult> writeLater(AudioFile file, Track meta) {
 		return new Writer(file, meta);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Callable<TaggerResult> readLater(AudioFile file) {
 		return new Reader(file);

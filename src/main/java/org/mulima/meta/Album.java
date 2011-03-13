@@ -20,6 +20,9 @@ package org.mulima.meta;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents an album's metadata.  Contains discs and cue sheets.
+ */
 public class Album extends AbstractMetadata {
 	private List<CueSheet> cues = new ArrayList<CueSheet>();
 	private List<Disc> discs = new ArrayList<Disc>();
@@ -85,6 +88,9 @@ public class Album extends AbstractMetadata {
 		tidy(discs);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null)
@@ -98,6 +104,9 @@ public class Album extends AbstractMetadata {
 			&& this.getDiscs().equals(that.getDiscs());
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		return ("" + getMap().hashCode()
@@ -105,6 +114,9 @@ public class Album extends AbstractMetadata {
 			+ getDiscs().hashCode()).hashCode();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return "[tags: " + getMap() + ", cues: " + getCues() + ", discs: " + getDiscs() + "]";

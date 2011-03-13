@@ -17,7 +17,7 @@
  */
 package org.mulima.audio;
 
-import org.mulima.util.io.ProcessResult;
+import org.mulima.proc.ProcessResult;
 
 /**
  * Represents the result of a codec operation.  Provides access to the

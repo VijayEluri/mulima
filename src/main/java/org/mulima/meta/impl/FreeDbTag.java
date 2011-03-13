@@ -20,8 +20,9 @@ package org.mulima.meta.impl;
 import org.mulima.meta.GenericTag;
 import org.mulima.meta.Tag;
 
+
 /**
- * Contains tags specific to FreeDB.
+ * Enumeration representing tags used by FreeDB.
  * 
  * For more information see their website {@link http://www.freedb.org/}.
  */
@@ -48,6 +49,9 @@ public enum FreeDbTag implements Tag {
 		return tag;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return this.name().replaceAll("_", " ");

@@ -22,11 +22,16 @@ import java.util.concurrent.Callable;
 
 import org.mulima.audio.AudioFile;
 import org.mulima.audio.CodecResult;
-import org.mulima.util.io.ProcessCaller;
-import org.mulima.util.io.ProcessResult;
+import org.mulima.proc.ProcessCaller;
+import org.mulima.proc.ProcessResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Executes a <code>Codec</code> process.
+ * 
+ * @see ProcessCaller
+ */
 public class CodecCaller implements Callable<CodecResult> {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private final String description;
@@ -34,6 +39,14 @@ public class CodecCaller implements Callable<CodecResult> {
 	private final AudioFile dest;
 	private final List<String> command;
 	
+	/**
+	 * Constructs a codec caller that will use the specified information
+	 * to call the codec.
+	 * @param description a description of the requested operation
+	 * @param source the source file
+	 * @param dest the destination file
+	 * @param command the command to execute
+	 */
 	public CodecCaller(String description, AudioFile source, AudioFile dest, List<String> command) {
 		this.description = description;
 		this.source = source;
@@ -41,6 +54,10 @@ public class CodecCaller implements Callable<CodecResult> {
 		this.command = command;
 	}
 	
+	/**
+	 * Starts the codec process using the command specified in the constructor.
+	 * @return a codec result with information on the execution
+	 */
 	@Override
 	public CodecResult call() throws Exception {
 		logger.info("Starting: " + description);

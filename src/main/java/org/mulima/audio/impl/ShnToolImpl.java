@@ -28,12 +28,15 @@ import org.mulima.audio.AudioFile;
 import org.mulima.audio.Splitter;
 import org.mulima.audio.SplitterResult;
 import org.mulima.meta.CueSheet;
+import org.mulima.proc.ProcessCaller;
+import org.mulima.proc.ProcessResult;
 import org.mulima.util.FileUtil;
-import org.mulima.util.io.ProcessCaller;
-import org.mulima.util.io.ProcessResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Support for shntool splitting based on a cue sheet.
+ */
 public class ShnToolImpl implements Splitter {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private String path = "shntool";
@@ -41,31 +44,40 @@ public class ShnToolImpl implements Splitter {
 	private boolean overwrite = false;
 	
 	/**
-	 * @param path the path to set
+	 * Sets the path to the executable.
+	 * @param path the exe path
 	 */
 	public void setPath(String path) {
 		this.path = path;
 	}
 
 	/**
-	 * @param opts the opts to set
+	 * Sets the additional options to set.
+	 * @param opts the options
 	 */
 	public void setOpts(String opts) {
 		this.opts = opts;
 	}
 
 	/**
-	 * @param overwrite the overwrite to set
+	 * Sets whether or not to overwrite existing files.
+	 * @param overwrite overwrite value
 	 */
 	public void setOverwrite(boolean overwrite) {
 		this.overwrite = overwrite;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public SplitterResult split(AudioFile image, CueSheet cue, File destDir) throws Exception {
 		return splitLater(image, cue, destDir).call();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Callable<SplitterResult> splitLater(AudioFile source, CueSheet cue, File destDir) {		
 		String sourcePath = FileUtil.getSafeCanonicalPath(source);

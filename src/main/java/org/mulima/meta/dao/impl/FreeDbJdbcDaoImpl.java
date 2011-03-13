@@ -39,9 +39,15 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Provides access to a JDBC source containing FreeDb information.
+ */
 public class FreeDbJdbcDaoImpl extends NamedParameterJdbcDaoSupport implements FreeDbDao {
 	private final Logger logger = LoggerFactory.getLogger(FreeDbJdbcDaoImpl.class);
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<Disc> getDiscsById(String cddbId) {
 		final String sql = "SELECT `discs`.`id` FROM `discs`, `cddb_ids` WHERE `cddb_ids`.`cddb_id`=:cddb_id AND `discs`.`id`=`cddb_ids`.`disc_id`";
@@ -54,6 +60,9 @@ public class FreeDbJdbcDaoImpl extends NamedParameterJdbcDaoSupport implements F
 		return discs;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<Disc> getDiscsById(List<String> cddbIds) {
 		List<Disc> discs = new ArrayList<Disc>();
@@ -65,6 +74,9 @@ public class FreeDbJdbcDaoImpl extends NamedParameterJdbcDaoSupport implements F
 		return discs;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<Disc> getAllDiscs() {
 		final String sql = "SELECT `id` FROM `discs`";
@@ -76,11 +88,17 @@ public class FreeDbJdbcDaoImpl extends NamedParameterJdbcDaoSupport implements F
 		return discs;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<Disc> getAllDiscsFromOffset(int startNum, int numToRead) {
 		throw new UnsupportedOperationException("Not implemented in this DAO.");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void addDisc(Disc disc) {
@@ -106,6 +124,9 @@ public class FreeDbJdbcDaoImpl extends NamedParameterJdbcDaoSupport implements F
 		logger.trace("Exiting addDisc");
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	@Transactional
 	public void addAllDiscs(List<Disc> discs) {

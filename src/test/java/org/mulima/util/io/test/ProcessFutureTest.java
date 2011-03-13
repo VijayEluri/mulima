@@ -32,7 +32,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mulima.util.io.ProcessFuture;
+import org.mulima.proc.ProcessFuture;
 
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;

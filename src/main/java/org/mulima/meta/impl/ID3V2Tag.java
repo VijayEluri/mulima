@@ -20,6 +20,10 @@ package org.mulima.meta.impl;
 import org.mulima.meta.GenericTag;
 import org.mulima.meta.Tag;
 
+/**
+ * Enumeration representing tags used for 
+ * files using ID3v2 tags.
+ */
 public enum ID3V2Tag implements Tag {
 	TALB(GenericTag.ALBUM),
 	TSOA(GenericTag.ALBUM_SORT),
@@ -51,16 +55,28 @@ public enum ID3V2Tag implements Tag {
 		this.tag = tag;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public GenericTag getGeneric() {
 		return tag;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return this.name().replaceAll("_", ":");
 	}
 	
+	/**
+	 * Conversion method for getting the matching <code>ID3V2Tag</code>
+	 * for a given <code>GenericTag</code>.
+	 * @param generic the generic tag to look for
+	 * @return the ID3v2 tag that corresponds to <code>generic</code.
+	 */
 	public static ID3V2Tag valueOf(GenericTag generic) {
 		for (ID3V2Tag tag : ID3V2Tag.values()) {
 			if (generic.equals(tag.getGeneric())) {

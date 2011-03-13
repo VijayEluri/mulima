@@ -21,11 +21,49 @@ import java.util.List;
 
 import org.mulima.meta.Disc;
 
+/**
+ * Defines operations to access FreeDB information
+ * from a source.
+ */
 public interface FreeDbDao {
+	/**
+	 * Gets a list of discs by their CDDB ID.
+	 * @param cddbId the ID to search for
+	 * @return list of discs with the specified CDDB ID
+	 */
 	List<Disc> getDiscsById(String cddbId);
+	
+	/**
+	 * Gets a list of discs by their CDDB ID.
+	 * @param cddbIds list of IDs to search for
+	 * @return list of discs with any of the specified CDDB IDs
+	 */
 	List<Disc> getDiscsById(List<String> cddbIds);
+	
+	/**
+	 * Gets all discs from the source.
+	 * @return list of all discs in the source
+	 */
 	List<Disc> getAllDiscs();
+	
+	/**
+	 * Gets <code>numToRead</code> discs from the source starting
+	 * with <code>startNum</code>. 
+	 * @param startNum number of the disc to start with
+	 * @param numToRead the number of discs to read
+	 * @return list of discs from the source
+	 */
 	List<Disc> getAllDiscsFromOffset(int startNum, int numToRead);
+	
+	/**
+	 * Adds a disc to the source.
+	 * @param disc the disc to add
+	 */
 	void addDisc(Disc disc);
+	
+	/**
+	 * Adds discs to the source.
+	 * @param discs the discs to add
+	 */
 	void addAllDiscs(List<Disc> discs);
 }

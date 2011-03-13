@@ -30,6 +30,9 @@ import org.mulima.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Support for FLAC encoding/decoding.
+ */
 public class FlacCodecImpl implements Codec {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private String path = "flac";
@@ -37,36 +40,49 @@ public class FlacCodecImpl implements Codec {
 	private int compressionLevel = 5;
 	
 	/**
-	 * @param path the path to set
+	 * Sets the path to the FLAC executable.
+	 * @param path the path to the exe
 	 */
 	public void setPath(String path) {
 		this.path = path;
 	}
 
 	/**
-	 * @param opts the opts to set
+	 * Sets additional options for this codec.  Will be
+	 * used on both encodes and decodes.
+	 * @param opts the options
 	 */
 	public void setOpts(String opts) {
 		this.opts = opts;
 	}
 
 	/**
-	 * @param compressionLevel the compressionLevel to set
+	 * Sets the compression level for encodes.
+	 * @param compressionLevel the compression level (1-8)
 	 */
 	public void setCompressionLevel(int compressionLevel) {
 		this.compressionLevel = compressionLevel;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public CodecResult encode(AudioFile source, AudioFile dest) throws Exception {
 		return encodeLater(source, dest).call();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public CodecResult decode(AudioFile source, AudioFile dest) throws Exception {
 		return decodeLater(source, dest).call();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Callable<CodecResult> encodeLater(final AudioFile source, final AudioFile dest) {
 		String sourcePath = FileUtil.getSafeCanonicalPath(source);
@@ -85,6 +101,9 @@ public class FlacCodecImpl implements Codec {
 		return new CodecCaller("encoding " + sourcePath, source, dest, command);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Callable<CodecResult> decodeLater(AudioFile source, AudioFile dest) {
 		String sourcePath = FileUtil.getSafeCanonicalPath(source);

@@ -29,35 +29,54 @@ import org.mulima.audio.TaggerResult;
 import org.mulima.meta.GenericTag;
 import org.mulima.meta.Track;
 import org.mulima.meta.impl.ITunesTag;
+import org.mulima.proc.ProcessCaller;
+import org.mulima.proc.ProcessResult;
 import org.mulima.util.FileUtil;
-import org.mulima.util.io.ProcessCaller;
-import org.mulima.util.io.ProcessResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Support for Nero AAC read/write tag operations.
+ */
 public class NeroAacDaoImpl implements Tagger {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private String path = "neroAacTag";
 	
+	/**
+	 * Sets the path to the executable.
+	 * @param path exe path
+	 */
 	public void setPath(String path) {
 		this.path = path;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public TaggerResult write(AudioFile file, Track meta) throws Exception {
 		return writeLater(file, meta).call();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public TaggerResult read(AudioFile file) throws Exception {
 		return readLater(file).call();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Callable<TaggerResult> writeLater(AudioFile file, Track meta) {
 		return new Writer(file, meta);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Callable<TaggerResult> readLater(AudioFile file) {
 		return new Reader(file);

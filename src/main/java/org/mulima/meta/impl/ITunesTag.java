@@ -20,6 +20,10 @@ package org.mulima.meta.impl;
 import org.mulima.meta.GenericTag;
 import org.mulima.meta.Tag;
 
+/**
+ * Enumeration representing tags used for 
+ * iTunes AAC files.
+ */
 public enum ITunesTag implements Tag {
 	album(GenericTag.ALBUM),
 	sortalbum(GenericTag.ALBUM_SORT),
@@ -44,16 +48,28 @@ public enum ITunesTag implements Tag {
 		this.tag = tag;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public GenericTag getGeneric() {
 		return tag;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return this.name().replaceAll("_", ":");
 	}
 	
+	/**
+	 * Conversion method for getting the matching <code>ITunesTag</code>
+	 * for a given <code>GenericTag</code>.
+	 * @param generic the generic tag to look for
+	 * @return the iTunes tag that corresponds to <code>generic</code.
+	 */
 	public static ITunesTag valueOf(GenericTag generic) {
 		for (ITunesTag tag : ITunesTag.values()) {
 			if (generic.equals(tag.getGeneric())) {

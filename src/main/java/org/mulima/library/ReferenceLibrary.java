@@ -20,8 +20,15 @@ package org.mulima.library;
 import java.util.List;
 
 /**
- *
+ * A reference library is a special case of a normal library.
+ * It contains the reference copies of your music.  This will
+ * often be a lossless format.
  */
 public interface ReferenceLibrary extends Library {
+	/**
+	 * Gets all libraries that do not have album metadata
+	 * generated for them yet.
+	 * @return list of new albums
+	 */
 	List<LibraryAlbum> getNew();
 }

@@ -170,10 +170,10 @@ public class StringUtil {
 	}
 	
 	/**
-	 * 
-	 * @param arg0
-	 * @param arg1
-	 * @return
+	 * Returns the common portion of the two strings.
+	 * @param arg0 the first string
+	 * @param arg1 the second string
+	 * @return a substring (beginning at index 0) that is common to both strings
 	 */
 	public static String commonString(String arg0, String arg1) {
 		for (int i = 0; i < arg0.length(); i++) {

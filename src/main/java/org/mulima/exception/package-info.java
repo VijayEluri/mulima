@@ -17,6 +17,6 @@
  */
 
 /**
- * Contains classes used for utility purposes. Focused on io operations.
+ * Provides exception classes for Mulima problems.
  */
-package org.mulima.util.io;
+package org.mulima.exception;

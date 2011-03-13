@@ -20,9 +20,13 @@ package org.mulima.library.util;
 import java.util.List;
 
 /**
- * @author Andy
- *
+ * Defines an interface to providing choices to the user.
  */
 public interface Chooser<T> {
+	/**
+	 * Asks the user to choose from the list.
+	 * @param choices list of choices for the user to pick from
+	 * @return the user's choice
+	 */
 	T choose(List<T> choices);
 }

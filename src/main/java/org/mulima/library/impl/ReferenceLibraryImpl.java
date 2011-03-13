@@ -24,9 +24,12 @@ import org.mulima.library.LibraryAlbum;
 import org.mulima.library.ReferenceLibrary;
 
 /**
- * 
+ * Basic version of a reference library.
  */
 public class ReferenceLibraryImpl extends LibraryImpl implements ReferenceLibrary {
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public List<LibraryAlbum> getNew() {
 		List<LibraryAlbum> newAlbums = new ArrayList<LibraryAlbum>();

@@ -24,8 +24,8 @@ import java.util.Map;
 
 
 /**
- * @author Andy
- *
+ * An abstract implementation of a metadata object.  Provides
+ * map-based tag support.
  */
 public abstract class AbstractMetadata implements Metadata {
 	private final Map<GenericTag, List<String>> map = new LinkedHashMap<GenericTag, List<String>>();
@@ -146,16 +146,28 @@ public abstract class AbstractMetadata implements Metadata {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		return map.hashCode();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return map.toString();
 	}
 	
+	/**
+	 * Cleans up tags by taking the value of any tag that
+	 * is identical in all children and moving it to this object.
+	 * @param <T> the type of metadata of the children
+	 * @param children list of child metadata objects
+	 */
 	protected <T extends AbstractMetadata> void tidy(List<T> children) {
 		for (Tag tag : GenericTag.values()) {
 			if (GenericTag.DISC_NUMBER.equals(tag) || GenericTag.TRACK_NUMBER.equals(tag)) {

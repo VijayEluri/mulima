@@ -17,6 +17,6 @@
  */
 
 /**
- * Provides general utility classes. 
+ * Provides implementations of metadata DAO interfaces.
  */
-package org.mulima.util;
+package org.mulima.meta.dao.impl;

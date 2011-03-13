@@ -18,7 +18,7 @@
 package org.mulima.audio;
 
 import org.mulima.meta.Track;
-import org.mulima.util.io.ProcessResult;
+import org.mulima.proc.ProcessResult;
 
 /**
  * Represents the result of a tagger operation.  Provides access to the

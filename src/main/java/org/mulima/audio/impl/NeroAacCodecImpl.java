@@ -30,6 +30,9 @@ import org.mulima.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Supports Nero AAC encode/decode operations.
+ */
 public class NeroAacCodecImpl implements Codec {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private String encPath = "neroAacEnc";
@@ -38,43 +41,57 @@ public class NeroAacCodecImpl implements Codec {
 	private String opts = "";
 
 	/**
-	 * @param encPath the encPath to set
+	 * Sets the path to the encoder executable.
+	 * @param encPath the encoder exe path
 	 */
 	public void setEncPath(String encPath) {
 		this.encPath = encPath;
 	}
 
 	/**
-	 * @param decPath the decPath to set
+	 * Sets the path to the decoder executable.
+	 * @param decPath the decoder exe path
 	 */
 	public void setDecPath(String decPath) {
 		this.decPath = decPath;
 	}
 
 	/**
-	 * @param quality the quality to set
+	 * Sets the quality of the encode.
+	 * @param quality the quality (0.0-1.0)
 	 */
 	public void setQuality(String quality) {
 		this.quality = quality;
 	}
 
 	/**
-	 * @param opts the opts to set
+	 * Sets the additional options to use.  These will
+	 * be used in both encodes and decodes.
+	 * @param opts the options
 	 */
 	public void setOpts(String opts) {
 		this.opts = opts;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public CodecResult encode(AudioFile source, AudioFile dest) throws Exception {
 		return encodeLater(source, dest).call();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public CodecResult decode(AudioFile source, AudioFile dest) throws Exception {
 		return decodeLater(source, dest).call();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Callable<CodecResult> encodeLater(AudioFile source, AudioFile dest) {
 		String sourcePath = FileUtil.getSafeCanonicalPath(source);
@@ -94,6 +111,9 @@ public class NeroAacCodecImpl implements Codec {
 		return new CodecCaller("encoding " + destPath, source, dest, command);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Callable<CodecResult> decodeLater(AudioFile source, AudioFile dest) {
 		String sourcePath = FileUtil.getSafeCanonicalPath(source);

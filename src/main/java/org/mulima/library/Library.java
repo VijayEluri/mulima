@@ -26,16 +26,66 @@ import org.mulima.meta.CueSheet;
 import org.mulima.meta.dao.MetadataFileDao;
 
 /**
- *
+ * A library is a copy of your music collection somewhere on your machine.
+ * It is defined by a root directory and a certain format of files that it 
+ * houses.
  */
 public interface Library {
+	/**
+	 * Returns the root directory of this library.
+	 * @return the root directory
+	 */
 	File getRootDir();
+	
+	/**
+	 * Sets the root directory of this library.
+	 * @param rootDir the root directory
+	 */
 	void setRootDir(File rootDir);
+	
+	/**
+	 * Gets the format of audio file this library houses.
+	 * @return the audio file type
+	 */
 	AudioFileType getType();
+	
+	/**
+	 * Sets the format of audio files the library houses.
+	 * @param type the audio file type
+	 */
 	void setType(AudioFileType type);
+	
+	/**
+	 * Scans the library for albums.
+	 * @param cueDao dao to process cues
+	 * @param albumDao dao to process albums
+	 */
 	void scanAlbums(MetadataFileDao<CueSheet> cueDao, MetadataFileDao<Album> albumDao);
+	
+	/**
+	 * Gets all albums in the library.  Must call {@link #scanAlbums(MetadataFileDao, MetadataFileDao)}
+	 * beforehand.
+	 * @return list of all albums in the library
+	 */
 	List<LibraryAlbum> getAll();
+	
+	/**
+	 * Gets all albums that have been changed outside of the
+	 * normal update process.
+	 * @return list of modified albums
+	 */
 	List<LibraryAlbum> getModified();
+	
+	/**
+	 * Gets all albums that need to be updated from the reference.
+	 * @return list of out of date albums.
+	 */
 	List<LibraryAlbum> getOld();
+	
+	/**
+	 * Creates a new album based on the parameter.
+	 * @param libAlbum the library album to base this one on
+	 * @return a new library album
+	 */
 	LibraryAlbum newAlbum(LibraryAlbum libAlbum);
 }

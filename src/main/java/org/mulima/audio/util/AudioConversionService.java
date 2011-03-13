@@ -38,35 +38,68 @@ import org.mulima.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Service that allows the conversion of one library album
+ * to its destination libraries.
+ */
 public class AudioConversionService {
 	private ExecutorService executor;
 	private CodecService codecSrv;
 	
+	/**
+	 * Constructs a service without a <code>CodecService</code>.
+	 */
 	public AudioConversionService() {
 		this(null);
 	}
 	
+	/**
+	 * Constructs a service with the specified <code>CodecService</code>
+	 * @param codecSrv codec service to use for underlying conversions
+	 */
 	public AudioConversionService(CodecService codecSrv) {
 		this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 		this.codecSrv = codecSrv;
 	}
 	
 	/**
-	 * @param codecSrv the codecSrv to set
+	 * Sets the codec service to use for underlying conversions.
+	 * @param codecSrv the codec service
 	 */
 	public void setCodecSrv(CodecService codecSrv) {
 		this.codecSrv = codecSrv;
 	}
 	
+	/**
+	 * Submits a conversion of the specified library album to the
+	 * destinations.  Uses the underlying codec service.
+	 * @param refAlbum the library album to convert
+	 * @param destAlbums the destinations for the converted album
+	 * @return a future list of library albums
+	 */
 	public Future<List<LibraryAlbum>> submitConvert(LibraryAlbum refAlbum, List<LibraryAlbum> destAlbums) {
 		return executor.submit(new AudioConversion(refAlbum, destAlbums));
 	}
 	
+	/**
+	 * Initiates an orderly shutdown in which previously submitted tasks
+	 * are executed, but no new tasks will be accepted. Invocation has 
+	 * no additional effect if already shut down.
+	 */
 	public void shutdown() {
 		executor.shutdown();
 		codecSrv.shutdown();
 	}
 	
+	/**
+	 * Attempts to stop all actively executing tasks, halts the processing of 
+	 * waiting tasks, and returns a list of the tasks that were awaiting execution. 
+	 * There are no guarantees beyond best-effort attempts to stop processing 
+	 * actively executing tasks. For example, typical implementations will 
+	 * cancel via Thread.interrupt, so any task that fails to respond to interrupts 
+	 * may never terminate.
+	 * @return a list of all tasks that weren't executed
+	 */
 	public List<Runnable> shutdownNow() {
 		List<Runnable> left = executor.shutdownNow();
 		left.addAll(codecSrv.shutdownNow());

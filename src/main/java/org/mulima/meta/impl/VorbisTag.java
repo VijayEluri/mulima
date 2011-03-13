@@ -20,6 +20,10 @@ package org.mulima.meta.impl;
 import org.mulima.meta.GenericTag;
 import org.mulima.meta.Tag;
 
+/**
+ * Enumeration representing tags used for 
+ * Ogg Vorbis files.
+ */
 public enum VorbisTag implements Tag {
 	ALBUM(GenericTag.ALBUM),
 	ALBUMSORT(GenericTag.ALBUM_SORT),
@@ -60,16 +64,28 @@ public enum VorbisTag implements Tag {
 		this.tag = tag;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public GenericTag getGeneric() {
 		return tag;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String toString() {
 		return this.name().replaceAll("_", " ");
 	}
 	
+	/**
+	 * Conversion method for getting the matching <code>VorbisTag</code>
+	 * for a given <code>GenericTag</code>.
+	 * @param generic the generic tag to look for
+	 * @return the Vorbis tag that corresponds to <code>generic</code.
+	 */
 	public static VorbisTag valueOf(GenericTag generic) {
 		for (VorbisTag tag : VorbisTag.values()) {
 			if (generic.equals(tag.getGeneric())) {

@@ -110,9 +110,7 @@ public class CueSheet extends AbstractMetadata {
 	}
 	
 	/**
-	 * 
-	 * @author Andy
-	 *
+	 * Represents the metadata of a cue sheets track.
 	 */
 	public static class Track extends AbstractMetadata {
 		private int num;
@@ -172,6 +170,9 @@ public class CueSheet extends AbstractMetadata {
 		}
 	}
 	
+	/**
+	 * Represents the metadata of a cue sheet track's indices.
+	 */
 	public static class Index {
 		private int num;
 		private String time;

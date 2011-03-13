@@ -21,11 +21,9 @@ import org.mulima.meta.GenericTag;
 import org.mulima.meta.Tag;
 
 /**
- * Contains tags specific to cue sheets.
+ * Enumeration representing tags used in cue sheet files. 
  * 
  * For more information see {@link http://en.wikipedia.org/wiki/Cue_sheet_(computing)}.
- * 
- * @see CueSheet
  */
 public class CueSheetTag {
 	/**

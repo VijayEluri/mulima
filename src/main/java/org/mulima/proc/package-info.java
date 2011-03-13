@@ -17,6 +17,6 @@
  */
 
 /**
- * Provides general utility classes. 
+ * Provides process related utility classes.
  */
-package org.mulima.util;
+package org.mulima.proc;

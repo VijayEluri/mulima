@@ -16,7 +16,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.mulima.util.io;
+package org.mulima.proc;
 
 import java.io.BufferedReader;
 import java.io.IOException;

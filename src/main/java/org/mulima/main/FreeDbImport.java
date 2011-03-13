@@ -27,8 +27,7 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
- * @author Andy
- *
+ * Imports FreeDB information into database from TAR.
  */
 public class FreeDbImport implements Runnable {
 	private final Logger logger = LoggerFactory.getLogger(getClass());

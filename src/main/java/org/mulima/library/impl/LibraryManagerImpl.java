@@ -42,7 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 
+ * Basic version of a library manager.
  */
 public class LibraryManagerImpl implements LibraryManager {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());

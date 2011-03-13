@@ -26,7 +26,11 @@ import org.mulima.meta.Album;
 import org.mulima.meta.CueSheet;
 
 /**
- *
+ * A library album is a collection of all items that correspond
+ * with an album within a particular library.  This includes 
+ * album metadata, the directory it is contained in, a list of 
+ * audio files within the directory, a list of cue sheets within
+ * the directory, and a reference to its parent library.
  */
 public class LibraryAlbum {
 	private Album album = null;
@@ -36,6 +40,7 @@ public class LibraryAlbum {
 	private List<CueSheet> cues = new ArrayList<CueSheet>();
 	
 	/**
+	 * Gets the album metadata for this library album.
 	 * @return the album
 	 */
 	public Album getAlbum() {
@@ -43,6 +48,7 @@ public class LibraryAlbum {
 	}
 	
 	/**
+	 * Sets the album metadata for this library album.
 	 * @param album the album to set
 	 */
 	public void setAlbum(Album album) {
@@ -50,55 +56,68 @@ public class LibraryAlbum {
 	}
 
 	/**
-	 * @return the lib
+	 * Gets the parent library of this library album.
+	 * @return the library
 	 */
 	public Library getLib() {
 		return lib;
 	}
 	
 	/**
-	 * @param lib the lib to set
+	 * Sets the parent library of this library album.
+	 * @param lib the library
 	 */
 	public void setLib(Library lib) {
 		this.lib = lib;
 	}
 
 	/**
-	 * @return the dir
+	 * Gets the directory this library album is in.
+	 * @return the directory
 	 */
 	public File getDir() {
 		return dir;
 	}
 	
 	/**
-	 * @param dir the dir to set
+	 * Sets the directory this library album is in.
+	 * @param dir the directory
 	 */
 	public void setDir(File dir) {
 		this.dir = dir;
 	}
 	
 	/**
-	 * @return the audioFiles
+	 * Gets a list of all audio files in this library
+	 * album.
+	 * @return the audio files
 	 */
 	public List<AudioFile> getAudioFiles() {
 		return audioFiles;
 	}
+	
 	/**
-	 * @param audioFiles the audioFiles to set
+	 * Sets a list of all audio files in this library
+	 * album. 
+	 * @param audioFiles the audio files
 	 */
 	public void setAudioFiles(List<AudioFile> audioFiles) {
 		this.audioFiles = audioFiles;
 	}
 
 	/**
-	 * @return the cues
+	 * Gets a list of all cue sheets in this library
+	 * album.
+	 * @return the cue sheets
 	 */
 	public List<CueSheet> getCues() {
 		return cues;
 	}
 
 	/**
-	 * @param cues the cues to set
+	 * Sets a list of all cue sheets in this library
+	 * album.
+	 * @param cues the cue sheets
 	 */
 	public void setCues(List<CueSheet> cues) {
 		this.cues = cues;

@@ -28,6 +28,10 @@ import org.mulima.audio.Joiner;
 import org.mulima.audio.Splitter;
 import org.mulima.audio.Tagger;
 
+/**
+ * Implementation of a codec configuraiton object.
+ * @see Codec, Tagger, Splitter, Joiner
+ */
 public class CodecConfigImpl implements CodecConfig {
 	private Map<AudioFileType, Codec> codecs = new HashMap<AudioFileType, Codec>();
 	private Map<AudioFileType, Tagger> taggers = new HashMap<AudioFileType, Tagger>();
@@ -35,58 +39,80 @@ public class CodecConfigImpl implements CodecConfig {
 	private Joiner joiner = null;
 	
 	/**
-	 * @param codecs the codecs to set
+	 * Sets the codecs to be supported by this config.
+	 * @param codecs the codecs
 	 */
 	public void setCodecs(Map<AudioFileType, Codec> codecs) {
 		this.codecs = codecs;
 	}
 
 	/**
-	 * @param taggers the taggers to set
+	 * Sets the taggers to be supported by this config.
+	 * @param taggers the taggers
 	 */
 	public void setTaggers(Map<AudioFileType, Tagger> taggers) {
 		this.taggers = taggers;
 	}
 
 	/**
-	 * @param splitter the splitter to set
+	 * Sets the splitter supported by this config
+	 * @param splitter the splitter
 	 */
 	public void setSplitter(Splitter splitter) {
 		this.splitter = splitter;
 	}
 	
 	/**
-	 * @param joiner the joiner to set
+	 * Sets the joiner supported by this config.
+	 * @param joiner the joiner
 	 */
 	public void setJoiner(Joiner joiner) {
 		this.joiner = joiner;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Codec getCodec(AudioFileType type) {
 		return codecs.get(type);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Codec getCodec(AudioFile file) {
 		return getCodec(file.getType());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Tagger getTagger(AudioFileType type) {
 		return taggers.get(type);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Tagger getTagger(AudioFile file) {
 		return getTagger(file.getType());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Splitter getSplitter() {
 		return splitter;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Joiner getJoiner() {
 		return joiner;

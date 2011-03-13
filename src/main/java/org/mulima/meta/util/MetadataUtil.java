@@ -23,8 +23,7 @@ import org.mulima.meta.Tag;
 import org.mulima.util.StringUtil;
 
 /**
- * @author Andy
- *
+ * Helper methods for Metadata operations.
  */
 public class MetadataUtil {
 	/**

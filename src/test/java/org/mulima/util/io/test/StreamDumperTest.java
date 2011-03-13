@@ -25,7 +25,7 @@ import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 
 import org.junit.Test;
-import org.mulima.util.io.StreamDumper;
+import org.mulima.proc.StreamDumper;
 
 public class StreamDumperTest {
 	@Test

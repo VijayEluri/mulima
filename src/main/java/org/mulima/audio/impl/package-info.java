@@ -17,6 +17,6 @@
  */
 
 /**
- * Provides general utility classes. 
+ * Provides implementations of audio file classes.
  */
-package org.mulima.util;
+package org.mulima.audio.impl;

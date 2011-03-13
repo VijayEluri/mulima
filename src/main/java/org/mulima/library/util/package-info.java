@@ -17,6 +17,6 @@
  */
 
 /**
- * Provides general utility classes. 
+ * Provides library utility classes.
  */
-package org.mulima.util;
+package org.mulima.library.util;
