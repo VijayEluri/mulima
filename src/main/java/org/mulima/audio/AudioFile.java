@@ -109,7 +109,7 @@ public class AudioFile extends File {
 	public void setTrackNum(Integer trackNum) {
 		this.trackNum = trackNum;
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */

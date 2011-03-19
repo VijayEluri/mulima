@@ -125,10 +125,8 @@ public class FreeDbTarDaoImpl implements FreeDbDao {
 	 */
 	public void destroy() {
 		logger.trace("Entering destroy");
-		if (tempArchive != null) {
-			if (!tempArchive.delete()) {
-				logger.warn("Failed to delete temporary archive.");
-			}
+		if (tempArchive != null && !tempArchive.delete()) {
+			logger.warn("Failed to delete temporary archive.");
 		}
 		logger.trace("Exiting destroy");
 	}

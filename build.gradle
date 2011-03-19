@@ -30,6 +30,7 @@ repositories {
 
 configurations {
 	findbugsConf
+	pmdConf
 }
 	
 spring = { name ->
@@ -67,6 +68,10 @@ dependencies {
 	findbugsConf (
 		[group:'com.google.code.findbugs', name:'findbugs', version:'1.3.9'],
 		[group:'com.google.code.findbugs', name:'findbugs-ant', version:'1.3.9']
+	)
+	
+	pmdConf (
+		[group:'pmd', name:'pmd', version:'4.2.5']	
 	)
 	
 	emma (
@@ -112,7 +117,27 @@ task findbugs << {
 	}
 }
 
-check.dependsOn findbugs
+task pmd << {
+	ant {
+		taskdef(name:'pmd', classname:'net.sourceforge.pmd.ant.PMDTask', classpath: configurations.pmdConf.asPath)
+		
+		pmd(shortFilenames:'true', failonruleviolation:'true', rulesetfiles:'rulesets/basic.xml,rulesets/braces.xml,rulesets/codesize.xml,rulesets/controversial.xml,rulesets/coupling.xml,rulesets/design.xml,rulesets/favorites.xml,rulesets/finalizers.xml,rulesets/imports.xml,rulesets/javabeans.xml,rulesets/junit.xml,rulesets/naming.xml,rulesets/optimizations.xml,rulesets/scratchpad.xml,rulesets/strictexception.xml,rulesets/strings.xml,rulesets/sunsecure.xml,rulesets/typeresolution.xml,rulesets/unusedcode.xml') {
+			formatter(type:'text', toConsole:'true')
+			sourceSets.main.java.srcDirs.each {
+				fileset(dir: it) {
+					include(name:'**/*.java')
+				}
+			}
+			sourceSets.test.java.srcDirs.each {
+				fileset(dir: it) {
+					include(name:'**/*.java')
+				}
+			}
+		}
+	}
+}
+
+check.dependsOn findbugs, pmd
 
 task deploy(dependsOn: configurations.default.buildArtifacts, type: Copy) {
 	into 'C:/data/library/lib'
