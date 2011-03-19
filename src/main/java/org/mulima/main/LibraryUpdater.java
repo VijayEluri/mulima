@@ -31,11 +31,18 @@ public class LibraryUpdater implements Runnable {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private LibraryManager manager;
 	
+	/**
+	 * Initializes the app.
+	 */
 	public void init() {
 		ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
 		manager = context.getBean("libManager", LibraryManager.class);
 	}
 	
+	/**
+	 * Intializes the app.
+	 * @param file the application context file
+	 */
 	public void init(String file) {
 		ApplicationContext context = new FileSystemXmlApplicationContext(file);
 		manager = context.getBean("libManager", LibraryManager.class);
@@ -51,7 +58,8 @@ public class LibraryUpdater implements Runnable {
 	}
 	
 	/**
-	 * @param args
+	 * Executes the app.
+	 * @param args the arguments
 	 */
 	public static void main(String[] args) {
 		LibraryUpdater driver = new LibraryUpdater();

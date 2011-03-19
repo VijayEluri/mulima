@@ -72,8 +72,9 @@ public class FreeDbTarDaoImpl implements FreeDbDao {
 	public void init() {
 		logger.trace("Entering init");
 		if (tarArchive == null) {
-			if (bz2Archive == null)
+			if (bz2Archive == null) {
 				throw new IllegalStateException("Either tarArchive or bz2Archive must be set.");
+			}
 			
 			FileInputStream fin = null;
 			BufferedInputStream bfin = null;
@@ -95,19 +96,21 @@ public class FreeDbTarDaoImpl implements FreeDbDao {
 					num = bzin.read(buffer);
 				}
 				logger.info("BZip2 Extraction complete.");
-			} catch(IOException e) {
+			} catch (IOException e) {
 				logger.error("Problem extracting bzip2 archive.", e);
 				throw new FatalIOException("Problem extracting bzip2 archive", e);
 			} finally {
 				try {
-					if (fout != null)
+					if (fout != null) {
 						fout.close();
-					if (bzin != null)
+					}
+					if (bzin != null) {
 						bzin.close();
-					else if (bfin != null)
+					} else if (bfin != null) {
 						bfin.close();
-					else if (fin != null)
+					} else if (fin != null) {
 						fin.close();
+					}
 				} catch (IOException e) {
 					logger.error("Problem closing streams.", e);
 					throw new FatalIOException("Problem closing streams.", e);
@@ -177,7 +180,7 @@ public class FreeDbTarDaoImpl implements FreeDbDao {
 					logger.debug("Loading: " + entry.getName());
 					int offset = 0;
 					byte[] content = new byte[(int) entry.getSize()];
-					while(offset < content.length) {
+					while (offset < content.length) {
 						offset += tin.read(content, offset, content.length - offset);
 					}
 					Disc disc = bytesToDisc(content);
@@ -194,19 +197,21 @@ public class FreeDbTarDaoImpl implements FreeDbDao {
 				progress.next();
 			}
 			
-			if (entry == null)
-				progress.done();
+			if (entry == null) {
+				progress.done();	
+			}
 		} catch (IOException e) {
 			logger.error("Problem reading tar archive.", e);
 			throw new FatalIOException("Problem reading tar archive.", e);
 		} finally {
 			try {
-				if (tin != null)
+				if (tin != null) {
 					tin.close();
-				else if (bfin != null)
+				} else if (bfin != null) {
 					bfin.close();
-				else if (fin != null)
+				} else if (fin != null) {
 					fin.close();
+				}
 			} catch (IOException e) {
 				logger.error("Problem closing streams.", e);
 				throw new FatalIOException("Problem closing streams.", e);

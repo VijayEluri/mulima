@@ -17,6 +17,7 @@
  */
 package org.mulima.meta;
 
+
 /**
  * Holds metadata associated with a track on an <code>Album</code>.
  * @see Album, Disc
@@ -32,10 +33,11 @@ public class Track extends AbstractMetadata {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null)
+		if (obj == null) {
 			return false;
-		else if (!(obj instanceof Track))
+		} else if (!(obj instanceof Track)) {
 			return false;
+		}
 		
 		Track that = (Track) obj;
 		return this.getMap().equals(that.getMap());

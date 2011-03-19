@@ -29,10 +29,10 @@ import org.mulima.util.StringUtil;
  * @see Process, ProcessCaller, ProcessFuture
  */
 public class ProcessResult {
-	protected final String command;
-	protected final int exitVal;
-	protected final String output;
-	protected final String error;
+	private final String command;
+	private final int exitVal;
+	private final String output;
+	private final String error;
 	
 	public ProcessResult(List<String> command, int exitVal, String output, String error) {
 		this(StringUtil.join(command, " "), exitVal, output, error);

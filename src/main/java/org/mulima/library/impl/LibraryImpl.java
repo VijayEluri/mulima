@@ -129,7 +129,8 @@ public class LibraryImpl implements Library {
 	 * @param albumDao dao to process albums
 	 * @return library album representing this directory
 	 */
-	protected LibraryAlbum processDir(File dir, MetadataFileDao<CueSheet> cueDao, MetadataFileDao<Album> albumDao) {
+	protected LibraryAlbum processDir(File dir, MetadataFileDao<CueSheet> cueDao,
+		MetadataFileDao<Album> albumDao) {
 		LibraryAlbum libAlbum = new LibraryAlbum();
 		libAlbum.setLib(this);
 		libAlbum.setDir(dir);
@@ -195,7 +196,8 @@ public class LibraryImpl implements Library {
 				}
 			}
 		}
-		String relPath = StringUtil.makeSafe(libAlbum.getAlbum().getFlat(GenericTag.ARTIST)) + File.separator + StringUtil.makeSafe(album);
+		String relPath = StringUtil.makeSafe(libAlbum.getAlbum().getFlat(GenericTag.ARTIST))
+			+ File.separator + StringUtil.makeSafe(album);
 		LibraryAlbum newAlbum = new LibraryAlbum();
 		newAlbum.setAlbum(libAlbum.getAlbum());
 		newAlbum.setLib(this);

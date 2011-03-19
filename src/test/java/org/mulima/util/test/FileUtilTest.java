@@ -43,10 +43,10 @@ public class FileUtilTest {
 	
 	@Test
 	public void listDirsRecursiveSuccess() {
-		File[] child4 = { mockFile(false, null), mockFile(false, null)};
+		File[] child4 = { mockFile(false, null), mockFile(false, null) };
 		File dir4 = mockFile(true, child4);
 		
-		File[] child3 = { mockFile(false, null), dir4, mockFile(false, null)};
+		File[] child3 = { mockFile(false, null), dir4, mockFile(false, null) };
 		File dir3 = mockFile(true, child3);
 		
 		File[] child2 = { mockFile(false, null) };

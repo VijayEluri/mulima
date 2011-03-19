@@ -34,6 +34,9 @@ public class FreeDbImport implements Runnable {
 	private FreeDbDao jdbcDao;
 	private FreeDbDao tarDao;
 	
+	/**
+	 * Initializes the app.
+	 */
 	public void init() {
 		AbstractApplicationContext context = new ClassPathXmlApplicationContext("importContext.xml");
 		context.registerShutdownHook();
@@ -57,6 +60,10 @@ public class FreeDbImport implements Runnable {
 		}
 	}
 	
+	/**
+	 * Executes the app.
+	 * @param args the arguments
+	 */
 	public static void main(String[] args) {
 		FreeDbImport driver = new FreeDbImport();
 		driver.init();

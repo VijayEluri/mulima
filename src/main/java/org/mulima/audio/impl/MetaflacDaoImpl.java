@@ -96,19 +96,28 @@ public class MetaflacDaoImpl implements Tagger {
 		private final AudioFile file;
 		private final Track track;
 		
+		/**
+		 * Constructs a writer from parameters.
+		 * @param file the file to write to
+		 * @param track the track to write
+		 */
 		public Writer(AudioFile file, Track track) {
 			this.file = file;
 			this.track = track;
 		}
 		
+		/**
+		 * Executes the tag write operation.
+		 */
 		@Override
 		public TaggerResult call() throws Exception {
 			String filePath = FileUtil.getSafeCanonicalPath(file);
 			
 			List<String> command = new ArrayList<String>();
 			command.add(path);
-			if (!"".equals(opts))
+			if (!"".equals(opts)) {
 				command.add(opts);
+			}
 			command.add("--remove-all-tags");
 			for (GenericTag generic : track.getMap().keySet()) {
 				VorbisTag tag = VorbisTag.valueOf(generic);
@@ -129,18 +138,26 @@ public class MetaflacDaoImpl implements Tagger {
 	private class Reader implements Callable<TaggerResult> {
 		private final AudioFile file;
 		
+		/**
+		 * Constructs a reader from the parameter.
+		 * @param file the file to read from
+		 */
 		public Reader(AudioFile file) {
 			this.file = file;
 		}
 		
+		/**
+		 * Executes the tag read operation.
+		 */
 		@Override
 		public TaggerResult call() throws Exception {
 			String filePath = FileUtil.getSafeCanonicalPath(file);
 			
 			List<String> command = new ArrayList<String>();
 			command.add(path);
-			if (!"".equals(opts))
+			if (!"".equals(opts)) {
 				command.add(opts);
+			}
 			command.add("--list");
 			command.add("--block-type=VORBIS_COMMENT");
 			command.add("\"" + filePath + "\"");

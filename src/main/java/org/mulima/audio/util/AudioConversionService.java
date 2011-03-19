@@ -111,11 +111,19 @@ public class AudioConversionService {
 		private final LibraryAlbum refAlbum;
 		private final List<LibraryAlbum> destAlbums;
 		
+		/**
+		 * Constructs an audio conversion from parameters.
+		 * @param refAlbum the reference album
+		 * @param destAlbums the destination albums.
+		 */
 		public AudioConversion(LibraryAlbum refAlbum, List<LibraryAlbum> destAlbums) {
 			this.refAlbum = refAlbum;
 			this.destAlbums = destAlbums;
 		}
 		
+		/**
+		 * Executes the conversion.
+		 */
 		@Override
 		public List<LibraryAlbum> call() throws Exception {
 			logger.info("Starting conversion of " + refAlbum.getDir().getName());
@@ -134,6 +142,11 @@ public class AudioConversionService {
 			return destAlbums;
 		}
 		
+		/**
+		 * Deocodes the files.
+		 * @return the decoded files
+		 * @throws Exception if there is a problem
+		 */
 		private List<AudioFile> decode() throws Exception {
 			logger.info("Decoding " + refAlbum.getDir().getName());
 			List<Future<CodecResult>> futures = new ArrayList<Future<CodecResult>>();
@@ -145,7 +158,8 @@ public class AudioConversionService {
 			for (Future<CodecResult> future : futures) {
 				CodecResult result = future.get();
 				if (result.getExitVal() != 0) {
-					Exception e = new ProcessFailureException("Failed decoding " + result.getSource().getCanonicalPath());
+					Exception e = new ProcessFailureException("Failed decoding "
+						+ result.getSource().getCanonicalPath());
 					logger.error("Decoding failed", e);
 					logger.error("Command: " + result.getCommand());
 					logger.error("Stdout: " + result.getOutput());
@@ -159,6 +173,12 @@ public class AudioConversionService {
 			return tempFiles;
 		}
 		
+		/**
+		 * Splits the files.
+		 * @param decoded the decoded files
+		 * @return the split files
+		 * @throws Exception if there is a problem
+		 */
 		private List<AudioFile> split(List<AudioFile> decoded) throws Exception {
 			logger.info("Splitting " + refAlbum.getDir().getName());
 			File tempFolder = FileUtil.createTempDir("library", "wav");
@@ -174,7 +194,8 @@ public class AudioConversionService {
 			for (Future<SplitterResult> future : futures) {
 				SplitterResult result = future.get();
 				if (result.getExitVal() != 0) {
-					Exception e = new ProcessFailureException("Failed splitting " + result.getSource().getCanonicalPath());
+					Exception e = new ProcessFailureException("Failed splitting "
+						+ result.getSource().getCanonicalPath());
 					logger.error("Splitting failed", e);
 					logger.error("Command: " + result.getCommand());
 					logger.error("Stdout: " + result.getOutput());
@@ -188,19 +209,27 @@ public class AudioConversionService {
 			return tempFiles;
 		}
 		
+		/**
+		 * Encodes the files.
+		 * @param libAlbum the library album to encode to
+		 * @param tempFiles the temp files to encode
+		 * @throws Exception if there is a problem
+		 */
 		private void encode(LibraryAlbum libAlbum, List<AudioFile> tempFiles) throws Exception {
 			logger.info("Encoding " + refAlbum.getDir().getName()); 
 			
 			List<Future<CodecResult>> encFutures = new ArrayList<Future<CodecResult>>();
 			for (AudioFile tempFile : tempFiles) {
-				AudioFile destFile = new AudioFile(libAlbum.getDir(), FileUtil.getBaseName(tempFile) + "." + libAlbum.getLib().getType().getExtension());
+				AudioFile destFile = new AudioFile(libAlbum.getDir(), FileUtil.getBaseName(tempFile)
+					+ "." + libAlbum.getLib().getType().getExtension());
 				encFutures.add(codecSrv.submitEncode(tempFile, destFile));
 			}
 			
 			for (Future<CodecResult> future : encFutures) {
 				CodecResult result = future.get();
 				if (result.getExitVal() != 0) {
-					Exception e = new ProcessFailureException("Failed encoding " + result.getSource().getCanonicalPath());
+					Exception e = new ProcessFailureException("Failed encoding "
+						+ result.getSource().getCanonicalPath());
 					logger.error("Encoding failed", e);
 					logger.error("Command: " + result.getCommand());
 					logger.error("Stdout: " + result.getOutput());
@@ -212,6 +241,11 @@ public class AudioConversionService {
 			}
 		}
 		
+		/**
+		 * Tags the files.
+		 * @param libAlbum the library album to tag
+		 * @throws Exception if there is a problem
+		 */
 		private void tag(LibraryAlbum libAlbum) throws Exception {
 			logger.info("Tagging " + refAlbum.getDir().getName());
 			
@@ -225,7 +259,8 @@ public class AudioConversionService {
 			for (Future<TaggerResult> future : tagFutures) {
 				TaggerResult result = future.get();
 				if (result.getExitVal() != 0) {
-					Exception e = new ProcessFailureException("Failed tagging " + result.getFile().getCanonicalPath());
+					Exception e = new ProcessFailureException("Failed tagging "
+						+ result.getFile().getCanonicalPath());
 					logger.error("Tagging failed", e);
 					logger.error("Command: " + result.getCommand());
 					logger.error("Stdout: " + result.getOutput());
@@ -235,14 +270,23 @@ public class AudioConversionService {
 			}
 		}
 		
+		/**
+		 * Finds a track based on the disc and track number.
+		 * @param tracks the list of tracks
+		 * @param discNum the disc number
+		 * @param trackNum the track number
+		 * @return the track that matches
+		 */
 		private Track findTrack(List<Track> tracks, int discNum, int trackNum) {
 			for (Track track : tracks) {
 				int tempDisc = Integer.parseInt(track.getFirst(GenericTag.DISC_NUMBER));
 				int tempTrack = Integer.parseInt(track.getFirst(GenericTag.TRACK_NUMBER));
-				if (tempDisc == discNum && tempTrack == trackNum)
+				if (tempDisc == discNum && tempTrack == trackNum) {
 					return track;				
+				}
 			}
-			logger.warn("Track (Disc: " + discNum + ", Track: " + trackNum + ") not found for: " + refAlbum.getAlbum().getFlat(GenericTag.ALBUM));
+			logger.warn("Track (Disc: " + discNum + ", Track: " + trackNum + ") not found for: "
+				+ refAlbum.getAlbum().getFlat(GenericTag.ALBUM));
 			return null;
 		}
 	}

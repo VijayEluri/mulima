@@ -114,6 +114,7 @@ public class StringUtilTest {
 	
 	@Test
 	public void commonString() {
-		assertEquals("The Sane Day (Disk ", StringUtil.commonString("The Sane Day (Disk 1)", "The Sane Day (Disk 2)"));
+		assertEquals("The Sane Day (Disk ", 
+			StringUtil.commonString("The Sane Day (Disk 1)", "The Sane Day (Disk 2)"));
 	}
 }

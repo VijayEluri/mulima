@@ -44,7 +44,8 @@ public class DiscCliChooser implements Chooser<Disc> {
 	 * Will automatically make the choice if the closest disc
 	 * is within 10.  The user will be asked via stdout if the
 	 * closest is farther than that.
-	 * 
+	 * @param choices the disc choices
+	 * @return the chosen disc
 	 * @see MetadataUtil#discDistance
 	 */
 	@Override
@@ -77,8 +78,8 @@ public class DiscCliChooser implements Chooser<Disc> {
 	 */
 	private Disc askUser(List<Disc> candidates) {
 		for (int i = 0; i < candidates.size(); i++) {
-			System.out.println("#" + (i + 1) + ":\tArtist: " + 
-				candidates.get(i).getFlat(GenericTag.ARTIST));
+			System.out.println("#" + (i + 1) + ":\tArtist: "
+				+ candidates.get(i).getFlat(GenericTag.ARTIST));
 			System.out.println("\tAlbum: " + candidates.get(i).getFlat(GenericTag.ALBUM));
 		}
 		

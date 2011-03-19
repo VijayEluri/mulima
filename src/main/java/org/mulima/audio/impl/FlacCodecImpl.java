@@ -91,8 +91,9 @@ public class FlacCodecImpl implements Codec {
 		List<String> command = new ArrayList<String>();
 		command.add(path);
 		command.add("-f");
-		if (!"".equals(opts))
+		if (!"".equals(opts)) {
 			command.add(opts);
+		}
 		command.add("-" + compressionLevel);
 		command.add("-o");
 		command.add("\"" + destPath + "\"");
@@ -112,8 +113,9 @@ public class FlacCodecImpl implements Codec {
 		List<String> command = new ArrayList<String>();
 		command.add(path);
 		command.add("-f");
-		if (!"".equals(opts))
+		if (!"".equals(opts)) {
 			command.add(opts);
+		}
 		command.add("-d");
 		command.add("-o");
 		command.add("\"" + destPath + "\"");

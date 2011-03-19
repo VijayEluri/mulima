@@ -33,6 +33,10 @@ public enum AudioFileType {
 	
 	private final String ext;
 	
+	/**
+	 * Constructs an audio file type from an extension.
+	 * @param ext the extension
+	 */
 	private AudioFileType(String ext) {
 		this.ext = ext;
 	}
@@ -52,8 +56,8 @@ public enum AudioFileType {
 	 * @return <code>true</code> if of the same type, <code>false</code> otherwise
 	 */
 	public boolean isOfType(File file) {
-		String ext = StringUtils.getFilenameExtension(file.getAbsolutePath());
-		return this.getExtension().equals(ext);
+		String extension = StringUtils.getFilenameExtension(file.getAbsolutePath());
+		return this.getExtension().equals(extension);
 	}
 	
 	/**
@@ -62,11 +66,12 @@ public enum AudioFileType {
 	 * @return the type of the file
 	 */
 	public static AudioFileType valueOf(File file) {
-		String ext = StringUtils.getFilenameExtension(file.getAbsolutePath());
+		String extension = StringUtils.getFilenameExtension(file.getAbsolutePath());
 		for (AudioFileType type : AudioFileType.values()) {
-			if (type.getExtension().equals(ext))
+			if (type.getExtension().equals(extension)) {
 				return type;
+			}
 		}
-		throw new IllegalArgumentException("No type with extension \"" + ext + "\" exists.");
+		throw new IllegalArgumentException("No type with extension \"" + extension + "\" exists.");
 	}
 }

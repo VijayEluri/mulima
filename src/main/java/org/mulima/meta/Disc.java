@@ -20,6 +20,7 @@ package org.mulima.meta;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * Holds metadata associated with a disc on an <code>Album</code>.
  * @see Album, Track
@@ -60,10 +61,11 @@ public class Disc extends AbstractMetadata {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null)
+		if (obj == null) {
 			return false;
-		else if (!(obj instanceof Disc))
+		} else if (!(obj instanceof Disc)) {
 			return false;
+		}
 		
 		Disc that = (Disc) obj;
 		return this.getMap().equals(that.getMap())

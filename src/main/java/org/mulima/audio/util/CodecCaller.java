@@ -57,6 +57,7 @@ public class CodecCaller implements Callable<CodecResult> {
 	/**
 	 * Starts the codec process using the command specified in the constructor.
 	 * @return a codec result with information on the execution
+	 * @throws Exception if there is a problem with the codec
 	 */
 	@Override
 	public CodecResult call() throws Exception {

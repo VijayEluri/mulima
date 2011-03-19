@@ -17,21 +17,40 @@
  */
 package org.mulima.exception;
 
+/**
+ * Signals a failure of a codec process execution.
+ */
 public class CodecFailureException extends ProcessFailureException {
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Constructs an empty exception.
+	 */
 	public CodecFailureException() {
 		super();
 	}
 
+	/**
+	 * Constructs an exception from parameters.
+	 * @param message the message
+	 * @param cause the cause
+	 */
 	public CodecFailureException(String message, Throwable cause) {
 		super(message, cause);
 	}
 
+	/**
+	 * Constructs an exception from parameters.
+	 * @param message the message
+	 */
 	public CodecFailureException(String message) {
 		super(message);
 	}
 
+	/**
+	 * Constructs an exception from parameters.
+	 * @param cause the cause
+	 */
 	public CodecFailureException(Throwable cause) {
 		super(cause);
 	}

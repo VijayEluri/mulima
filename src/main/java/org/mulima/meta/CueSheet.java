@@ -21,6 +21,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * Holds metadata representing a cue sheet.
  * 
@@ -88,10 +89,11 @@ public class CueSheet extends AbstractMetadata {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null)
+		if (obj == null) {
 			return false;
-		else if (!(obj instanceof CueSheet))
+		} else if (!(obj instanceof CueSheet)) {
 			return false;
+		}
 		
 		CueSheet that = (CueSheet) obj;
 		return this.getNum() == that.getNum()
@@ -146,10 +148,11 @@ public class CueSheet extends AbstractMetadata {
 
 		@Override
 		public boolean equals(Object obj) {
-			if (obj == null)
+			if (obj == null) {
 				return false;
-			else if (!(obj instanceof CueSheet.Track))
+			} else if (!(obj instanceof CueSheet.Track)) {
 				return false;
+			}
 			
 			CueSheet.Track that = (CueSheet.Track) obj;
 			return this.getNum() == that.getNum()
@@ -214,10 +217,11 @@ public class CueSheet extends AbstractMetadata {
 		
 		@Override
 		public boolean equals(Object obj) {
-			if (obj == null)
+			if (obj == null) {
 				return false;
-			else if (!(obj instanceof CueSheet.Index))
+			} else if (!(obj instanceof CueSheet.Index)) {
 				return false;
+			}
 			
 			CueSheet.Index that = (CueSheet.Index) obj;
 			return this.getNum() == that.getNum()

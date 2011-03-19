@@ -87,8 +87,9 @@ public class ShnToolImpl implements Splitter {
 		List<String> command = new ArrayList<String>();
 		command.add(path);
 		command.add("split");
-		if (!"".equals(opts))
+		if (!"".equals(opts)) {
 			command.add(opts);
+		}
 		command.add("-O");
 		command.add(overwrite ? "always" : "never");
 		command.add("-d");
@@ -108,12 +109,21 @@ public class ShnToolImpl implements Splitter {
 		private final AudioFile source;
 		private final File destDir;
 		
+		/**
+		 * Constructs a splitter caller from parameters.
+		 * @param command the command to execute
+		 * @param source the source file
+		 * @param destDir the destination directory
+		 */
 		public SplitterCaller(List<String> command, AudioFile source, File destDir) {
 			this.command = command;
 			this.source = source;
 			this.destDir = destDir;
 		}
 		
+		/**
+		 * Executes the split operation.
+		 */
 		@Override
 		public SplitterResult call() throws Exception {
 			String description = "split of " + FileUtil.getSafeCanonicalPath(source);

@@ -73,7 +73,7 @@ public interface LibraryManager {
 	/**
 	 * Updates a specific destination library with the changes in the
 	 * reference libraries.
-	 * @param lib
+	 * @param lib the library to update
 	 */
 	void updateLib(Library lib);
 }

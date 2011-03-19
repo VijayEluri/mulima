@@ -17,21 +17,40 @@
  */
 package org.mulima.exception;
 
+/**
+ * Signals a process failure.
+ */
 public class ProcessFailureException extends Exception {
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Constructs an empty exception.
+	 */
 	public ProcessFailureException() {
 		super();
 	}
 
+	/**
+	 * Constructs an exception from parameters.
+	 * @param message the message
+	 */
 	public ProcessFailureException(String message) {
 		super(message);
 	}
 
+	/**
+	 * Constructs an exception from parameters.
+	 * @param cause the cause
+	 */
 	public ProcessFailureException(Throwable cause) {
 		super(cause);
 	}
 
+	/**
+	 * Constructs an exception from parameters.
+	 * @param message the message
+	 * @param cause the cause
+	 */
 	public ProcessFailureException(String message, Throwable cause) {
 		super(message, cause);
 	}

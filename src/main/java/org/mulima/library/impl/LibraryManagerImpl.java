@@ -132,6 +132,10 @@ public class LibraryManagerImpl implements LibraryManager {
 		updateLibs(libs);
 	}
 	
+	/**
+	 * Updates a list of libraries.
+	 * @param libs the libraries to update.
+	 */
 	private void updateLibs(List<Library> libs) {
 		List<LibraryAlbum> refAlbums = new ArrayList<LibraryAlbum>();
 		for (ReferenceLibrary refLib : getRefLibs()) {
@@ -172,9 +176,9 @@ public class LibraryManagerImpl implements LibraryManager {
 				for (CueSheet cue : libAlbum.getCues()) {
 					album.getCues().add(cue);
 					logger.info("*** Searching for disc ***");
-					logger.info("Cue: DiscId: " + cue.getFlat(GenericTag.CDDB_ID) +
-						"\tArtist: " + cue.getFlat(GenericTag.ARTIST) + 
-						"\tAlbum: " + cue.getFlat(GenericTag.ALBUM));
+					logger.info("Cue: DiscId: " + cue.getFlat(GenericTag.CDDB_ID)
+						+ "\tArtist: " + cue.getFlat(GenericTag.ARTIST) 
+						+ "\tAlbum: " + cue.getFlat(GenericTag.ALBUM));
 					List<String> cddbIds = cue.getAll(GenericTag.CDDB_ID);
 					List<Disc> candidates = freeDbDao.getDiscsById(cddbIds);
 					
@@ -182,9 +186,12 @@ public class LibraryManagerImpl implements LibraryManager {
 					Disc choice = chooser.choose(candidates);
 					
 					if (choice == null) {
-						logger.warn("Disc not found: Artist: " + cue.getFlat(GenericTag.ARTIST) + "\tAlbum: " + cue.getFlat(GenericTag.ALBUM));
+						logger.warn("Disc not found: Artist: "
+							+ cue.getFlat(GenericTag.ARTIST) + "\tAlbum: "
+							+ cue.getFlat(GenericTag.ALBUM));
 					} else {
-						logger.info("Disc found: Artist: " + cue.getFlat(GenericTag.ARTIST) + "\tAlbum: " + cue.getFlat(GenericTag.ALBUM));
+						logger.info("Disc found: Artist: " + cue.getFlat(GenericTag.ARTIST)
+							+ "\tAlbum: " + cue.getFlat(GenericTag.ALBUM));
 						choice.add(GenericTag.DISC_NUMBER, Integer.toString(cue.getNum()));
 						album.getDiscs().add(choice);
 					}

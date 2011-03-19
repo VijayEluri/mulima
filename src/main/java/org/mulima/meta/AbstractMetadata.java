@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 
+
 /**
  * An abstract implementation of a metadata object.  Provides
  * map-based tag support.
@@ -55,8 +56,9 @@ public abstract class AbstractMetadata implements Metadata {
 			return;
 		
 		GenericTag generic = tag.getGeneric();
-		if (!map.containsKey(generic))
+		if (!map.containsKey(generic)) {
 			map.put(generic, new ArrayList<String>());
+		}
 		
 		map.get(generic).add(value.trim());
 	}
@@ -70,8 +72,9 @@ public abstract class AbstractMetadata implements Metadata {
 			return;
 		
 		GenericTag generic = tag.getGeneric();
-		if (!map.containsKey(generic))
+		if (!map.containsKey(generic)) {
 			map.put(generic, new ArrayList<String>());
+		}
 		
 		List<String> tagValues = map.get(generic);
 		for (String value : values) {
@@ -94,10 +97,11 @@ public abstract class AbstractMetadata implements Metadata {
 	@Override
 	public String getFirst(Tag tag) {
 		GenericTag generic = tag.getGeneric();
-		if (map.containsKey(generic) && map.get(generic).size() > 0)
+		if (map.containsKey(generic) && map.get(generic).size() > 0) {
 			return map.get(generic).get(0);
-		else
+		} else {
 			return null;
+		}
 	}
 
 	/**
@@ -106,17 +110,20 @@ public abstract class AbstractMetadata implements Metadata {
 	@Override
 	public String getFlat(Tag tag) {
 		List<String> values = getAll(tag);
-		if (values == null)
+		if (values == null) {
 			return null;
+		}
 		
 		StringBuilder builder = new StringBuilder();
 		
 		for (int i = 0; i < values.size(); i++) {
 			if (i != 0) {
-				if (values.size() != 2)
+				if (values.size() != 2) {
 					builder.append(",");
-				if (values.size() - 1 == i)
+				}
+				if (values.size() - 1 == i) {
 					builder.append(" &");
+				}
 				builder.append(" ");
 			}
 			builder.append(values.get(i));
@@ -136,9 +143,9 @@ public abstract class AbstractMetadata implements Metadata {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null)
+		if (obj == null) {
 			return false;
-		if (obj instanceof Metadata) {
+		} else if (obj instanceof Metadata) {
 			Metadata that = (Metadata) obj;
 			return this.getMap().equals(that.getMap());
 		} else {

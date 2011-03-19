@@ -48,7 +48,8 @@ public class SplitterResult extends ProcessResult {
 	 * @param output the std out of the process
 	 * @param error the std err of the process
 	 */
-	public SplitterResult(AudioFile source, List<AudioFile> dest, String command, int exitVal, String output, String error) {
+	public SplitterResult(AudioFile source, List<AudioFile> dest, String command, int exitVal, String output,
+		String error) {
 		super(command, exitVal, output, error);
 		this.source = source;
 		this.dest = dest;

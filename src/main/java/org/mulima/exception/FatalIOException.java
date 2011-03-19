@@ -17,21 +17,40 @@
  */
 package org.mulima.exception;
 
+/**
+ * Signals a fatal IO exception.
+ */
 public class FatalIOException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Constructs an empty exception.
+	 */
 	public FatalIOException() {
 		super();
 	}
 
+	/**
+	 * Constructs an exception from parameters.
+	 * @param message the message
+	 */
 	public FatalIOException(String message) {
 		super(message);
 	}
 
+	/**
+	 * Constructs an exception from parameters.
+	 * @param cause the cause
+	 */
 	public FatalIOException(Throwable cause) {
 		super(cause);
 	}
 
+	/**
+	 * Constructs an exception from parameters.
+	 * @param message the message
+	 * @param cause the cause
+	 */
 	public FatalIOException(String message, Throwable cause) {
 		super(message, cause);
 	}

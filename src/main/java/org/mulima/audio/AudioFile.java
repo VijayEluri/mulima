@@ -31,35 +31,44 @@ public class AudioFile extends File {
 	private Integer trackNum = null;
 
 	/**
-	 * {@inheritDoc}
+	 * Constructs audio file from a parent directory
+	 * and a child path.
+	 * @param parent parent directory
+	 * @param child path to child relative to parent
 	 */
 	public AudioFile(File parent, String child) {
 		super(parent, child);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Constructs audio file from a parent directory
+	 * and a child path.
+	 * @param parent path to the parent directory
+	 * @param child path to child relative to parent
 	 */
 	public AudioFile(String parent, String child) {
 		super(parent, child);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Constructs an audio file from a pathname.
+	 * @param pathname the path
 	 */
 	public AudioFile(String pathname) {
 		super(pathname);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Constructs an audio file from a URI.
+	 * @param uri the URI to the file
 	 */
 	public AudioFile(URI uri) {
 		super(uri);
 	}
 	
 	/**
-	 * {@inheritDoc}
+	 * Constructs an audio file from a file.
+	 * @param file the file
 	 */
 	public AudioFile(File file) {
 		super(file.getPath());

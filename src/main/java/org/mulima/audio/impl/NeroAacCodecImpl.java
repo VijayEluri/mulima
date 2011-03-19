@@ -99,8 +99,9 @@ public class NeroAacCodecImpl implements Codec {
 		
 		List<String> command = new ArrayList<String>();
 		command.add(encPath);
-		if (!"".equals(opts))
+		if (!"".equals(opts)) {
 			command.add(opts);
+		}
 		command.add("-q");
 		command.add(quality);
 		command.add("-if");
@@ -121,8 +122,9 @@ public class NeroAacCodecImpl implements Codec {
 		
 		List<String> command = new ArrayList<String>();
 		command.add(decPath);
-		if (!"".equals(opts))
+		if (!"".equals(opts)) {
 			command.add(opts);
+		}
 		command.add("-if");
 		command.add("\"" + sourcePath + "\"");
 		command.add("-of");

@@ -25,11 +25,11 @@ public interface ProgressBar {
 	 * Notify the <code>ProgressBar</code> that another operation has completed.
 	 * @return the current number of complete operations
 	 */
-	public int next();
+	int next();
 	
 	/**
 	 * Notify the <code>ProgressBar</code> that all operations have completed.
 	 * This is handy to ensure that any completion events occur.
 	 */
-	public void done();
+	void done();
 }

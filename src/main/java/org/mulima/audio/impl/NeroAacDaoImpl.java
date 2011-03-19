@@ -86,11 +86,19 @@ public class NeroAacDaoImpl implements Tagger {
 		private final AudioFile file;
 		private final Track meta;
 		
+		/**
+		 * Constructs a writer from parameters.
+		 * @param file the file to write to
+		 * @param meta the track to write
+		 */
 		public Writer(AudioFile file, Track meta) {
 			this.file = file;
 			this.meta = meta;
 		}
 		
+		/**
+		 * Executes the tag write operation.
+		 */
 		@Override
 		public TaggerResult call() throws Exception {
 			String filePath = FileUtil.getSafeCanonicalPath(file);
@@ -116,10 +124,17 @@ public class NeroAacDaoImpl implements Tagger {
 	private class Reader implements Callable<TaggerResult> {
 		private final AudioFile file;
 		
+		/**
+		 * Constructs a reader from the parameter.
+		 * @param file the file to read from
+		 */
 		public Reader(AudioFile file) {
 			this.file = file;
 		}
 		
+		/**
+		 * Executes the tag read operation.
+		 */
 		@Override
 		public TaggerResult call() throws Exception {
 			String filePath = FileUtil.getSafeCanonicalPath(file);

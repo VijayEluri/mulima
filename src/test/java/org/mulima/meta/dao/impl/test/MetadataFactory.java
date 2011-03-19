@@ -32,13 +32,22 @@ import org.mulima.meta.GenericTag;
  */
 public class MetadataFactory {
 	/**
+	 * This class should never be instantiated.
+	 * @throws UnsupportedOperationException always
+	 */
+	protected MetadataFactory() {
+		throw new UnsupportedOperationException("Cannot instantiate this class.");
+	}
+	
+	/**
 	 * Converts a <code>Map</code> to a <code>TagSupport</code>.
 	 * @param map the map to convert
 	 * @return a <code>TagSupport</code> containing the specified values
 	 * @throws IllegalAccessException 
 	 * @throws InstantiationException 
 	 */
-	public static <T extends Metadata> T fromTagList(Map<Tag, List<String>> map, Class<T> type) throws InstantiationException, IllegalAccessException {
+	public static <T extends Metadata> T fromTagList(Map<Tag, List<String>> map, Class<T> type)
+		throws InstantiationException, IllegalAccessException {
 		T meta = type.newInstance();
 		for (Entry<Tag, List<String>> entry : map.entrySet()) {
 			Tag tag = entry.getKey();
@@ -54,7 +63,8 @@ public class MetadataFactory {
 	 * @throws IllegalAccessException 
 	 * @throws InstantiationException 
 	 */
-	public static <T extends Metadata> T fromStringList(Map<String, List<String>> map, Class<T> type) throws InstantiationException, IllegalAccessException {
+	public static <T extends Metadata> T fromStringList(Map<String, List<String>> map, Class<T> type)
+		throws InstantiationException, IllegalAccessException {
 		T meta = type.newInstance();
 		for (Entry<String, List<String>> entry : map.entrySet()) {
 			Tag tag = GenericTag.valueOf(entry.getKey());
@@ -70,7 +80,8 @@ public class MetadataFactory {
 	 * @throws IllegalAccessException 
 	 * @throws InstantiationException 
 	 */
-	public static <T extends Metadata> T fromTagString(Map<Tag, String> map, Class<T> type) throws InstantiationException, IllegalAccessException {
+	public static <T extends Metadata> T fromTagString(Map<Tag, String> map, Class<T> type)
+		throws InstantiationException, IllegalAccessException {
 		T meta = type.newInstance();
 		for (Entry<Tag, String> entry : map.entrySet()) {
 			Tag tag = entry.getKey();
@@ -86,7 +97,8 @@ public class MetadataFactory {
 	 * @throws IllegalAccessException 
 	 * @throws InstantiationException 
 	 */
-	public static <T extends Metadata> T fromStringString(Map<String, String> map, Class<T> type) throws InstantiationException, IllegalAccessException {
+	public static <T extends Metadata> T fromStringString(Map<String, String> map, Class<T> type)
+		throws InstantiationException, IllegalAccessException {
 		T meta = type.newInstance();
 		for (Entry<String, String> entry : map.entrySet()) {
 			Tag tag = GenericTag.valueOf(entry.getKey());

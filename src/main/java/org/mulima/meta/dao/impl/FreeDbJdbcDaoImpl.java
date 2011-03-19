@@ -50,7 +50,8 @@ public class FreeDbJdbcDaoImpl extends NamedParameterJdbcDaoSupport implements F
 	 */
 	@Override
 	public List<Disc> getDiscsById(String cddbId) {
-		final String sql = "SELECT `discs`.`id` FROM `discs`, `cddb_ids` WHERE `cddb_ids`.`cddb_id`=:cddb_id AND `discs`.`id`=`cddb_ids`.`disc_id`";
+		final String sql = "SELECT `discs`.`id` FROM `discs`, `cddb_ids` "
+			+ "WHERE `cddb_ids`.`cddb_id`=:cddb_id AND `discs`.`id`=`cddb_ids`.`disc_id`";
 		SqlParameterSource parms = new MapSqlParameterSource("cddb_id", cddbId);
 		List<Integer> result = this.getNamedParameterJdbcTemplate().queryForList(sql, parms, Integer.class);
 		List<Disc> discs = new ArrayList<Disc>();
@@ -80,9 +81,10 @@ public class FreeDbJdbcDaoImpl extends NamedParameterJdbcDaoSupport implements F
 	@Override
 	public List<Disc> getAllDiscs() {
 		final String sql = "SELECT `id` FROM `discs`";
-		List<Integer> result = this.getNamedParameterJdbcTemplate().queryForList(sql, (SqlParameterSource) null, Integer.class);
+		List<Integer> result = this.getNamedParameterJdbcTemplate().queryForList(sql, 
+			(SqlParameterSource) null, Integer.class);
 		List<Disc> discs = new ArrayList<Disc>();
-		for (Integer id: result) {
+		for (Integer id : result) {
 			discs.add(getDisc(id));
 		}
 		return discs;
@@ -108,10 +110,11 @@ public class FreeDbJdbcDaoImpl extends NamedParameterJdbcDaoSupport implements F
 		parms.addValue("artist", disc.getFlat(GenericTag.ARTIST));
 		parms.addValue("title", disc.getFlat(GenericTag.ALBUM));
 		String year = disc.getFirst(GenericTag.DATE);
-		if (year == null || "".equals(year) || year.length() > 4)
+		if (year == null || "".equals(year) || year.length() > 4) {
 			parms.addValue("year", null);
-		else
+		} else {
 			parms.addValue("year", year + "-01-01");
+		}
 			
 		parms.addValue("genre", disc.getFlat(GenericTag.GENRE));
 			
@@ -145,6 +148,11 @@ public class FreeDbJdbcDaoImpl extends NamedParameterJdbcDaoSupport implements F
 		logger.trace("Exiting addAllDiscs");
 	}
 
+	/**
+	 * Gets the disc specified by the id.
+	 * @param id the id of the disc
+	 * @return the disc
+	 */
 	private Disc getDisc(int id) {
 		final String sql = "SELECT * FROM `discs` WHERE `id`=:id";
 		SqlParameterSource parms = new MapSqlParameterSource("id", id);
@@ -158,18 +166,33 @@ public class FreeDbJdbcDaoImpl extends NamedParameterJdbcDaoSupport implements F
 		return disc;
 	}
 	
+	/**
+	 * Gets the tracks for the disc id.
+	 * @param id the id of the disc
+	 * @return the list of tracks
+	 */
 	private List<Track> getTracksForDisc(int id) {
 		final String sql = "SELECT * FROM `tracks` WHERE `disc_id`=:id";
 		SqlParameterSource parms = new MapSqlParameterSource("id", id);
 		return this.getNamedParameterJdbcTemplate().query(sql, parms, new TrackRowMapper());
 	}
 	
+	/**
+	 * Gets the CDDB ids for the disc id.
+	 * @param id the id of the disc
+	 * @return a list of CDDB ids
+	 */
 	private List<String> getCddbIdsForDisc(int id) {
 		final String sql = "SELECT `cddb_id` FROM `cddb_ids` WHERE `disc_id`=:id";
 		SqlParameterSource parms = new MapSqlParameterSource("id", id);
 		return this.getNamedParameterJdbcTemplate().queryForList(sql, parms, String.class);
 	}
 	
+	/**
+	 * Adds the tracks for the disc id.
+	 * @param discId the disc's id
+	 * @param tracks the tracks to add
+	 */
 	private void addTracks(int discId, List<Track> tracks) {
 		logger.trace("Entering addTracks");
 		final String sql = "INSERT INTO `tracks` VALUES(null, :disc_id, :num, :title)";
@@ -186,6 +209,11 @@ public class FreeDbJdbcDaoImpl extends NamedParameterJdbcDaoSupport implements F
 		logger.trace("Exiting addTracks");
 	}
 	
+	/**
+	 * Adds CDDB ids for the disc id.
+	 * @param discId the disc id
+	 * @param disc the disc with the cddb ids
+	 */
 	private void addCddbIds(int discId, Disc disc) {
 		logger.trace("Entering addCddbIds");
 		final String sql = "INSERT INTO `cddb_ids` VALUES(null, :disc_id, :cddb_id)";
