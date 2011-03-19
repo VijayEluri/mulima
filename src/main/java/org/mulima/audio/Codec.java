@@ -19,9 +19,42 @@ package org.mulima.audio;
 
 import java.util.concurrent.Callable;
 
+/**
+ * A codec specifies operations for encoding and decoding an
+ * audio file.
+ */
 public interface Codec {
+	/**
+	 * Execute an encode operation immediately.
+	 * @param source the file to encode
+	 * @param dest the destination for the encoded file
+	 * @return a codec result
+	 * @throws Exception if there is a problem encoding
+	 */
 	CodecResult encode(AudioFile source, AudioFile dest) throws Exception;
+	
+	/**
+	 * Execute a decode operation immediately.
+	 * @param source the file to decode
+	 * @param dest the destination for the decoded file
+	 * @return a codec result
+	 * @throws Exception if there is a problem decoding
+	 */
 	CodecResult decode(AudioFile source, AudioFile dest) throws Exception;
+	
+	/**
+	 * Prepare an encode operation for later execution.
+	 * @param source the file to encode
+	 * @param dest the destination for the encoded file
+	 * @return a callable that will execute the operation
+	 */
 	Callable<CodecResult> encodeLater(AudioFile source, AudioFile dest);
+	
+	/**
+	 * Prepare a decode operation for later execution.
+	 * @param source the file to decode
+	 * @param dest the destination for the decoded file
+	 * @return a callable that will execute the operation
+	 */
 	Callable<CodecResult> decodeLater(AudioFile source, AudioFile dest);
 }

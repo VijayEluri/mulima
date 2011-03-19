@@ -22,7 +22,27 @@ import java.util.concurrent.Callable;
 
 import org.mulima.meta.CueSheet;
 
+/**
+ * A splitter specifies operations for splitting an audio file
+ * as specified in a cue sheet.
+ */
 public interface Splitter {
+	/**
+	 * Executes a split operation immediately.
+	 * @param image the file to split
+	 * @param cue the cue sheet containing split points
+	 * @param destDir the destination directory for the files
+	 * @return a splitter result
+	 * @throws Exception if there is a problem splitting the file
+	 */
 	SplitterResult split(AudioFile image, CueSheet cue, File destDir) throws Exception;
+	
+	/**
+	 * Prepares a split operation for later execution.
+	 * @param image the file to split
+	 * @param cue the cue sheet containing split points
+	 * @param destDir the destination directory for the files
+	 * @return a callable that will execute the split
+	 */
 	Callable<SplitterResult> splitLater(AudioFile image, CueSheet cue, File destDir);
 }

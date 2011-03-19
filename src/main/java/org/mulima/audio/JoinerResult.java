@@ -31,10 +31,25 @@ public class JoinerResult extends ProcessResult {
 	private final List<AudioFile> source;
 	private final CueSheet cue;
 	
+	/**
+	 * Constructs a joiner result from a process result.
+	 * @param source the source files of the join operation
+	 * @param dest the destination of the join operation
+	 * @param result the result of the join process
+	 */
 	public JoinerResult(List<AudioFile> source, AudioFile dest, CueSheet cue, ProcessResult result) {
 		this(source, dest, cue, result.getCommand(), result.getExitVal(), result.getOutput(), result.getError());
 	}
 	
+	/**
+	 * Constructs a joiner result from the parameters.
+	 * @param source the source files of the join operation
+	 * @param dest the destination of the join operation
+	 * @param command the command executed
+	 * @param exitVal the exit value of the process
+	 * @param output the std out of the process
+	 * @param error the std err of the process
+	 */
 	public JoinerResult(List<AudioFile> source, AudioFile dest, CueSheet cue, String command, int exitVal, String output, String error) {
 		super(command, exitVal, output, error);
 		this.dest = dest;
@@ -43,6 +58,7 @@ public class JoinerResult extends ProcessResult {
 	}
 	
 	/**
+	 * Gets the source files.
 	 * @return the source
 	 */
 	public List<AudioFile> getSource() {
@@ -50,6 +66,7 @@ public class JoinerResult extends ProcessResult {
 	}
 	
 	/**
+	 * Gets the destination file.
 	 * @return the dest
 	 */
 	public AudioFile getDest() {
@@ -57,6 +74,7 @@ public class JoinerResult extends ProcessResult {
 	}
 
 	/**
+	 * Gets the resulting cue sheet.
 	 * @return the cue
 	 */
 	public CueSheet getCue() {

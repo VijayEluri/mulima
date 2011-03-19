@@ -21,6 +21,9 @@ import java.io.File;
 
 import org.springframework.util.StringUtils;
 
+/**
+ * Enumerates the types of audio files.
+ */
 public enum AudioFileType {
 	WAVE("wav"),
 	FLAC("flac"),
@@ -33,16 +36,31 @@ public enum AudioFileType {
 	private AudioFileType(String ext) {
 		this.ext = ext;
 	}
-	
+
+	/**
+	 * Gets the file extension used for this type.
+	 * @return file extension
+	 */
 	public String getExtension() {
 		return ext;
 	}
 	
+	/**
+	 * Tests a file to see if it is of the
+	 * same type.  Uses the file extension.
+	 * @param file file to test.
+	 * @return <code>true</code> if of the same type, <code>false</code> otherwise
+	 */
 	public boolean isOfType(File file) {
 		String ext = StringUtils.getFilenameExtension(file.getAbsolutePath());
 		return this.getExtension().equals(ext);
 	}
 	
+	/**
+	 * Gets the file type of a given file.
+	 * @param file the file to get the type of
+	 * @return the type of the file
+	 */
 	public static AudioFileType valueOf(File file) {
 		String ext = StringUtils.getFilenameExtension(file.getAbsolutePath());
 		for (AudioFileType type : AudioFileType.values()) {

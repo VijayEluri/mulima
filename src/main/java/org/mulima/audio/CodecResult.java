@@ -27,10 +27,25 @@ public class CodecResult extends ProcessResult {
 	private final AudioFile source;
 	private final AudioFile dest;
 	
+	/**
+	 * Constructs a codec result from a process result.
+	 * @param source the source of the codec operation
+	 * @param dest the destination of the codec operation
+	 * @param result the result of the codec process
+	 */
 	public CodecResult(AudioFile source, AudioFile dest, ProcessResult result) {
 		this(source, dest, result.getCommand(), result.getExitVal(), result.getOutput(), result.getError());
 	}
 	
+	/**
+	 * Constructs a codec result from the parameters.
+	 * @param source the source of the codec operation
+	 * @param dest the destination of the codec operation
+	 * @param command the command executed
+	 * @param exitVal the exit value of the process
+	 * @param output the std out of the process
+	 * @param error the std err of the process
+	 */
 	public CodecResult(AudioFile source, AudioFile dest, String command, int exitVal, String output, String error) {
 		super(command, exitVal, output, error);
 		this.source = source;
@@ -38,6 +53,7 @@ public class CodecResult extends ProcessResult {
 	}
 	
 	/**
+	 * Gets the source of the operation
 	 * @return the source
 	 */
 	public AudioFile getSource() {
@@ -45,7 +61,8 @@ public class CodecResult extends ProcessResult {
 	}
 	
 	/**
-	 * @return the dest
+	 * Gets the destination of the operation
+	 * @return the destination
 	 */
 	public AudioFile getDest() {
 		return dest;

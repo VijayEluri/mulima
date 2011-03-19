@@ -29,7 +29,7 @@ import org.mulima.audio.Splitter;
 import org.mulima.audio.Tagger;
 
 /**
- * Implementation of a codec configuraiton object.
+ * Implementation of a codec configuration object.
  * @see Codec, Tagger, Splitter, Joiner
  */
 public class CodecConfigImpl implements CodecConfig {

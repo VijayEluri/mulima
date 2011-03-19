@@ -20,7 +20,25 @@ package org.mulima.audio;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+/**
+ * A joiner specifies operations for joining audio files into
+ * a single file.
+ */
 public interface Joiner {
+	/**
+	 * Execute a join operation immediately.
+	 * @param files the files to join
+	 * @param dest the destination file
+	 * @return a joiner result
+	 * @throws Exception if there is a problem joining the files
+	 */
 	JoinerResult join(List<AudioFile> files, AudioFile dest) throws Exception;
+	
+	/**
+	 * Prepared a join operation for later execution.
+	 * @param files the files to join
+	 * @param dest the destination file
+	 * @return a callable that will execute the join
+	 */
 	Callable<JoinerResult> joinLater(List<AudioFile> files, AudioFile dest);
 }

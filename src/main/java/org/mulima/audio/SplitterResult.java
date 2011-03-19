@@ -29,10 +29,25 @@ public class SplitterResult extends ProcessResult {
 	private final AudioFile source;
 	private final List<AudioFile> dest;
 	
+	/**
+	 * Constructs a splitter result from a process result.
+	 * @param source the source of the split operation
+	 * @param dest the destination files of the split operation
+	 * @param result the result of the split process
+	 */
 	public SplitterResult(AudioFile source, List<AudioFile> dest, ProcessResult result) {
 		this(source, dest, result.getCommand(), result.getExitVal(), result.getOutput(), result.getError());
 	}
 	
+	/**
+	 * Constructs a splitter result from the parameters.
+	 * @param source the source of the split operation
+	 * @param dest the destination files of the split operation
+	 * @param command the command executed
+	 * @param exitVal the exit value of the process
+	 * @param output the std out of the process
+	 * @param error the std err of the process
+	 */
 	public SplitterResult(AudioFile source, List<AudioFile> dest, String command, int exitVal, String output, String error) {
 		super(command, exitVal, output, error);
 		this.source = source;
@@ -40,6 +55,7 @@ public class SplitterResult extends ProcessResult {
 	}
 	
 	/**
+	 * Gets the source file.
 	 * @return the source
 	 */
 	public AudioFile getSource() {
@@ -47,6 +63,7 @@ public class SplitterResult extends ProcessResult {
 	}
 	
 	/**
+	 * Gets the destination files.
 	 * @return the dest
 	 */
 	public List<AudioFile> getDest() {

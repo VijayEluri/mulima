@@ -17,12 +17,50 @@
  */
 package org.mulima.audio;
 
-
+/**
+ * The configuration of available codecs, taggers,
+ * splitters, and joiners.
+ */
 public interface CodecConfig {
+	/**
+	 * Gets the codec configured for a given file type.
+	 * @param type the type of file
+	 * @return the configured codec
+	 */
 	Codec getCodec(AudioFileType type);
+	
+	/**
+	 * Gets the codec configured for files of the same
+	 * type as the parameter.
+	 * @param file a file of the type you would like to encode/decode
+	 * @return the configured codec
+	 */
 	Codec getCodec(AudioFile file);
+	
+	/**
+	 * Gets the tagger configured for a given file type.
+	 * @param type the type of the file
+	 * @return the configured tagger
+	 */
 	Tagger getTagger(AudioFileType type);
+	
+	/**
+	 * Gets the tagger configured for file of the same
+	 * type as the parameter.
+	 * @param file a file of the type you would like to tag
+	 * @return the configured tagger
+	 */
 	Tagger getTagger(AudioFile file);
+	
+	/**
+	 * Gets the configured splitter.
+	 * @return the configured splitter
+	 */
 	Splitter getSplitter();
+	
+	/**
+	 * Gets the configured joiner.
+	 * @return the configured joiner
+	 */
 	Joiner getJoiner();
 }

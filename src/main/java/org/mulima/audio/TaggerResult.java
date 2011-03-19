@@ -28,10 +28,25 @@ public class TaggerResult extends ProcessResult {
 	private final AudioFile file;
 	private final Track track;
 	
+	/**
+	 * Constructs a tagger result from a process result.
+	 * @param file the file read from or written to
+	 * @param track the track metadata that was written or read
+	 * @param result the result of the tagger process
+	 */
 	public TaggerResult(AudioFile file, Track track, ProcessResult result) {
 		this(file, track, result.getCommand(), result.getExitVal(), result.getOutput(), result.getError());
 	}
 	
+	/**
+	 * Constructs a tagger result from the parameters.
+	 * @param file the file read from or written to
+	 * @param track the track metadata that was written or read
+	 * @param command the command executed
+	 * @param exitVal the exit value of the process
+	 * @param output the std out of the process
+	 * @param error the std err of the process
+	 */
 	public TaggerResult(AudioFile file, Track track, String command, int exitVal, String output, String error) {
 		super(command, exitVal, output, error);
 		this.file = file;
@@ -39,6 +54,7 @@ public class TaggerResult extends ProcessResult {
 	}
 
 	/**
+	 * Gets the file read from or written to.
 	 * @return the file
 	 */
 	public AudioFile getFile() {
@@ -46,6 +62,7 @@ public class TaggerResult extends ProcessResult {
 	}
 
 	/**
+	 * Gets the metadata read or written.
 	 * @return the track
 	 */
 	public Track getTrack() {

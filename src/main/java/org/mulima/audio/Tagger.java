@@ -22,11 +22,39 @@ import java.util.concurrent.Callable;
 import org.mulima.meta.Track;
 
 /**
- * Defines operations to read and write metadata to a file.
+ * A tagger specifies operations to read and write metadata
+ * from an audio file.
  */
 public interface Tagger {
+	/**
+	 * Executes a write operation immediately.
+	 * @param file the file to write to
+	 * @param track the track metadata to write
+	 * @return a tagger result
+	 * @throws Exception if there is a problem tagging
+	 */
 	TaggerResult write(AudioFile file, Track track) throws Exception;
+	
+	/**
+	 * Executes a read operation immediately.
+	 * @param file the file to read from
+	 * @return a tagger result
+	 * @throws Exception if there is a problem reading
+	 */
 	TaggerResult read(AudioFile file) throws Exception;
+	
+	/**
+	 * Preapres a write operation for later execution.
+	 * @param file the file to write to
+	 * @param track the track metadata to write
+	 * @return a callable that will execute the tag
+	 */
 	Callable<TaggerResult> writeLater(AudioFile file, Track track);
+	
+	/**
+	 * Prepares a read operation for later execution.
+	 * @param file the file to read from
+	 * @return a callable that will execute the tag
+	 */
 	Callable<TaggerResult> readLater(AudioFile file);
 }
