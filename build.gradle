@@ -120,9 +120,9 @@ task findbugs << {
 task pmd << {
 	ant {
 		taskdef(name:'pmd', classname:'net.sourceforge.pmd.ant.PMDTask', classpath: configurations.pmdConf.asPath)
-		
-		pmd(shortFilenames:'true', failonruleviolation:'true', rulesetfiles:'rulesets/basic.xml,rulesets/braces.xml,rulesets/codesize.xml,rulesets/controversial.xml,rulesets/coupling.xml,rulesets/design.xml,rulesets/favorites.xml,rulesets/finalizers.xml,rulesets/imports.xml,rulesets/javabeans.xml,rulesets/junit.xml,rulesets/naming.xml,rulesets/optimizations.xml,rulesets/scratchpad.xml,rulesets/strictexception.xml,rulesets/strings.xml,rulesets/sunsecure.xml,rulesets/typeresolution.xml,rulesets/unusedcode.xml') {
-			formatter(type:'text', toConsole:'true')
+		mkdir(dir:'build/reports/pmd')
+		pmd(shortFilenames:'true', rulesetfiles:'rulesets/basic.xml,rulesets/braces.xml,rulesets/codesize.xml,rulesets/controversial.xml,rulesets/coupling.xml,rulesets/design.xml,rulesets/favorites.xml,rulesets/finalizers.xml,rulesets/imports.xml,rulesets/javabeans.xml,rulesets/junit.xml,rulesets/naming.xml,rulesets/optimizations.xml,rulesets/scratchpad.xml,rulesets/strictexception.xml,rulesets/strings.xml,rulesets/sunsecure.xml,rulesets/typeresolution.xml,rulesets/unusedcode.xml') {
+			formatter(type:'xml', toFile:'build/reports/pmd/pmd_report.xml')
 			sourceSets.main.java.srcDirs.each {
 				fileset(dir: it) {
 					include(name:'**/*.java')
@@ -137,7 +137,7 @@ task pmd << {
 	}
 }
 
-check.dependsOn findbugs, pmd
+check.dependsOn pmd, findbugs
 
 task deploy(dependsOn: configurations.default.buildArtifacts, type: Copy) {
 	into 'C:/data/library/lib'
