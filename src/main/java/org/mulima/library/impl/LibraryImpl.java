@@ -158,14 +158,16 @@ public class LibraryImpl implements Library {
 					CueSheet cue = cueDao.read(file);
 					libAlbum.getCues().add(cue);
 				} catch (Exception e) {
-					logger.error("Problem reading cue sheet: " + FileUtil.getSafeCanonicalPath(file), e);
+					logger.error("Problem reading cue sheet: "
+						+ FileUtil.getSafeCanonicalPath(file), e);
 				}
 			} else if ("album.xml".equals(file.getName())) {
 				try {
 					Album album = albumDao.read(file);
 					libAlbum.setAlbum(album);
 				} catch (Exception e) {
-					logger.error("Problem parsing album: " + FileUtil.getSafeCanonicalPath(file), e);
+					logger.error("Problem parsing album: "
+						+ FileUtil.getSafeCanonicalPath(file), e);
 				}
 			}
 		}

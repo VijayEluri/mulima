@@ -94,10 +94,11 @@ public class Album extends AbstractMetadata {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == null)
+		if (obj == null) {
 			return false;
-		else if (!(obj instanceof Album))
+		} else if (!(obj instanceof Album)) {
 			return false;
+		}
 		
 		Album that = (Album) obj;
 		return this.getMap().equals(that.getMap())

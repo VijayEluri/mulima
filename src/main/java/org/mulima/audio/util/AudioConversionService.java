@@ -54,7 +54,7 @@ public class AudioConversionService {
 	}
 	
 	/**
-	 * Constructs a service with the specified <code>CodecService</code>
+	 * Constructs a service with the specified <code>CodecService</code>.
 	 * @param codecSrv codec service to use for underlying conversions
 	 */
 	public AudioConversionService(CodecService codecSrv) {

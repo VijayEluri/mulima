@@ -68,7 +68,7 @@ public enum ITunesTag implements Tag {
 	 * Conversion method for getting the matching <code>ITunesTag</code>
 	 * for a given <code>GenericTag</code>.
 	 * @param generic the generic tag to look for
-	 * @return the iTunes tag that corresponds to <code>generic</code.
+	 * @return the iTunes tag that corresponds to <code>generic</code>.
 	 */
 	public static ITunesTag valueOf(GenericTag generic) {
 		for (ITunesTag tag : ITunesTag.values()) {

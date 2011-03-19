@@ -52,8 +52,9 @@ public abstract class AbstractMetadata implements Metadata {
 	 */
 	@Override
 	public void add(Tag tag, String value) {
-		if (value == null)
+		if (value == null) {
 			return;
+		}
 		
 		GenericTag generic = tag.getGeneric();
 		if (!map.containsKey(generic)) {
@@ -68,8 +69,9 @@ public abstract class AbstractMetadata implements Metadata {
 	 */
 	@Override
 	public void add(Tag tag, List<String> values) {
-		if (values == null)
+		if (values == null) {
 			return;
+		}
 		
 		GenericTag generic = tag.getGeneric();
 		if (!map.containsKey(generic)) {

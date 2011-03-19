@@ -55,7 +55,7 @@ public class CodecConfigImpl implements CodecConfig {
 	}
 
 	/**
-	 * Sets the splitter supported by this config
+	 * Sets the splitter supported by this config.
 	 * @param splitter the splitter
 	 */
 	public void setSplitter(Splitter splitter) {

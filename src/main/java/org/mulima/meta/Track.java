@@ -24,7 +24,7 @@ package org.mulima.meta;
  */
 public class Track extends AbstractMetadata {
 	/**
-	 * Gets the value of {@link GenericTag#TRACK_NUMBER} 
+	 * Gets the value of {@link GenericTag#TRACK_NUMBER}.
 	 * @return the number of the track
 	 */
 	public int getNum() {

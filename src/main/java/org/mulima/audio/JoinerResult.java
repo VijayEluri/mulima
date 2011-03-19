@@ -39,7 +39,8 @@ public class JoinerResult extends ProcessResult {
 	 * @param result the result of the join process
 	 */
 	public JoinerResult(List<AudioFile> source, AudioFile dest, CueSheet cue, ProcessResult result) {
-		this(source, dest, cue, result.getCommand(), result.getExitVal(), result.getOutput(), result.getError());
+		this(source, dest, cue, result.getCommand(), result.getExitVal(),
+			result.getOutput(), result.getError());
 	}
 	
 	/**

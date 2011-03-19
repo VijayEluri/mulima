@@ -126,8 +126,9 @@ public class FreeDbTarDaoImpl implements FreeDbDao {
 	public void destroy() {
 		logger.trace("Entering destroy");
 		if (tempArchive != null) {
-			if (!tempArchive.delete())
+			if (!tempArchive.delete()) {
 				logger.warn("Failed to delete temporary archive.");
+			}
 		}
 		logger.trace("Exiting destroy");
 	}
@@ -236,8 +237,9 @@ public class FreeDbTarDaoImpl implements FreeDbDao {
 				}
 				if (matcher.group(2) == null || matcher.group(2) == "") {
 					if ("DISCID".equals(matcher.group(1))) {
-						for (String value : matcher.group(3).split(","))	
+						for (String value : matcher.group(3).split(",")) {
 							disc.add(tag, value);
+						}
 					} else if ("DTITLE".equals(matcher.group(1))) {
 							String[] values = matcher.group(3).split(" / ");
 							if (values.length == 1) {
@@ -257,10 +259,11 @@ public class FreeDbTarDaoImpl implements FreeDbDao {
 				}
 			}
 		}
-		if (disc.getAll(FreeDbTag.DISCID) == null)
+		if (disc.getAll(FreeDbTag.DISCID) == null) {
 			return null;
-		else
+		} else {
 			return disc;
+		}
 	}
 
 	/**

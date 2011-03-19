@@ -53,7 +53,7 @@ public class CodecResult extends ProcessResult {
 	}
 	
 	/**
-	 * Gets the source of the operation
+	 * Gets the source of the operation.
 	 * @return the source
 	 */
 	public AudioFile getSource() {
@@ -61,7 +61,7 @@ public class CodecResult extends ProcessResult {
 	}
 	
 	/**
-	 * Gets the destination of the operation
+	 * Gets the destination of the operation.
 	 * @return the destination
 	 */
 	public AudioFile getDest() {

@@ -84,7 +84,7 @@ public enum VorbisTag implements Tag {
 	 * Conversion method for getting the matching <code>VorbisTag</code>
 	 * for a given <code>GenericTag</code>.
 	 * @param generic the generic tag to look for
-	 * @return the Vorbis tag that corresponds to <code>generic</code.
+	 * @return the Vorbis tag that corresponds to <code>generic</code>.
 	 */
 	public static VorbisTag valueOf(GenericTag generic) {
 		for (VorbisTag tag : VorbisTag.values()) {
