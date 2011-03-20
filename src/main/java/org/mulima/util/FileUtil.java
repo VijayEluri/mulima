@@ -47,7 +47,7 @@ public class FileUtil {
 	 * @return a new <code>File</code> with specified extension
 	 */
 	public static File changeExtension(File original, String extension) {
-		String ext = extension.startsWith(".") ? extension : "." + extension;
+		String ext = extension.charAt(0) == '.' ? extension : "." + extension;
 		String path = original.getPath().replaceAll("\\.[^\\.]+$", ext);
 		return new File(path);
 	}

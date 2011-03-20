@@ -74,7 +74,7 @@ public class Disc extends AbstractMetadata {
 	
 	@Override
 	public int hashCode() {
-		return ("" + this.getMap().hashCode()
+		return (Integer.toString(this.getMap().hashCode())
 			+ this.getTracks().hashCode()).hashCode();
 	}
 	

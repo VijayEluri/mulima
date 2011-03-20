@@ -18,7 +18,10 @@
 package org.mulima.audio.util;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -29,12 +32,14 @@ import org.mulima.audio.CodecConfig;
 import org.mulima.audio.CodecResult;
 import org.mulima.audio.Joiner;
 import org.mulima.audio.JoinerResult;
+import org.mulima.audio.Operation;
 import org.mulima.audio.Splitter;
 import org.mulima.audio.SplitterResult;
 import org.mulima.audio.Tagger;
 import org.mulima.audio.TaggerResult;
 import org.mulima.meta.CueSheet;
 import org.mulima.meta.Track;
+import org.mulima.proc.TaskListener;
 
 /**
  * Service that allows the execution of codec operations.
@@ -42,6 +47,7 @@ import org.mulima.meta.Track;
 public class CodecService {
 	private CodecConfig config;
 	private ExecutorService executor;
+	private Map<Operation, List<TaskListener>> listeners = new HashMap<Operation, List<TaskListener>>();
 	
 	/**
 	 * Constructs a codec service without a codec config.
@@ -68,7 +74,9 @@ public class CodecService {
 	 */
 	public Future<CodecResult> submitEncode(AudioFile source, AudioFile dest) {
 		Codec codec = config.getCodec(dest);
-		return executor.submit(codec.encodeLater(source, dest));
+		Future<CodecResult> task = executor.submit(codec.encodeLater(source, dest));
+		fireTaskSubmitted(Operation.ENCODE, task);
+		return task;
 	}
 	
 	/**
@@ -80,7 +88,9 @@ public class CodecService {
 	 */
 	public Future<CodecResult> submitDecode(AudioFile source, AudioFile dest) {
 		Codec codec = config.getCodec(source);
-		return executor.submit(codec.decodeLater(source, dest));
+		Future<CodecResult> task = executor.submit(codec.decodeLater(source, dest));
+		fireTaskSubmitted(Operation.DECODE, task);
+		return task;
 	}
 	
 	/**
@@ -92,7 +102,9 @@ public class CodecService {
 	 */
 	public Future<SplitterResult> submitSplit(AudioFile source, CueSheet cue, File destDir) {
 		Splitter util = config.getSplitter();
-		return executor.submit(util.splitLater(source, cue, destDir));
+		Future<SplitterResult> task = executor.submit(util.splitLater(source, cue, destDir));
+		fireTaskSubmitted(Operation.SPLIT, task);
+		return task;
 	}
 	
 	/**
@@ -103,7 +115,9 @@ public class CodecService {
 	 */
 	public Future<JoinerResult> submitJoin(List<AudioFile> sources, AudioFile dest) {
 		Joiner util = config.getJoiner();
-		return executor.submit(util.joinLater(sources, dest));
+		Future<JoinerResult> task = executor.submit(util.joinLater(sources, dest));
+		fireTaskSubmitted(Operation.JOIN, task);
+		return task;
 	}
 	
 	/**
@@ -114,7 +128,9 @@ public class CodecService {
 	 */
 	public Future<TaggerResult> submitReadMeta(AudioFile file) {
 		Tagger util = config.getTagger(file);
-		return executor.submit(util.readLater(file));
+		Future<TaggerResult> task = executor.submit(util.readLater(file));
+		fireTaskSubmitted(Operation.TAG, task);
+		return task;
 	}
 	
 	/**
@@ -126,7 +142,9 @@ public class CodecService {
 	 */
 	public Future<TaggerResult> submitWriteMeta(AudioFile file, Track meta) {
 		Tagger util = config.getTagger(file);
-		return executor.submit(util.writeLater(file, meta));
+		Future<TaggerResult> task = executor.submit(util.writeLater(file, meta));
+		fireTaskSubmitted(Operation.TAG, task);
+		return task;
 	}
 	
 	/**
@@ -149,5 +167,32 @@ public class CodecService {
 	 */
 	public List<Runnable> shutdownNow() {
 		return executor.shutdownNow();
+	}
+	
+	/**
+	 * Registers a listener with this codec service.  It will be
+	 * notified of all task submissions for the specified operation.
+	 * @param op the operation to be listen for
+	 * @param listener the listener to register 
+	 */
+	public void registerListener(Operation op, TaskListener listener) {
+		if (!listeners.containsKey(op)) {
+			listeners.put(op, new ArrayList<TaskListener>());
+		}
+		listeners.get(op).add(listener);
+	}
+	
+	/**
+	 * Notifies all listeners for the specified operation
+	 * that a task was submitted.
+	 * @param op the operation to notify for
+	 * @param task the task that was submitted
+	 */
+	private void fireTaskSubmitted(Operation op, Future<?> task) {
+		if (listeners.containsKey(op)) {
+			for (TaskListener listener : listeners.get(op)) {
+				listener.taskSubmitted(task);
+			}
+		}
 	}
 }

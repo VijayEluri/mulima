@@ -19,6 +19,7 @@ package org.mulima.library.impl;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -151,15 +152,28 @@ public class LibraryManagerImpl implements LibraryManager {
 			futures.add(service.submitConvert(refAlbum, destAlbums));
 		}
 		
-		for (Future<List<LibraryAlbum>> future : futures) {
+		boolean cancelAll = false;
+		while (!futures.isEmpty()) {
+			Iterator<Future<List<LibraryAlbum>>> iterator = futures.iterator();
+			while (iterator.hasNext()) {
+				Future<?> future = iterator.next();
+				if (future.isDone()) {
+					try {
+						future.get();
+					} catch (ExecutionException e) {
+						logger.error("Problem converting album.", e);
+					} catch (InterruptedException e) {
+						logger.error("Problem converting album.", e);
+					}
+					iterator.remove();
+				} else if (cancelAll) {
+					future.cancel(true);
+				}
+			}
 			try {
-				future.get();
-			} catch (ExecutionException e) {
-				logger.error("Error converting folder.", e.getCause());
-				service.shutdown();
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				service.shutdownNow();
-				throw new RuntimeException(e);
+				cancelAll = true;
 			}
 		}
 	}

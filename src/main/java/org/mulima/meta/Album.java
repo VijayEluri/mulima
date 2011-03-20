@@ -111,7 +111,7 @@ public class Album extends AbstractMetadata {
 	 */
 	@Override
 	public int hashCode() {
-		return ("" + getMap().hashCode()
+		return (Integer.toString(getMap().hashCode())
 			+ getCues().hashCode()
 			+ getDiscs().hashCode()).hashCode();
 	}

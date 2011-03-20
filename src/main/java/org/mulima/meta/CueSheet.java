@@ -103,7 +103,7 @@ public class CueSheet extends AbstractMetadata {
 	
 	@Override
 	public int hashCode() {
-		return ("" + Integer.valueOf(getNum()).hashCode() + getMap().hashCode()
+		return (Integer.toString(Integer.valueOf(getNum()).hashCode()) + getMap().hashCode()
 			+ getTracks().hashCode()).hashCode();
 	}
 	
@@ -163,7 +163,7 @@ public class CueSheet extends AbstractMetadata {
 		
 		@Override
 		public int hashCode() {
-			return ("" + Integer.valueOf(getNum()).hashCode()
+			return (Integer.toString(Integer.valueOf(getNum()).hashCode())
 				+ getMap().hashCode()
 				+ getIndices().hashCode()).hashCode();
 		}
@@ -231,7 +231,7 @@ public class CueSheet extends AbstractMetadata {
 		
 		@Override
 		public int hashCode() {
-			return ("" + Integer.valueOf(getNum()).hashCode()
+			return (Integer.toString(Integer.valueOf(getNum()).hashCode())
 				+ this.getTime().hashCode()).hashCode();
 		}
 		
