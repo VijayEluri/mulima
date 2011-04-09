@@ -31,6 +31,7 @@ repositories {
 configurations {
 	findbugsConf
 	pmdConf
+	jdependConf
 }
 	
 spring = { name ->
@@ -77,6 +78,11 @@ dependencies {
 	emma (
 		[group:'emma', name:'emma', version:'2.0.5312'],
 		[group:'emma', name:'emma_ant', version:'2.0.5312']
+	)
+	
+	jdependConf (
+		[group:'jdepend', name:'jdepend', version:'2.9.1'],
+		[group:'org.apache.ant', name:'ant-jdepend', version:'1.7.1']	
 	)
 	
 	testCompile(
@@ -137,7 +143,19 @@ task pmd << {
 	}
 }
 
-check.dependsOn pmd, findbugs
+task jdepend << {
+	file("${buildDir}/reports/jdepend").mkdirs()
+	ant {
+		taskdef(name:'jdepend', classname:'org.apache.tools.ant.taskdefs.optional.jdepend.JDependTask', classpath:configurations.jdependConf.asPath)
+		jdepend(outputFile:"${buildDir}/reports/jdepend/jdepend-report.txt") {
+			classespath {
+				pathelement(location:'build')
+			}
+		}
+	}
+}
+
+check.dependsOn pmd, findbugs, jdepend
 
 task deploy(dependsOn: configurations.default.buildArtifacts, type: Copy) {
 	into 'C:/data/library/lib'

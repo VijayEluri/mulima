@@ -19,7 +19,9 @@ package org.mulima.library;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.mulima.audio.AudioFile;
 import org.mulima.meta.Album;
@@ -36,7 +38,7 @@ public class LibraryAlbum {
 	private Album album = null;
 	private Library lib = null;
 	private File dir = null;
-	private List<AudioFile> audioFiles = new ArrayList<AudioFile>();
+	private Set<AudioFile> audioFiles = new HashSet<AudioFile>();
 	private List<CueSheet> cues = new ArrayList<CueSheet>();
 	
 	/**
@@ -88,20 +90,20 @@ public class LibraryAlbum {
 	}
 	
 	/**
-	 * Gets a list of all audio files in this library
+	 * Gets a set of all audio files in this library
 	 * album.
 	 * @return the audio files
 	 */
-	public List<AudioFile> getAudioFiles() {
+	public Set<AudioFile> getAudioFiles() {
 		return audioFiles;
 	}
 	
 	/**
-	 * Sets a list of all audio files in this library
+	 * Sets a set of all audio files in this library
 	 * album. 
 	 * @param audioFiles the audio files
 	 */
-	public void setAudioFiles(List<AudioFile> audioFiles) {
+	public void setAudioFiles(Set<AudioFile> audioFiles) {
 		this.audioFiles = audioFiles;
 	}
 

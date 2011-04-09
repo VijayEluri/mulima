@@ -26,7 +26,7 @@ import java.util.concurrent.Future;
 
 import org.mulima.audio.CodecConfig;
 import org.mulima.audio.util.AudioConversionService;
-import org.mulima.audio.util.CodecService;
+import org.mulima.job.Context;
 import org.mulima.library.Library;
 import org.mulima.library.LibraryAlbum;
 import org.mulima.library.LibraryManager;
@@ -49,7 +49,6 @@ public class LibraryManagerImpl implements LibraryManager {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private List<ReferenceLibrary> refLibs = null;
 	private List<Library> destLibs = null;
-	private AudioConversionService service = null;
 	private FreeDbDao freeDbDao = null;
 	private MetadataFileDao<Album> albumDao = null;
 	private MetadataFileDao<CueSheet> cueDao = null;
@@ -90,8 +89,7 @@ public class LibraryManagerImpl implements LibraryManager {
 	 * @param codecConfig the codeConfig to set
 	 */
 	public void setCodecConfig(CodecConfig codecConfig) {
-		CodecService codecService = new CodecService(codecConfig);
-		this.service = new AudioConversionService(codecService);
+		Context.getRoot().setCodecConfig(codecConfig);
 	}
 
 	/**
@@ -149,7 +147,7 @@ public class LibraryManagerImpl implements LibraryManager {
 			for (Library destLib : libs) {
 				destAlbums.add(destLib.newAlbum(refAlbum));
 			}
-			futures.add(service.submitConvert(refAlbum, destAlbums));
+			futures.add(AudioConversionService.getInstance().submitConvert(refAlbum, destAlbums));
 		}
 		
 		boolean cancelAll = false;

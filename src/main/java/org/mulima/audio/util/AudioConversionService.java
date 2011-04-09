@@ -29,23 +29,31 @@ import org.mulima.library.LibraryAlbum;
  * to its destination libraries.
  */
 public class AudioConversionService {
+	private static AudioConversionService instance = null;
 	private ExecutorService executor;
 	private CodecService codecSrv;
 	
 	/**
 	 * Constructs a service without a <code>CodecService</code>.
 	 */
-	public AudioConversionService() {
-		this(null);
+	protected AudioConversionService() {
+		this(CodecService.getInstance());
 	}
 	
 	/**
 	 * Constructs a service with the specified <code>CodecService</code>.
 	 * @param codecSrv codec service to use for underlying conversions
 	 */
-	public AudioConversionService(CodecService codecSrv) {
+	protected AudioConversionService(CodecService codecSrv) {
 		this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 		this.codecSrv = codecSrv;
+	}
+	
+	public static AudioConversionService getInstance() {
+		if (instance == null) {
+			instance = new AudioConversionService();
+		}
+		return instance;
 	}
 	
 	/**

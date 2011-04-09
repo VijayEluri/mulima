@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
+import org.mulima.job.Context;
+
 /**
  * A wrapper around a traditional <code>File</code> object
  * providing access to the type of file.
@@ -133,7 +135,7 @@ public class AudioFile extends File {
 	 * @throws IOException if the file cannot be created
 	 */
 	public static AudioFile createTempFile(AudioFile model) throws IOException { 
-		File temp = File.createTempFile("library", "." + model.getType().getExtension());
+		File temp = File.createTempFile("library", "." + model.getType().getExtension(), Context.getCurrent().getTempDir());
 		return new AudioFile(temp);
 	}
 }
