@@ -33,16 +33,16 @@ class AlbumXmlDaoImplTest {
 	
 	@Before
 	void prepareAlbums() {
-		exampleAlbum = AlbumXmlHelper.getExampleAlbum()
-		exampleXml = File.createTempFile("example", ".xml")
-		tempXml = File.createTempFile("temp", ".xml")
-		AlbumXmlHelper.writeExampleFile(exampleXml);
+		exampleAlbum = AlbumXmlHelper.exampleAlbum
+		exampleXml = File.createTempFile('example', '.xml')
+		tempXml = File.createTempFile('temp', '.xml')
+		AlbumXmlHelper.writeExampleFile(exampleXml)
 	}
 
 	@Test
 	void read() {
 		def album = new AlbumXmlDaoImpl().read(exampleXml)
-		assertEquals(exampleAlbum, album)
+		assert exampleAlbum == album
 	}
 	
 	@Test
@@ -55,7 +55,7 @@ class AlbumXmlDaoImplTest {
 		def example = []
 		exampleXml.eachLine { example.add(it.trim()) }
 		
-		assertEquals(example, temp)
+		assert example == temp
 	}
 	
 	@After

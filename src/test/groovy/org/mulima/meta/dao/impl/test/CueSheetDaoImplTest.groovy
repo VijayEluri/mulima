@@ -33,16 +33,16 @@ class CueSheetDaoImplTest {
 	
 	@Before
 	void prepareCues() {
-		exampleCue = CueSheetHelper.getExampleCue()
-		exampleFile = File.createTempFile("example", ".cue")
-		tempFile = File.createTempFile("temp", ".cue")
-		CueSheetHelper.writeExampleFile(exampleFile);
+		exampleCue = CueSheetHelper.exampleCue
+		exampleFile = File.createTempFile('example', '.cue')
+		tempFile = File.createTempFile('temp', '.cue')
+		CueSheetHelper.writeExampleFile(exampleFile)
 	}
 
 	@Test
 	void read() {
 		def cue = new CueSheetDaoImpl().read(exampleFile)
-		assertEquals(exampleCue, cue)
+		assert exampleCue == cue
 	}
 	
 	@Test
@@ -55,7 +55,7 @@ class CueSheetDaoImplTest {
 		def example = []
 		exampleFile.eachLine { example.add(it.trim()) }
 		
-		assertEquals(example, temp)
+		assert example == temp
 	}
 	
 	@After 

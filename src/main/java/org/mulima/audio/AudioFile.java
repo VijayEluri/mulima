@@ -113,22 +113,6 @@ public class AudioFile extends File {
 	}
 	
 	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		return super.equals(obj);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int hashCode() {
-		return super.hashCode();
-	}
-	
-	/**
 	 * Creates a temporary audio file.
 	 * @param model the file to model
 	 * @return the temporary file

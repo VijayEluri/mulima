@@ -30,7 +30,7 @@ class AlbumXmlHelper {
 		
 		album = MetadataFactory.fromStringString([ARTIST:'Genesis', ALBUM:'Foxtrot', GENRE:'Progressive Rock', DATE:'1972', CDDB_ID:'520C0506'], Album.class)
 		
-		def cue = CueSheetHelper.getExampleCue()
+		def cue = CueSheetHelper.exampleCue
 		cue.map.clear()
 		cue.tracks.each { it.map.clear() }
 		
@@ -50,8 +50,8 @@ class AlbumXmlHelper {
 		return album
 	}
 	
-	static def createTrack(def tags) {
-		def track = MetadataFactory.fromStringString(tags, Track.class)
+	static Track createTrack(Map tags) {
+		Track track = MetadataFactory.fromStringString(tags, Track.class)
 		return track
 	}
 	

@@ -21,13 +21,14 @@ import java.util.concurrent.Callable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.mulima.meta.CueSheet
+import org.mulima.meta.Metadata
 import org.mulima.meta.impl.CueSheetTag
 import org.mulima.meta.dao.MetadataFileDao
 
 class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 	private final Logger logger = LoggerFactory.getLogger(CueSheetDaoImpl.class)
 	
-	def tagHelper(def writer, def item) {
+	def tagHelper(Writer writer, Metadata item) {
 		return { tag, indent ->
 			def value = item.getFlat(tag)			
 			writer.println "${indent}${tag.toString(value)}"	
@@ -37,20 +38,20 @@ class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 	void write(File file, CueSheet cue) {
 		def writer = new PrintWriter(file)
 		def cueTag = tagHelper(writer, cue)		
-		cueTag(CueSheetTag.Cue.REM_GENRE, "")
-		cueTag(CueSheetTag.Cue.REM_DATE, "")
-		cueTag(CueSheetTag.Cue.REM_DISCID, "")
-		cueTag(CueSheetTag.Cue.PERFORMER, "")
-		cueTag(CueSheetTag.Cue.TITLE, "")
-		cueTag(CueSheetTag.Cue.FILE, "")
+		cueTag(CueSheetTag.Cue.REM_GENRE, '')
+		cueTag(CueSheetTag.Cue.REM_DATE, '')
+		cueTag(CueSheetTag.Cue.REM_DISCID, '')
+		cueTag(CueSheetTag.Cue.PERFORMER, '')
+		cueTag(CueSheetTag.Cue.TITLE, '')
+		cueTag(CueSheetTag.Cue.FILE, '')
 		
 		cue.tracks.each { track ->
 			def trackTag = tagHelper(writer, track)
-			writer.println String.format("  TRACK %1\$02d AUDIO", track.num)
-			trackTag(CueSheetTag.Track.TITLE, "    ")
-			trackTag(CueSheetTag.Track.PERFORMER, "    ")
+			writer.println String.format('\tTRACK %1\$02d AUDIO', track.num)
+			trackTag(CueSheetTag.Track.TITLE, '\t\t')
+			trackTag(CueSheetTag.Track.PERFORMER, '\t\t')
 			track.indices.each { index ->
-				writer.println "    INDEX ${index.format()}"
+				writer.println "\t\tINDEX ${index.format()}"
 			}
 		}
 		
@@ -59,7 +60,7 @@ class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 	
 	Callable<Void> writeLater(File file, CueSheet cue) {
 		return new Callable<Void>() {
-			public Void call() {
+			Void call() {
 				write(file, cue)
 			}
 		}
@@ -76,40 +77,36 @@ class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 				logger.debug("Invalid line: ${it}")
 			}
 			
-			def name = matcher[0][1].trim().replaceAll(" ", "_")
+			def name = matcher[0][1].trim().replaceAll(' ', '_')
 			def value = matcher[0][2].trim()
 			
-			if ("TRACK" == name) {
+			if ('TRACK' == name) {
 				if (track != null) {
 					cue.tracks.add(track)
 				}
 				
 				track = new CueSheet.Track()
-				track.num = Integer.valueOf(value.split(" ")[0])
+				track.num = Integer.valueOf(value.split(' ')[0])
 			} else if (track == null) {
-				def tag
 				try {
-					tag = CueSheetTag.Cue.valueOf(name)
+					def tag = CueSheetTag.Cue.valueOf(name)
+					cue.add(tag, value)
 				} catch (IllegalArgumentException e) {
-					logger.debug(e.getMessage(), e)
-					return
+					logger.debug(e.message, e)
 				}
-				cue.add(tag, value)
-			} else if ("INDEX" == name) {
+			} else if ('INDEX' == name) {
 				def index = new CueSheet.Index()
-				value = value.split(" ")
+				value = value.split(' ')
 				index.num = Integer.valueOf(value[0])
 				index.time = value[1]
 				track.indices.add(index)
 			} else {
-				def tag
 				try {
-					tag = CueSheetTag.Track.valueOf(name)
+					def tag = CueSheetTag.Track.valueOf(name)
+					track.add(tag, value)
 				} catch (IllegalArgumentException e) {
-					logger.debug(e.getMessage(), e)
-					return
+					logger.debug(e.message, e)
 				}
-				track.add(tag, value)
 			}
 		}
 		
@@ -125,7 +122,7 @@ class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 	
 	Callable<CueSheet> readLater(File file) {
 		return new Callable<CueSheet>() {
-			public CueSheet call() {
+			CueSheet call() {
 				return read(file)
 			}
 		}

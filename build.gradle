@@ -13,15 +13,22 @@ apply plugin: 'code-quality'
 apply plugin: 'jdepend'
 apply plugin: 'pmd'
 apply plugin: 'findbugs'
+apply plugin: 'eclipse'
 apply from: 'emma.gradle'
 
 group = 'org.ajoberstar'
 version = '0.1.0.SNAPSHOT'
 
+sourceCompatibility = '1.6'
+
 checkstyleMain.ignoreFailures = true
 checkstyleTest.ignoreFailures = true
+findbugsMain.ignoreFailures = true
+findbugsTest.ignoreFailures = true
 
 codeNarcConfigFileName = 'config/codenarc/codenarc.groovy'
+
+convention.plugins.pmd.rulesets 'config/pmd/rulesets.xml'
 
 repositories {
 	mavenCentral()
@@ -29,17 +36,16 @@ repositories {
 
 dependencies {
 	compile (
-		[group:'org.slf4j', name:'slf4j-api', version:'1.6.2'],
-		[group:'org.springframwork', name:'spring-context', version:'3.0.5.RELEASE'],
-		[group:'org.springframwork', name:'spring-jdbc', version:'3.0.5.RELEASE'],
-		[group:'org.springframwork', name:'spring-transaction', version:'3.0.5.RELEASE'],
+		[group:'org.slf4j', name:'slf4j-api', version:'1.6.1'],
+		[group:'org.springframework', name:'spring-context', version:'3.0.5.RELEASE'],
+		[group:'org.springframework', name:'spring-jdbc', version:'3.0.5.RELEASE'],
+		[group:'org.springframework', name:'spring-tx', version:'3.0.5.RELEASE'],
 		[group:'org.apache.commons', name:'commons-compress', version:'1.1']
 	)
 	
 	runtime (
-		[group:'org.slf4j', name:'jcl-over-slf4j', version:'1.6.2'],
+		[group:'org.slf4j', name:'jcl-over-slf4j', version:'1.6.1'],
 		[group:'ch.qos.logback', name:'logback-classic', version:'0.9.28'],
-		[group:'ch.qos.logback', name:'logback-c', version:'0.9.28'],
 		[group:'mysql', name:'mysql-connector-java', version:'5.1.13']
 	)
 	

@@ -26,6 +26,7 @@ import org.mulima.meta.Album
 import org.mulima.meta.CueSheet
 import org.mulima.meta.Disc
 import org.mulima.meta.GenericTag
+import org.mulima.meta.Metadata
 import org.mulima.meta.Track
 import org.mulima.meta.dao.MetadataFileDao
 
@@ -33,8 +34,8 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 	private final Logger logger = LoggerFactory.getLogger(getClass())
 	
 	void write(File file, Album album) {
-		album.tidy();
-		def writer = new PrintWriter(file, "UTF-8")
+		album.tidy()
+		def writer = new PrintWriter(file, 'UTF-8')
 		def indenter = new IndentPrinter(writer, '\t')
 		def xml = new MarkupBuilder(indenter)
 		
@@ -47,13 +48,13 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 	
 	Callable<Void> writeLater(File file, Album album) {
 		return new Callable<Void>() {
-			public Void call() {
-				write(file, album);
+			Void call() {
+				write(file, album)
 			}
 		}
 	}
 	
-	private def writeTags(def xml, def meta) {
+	private void writeTags(MarkupBuilder xml, Metadata meta) {
 		meta.map.each { key, values ->
 			values.each { value ->
 				xml.tag(name:key.camelCase(), value:value)
@@ -61,7 +62,7 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 	}
 	
-	private def writeCues(def xml, def cues) {
+	private void writeCues(MarkupBuilder xml, List<CueSheet> cues) {
 		cues.each { cueSheet ->
 			xml.cue(num:cueSheet.num) {
 				cueSheet.tracks.each { cueTrack ->
@@ -75,7 +76,7 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 	}
 	
-	private writeDiscs(def xml, def discs) {
+	private void writeDiscs(MarkupBuilder xml, List<Disc> discs) {
 		discs.each { albumDisc ->
 			xml.disc {
 				writeTags(xml, albumDisc)
@@ -84,7 +85,7 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 	}
 	
-	private writeTracks(def xml, def tracks) {
+	private void writeTracks(MarkupBuilder xml, List<Track> tracks) {
 		tracks.each { albumTrack ->
 			xml.track {
 				writeTags(xml, albumTrack)
@@ -100,7 +101,7 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		try {
 			xml = new XmlParser().parse(file)
 		} catch (e) {
-			logger.error "Problem reading file: ${file.canonicalPath}"
+			logger.error "Problem reading file: ${file.canonicalPath},", e
 			throw e
 		}
 		def album = new Album()
@@ -109,25 +110,25 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		readTags(xml.tag, album)
 		readDiscs(xml.disc, album.discs)
 		
-		album.tidy();
+		album.tidy()
 		return album
 	}
 	
 	Callable<Album> readLater(File file) {
 		return new Callable<Album>() {
-			public Album call() {
-				return read(file);
+			Album call() {
+				return read(file)
 			}
 		}
 	}
 	
-	private def readTags(def xml, def meta) {
+	private void readTags(MarkupBuilder xml, Metadata meta) {
 		xml.each { tagNode ->
 			meta.add(GenericTag.valueOfCamelCase(tagNode.'@name'), tagNode.'@value')
 		}
 	}
 	
-	private def readCues(def xml, def cues) {
+	private void readCues(MarkupBuilder xml, List<CueSheet> cues) {
 		xml.each { cueNode ->
 			def cue = new CueSheet()
 			cue.num = Integer.parseInt(cueNode.'@num')
@@ -150,7 +151,7 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 	}
 	
-	private def readDiscs(def xml, def discs) {
+	private void readDiscs(MarkupBuilder xml, List<Disc> discs) {
 		xml.each { discNode ->
 			def disc = new Disc()
 			readTags(discNode.tag, disc)
@@ -159,7 +160,7 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 	}
 	
-	private def readTracks(def xml, def tracks) {
+	private void readTracks(MarkupBuilder xml, List<Track> tracks) {
 		xml.each { trackNode ->
 			def track = new Track()
 			readTags(trackNode.tag, track)
