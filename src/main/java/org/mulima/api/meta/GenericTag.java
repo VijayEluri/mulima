@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mulima.meta;
+package org.mulima.api.meta;
 
 import org.mulima.util.StringUtil;
 
@@ -23,7 +23,10 @@ import org.mulima.util.StringUtil;
  * Contains generic tags that should be common across
  * all tagging systems. Other <code>Tag</code> implementations
  * will tie their values back to values from this class.
+ * @author Andrew Oberstar
+ * @version 0.1.0
  * @see TagSupport
+ * @since 0.1.0
  */
 public enum GenericTag implements Tag {
 	ALBUM,
@@ -63,7 +66,8 @@ public enum GenericTag implements Tag {
 	FILE;
 	
 	/**
-	 * {@inheritDoc}
+	 * Gets itself.
+	 * @return this
 	 */
 	@Override
 	public GenericTag getGeneric() {

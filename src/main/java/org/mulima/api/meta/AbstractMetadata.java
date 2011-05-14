@@ -15,13 +15,13 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mulima.meta;
+package org.mulima.api.meta;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Set;
 
 
 /**
@@ -83,6 +83,14 @@ public abstract class AbstractMetadata implements Metadata {
 			tagValues.add(value.trim());
 		}
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void addAll(Metadata meta) {
+		//TODO implement this
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -118,16 +126,14 @@ public abstract class AbstractMetadata implements Metadata {
 		
 		StringBuilder builder = new StringBuilder();
 		
-		for (int i = 0; i < values.size(); i++) {
-			if (i != 0) {
-				if (values.size() != 2) {
-					builder.append(",");
-				}
-				if (values.size() - 1 == i) {
-					builder.append(" &");
-				}
-				builder.append(" ");
-			}
+		int i = 0;
+		builder.append(values.get(i));
+		for (i++; i < values.size() - 1; i++) {
+			builder.append(", ");
+			builder.append(values.get(i));
+		}
+		if (i == values.size() - 1) {
+			builder.append(" & ");
 			builder.append(values.get(i));
 		}
 		
@@ -141,6 +147,16 @@ public abstract class AbstractMetadata implements Metadata {
 	public void remove(Tag tag) {
 		GenericTag generic = tag.getGeneric();
 		map.remove(generic);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void removeAll() {
+		for (Tag key : map.keySet()) {
+			map.remove(key);
+		}
 	}
 	
 	@Override
@@ -177,24 +193,14 @@ public abstract class AbstractMetadata implements Metadata {
 	 * @param <T> the type of metadata of the children
 	 * @param children list of child metadata objects
 	 */
-	protected <T extends AbstractMetadata> void tidy(List<T> children) {
+	protected <T extends AbstractMetadata> void tidy(Set<T> children) {
 		for (Tag tag : GenericTag.values()) {
 			if (GenericTag.DISC_NUMBER.equals(tag) || GenericTag.TRACK_NUMBER.equals(tag)) {
 				continue;
 			}
 			List<String> values = this.getAll(tag);
 			if (values == null || values.isEmpty()) {
-				List<String> newValues = null;
-				for (AbstractMetadata child : children) {
-					List<String> temp = child.getAll(tag);
-					if (newValues == null) {
-						newValues = temp;
-					} else if (!values.equals(temp)) {
-						values = null;
-						break;
-					}
-				}
-				
+				values = findCommon(tag, children);
 				if (values != null) {
 					this.add(tag, values);
 					for (AbstractMetadata child : children) {
@@ -203,5 +209,25 @@ public abstract class AbstractMetadata implements Metadata {
 				}
 			}
 		}
+	}
+	
+	/**
+	 * Finds the common value list for the given tag on the given children.  This will
+	 * only find common values if all children have an identical list of values.
+	 * @param <T> the type of metadata of the children
+	 * @param tag the tag to find the common values of
+	 * @param children list of child metadata objects
+	 * @return the list of common values or {@code null} if any children have a different value
+	 */
+	private <T extends AbstractMetadata> List<String> findCommon(Tag tag, Set<T> children) {
+		List<String> newValues = null;
+		for (AbstractMetadata child : children) {
+			if (newValues == null) {
+				newValues = child.getAll(tag);
+			} else if (!newValues.equals(child.getAll(tag))) {
+				return null;
+			}
+		}
+		return newValues;
 	}
 }
