@@ -27,14 +27,12 @@ import org.mulima.audio.Codec;
 import org.mulima.audio.CodecResult;
 import org.mulima.audio.util.CodecCaller;
 import org.mulima.util.FileUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Supports Nero AAC encode/decode operations.
  */
 public class NeroAacCodecImpl implements Codec {
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	//private final Logger logger = LoggerFactory.getLogger(getClass());
 	private String encPath = "neroAacEnc";
 	private String decPath = "neroAacDec";
 	private String quality = "0.5";

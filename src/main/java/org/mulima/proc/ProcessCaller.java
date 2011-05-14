@@ -36,8 +36,6 @@ import org.slf4j.LoggerFactory;
 public class ProcessCaller implements Callable<ProcessResult> {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private final List<String> command;
-	private Future<String> output;
-	private Future<String> error;
 	
 	/**
 	 * Constructs a process caller with the specified operating system program and arguments.
@@ -64,8 +62,8 @@ public class ProcessCaller implements Callable<ProcessResult> {
 		logger.debug("Executing command: " + command);
 		Process proc = new ProcessBuilder(command).start();
 		ExecutorService threadPool = Executors.newFixedThreadPool(2);
-		output = threadPool.submit(new StreamDumper(proc.getInputStream()));
-		error = threadPool.submit(new StreamDumper(proc.getErrorStream()));
+		Future<String> output = threadPool.submit(new StreamDumper(proc.getInputStream()));
+		Future<String> error = threadPool.submit(new StreamDumper(proc.getErrorStream()));
 		int exit = proc.waitFor();
 		String out = output.get();
 		String err = error.get();

@@ -43,9 +43,9 @@ import org.slf4j.LoggerFactory;
  */
 public class AudioConversion implements Callable<List<LibraryAlbum>> {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-	private LibraryAlbum refAlbum;
-	private List<LibraryAlbum> destAlbums;
-	private CodecService service;
+	private final LibraryAlbum refAlbum;
+	private final List<LibraryAlbum> destAlbums;
+	private final CodecService service;
 	
 	public AudioConversion(CodecService service, LibraryAlbum refAlbum, List<LibraryAlbum> destAlbums) {
 		this.service = service;

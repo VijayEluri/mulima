@@ -39,9 +39,9 @@ import org.slf4j.LoggerFactory;
  */
 public class ProcessFuture implements Future<Integer> {
 	private final Logger logger = LoggerFactory.getLogger(ProcessFuture.class);
-	private Process proc;
-	private Future<String> output;
-	private Future<String> error;
+	private final Process proc;
+	private final Future<String> output;
+	private final Future<String> error;
 	private boolean cancelled = false;
 	private boolean done = false;
 	

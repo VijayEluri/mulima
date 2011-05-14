@@ -41,7 +41,7 @@ import org.mulima.meta.Track;
  * Service that allows the execution of codec operations.
  */
 public class CodecService {
-	private static CodecService instance = null;
+	private static CodecService instance = new CodecService();
 	
 	private CodecConfig config;
 	private ExecutorService executor;
@@ -67,9 +67,6 @@ public class CodecService {
 	 * @return instance of the service
 	 */
 	public static CodecService getInstance() {
-		if (instance == null) {
-			instance = new CodecService();
-		}
 		return instance;
 	}
 	

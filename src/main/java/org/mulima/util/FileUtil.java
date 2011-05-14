@@ -35,7 +35,7 @@ public class FileUtil {
 	 * This class should never be instantiated.
 	 * @throws UnsupportedOperationException always
 	 */
-	protected FileUtil() {
+	private FileUtil() {
 		throw new UnsupportedOperationException("Cannot instantiate this class.");
 	}
 	

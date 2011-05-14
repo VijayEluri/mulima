@@ -99,7 +99,7 @@ public abstract class AbstractMetadata implements Metadata {
 	@Override
 	public String getFirst(Tag tag) {
 		GenericTag generic = tag.getGeneric();
-		if (map.containsKey(generic) && map.get(generic).size() > 0) {
+		if (map.containsKey(generic) && !map.get(generic).isEmpty()) {
 			return map.get(generic).get(0);
 		} else {
 			return null;
@@ -183,12 +183,12 @@ public abstract class AbstractMetadata implements Metadata {
 				continue;
 			}
 			List<String> values = this.getAll(tag);
-			if (values == null || values.size() == 0) {
-				values = null;
+			if (values == null || values.isEmpty()) {
+				List<String> newValues = null;
 				for (AbstractMetadata child : children) {
 					List<String> temp = child.getAll(tag);
-					if (values == null) {
-						values = temp;
+					if (newValues == null) {
+						newValues = temp;
 					} else if (!values.equals(temp)) {
 						values = null;
 						break;

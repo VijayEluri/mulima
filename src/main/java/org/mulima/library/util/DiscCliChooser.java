@@ -60,7 +60,7 @@ public class DiscCliChooser implements Chooser<Disc> {
 			}
 		}
 		
-		if (choices.size() > 0 && min > 10) {
+		if (!choices.isEmpty() && min > 10) {
 			System.out.println("***** User Input Requested *****");
 			System.out.println("Cue Disc ID: " + cue.getFlat(GenericTag.CDDB_ID));
 			System.out.println("Cue Artist: " + cue.getFlat(GenericTag.ARTIST));

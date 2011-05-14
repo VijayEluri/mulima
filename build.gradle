@@ -4,7 +4,7 @@ buildscript {
 		mavenRepo(name:'sonatype', urls:['https://oss.sonatype.org/content/groups/public/'])
 	}
 	dependencies {
-		classpath group:'org.ajoberstar', name:'gradle-plugins', version:'0.1.0.SNAPSHOT'
+		classpath group:'org.ajoberstar', name:'gradle-plugins', version:'0.1.0'
 	}
 }
 
@@ -25,6 +25,8 @@ checkstyleMain.ignoreFailures = true
 checkstyleTest.ignoreFailures = true
 findbugsMain.ignoreFailures = true
 findbugsTest.ignoreFailures = true
+pmdMain.ignoreFailures = true
+pmdTest.ignoreFailures = true
 
 codeNarcConfigFileName = 'config/codenarc/codenarc.groovy'
 
@@ -76,11 +78,5 @@ dependencies {
 		[group:'junit', name:'junit', version:'4.8.2'],
 		[group:'org.mockito', name:'mockito-core', version:'1.8.5']
 	)
-}
-
-task deploy(dependsOn: configurations.default.buildArtifacts, type: Copy) {
-	into 'C:/data/library/lib'
-	from configurations.default
-	from configurations.default.allArtifactFiles
 }
 

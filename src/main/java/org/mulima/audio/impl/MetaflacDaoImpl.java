@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
  * Support for reading and writing tags via Metaflac.
  */
 public class MetaflacDaoImpl implements Tagger {
+	private static final Pattern REGEX = Pattern.compile("comment\\[[0-9]+\\]: ([A-Za-z]+)=(.+)");
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private String path = "metaflac";
 	private String opts = "";
@@ -136,6 +137,7 @@ public class MetaflacDaoImpl implements Tagger {
 	}
 	
 	private class Reader implements Callable<TaggerResult> {
+		
 		private final AudioFile file;
 		
 		/**
@@ -166,16 +168,14 @@ public class MetaflacDaoImpl implements Tagger {
 			ProcessResult result = new ProcessCaller(command).call();
 			
 			Track track = new Track();
-			Pattern regex = Pattern.compile("comment\\[[0-9]+\\]: ([A-Za-z]+)=(.+)");
 			for (String line : result.getOutput().split("\n")) {
-				Matcher matcher = regex.matcher(line.trim());
+				Matcher matcher = REGEX.matcher(line.trim());
 				if (matcher.matches()) {
 					String name = matcher.group(1).toUpperCase();
-					String value = matcher.group(2);
 					
 					VorbisTag tag = VorbisTag.valueOf(name);
 					if (tag != null) {
-						track.add(tag, value);
+						track.add(tag, matcher.group(2));
 					}
 				}
 			}

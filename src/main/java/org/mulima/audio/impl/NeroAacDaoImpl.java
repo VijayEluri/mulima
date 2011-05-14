@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
  * Support for Nero AAC read/write tag operations.
  */
 public class NeroAacDaoImpl implements Tagger {
+	private static final Pattern REGEX = Pattern.compile("([A-Za-z]+) = (.+)");
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private String path = "neroAacTag";
 	
@@ -148,16 +149,14 @@ public class NeroAacDaoImpl implements Tagger {
 			ProcessResult result = new ProcessCaller(command).call();
 			
 			Track track = new Track();
-			Pattern regex = Pattern.compile("([A-Za-z]+) = (.+)");
 			for (String line : result.getOutput().split("\n")) {
-				Matcher matcher = regex.matcher(line.trim());
+				Matcher matcher = REGEX.matcher(line.trim());
 				if (matcher.matches()) {
 					String name = matcher.group(1).toLowerCase();
-					String value = matcher.group(2);
 					
 					ITunesTag tag = ITunesTag.valueOf(name);
 					if (tag != null) {
-						track.add(tag, value);
+						track.add(tag, matcher.group(2));
 					}
 				}
 			}

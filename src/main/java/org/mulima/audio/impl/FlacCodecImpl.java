@@ -27,14 +27,12 @@ import org.mulima.audio.Codec;
 import org.mulima.audio.CodecResult;
 import org.mulima.audio.util.CodecCaller;
 import org.mulima.util.FileUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Support for FLAC encoding/decoding.
  */
 public class FlacCodecImpl implements Codec {
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	//private final Logger logger = LoggerFactory.getLogger(getClass());
 	private String path = "flac";
 	private String opts = "";
 	private int compressionLevel = 5;

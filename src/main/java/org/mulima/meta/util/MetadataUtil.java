@@ -30,7 +30,7 @@ public class MetadataUtil {
 	 * This class should never be instantiated.
 	 * @throws UnsupportedOperationException always
 	 */
-	protected MetadataUtil() {
+	private MetadataUtil() {
 		throw new UnsupportedOperationException("Cannot instantiate this class.");
 	}
 	

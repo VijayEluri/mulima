@@ -29,7 +29,7 @@ import org.mulima.library.LibraryAlbum;
  * to its destination libraries.
  */
 public class AudioConversionService {
-	private static AudioConversionService instance = null;
+	private static AudioConversionService instance = new AudioConversionService();
 	private ExecutorService executor;
 	private CodecService codecSrv;
 	
@@ -50,9 +50,6 @@ public class AudioConversionService {
 	}
 	
 	public static AudioConversionService getInstance() {
-		if (instance == null) {
-			instance = new AudioConversionService();
-		}
 		return instance;
 	}
 	

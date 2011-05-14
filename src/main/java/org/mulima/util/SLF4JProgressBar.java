@@ -25,10 +25,10 @@ import org.slf4j.LoggerFactory;
  */
 public class SLF4JProgressBar implements ProgressBar {
 	private final Logger logger = LoggerFactory.getLogger(ProgressBar.class);
-	private String name;
-	private int total;
+	private final String name;
+	private final int total;
+	private final double ratio;
 	private int count = 0;
-	private double ratio;
 	private int percent = 0;
 
 	/**
@@ -51,25 +51,29 @@ public class SLF4JProgressBar implements ProgressBar {
 	 * are complete.
 	 * @return the current number of complete operations
 	 */
-	public synchronized int next()	{
-		count++;
-		if (count > total) {
-			return count;
-		} else if (count % ratio < 1) {
-			percent++;
-			if (percent % 10 == 0) {
-				logger.info(name + ": " + percent + "% complete (" + count + " of " + total + ")");
+	public int next()	{
+		synchronized(this) {
+			count++;
+			if (count > total) {
+				return count;
+			} else if (count % ratio < 1) {
+				percent++;
+				if (percent % 10 == 0) {
+					logger.info(name + ": " + percent + "% complete (" + count + " of " + total + ")");
+				}
 			}
+			return count;
 		}
-		return count;
 	}
 	
 	/**
 	 * Notify the <code>ProgressBar</code> that all operations have completed.
 	 * This is handy to ensure that the completion log message is printed.
 	 */
-	public synchronized void done() {
-		count = total;
+	public void done() {
+		synchronized(this) {
+			count = total;
+		}
 		logger.info(name + ": " + percent + "% complete (" + count + " of " + total + ")");
 	}
 }

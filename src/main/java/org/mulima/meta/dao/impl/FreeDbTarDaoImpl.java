@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
  * Provides access to a * .tar or .tar.bz2 file containing FreeDb information.
  */
 public class FreeDbTarDaoImpl implements FreeDbDao {
-	private Logger logger = LoggerFactory.getLogger(FreeDbTarDaoImpl.class);
+	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private File bz2Archive;
 	private File tarArchive;
 	private File tempArchive;
