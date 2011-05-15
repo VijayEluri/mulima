@@ -15,36 +15,45 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mulima.meta.impl;
+package org.mulima.api.meta.impl;
 
-import org.mulima.meta.GenericTag;
-import org.mulima.meta.Tag;
+import org.mulima.api.meta.GenericTag;
+import org.mulima.api.meta.Tag;
 
 /**
- * Enumeration representing tags used for 
- * iTunes AAC files.
+ * Set of tags used for files using ID3v2 tags.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
  */
-public enum ITunesTag implements Tag {
-	album(GenericTag.ALBUM),
-	sortalbum(GenericTag.ALBUM_SORT),
-	label(GenericTag.ORGANIZATION),
+public enum ID3V2Tag implements Tag {
+	TALB(GenericTag.ALBUM),
+	TSOA(GenericTag.ALBUM_SORT),
+	TPUB(GenericTag.ORGANIZATION),
+	TDOR(GenericTag.RELEASE_DATE),
 
-	artist(GenericTag.ARTIST),
-	sortartist(GenericTag.ARTIST_SORT),
-	composer(GenericTag.COMPOSER),
+	TPE1(GenericTag.ARTIST),
+	TDOP(GenericTag.ARTIST_SORT),
+	TCOM(GenericTag.COMPOSER),
+	TEXT(GenericTag.LYRICIST),
+	TMLC(GenericTag.PERFORMER),
+	TIPL_producer(GenericTag.PRODUCER),
+	TIPL_engineer(GenericTag.ENGINEER),
+	TPE3(GenericTag.CONDUCTOR),
 
-	disc(GenericTag.DISC_NUMBER),
-	track(GenericTag.TRACK_NUMBER),
-	title(GenericTag.TITLE),
-	sorttitle(GenericTag.TITLE_SORT),
-	genre(GenericTag.GENRE),
-	year(GenericTag.DATE),
-	lyrics(GenericTag.LYRICS),
-	comment(GenericTag.DESCRIPTION);
+	TPOS(GenericTag.DISC_NUMBER),
+	TRCK(GenericTag.TRACK_NUMBER),
+	TIT2(GenericTag.TITLE),
+	TSOT(GenericTag.TITLE_SORT),
+	TCON(GenericTag.GENRE),
+	TDRC(GenericTag.DATE),
+	LOCATION(GenericTag.LOCATION),
+	USLT(GenericTag.LYRICS),
+	COMM(GenericTag.DESCRIPTION);
 	
 	private final GenericTag tag;
 	
-	private ITunesTag(GenericTag tag) {
+	private ID3V2Tag(GenericTag tag) {
 		this.tag = tag;
 	}
 
@@ -65,13 +74,13 @@ public enum ITunesTag implements Tag {
 	}
 	
 	/**
-	 * Conversion method for getting the matching <code>ITunesTag</code>
+	 * Conversion method for getting the matching <code>ID3V2Tag</code>
 	 * for a given <code>GenericTag</code>.
 	 * @param generic the generic tag to look for
-	 * @return the iTunes tag that corresponds to <code>generic</code>.
+	 * @return the ID3v2 tag that corresponds to <code>generic</code>.
 	 */
-	public static ITunesTag valueOf(GenericTag generic) {
-		for (ITunesTag tag : ITunesTag.values()) {
+	public static ID3V2Tag valueOf(GenericTag generic) {
+		for (ID3V2Tag tag : ID3V2Tag.values()) {
 			if (generic.equals(tag.getGeneric())) {
 				return tag;
 			}

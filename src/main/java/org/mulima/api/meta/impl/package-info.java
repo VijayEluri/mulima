@@ -19,4 +19,4 @@
 /**
  * Implementations of metadata classes.
  */
-package org.mulima.meta.impl;
+package org.mulima.api.meta.impl;

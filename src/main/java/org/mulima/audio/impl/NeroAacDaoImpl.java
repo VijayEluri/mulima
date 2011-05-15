@@ -23,12 +23,12 @@ import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.mulima.api.meta.impl.ITunesTag;
 import org.mulima.audio.AudioFile;
 import org.mulima.audio.Tagger;
 import org.mulima.audio.TaggerResult;
 import org.mulima.meta.GenericTag;
 import org.mulima.meta.Track;
-import org.mulima.meta.impl.ITunesTag;
 import org.mulima.proc.ProcessCaller;
 import org.mulima.proc.ProcessResult;
 import org.mulima.util.FileUtil;

@@ -15,14 +15,16 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mulima.meta.impl;
+package org.mulima.api.meta.impl;
 
-import org.mulima.meta.GenericTag;
-import org.mulima.meta.Tag;
+import org.mulima.api.meta.GenericTag;
+import org.mulima.api.meta.Tag;
 
 /**
- * Enumeration representing tags used for 
- * Ogg Vorbis files.
+ * Set of tags used for Ogg Vorbis and FLAC files.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
  */
 public enum VorbisTag implements Tag {
 	ALBUM(GenericTag.ALBUM),

@@ -15,16 +15,18 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mulima.meta.impl;
+package org.mulima.api.meta.impl;
 
-import org.mulima.meta.GenericTag;
-import org.mulima.meta.Tag;
-
+import org.mulima.api.meta.GenericTag;
+import org.mulima.api.meta.Tag;
 
 /**
- * Enumeration representing tags used by FreeDB.
+ * Set of tags used by FreeDB.
  * 
  * For more information see their website {@link http://www.freedb.org/}.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
  */
 public enum FreeDbTag implements Tag {
 	DISCID(GenericTag.CDDB_ID),
