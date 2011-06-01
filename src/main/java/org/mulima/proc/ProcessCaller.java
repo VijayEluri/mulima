@@ -17,13 +17,16 @@
  */
 package org.mulima.proc;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.mulima.exception.ProcessExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,17 +59,31 @@ public class ProcessCaller implements Callable<ProcessResult> {
 	/**
 	 * Starts a process using the command specified in the constructor.
 	 * @return a process result holding the output of the process.
+	 * @throws ProcessExecutionException if there is a problem with the process
 	 */
 	@Override
-	public ProcessResult call() throws Exception {
+	public ProcessResult call() throws ProcessExecutionException {
 		logger.debug("Executing command: " + command);
-		Process proc = new ProcessBuilder(command).start();
+		Process proc;
+		try {
+			proc = new ProcessBuilder(command).start();
+		} catch (IOException e) {
+			throw new ProcessExecutionException(e);
+		}
+		
 		ExecutorService threadPool = Executors.newFixedThreadPool(2);
 		Future<String> output = threadPool.submit(new StreamDumper(proc.getInputStream()));
 		Future<String> error = threadPool.submit(new StreamDumper(proc.getErrorStream()));
-		int exit = proc.waitFor();
-		String out = output.get();
-		String err = error.get();
-		return new ProcessResult(command, exit, out, err);
+		
+		try {
+			int exit = proc.waitFor();
+			String out = output.get();
+			String err = error.get();
+			return new ProcessResult(command, exit, out, err);
+		} catch (InterruptedException e) {
+			throw new ProcessExecutionException(e);
+		} catch (ExecutionException e) {
+			throw new ProcessExecutionException(e);
+		}
 	}
 }

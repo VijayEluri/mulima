@@ -21,19 +21,20 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
-import org.mulima.audio.AudioFile;
-import org.mulima.audio.CodecResult;
-import org.mulima.audio.SplitterResult;
-import org.mulima.audio.TaggerResult;
+import org.mulima.api.audio.AudioFile;
+import org.mulima.api.audio.CodecConfig;
+import org.mulima.api.audio.CodecResult;
+import org.mulima.api.audio.SplitterResult;
+import org.mulima.api.audio.TaggerResult;
+import org.mulima.api.library.LibraryAlbum;
+import org.mulima.api.meta.CueSheet;
+import org.mulima.api.meta.GenericTag;
+import org.mulima.api.meta.Track;
 import org.mulima.exception.ConversionFailureException;
-import org.mulima.library.LibraryAlbum;
-import org.mulima.meta.CueSheet;
-import org.mulima.meta.GenericTag;
-import org.mulima.meta.Track;
+import org.mulima.exception.ProcessExecutionException;
 import org.mulima.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,16 +46,16 @@ public class AudioConversion implements Callable<List<LibraryAlbum>> {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private final LibraryAlbum refAlbum;
 	private final List<LibraryAlbum> destAlbums;
-	private final CodecService service;
+	private final CodecConfig codecConfig;
 	
-	public AudioConversion(CodecService service, LibraryAlbum refAlbum, List<LibraryAlbum> destAlbums) {
-		this.service = service;
+	public AudioConversion(CodecConfig codecConfig, LibraryAlbum refAlbum, List<LibraryAlbum> destAlbums) {
+		this.codecConfig = codecConfig;
 		this.refAlbum = refAlbum;
 		this.destAlbums = destAlbums;
 	}
 	
 	@Override
-	public List<LibraryAlbum> call() throws ConversionFailureException {
+	public List<LibraryAlbum> call() throws ProcessExecutionException, IOException {
 		List<AudioFile> files = tag(encode(split(decode(refAlbum))));
 		if (files == null) {
 			throw new ConversionFailureException("Failed to convert " 
@@ -64,49 +65,32 @@ public class AudioConversion implements Callable<List<LibraryAlbum>> {
 		}
 	}
 	
-	private List<AudioFile> decode(LibraryAlbum refAlbum) {
+	private List<AudioFile> decode(LibraryAlbum refAlbum) throws ProcessExecutionException, IOException {
 		if (refAlbum == null) {
 			return null;
 		}
 		
 		logger.info("Decoding " + refAlbum.getAlbum().getFlat(GenericTag.ALBUM));
-		List<Future<CodecResult>> futures = new ArrayList<Future<CodecResult>>();
+		List<AudioFile> tempFiles = new ArrayList<AudioFile>();
 		for (AudioFile file : refAlbum.getAudioFiles()) {
-			try {
-				futures.add(service.submitDecode(file, AudioFile.createTempFile(file)));
-			} catch (IOException e) {
-				logger.error("Failed to create temp file for: " + file);
+			CodecResult result = codecConfig.getCodec(file).decode(file, AudioFile.createTempFile(file));
+			if (result.getExitVal() == 0) {
+				tempFiles.add(result.getDest());
+			} else {
+				logger.error("Failed decoding "
+					+ FileUtil.getSafeCanonicalPath(result.getSource()));
+				logger.error("Command: " + result.getCommand());
+				logger.error("Stdout: " + result.getOutput());
+				logger.error("StdErr: " + result.getError());
 				return null;
 			}
 		}
 		
-		List<AudioFile> tempFiles = new ArrayList<AudioFile>();
-		for (Future<CodecResult> future : futures) {
-			try {
-				CodecResult result = future.get();
-				if (result.getExitVal() == 0) {
-					tempFiles.add(result.getDest());
-				} else {
-					logger.error("Failed decoding "
-						+ FileUtil.getSafeCanonicalPath(result.getSource()));
-					logger.error("Command: " + result.getCommand());
-					logger.error("Stdout: " + result.getOutput());
-					logger.error("StdErr: " + result.getError());
-					return null;
-				}
-			} catch (InterruptedException e) {
-				logger.error("Failed decoding.", e);
-				return null;
-			} catch (ExecutionException e) {
-				logger.error("Failed decoding.", e);
-				return null;
-			}
-		}
 		logger.debug("Decoded " + tempFiles.size() + " file(s) for " + refAlbum.getDir().getName());
 		return tempFiles;
 	}
 	
-	private List<AudioFile> split(List<AudioFile> decodedFiles) {
+	private List<AudioFile> split(List<AudioFile> decodedFiles) throws ProcessExecutionException {
 		if (decodedFiles == null) {
 			return null;
 		}
@@ -115,45 +99,32 @@ public class AudioConversion implements Callable<List<LibraryAlbum>> {
 		File tempFolder;
 		try {
 			tempFolder = FileUtil.createTempDir("library", "wav");
-		} catch (IOException e1) {
+		} catch (IOException e) {
 			logger.error("Failed to create temp folder for: " + refAlbum.getAlbum().getFlat(GenericTag.ALBUM));
 			return null;
 		}
 		
-		List<Future<SplitterResult>> futures = new ArrayList<Future<SplitterResult>>();
-		for (AudioFile file : decodedFiles) {
-			//CueSheet cue = refAlbum.getAlbum().getCues().get(file.getDiscNum() - 1);
-			CueSheet cue = refAlbum.getCues().get(file.getDiscNum() - 1);
-			futures.add(service.submitSplit(file, cue, tempFolder));
-		}
-		
 		List<AudioFile> tempFiles = new ArrayList<AudioFile>();
-		for (Future<SplitterResult> future : futures) {
-			try {
-				SplitterResult result = future.get();
-				if (result.getExitVal() == 0) {
-					tempFiles.addAll(result.getDest());
-				} else {
-					logger.error("Failed splitting "
-						+ FileUtil.getSafeCanonicalPath(result.getSource()));
-					logger.error("Command: " + result.getCommand());
-					logger.error("Stdout: " + result.getOutput());
-					logger.error("StdErr: " + result.getError());
-					return null;
-				}
-			} catch (InterruptedException e) {
-				logger.error("Failed splitting.", e);
-				return null;
-			} catch (ExecutionException e) {
-				logger.error("Failed splitting.", e);
+		for (AudioFile file : decodedFiles) {
+			CueSheet cue = refAlbum.getCue(file.getDiscNum());
+			SplitterResult result = codecConfig.getSplitter().split(file, cue, tempFolder);
+			if (result.getExitVal() == 0) {
+				tempFiles.addAll(result.getDest());
+			} else {
+				logger.error("Failed splitting "
+					+ FileUtil.getSafeCanonicalPath(result.getSource()));
+				logger.error("Command: " + result.getCommand());
+				logger.error("Stdout: " + result.getOutput());
+				logger.error("StdErr: " + result.getError());
 				return null;
 			}
 		}
+		
 		logger.debug("Split " + tempFiles.size() + " file(s) for " + refAlbum.getDir().getName());
 		return tempFiles;
 	}
 	
-	private List<AudioFile> encode(List<AudioFile> splitFiles) {
+	private List<AudioFile> encode(List<AudioFile> splitFiles) throws ProcessExecutionException {
 		if (splitFiles == null) {
 			return null;
 		}
@@ -161,32 +132,19 @@ public class AudioConversion implements Callable<List<LibraryAlbum>> {
 		logger.info("Encoding " + refAlbum.getAlbum().getFlat(GenericTag.ALBUM)); 
 		List<AudioFile> tempFiles = new ArrayList<AudioFile>();
 		for (LibraryAlbum destAlbum : destAlbums) {
-			List<Future<CodecResult>> encFutures = new ArrayList<Future<CodecResult>>();
 			for (AudioFile tempFile : tempFiles) {
 				AudioFile destFile = new AudioFile(destAlbum.getDir(), FileUtil.getBaseName(tempFile)
-					+ "." + destAlbum.getLib().getType().getExtension());
-				encFutures.add(service.submitEncode(tempFile, destFile));
-			}
-			
-			for (Future<CodecResult> future : encFutures) {
-				try {
-					CodecResult result = future.get();
-					if (result.getExitVal() == 0) {
-						tempFiles.add(result.getDest());
-						destAlbum.getAudioFiles().add(result.getDest());
-					} else {
-						logger.error("Failed encoding "
-							+ FileUtil.getSafeCanonicalPath(result.getSource()));
-						logger.error("Command: " + result.getCommand());
-						logger.error("Stdout: " + result.getOutput());
-						logger.error("StdErr: " + result.getError());
-						return null;
-					}
-				} catch (InterruptedException e) {
-					logger.error("Failed encoding.", e);
-					return null;
-				} catch (ExecutionException e) {
-					logger.error("Failed encoding.", e);
+						+ "." + destAlbum.getLib().getType().getExtension());
+				CodecResult result = codecConfig.getCodec(destFile).encode(tempFile, destFile);
+				if (result.getExitVal() == 0) {
+					tempFiles.add(result.getDest());
+					destAlbum.getAudioFiles().add(result.getDest());
+				} else {
+					logger.error("Failed encoding "
+						+ FileUtil.getSafeCanonicalPath(result.getSource()));
+					logger.error("Command: " + result.getCommand());
+					logger.error("Stdout: " + result.getOutput());
+					logger.error("StdErr: " + result.getError());
 					return null;
 				}
 			}
@@ -194,42 +152,27 @@ public class AudioConversion implements Callable<List<LibraryAlbum>> {
 		return tempFiles;
 	}
 	
-	private List<AudioFile> tag(List<AudioFile> encodedFiles) {
+	private List<AudioFile> tag(List<AudioFile> encodedFiles) throws ProcessExecutionException {
 		if (encodedFiles == null) {
 			return null;
 		}
 		
 		logger.info("Tagging " + refAlbum.getAlbum().getFlat(GenericTag.ALBUM));
-		List<Track> tracks = refAlbum.getAlbum().flat();
-		
+		SortedSet<Track> tracks = refAlbum.getAlbum().flatten();
 		for (LibraryAlbum destAlbum : destAlbums) {
-			List<Future<TaggerResult>> tagFutures = new ArrayList<Future<TaggerResult>>();
 			for (AudioFile file : destAlbum.getAudioFiles()) {
 				Track track = findTrack(tracks, file.getDiscNum(), file.getTrackNum());
-				tagFutures.add(service.submitWriteMeta(file, track));
-			}
-			
-			for (Future<TaggerResult> future : tagFutures) {
-				try {
-					TaggerResult result = future.get();
-					if (result.getExitVal() != 0) {
-						logger.error("Failed tagging "
-							+ FileUtil.getSafeCanonicalPath(result.getFile()));
-						logger.error("Command: " + result.getCommand());
-						logger.error("Stdout: " + result.getOutput());
-						logger.error("StdErr: " + result.getError());
-						return null;
-					}
-				} catch (InterruptedException e) {
-					logger.error("Failed tagging.", e);
-					return null;
-				} catch (ExecutionException e) {
-					logger.error("Failed tagging.", e);
+				TaggerResult result = codecConfig.getTagger(file).write(file, track);
+				if (result.getExitVal() != 0) {
+					logger.error("Failed tagging "
+						+ FileUtil.getSafeCanonicalPath(result.getFile()));
+					logger.error("Command: " + result.getCommand());
+					logger.error("Stdout: " + result.getOutput());
+					logger.error("StdErr: " + result.getError());
 					return null;
 				}
 			}
 		}
-		
 		return encodedFiles;
 	}
 	
@@ -240,7 +183,7 @@ public class AudioConversion implements Callable<List<LibraryAlbum>> {
 	 * @param trackNum the track number
 	 * @return the track that matches
 	 */
-	private Track findTrack(List<Track> tracks, int discNum, int trackNum) {
+	private Track findTrack(SortedSet<Track> tracks, int discNum, int trackNum) {
 		for (Track track : tracks) {
 			int tempDisc = Integer.parseInt(track.getFirst(GenericTag.DISC_NUMBER));
 			int tempTrack = Integer.parseInt(track.getFirst(GenericTag.TRACK_NUMBER));

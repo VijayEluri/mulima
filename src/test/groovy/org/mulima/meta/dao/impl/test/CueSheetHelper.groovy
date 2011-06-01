@@ -17,6 +17,7 @@
 */
 package org.mulima.meta.dao.impl.test
 
+import org.mulima.api.meta.dao.impl.test.MetadataFactory;
 import org.mulima.meta.CueSheet
 import org.mulima.meta.Track
 

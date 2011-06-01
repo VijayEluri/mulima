@@ -22,8 +22,8 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Set;
 
-import org.mulima.audio.AudioFile;
-import org.mulima.audio.CodecConfig;
+import org.mulima.api.audio.AudioFile;
+import org.mulima.api.audio.CodecConfig;
 
 /**
  * Holds information describing the context of the app.

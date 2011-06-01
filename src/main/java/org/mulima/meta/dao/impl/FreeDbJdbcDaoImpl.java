@@ -22,9 +22,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mulima.meta.Disc;
-import org.mulima.meta.GenericTag;
-import org.mulima.meta.Track;
+import org.mulima.api.meta.Disc;
+import org.mulima.api.meta.GenericTag;
+import org.mulima.api.meta.Track;
 import org.mulima.meta.dao.FreeDbDao;
 import org.mulima.util.ProgressBar;
 import org.mulima.util.SLF4JProgressBar;

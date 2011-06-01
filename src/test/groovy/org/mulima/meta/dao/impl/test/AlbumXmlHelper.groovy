@@ -19,6 +19,7 @@ package org.mulima.meta.dao.impl.test
 
 import groovy.xml.MarkupBuilder
 
+import org.mulima.api.meta.dao.impl.test.MetadataFactory;
 import org.mulima.meta.Album
 import org.mulima.meta.Disc
 import org.mulima.meta.Track

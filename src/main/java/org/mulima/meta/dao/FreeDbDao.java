@@ -19,7 +19,7 @@ package org.mulima.meta.dao;
 
 import java.util.List;
 
-import org.mulima.meta.Disc;
+import org.mulima.api.meta.Disc;
 
 /**
  * Defines operations to access FreeDB information

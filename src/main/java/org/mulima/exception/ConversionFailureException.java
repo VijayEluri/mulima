@@ -20,7 +20,7 @@ package org.mulima.exception;
 /**
  * Signals a failure of an album conversion.
  */
-public class ConversionFailureException extends ProcessFailureException {
+public class ConversionFailureException extends ProcessExecutionException {
 	private static final long serialVersionUID = 1L;
 
 	/**
