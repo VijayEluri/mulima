@@ -28,24 +28,14 @@ import java.util.TreeSet;
  * @since 0.1.0
  */
 public class Album extends AbstractMetadata implements Metadata {
-	private final SortedSet<CueSheet> cueSheets = new TreeSet<CueSheet>();
 	private final SortedSet<Disc> discs = new TreeSet<Disc>();
-	
-	/**
-	 * Gets the cue sheets that go with this
-	 * album.  This should never return null.
-	 * @return this album's cues
-	 */
-	SortedSet<CueSheet> getCueSheets() {
-		return cueSheets;
-	}
 	
 	/**
 	 * Gets the discs that are part of this
 	 * album.  This should never return null.
 	 * @return this album's discs
 	 */
-	SortedSet<Disc> getDiscs() {
+	public SortedSet<Disc> getDiscs() {
 		return discs;
 	}
 	
@@ -55,7 +45,7 @@ public class Album extends AbstractMetadata implements Metadata {
 	 * disc and album. 
 	 * @return a list of the tracks with all metadata
 	 */
-	SortedSet<Track> flatten() {
+	public SortedSet<Track> flatten() {
 		SortedSet<Track> tracks = new TreeSet<Track>();
 		for (Disc disc : discs) {
 			for (Track track : disc.getTracks()) {
@@ -80,7 +70,7 @@ public class Album extends AbstractMetadata implements Metadata {
 	 * metadata that is common among all tracks to the disc
 	 * or album (if common between discs).
 	 */
-	void tidy() {
+	public void tidy() {
 		tidy(getDiscs());
 	}
 }

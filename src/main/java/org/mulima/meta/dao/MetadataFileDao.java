@@ -20,7 +20,7 @@ package org.mulima.meta.dao;
 import java.io.File;
 import java.util.concurrent.Callable;
 
-import org.mulima.meta.Metadata;
+import org.mulima.api.meta.Metadata;
 
 /**
  * Defines operations to read and write metadata to a file.

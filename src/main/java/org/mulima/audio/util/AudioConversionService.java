@@ -22,7 +22,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.mulima.library.LibraryAlbum;
+import org.mulima.api.audio.CodecConfig;
+import org.mulima.api.library.LibraryAlbum;
+import org.mulima.job.Context;
 
 /**
  * Service that allows the conversion of one library album
@@ -31,34 +33,26 @@ import org.mulima.library.LibraryAlbum;
 public class AudioConversionService {
 	private static AudioConversionService instance = new AudioConversionService();
 	private ExecutorService executor;
-	private CodecService codecSrv;
+	private CodecConfig codecConfig;
 	
 	/**
-	 * Constructs a service without a <code>CodecService</code>.
+	 * Constructs a service without a <code>CodecConfig</code>.
 	 */
 	protected AudioConversionService() {
-		this(CodecService.getInstance());
+		this(Context.getCurrent().getCodecConfig());
 	}
 	
 	/**
-	 * Constructs a service with the specified <code>CodecService</code>.
-	 * @param codecSrv codec service to use for underlying conversions
+	 * Constructs a service with the specified <code>CodecConfig</code>.
+	 * @param codecConfig the codec config to use
 	 */
-	protected AudioConversionService(CodecService codecSrv) {
+	protected AudioConversionService(CodecConfig codecConfig) {
 		this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-		this.codecSrv = codecSrv;
+		this.codecConfig = codecConfig;
 	}
 	
 	public static AudioConversionService getInstance() {
 		return instance;
-	}
-	
-	/**
-	 * Sets the codec service to use for underlying conversions.
-	 * @param codecSrv the codec service
-	 */
-	public void setCodecSrv(CodecService codecSrv) {
-		this.codecSrv = codecSrv;
 	}
 	
 	/**
@@ -69,7 +63,7 @@ public class AudioConversionService {
 	 * @return a future list of library albums
 	 */
 	public Future<List<LibraryAlbum>> submitConvert(LibraryAlbum refAlbum, List<LibraryAlbum> destAlbums) {
-		return executor.submit(new AudioConversion(codecSrv, refAlbum, destAlbums));
+		return executor.submit(new AudioConversion(codecConfig, refAlbum, destAlbums));
 	}
 	
 	/**
@@ -79,7 +73,6 @@ public class AudioConversionService {
 	 */
 	public void shutdown() {
 		executor.shutdown();
-		codecSrv.shutdown();
 	}
 	
 	/**
@@ -92,8 +85,6 @@ public class AudioConversionService {
 	 * @return a list of all tasks that weren't executed
 	 */
 	public List<Runnable> shutdownNow() {
-		List<Runnable> left = executor.shutdownNow();
-		left.addAll(codecSrv.shutdownNow());
-		return left;
+		return executor.shutdownNow();
 	}
 }

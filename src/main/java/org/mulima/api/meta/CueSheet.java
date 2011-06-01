@@ -57,7 +57,7 @@ public class CueSheet extends AbstractMetadata implements Metadata {
 	 * parsed from.
 	 * @return the source file
 	 */
-	File getFile() {
+	public File getFile() {
 		return file;
 	}
 	
@@ -67,7 +67,7 @@ public class CueSheet extends AbstractMetadata implements Metadata {
 	 * number.
 	 * @return the number
 	 */
-	int getNum() {
+	public int getNum() {
 		return num;
 	}
 	
@@ -76,7 +76,7 @@ public class CueSheet extends AbstractMetadata implements Metadata {
 	 * This only includes track start points. 
 	 * @return set of cue points
 	 */
-	SortedSet<CuePoint> getCuePoints() {
+	public SortedSet<CuePoint> getCuePoints() {
 		//TODO only include the index 1 points
 		return cuePoints;
 	}
@@ -86,7 +86,7 @@ public class CueSheet extends AbstractMetadata implements Metadata {
 	 * This includes all indices.
 	 * @return set of all cue points
 	 */
-	SortedSet<CuePoint> getAllCuePoints() {
+	public SortedSet<CuePoint> getAllCuePoints() {
 		return cuePoints;
 	}
 }
