@@ -40,6 +40,20 @@ public class Album extends AbstractMetadata implements Metadata {
 	}
 	
 	/**
+	 * Gets the disc with the specified number.
+	 * @param num the disc number
+	 * @return the disc
+	 */
+	public Disc getDisc(int num) {
+		for (Disc disc : discs) {
+			if (disc.getNum() == num) {
+				return disc;
+			}
+		}
+		return null;
+	}
+	
+	/**
 	 * Creates a list of this album's tracks
 	 * with all of the metadata from their parent
 	 * disc and album. 

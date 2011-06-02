@@ -17,6 +17,8 @@
  */
 package org.mulima.main;
 
+import java.io.IOException;
+
 import org.mulima.api.library.LibraryManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +29,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 /**
  * Will update libraries by processing new albums and copying the changes.
  */
-public class LibraryUpdater implements Runnable {
+public class LibraryUpdater {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private LibraryManager manager;
 	
@@ -48,8 +50,7 @@ public class LibraryUpdater implements Runnable {
 		manager = context.getBean("libManager", LibraryManager.class);
 	}
 	
-	@Override
-	public void run() {
+	public void update() throws IOException {
 		logger.info("Beginning update.");
 		manager.scanAll();
 		manager.processNew();
@@ -60,14 +61,15 @@ public class LibraryUpdater implements Runnable {
 	/**
 	 * Executes the app.
 	 * @param args the arguments
+	 * @throws IOException 
 	 */
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		LibraryUpdater driver = new LibraryUpdater();
 		if (args.length == 0) {
 			driver.init();
 		} else {
 			driver.init(args[0]);
 		}
-		driver.run();
+		driver.update();
 	}
 }

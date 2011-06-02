@@ -17,18 +17,19 @@
  */
 package org.mulima.meta.dao.impl
 
+import groovy.xml.MarkupBuilder
+
+import java.util.concurrent.Callable
+
+import org.mulima.api.meta.Album
+import org.mulima.api.meta.CuePoint
+import org.mulima.api.meta.CueSheet
+import org.mulima.api.meta.Disc
+import org.mulima.api.meta.Metadata
+import org.mulima.api.meta.Track
+import org.mulima.meta.dao.MetadataFileDao
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
-import groovy.xml.MarkupBuilder
-import java.util.concurrent.Callable
-import org.mulima.meta.Album
-import org.mulima.meta.CueSheet
-import org.mulima.meta.Disc
-import org.mulima.meta.GenericTag
-import org.mulima.meta.Metadata
-import org.mulima.meta.Track
-import org.mulima.meta.dao.MetadataFileDao
 
 class AlbumXmlDaoImpl implements MetadataFileDao<Album> {	
 	private final Logger logger = LoggerFactory.getLogger(getClass())
@@ -128,29 +129,6 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 	}
 	
-	private void readCues(MarkupBuilder xml, List<CueSheet> cues) {
-		xml.each { cueNode ->
-			def cue = new CueSheet()
-			cue.num = Integer.parseInt(cueNode.'@num')
-			
-			cueNode.track.each { trackNode ->
-				def track = new CueSheet.Track()
-				track.num = Integer.parseInt(trackNode.'@num')
-				
-				trackNode.index.each { indexNode ->
-					def index = new CueSheet.Index()
-					index.num = Integer.parseInt(indexNode.'@num')
-					index.time = indexNode.'@time'
-					track.indices.add(index)
-				}
-					
-				cue.tracks.add(track)
-			}
-			
-			cues.add(cue)
-		}
-	}
-	
 	private void readDiscs(MarkupBuilder xml, List<Disc> discs) {
 		xml.each { discNode ->
 			def disc = new Disc()
@@ -165,13 +143,21 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 			def track = new Track()
 			readTags(trackNode.tag, track)
 			
-			//trackNode.cueRef.each {
-			//	def cueRef = new Track.CueRef()
-			//	cueRef.cueNum = Integer.parseInt(it.'@cueNum')
-			//	cueRef.startNum = Integer.parseInt(it.'@startNum')
-			//	cueRef.endNum = Integer.parseInt(it.'@endNum')
-			//	track.cueRef = cueRef
-			//}
+			trackNode.startPoint.with {
+				track.startPoint = new CuePoint(
+					Integer.parseInt(it.'@track'),
+					Integer.parseInt(it.'@index'),
+					it.'@time'
+				)
+			}
+			
+			trackNode.endPoint.with {
+				track.endPoint = new CuePoint(
+					Integer.parseInt(it.'@track'),
+					Integer.parseInt(it.'@index'),
+					it.'@time'
+				)
+			}
 			
 			tracks.add(track)
 		}

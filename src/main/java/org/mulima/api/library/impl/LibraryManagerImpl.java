@@ -18,6 +18,7 @@
 package org.mulima.api.library.impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -223,9 +224,11 @@ public class LibraryManagerImpl implements LibraryManager {
 
 	/**
 	 * {@inheritDoc}
+	 * @throws IOException if there is a problem processing
+	 * the directories
 	 */
 	@Override
-	public void scanAll() {
+	public void scanAll() throws IOException {
 		for (Library lib : getRefLibs()) {
 			lib.scanAlbums();
 		}

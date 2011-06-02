@@ -18,6 +18,7 @@
 package org.mulima.api.library;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.mulima.api.audio.AudioFileType;
@@ -58,8 +59,10 @@ public interface Library {
 	
 	/**
 	 * Scans the library for albums.
+	 * @throws IOException if there is a problem processing
+	 * the albums
 	 */
-	void scanAlbums();
+	void scanAlbums() throws IOException;
 	
 	/**
 	 * Gets all albums in the library.  Must call {@link #scanAlbums(MetadataFileDao, MetadataFileDao)}

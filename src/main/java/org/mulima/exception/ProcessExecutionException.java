@@ -19,8 +19,11 @@ package org.mulima.exception;
 
 /**
  * Signals a process failure.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
  */
-public class ProcessExecutionException extends Exception {
+public class ProcessExecutionException extends MulimaException {
 	private static final long serialVersionUID = 1L;
 
 	/**

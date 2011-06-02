@@ -19,7 +19,7 @@ package org.mulima.main;
 
 import java.util.List;
 
-import org.mulima.meta.Disc;
+import org.mulima.api.meta.Disc;
 import org.mulima.meta.dao.FreeDbDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

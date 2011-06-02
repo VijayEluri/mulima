@@ -18,6 +18,7 @@
 package org.mulima.api.library.impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -130,9 +131,10 @@ public class LibraryImpl implements Library {
 
 	/**
 	 * {@inheritDoc}
+	 * @throws IOException if there is a problem reading the cue
 	 */
 	@Override
-	public void scanAlbums() {
+	public void scanAlbums() throws IOException {
 		this.albums = new ArrayList<LibraryAlbum>();
 		List<File> dirs = FileUtil.listDirsRecursive(getRootDir());
 		for (File dir : dirs)  {
@@ -148,7 +150,7 @@ public class LibraryImpl implements Library {
 	 * @param dir directory to process
 	 * @return library album representing this directory
 	 */
-	protected LibraryAlbum processDir(File dir) {
+	protected LibraryAlbum processDir(File dir) throws IOException {
 		LibraryAlbum libAlbum = new LibraryAlbum();
 		libAlbum.setLib(this);
 		libAlbum.setDir(dir);
@@ -198,13 +200,15 @@ public class LibraryImpl implements Library {
 	 * Processes a file to generate a cue sheet.
 	 * @param file file to process
 	 * @return cue sheet representing this file
+	 * @throws IOException if there is a problem reading the cue
 	 */
-	protected CueSheet processCueSheet(File file) {
+	protected CueSheet processCueSheet(File file) throws IOException {
 		try {
 			return cueDao.read(file);
-		} catch (Exception e) {
-			logger.error("Problem reading cue sheet: "
-				+ FileUtil.getSafeCanonicalPath(file), e);
+		} catch (IOException e) {
+			logger.error("Problem reading cue sheet: {}",
+				FileUtil.getSafeCanonicalPath(file), e);
+			throw e;
 		}
 	}
 	
@@ -212,13 +216,15 @@ public class LibraryImpl implements Library {
 	 * Processes a file to generate an album.
 	 * @param file file to process
 	 * @return album representing this file
+	 * @throws IOException if there is a problem reading the album
 	 */
-	protected Album processAlbum(File file) {
+	protected Album processAlbum(File file) throws IOException {
 		try {
 			return albumDao.read(file);
-		} catch (Exception e) {
-			logger.error("Problem parsing album: "
-				+ FileUtil.getSafeCanonicalPath(file), e);
+		} catch (IOException e) {
+			logger.error("Problem parsing album: {}",
+				FileUtil.getSafeCanonicalPath(file), e);
+			throw e;
 		}
 	}
 	

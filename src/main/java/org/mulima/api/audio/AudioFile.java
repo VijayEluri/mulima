@@ -122,7 +122,7 @@ public class AudioFile extends File {
 	 * @throws IOException if the file cannot be created
 	 */
 	public static AudioFile createTempFile(AudioFile model) throws IOException { 
-		File temp = File.createTempFile("library", "." + model.getType().getExtension(), Context.getCurrent().getTempDir());
+		File temp = File.createTempFile("mulima", "." + model.getType().getExtension(), Context.getCurrent().getTempDir());
 		return new AudioFile(temp);
 	}
 }

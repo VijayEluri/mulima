@@ -40,7 +40,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
+ * Class to do the conversion of one reference album to
+ * its destination albums.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
  */
 public class AudioConversion implements Callable<List<LibraryAlbum>> {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -48,23 +52,45 @@ public class AudioConversion implements Callable<List<LibraryAlbum>> {
 	private final List<LibraryAlbum> destAlbums;
 	private final CodecConfig codecConfig;
 	
+	/**
+	 * Constructs a conversion for the given albums.
+	 * @param codecConfig the codec configurations to use 
+	 * @param refAlbum the reference album for this conversion
+	 * @param destAlbums the destination albums for this conversion
+	 */
 	public AudioConversion(CodecConfig codecConfig, LibraryAlbum refAlbum, List<LibraryAlbum> destAlbums) {
 		this.codecConfig = codecConfig;
 		this.refAlbum = refAlbum;
 		this.destAlbums = destAlbums;
 	}
 	
+	/**
+	 * Execute the conversion.
+	 */
 	@Override
-	public List<LibraryAlbum> call() throws ProcessExecutionException, IOException {
-		List<AudioFile> files = tag(encode(split(decode(refAlbum))));
-		if (files == null) {
-			throw new ConversionFailureException("Failed to convert " 
-				+ refAlbum.getAlbum().getFlat(GenericTag.ALBUM));
-		} else {
-			return destAlbums;
+	public List<LibraryAlbum> call() throws ConversionFailureException {
+		try {
+			List<AudioFile> files = tag(encode(split(decode(refAlbum))));
+			if (files == null) {
+				throw new ConversionFailureException("Failed to convert " 
+					+ refAlbum.getAlbum().getFlat(GenericTag.ALBUM));
+			} else {
+				return destAlbums;
+			}
+		} catch (ProcessExecutionException e) {
+			throw new ConversionFailureException(e);
+		} catch (IOException e) {
+			throw new ConversionFailureException(e);
 		}
 	}
 	
+	/**
+	 * Decodes the specified album.
+	 * @param refAlbum the album to decode
+	 * @return the decoded audio files.
+	 * @throws ProcessExecutionException if the decode fails to execute
+	 * @throws IOException if there is an problem creating the files
+	 */
 	private List<AudioFile> decode(LibraryAlbum refAlbum) throws ProcessExecutionException, IOException {
 		if (refAlbum == null) {
 			return null;
@@ -90,6 +116,12 @@ public class AudioConversion implements Callable<List<LibraryAlbum>> {
 		return tempFiles;
 	}
 	
+	/**
+	 * Splits the specified files.
+	 * @param decodedFiles the files to decode
+	 * @return the split files
+	 * @throws ProcessExecutionException if the split fails to execute
+	 */
 	private List<AudioFile> split(List<AudioFile> decodedFiles) throws ProcessExecutionException {
 		if (decodedFiles == null) {
 			return null;
@@ -124,6 +156,12 @@ public class AudioConversion implements Callable<List<LibraryAlbum>> {
 		return tempFiles;
 	}
 	
+	/**
+	 * Encodes the specified files.
+	 * @param splitFiles the files to encode
+	 * @return the encoded files
+	 * @throws ProcessExecutionException if the encode fails to execute
+	 */
 	private List<AudioFile> encode(List<AudioFile> splitFiles) throws ProcessExecutionException {
 		if (splitFiles == null) {
 			return null;
@@ -152,6 +190,12 @@ public class AudioConversion implements Callable<List<LibraryAlbum>> {
 		return tempFiles;
 	}
 	
+	/**
+	 * Tag the specified files.
+	 * @param encodedFiles the files to tag
+	 * @return the tagged files
+	 * @throws ProcessExecutionException if the tag fails to execute
+	 */
 	private List<AudioFile> tag(List<AudioFile> encodedFiles) throws ProcessExecutionException {
 		if (encodedFiles == null) {
 			return null;

@@ -17,13 +17,14 @@
 */
 package org.mulima.meta.dao.impl
 
-import java.util.concurrent.Callable
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import org.mulima.meta.CueSheet
-import org.mulima.meta.Metadata
-import org.mulima.meta.impl.CueSheetTag
-import org.mulima.meta.dao.MetadataFileDao
+import java.io.File;
+import java.io.Writer;
+import java.util.concurrent.Callable;
+
+import org.mulima.api.meta.CueSheet;
+import org.mulima.api.meta.Metadata;
+import org.mulima.meta.dao.MetadataFileDao;
+import org.slf4j.Logger;
 
 class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 	private final Logger logger = LoggerFactory.getLogger(CueSheetDaoImpl.class)

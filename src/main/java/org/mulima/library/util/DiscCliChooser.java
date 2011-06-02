@@ -20,9 +20,9 @@ package org.mulima.library.util;
 import java.util.List;
 import java.util.Scanner;
 
-import org.mulima.meta.CueSheet;
-import org.mulima.meta.Disc;
-import org.mulima.meta.GenericTag;
+import org.mulima.api.meta.CueSheet;
+import org.mulima.api.meta.Disc;
+import org.mulima.api.meta.GenericTag;
 import org.mulima.meta.util.MetadataUtil;
 
 /**

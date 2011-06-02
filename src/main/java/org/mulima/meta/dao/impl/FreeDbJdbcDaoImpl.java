@@ -21,6 +21,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
 
 import org.mulima.api.meta.Disc;
 import org.mulima.api.meta.GenericTag;
@@ -193,18 +194,20 @@ public class FreeDbJdbcDaoImpl extends NamedParameterJdbcDaoSupport implements F
 	 * @param discId the disc's id
 	 * @param tracks the tracks to add
 	 */
-	private void addTracks(int discId, List<Track> tracks) {
+	private void addTracks(int discId, SortedSet<Track> tracks) {
 		logger.trace("Entering addTracks");
 		final String sql = "INSERT INTO `tracks` VALUES(null, :disc_id, :num, :title)";
 		
 		MapSqlParameterSource[] trackParms = new MapSqlParameterSource[tracks.size()];
 		
-		for (int i = 0; i < tracks.size(); i++) {
+		for (Track track : tracks) {
+			int i = track.getNum() - 1;
 			trackParms[i] = new MapSqlParameterSource();
 			trackParms[i].addValue("disc_id", discId);
-			trackParms[i].addValue("num", tracks.get(i).getNum());
-			trackParms[i].addValue("title", tracks.get(i).getFlat(GenericTag.TITLE));	
+			trackParms[i].addValue("num", track.getNum());
+			trackParms[i].addValue("title", track.getFlat(GenericTag.TITLE));	
 		}
+		
 		this.getNamedParameterJdbcTemplate().batchUpdate(sql, trackParms);
 		logger.trace("Exiting addTracks");
 	}

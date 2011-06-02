@@ -18,6 +18,7 @@
 package org.mulima.meta.dao;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.Callable;
 
 import org.mulima.api.meta.Metadata;
@@ -30,17 +31,17 @@ public interface MetadataFileDao<T extends Metadata> {
 	 * Write a metadata object to a file.
 	 * @param file the file to write to
 	 * @param meta the metadata to write
-	 * @throws Exception if there is a problem writing
+	 * @throws IOException if there is a problem writing
 	 */
-	void write(File file, T meta) throws Exception;
+	void write(File file, T meta) throws IOException;
 	
 	/**
 	 * Reads a metadata object from a file.
 	 * @param file the file to read from
 	 * @return the metadata object parsed from the file
-	 * @throws Exception if there is a problem reading
+	 * @throws IOException if there is a problem reading
 	 */
-	T read(File file) throws Exception;
+	T read(File file) throws IOException;
 	
 	/**
 	 * Prepares a callable instance that will write a

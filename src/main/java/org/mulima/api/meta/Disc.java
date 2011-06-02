@@ -48,6 +48,20 @@ public class Disc extends AbstractMetadata implements Metadata {
 	}
 	
 	/**
+	 * Gets the track with the specified number.
+	 * @param num the track number
+	 * @return the track
+	 */
+	public Track getTrack(int num) {
+		for (Track track : tracks) {
+			if (track.getNum() == num) {
+				return track;
+			}
+		}
+		return null;
+	}
+	
+	/**
 	 * Simplify the metadata for this disc, by moving all
 	 * metadata that is common among all tracks to this disc.
 	 */

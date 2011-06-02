@@ -17,9 +17,9 @@
  */
 package org.mulima.meta.util;
 
-import org.mulima.meta.GenericTag;
-import org.mulima.meta.Metadata;
-import org.mulima.meta.Tag;
+import org.mulima.api.meta.GenericTag;
+import org.mulima.api.meta.Metadata;
+import org.mulima.api.meta.Tag;
 import org.mulima.util.StringUtil;
 
 /**

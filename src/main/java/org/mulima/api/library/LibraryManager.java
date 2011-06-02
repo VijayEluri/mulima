@@ -17,6 +17,7 @@
  */
 package org.mulima.api.library;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -64,8 +65,10 @@ public interface LibraryManager {
 	
 	/**
 	 * Scans all libraries to update their contents.
+	 * @throws IOException if there is a problem
+	 * processing the directories
 	 */
-	void scanAll();
+	void scanAll() throws IOException;
 	
 	/**
 	 * Updates all destination libraries with the changes in the
