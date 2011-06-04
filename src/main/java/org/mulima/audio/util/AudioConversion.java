@@ -235,7 +235,7 @@ public class AudioConversion implements Callable<List<LibraryAlbum>> {
 			int tempDisc = Integer.parseInt(track.getFirst(GenericTag.DISC_NUMBER));
 			int tempTrack = Integer.parseInt(track.getFirst(GenericTag.TRACK_NUMBER));
 			if (tempDisc == discNum && tempTrack == trackNum) {
-				return track;				
+				return track;		
 			}
 		}
 		logger.warn("Track (Disc: " + discNum + ", Track: " + trackNum + ") not found for: "

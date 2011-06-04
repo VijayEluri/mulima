@@ -70,10 +70,29 @@ public class Track extends AbstractMetadata implements Metadata, Comparable<Trac
 	 */
 	@Override
 	public int compareTo(Track o) {
-		if (getNum() == o.getNum()) {
-			return 0;
+		int thisDisc = getDiscNum();
+		int otherDisc = o.getDiscNum();
+		
+		if (thisDisc == otherDisc) {
+			if (getNum() == o.getNum()) {
+				return 0;
+			} else {
+				return getNum() < o.getNum() ? -1 : 1;
+			}
 		} else {
-			return getNum() < o.getNum() ? -1 : 1;
+			return thisDisc < otherDisc ? -1 : 1;
+		}
+	}
+	
+	/**
+	 * Gets the track's disc number.
+	 * @return the disc number
+	 */
+	private int getDiscNum() {
+		try {
+			return Integer.valueOf(getFirst(GenericTag.DISC_NUMBER));
+		} catch (NumberFormatException e) {
+			return 0;
 		}
 	}
 }
