@@ -28,7 +28,7 @@ import org.mulima.util.StringUtil;
  * @version 0.1.0
  * @since 0.1.0
  */
-public class MetadataUtil {
+public final class MetadataUtil {
 	/**
 	 * This class should never be instantiated.
 	 * @throws UnsupportedOperationException always

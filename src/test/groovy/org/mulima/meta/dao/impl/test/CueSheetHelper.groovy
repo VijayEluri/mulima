@@ -17,14 +17,9 @@
 */
 package org.mulima.meta.dao.impl.test
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
-
 import org.mulima.api.meta.CuePoint
-import org.mulima.api.meta.CueSheet;
-import org.mulima.api.meta.Track;
-import org.mulima.api.meta.dao.impl.test.MetadataFactory;
+import org.mulima.api.meta.CueSheet
+import org.mulima.api.meta.dao.impl.test.MetadataFactory
 
 class CueSheetHelper {
 	static CueSheet getExampleCue() {
@@ -62,43 +57,45 @@ class CueSheetHelper {
 	
 	static void writeExampleFile(File exampleFile) {
 		exampleFile.withPrintWriter {
-			it.println('REM GENRE \'Progressive Rock\'')
-			it.println('REM DATE 1972')
-			it.println('REM DISCID 520C0506')
-			it.println('PERFORMER \'Genesis\'')
-			it.println('TITLE \'Foxtrot\'')
-			it.println('FILE \'Foxtrot.flac\' WAVE')
-			it.println('  TRACK 01 AUDIO')
-			it.println('    TITLE \'Watcher of the Skies\'')
-			it.println('    PERFORMER \'Genesis\'')
-			it.println('    INDEX 00 00:00:00')
-			it.println('    INDEX 01 00:01:00')
-			it.println('  TRACK 02 AUDIO')
-			it.println('    TITLE \'Time Table\'')
-			it.println('    PERFORMER \'Genesis\'')
-			it.println('    INDEX 00 07:24:12')
-			it.println('    INDEX 01 07:24:16')
-			it.println('  TRACK 03 AUDIO')
-			it.println('    TITLE \'Get \'Em Out By Friday\'')
-			it.println('    PERFORMER \'Genesis\'')
-			it.println('    INDEX 00 12:10:40')
-			it.println('    INDEX 01 12:10:43')
-			it.println('  TRACK 04 AUDIO')
-			it.println('    TITLE \'Can-Utility and the Coastliners\'')
-			it.println('    PERFORMER \'Genesis\'')
-			it.println('    INDEX 00 20:46:12')
-			it.println('    INDEX 01 20:46:16')
-			it.println('  TRACK 05 AUDIO')
-			it.println('    TITLE \'Horizons\'')
-			it.println('    PERFORMER \'Genesis\'')
-			it.println('    INDEX 00 26:31:09')
-			it.println('    INDEX 01 26:31:13')
-			it.println('  TRACK 06 AUDIO')
-			it.println('    TITLE \'Supper\'s Ready\'')
-			it.println('    PERFORMER \'Genesis\'')
-			it.println('    INDEX 00 28:12:21')
-			it.println('    INDEX 01 28:12:25')
-			it.close()
+			it.with {
+				println('REM GENRE \'Progressive Rock\'')
+				println('REM DATE 1972')
+				println('REM DISCID 520C0506')
+				println('PERFORMER \'Genesis\'')
+				println('TITLE \'Foxtrot\'')
+				println('FILE \'Foxtrot.flac\' WAVE')
+				println('  TRACK 01 AUDIO')
+				println('    TITLE \'Watcher of the Skies\'')
+				println('    PERFORMER \'Genesis\'')
+				println('    INDEX 00 00:00:00')
+				println('    INDEX 01 00:01:00')
+				println('  TRACK 02 AUDIO')
+				println('    TITLE \'Time Table\'')
+				println('    PERFORMER \'Genesis\'')
+				println('    INDEX 00 07:24:12')
+				println('    INDEX 01 07:24:16')
+				println('  TRACK 03 AUDIO')
+				println('    TITLE \'Get \'Em Out By Friday\'')
+				println('    PERFORMER \'Genesis\'')
+				println('    INDEX 00 12:10:40')
+				println('    INDEX 01 12:10:43')
+				println('  TRACK 04 AUDIO')
+				println('    TITLE \'Can-Utility and the Coastliners\'')
+				println('    PERFORMER \'Genesis\'')
+				println('    INDEX 00 20:46:12')
+				println('    INDEX 01 20:46:16')
+				println('  TRACK 05 AUDIO')
+				println('    TITLE \'Horizons\'')
+				println('    PERFORMER \'Genesis\'')
+				println('    INDEX 00 26:31:09')
+				println('    INDEX 01 26:31:13')
+				println('  TRACK 06 AUDIO')
+				println('    TITLE \'Supper\'s Ready\'')
+				println('    PERFORMER \'Genesis\'')
+				println('    INDEX 00 28:12:21')
+				println('    INDEX 01 28:12:25')
+				close()
+			}
 		}
 	}
 }

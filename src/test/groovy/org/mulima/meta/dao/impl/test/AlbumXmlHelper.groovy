@@ -19,9 +19,6 @@ package org.mulima.meta.dao.impl.test
 
 import groovy.xml.MarkupBuilder
 
-import java.io.File
-import java.util.Map
-
 import org.mulima.api.meta.Album
 import org.mulima.api.meta.Disc
 import org.mulima.api.meta.Track

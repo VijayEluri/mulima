@@ -31,7 +31,7 @@ public class MetadataUtilTest {
 	private Metadata meta2;
 	
 	@Before
-	public void setup() {
+	public void initMeta() {
 		meta1 = new Disc();
 		meta1.add(GenericTag.ARTIST, "Genesis");
 		meta1.add(GenericTag.ALBUM, "The Lamb Lies Down On Broadway (Disc 1)");

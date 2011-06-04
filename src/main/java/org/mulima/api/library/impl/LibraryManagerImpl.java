@@ -55,7 +55,7 @@ public class LibraryManagerImpl implements LibraryManager {
 	private List<Library> destLibs = null;
 	private FreeDbDao freeDbDao = null;
 	private MetadataFileDao<Album> albumDao = null;
-	private MetadataFileDao<CueSheet> cueDao = null;
+	//private MetadataFileDao<CueSheet> cueDao = null;
 	
 	/**
 	 * {@inheritDoc}
@@ -114,7 +114,7 @@ public class LibraryManagerImpl implements LibraryManager {
 	 * @param cueDao the cueDao to set
 	 */
 	public void setCueDao(MetadataFileDao<CueSheet> cueDao) {
-		this.cueDao = cueDao;
+		//this.cueDao = cueDao;
 	}
 
 	/**

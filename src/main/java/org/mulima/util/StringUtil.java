@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Contains helper methods for <code>String</code> operations.
  */
-public class StringUtil {
+public final class StringUtil {
 	/**
 	 * This class should never be instantiated.
 	 * @throws UnsupportedOperationException always

@@ -116,7 +116,6 @@ public class FreeDbTarDaoImpl implements FreeDbDao {
 					}
 				} catch (IOException e) {
 					logger.error("Problem closing streams.", e);
-					throw new FatalIOException("Problem closing streams.", e);
 				}
 			}
 		}
@@ -216,7 +215,6 @@ public class FreeDbTarDaoImpl implements FreeDbDao {
 				}
 			} catch (IOException e) {
 				logger.error("Problem closing streams.", e);
-				throw new FatalIOException("Problem closing streams.", e);
 			}
 		}
 		return discs;
@@ -241,7 +239,7 @@ public class FreeDbTarDaoImpl implements FreeDbDao {
 				} catch (IllegalArgumentException e) {
 					continue;
 				}
-				if (matcher.group(2) == null || matcher.group(2) == "") {
+				if (matcher.group(2) == null || matcher.group(2).equals("")) {
 					if ("DISCID".equals(matcher.group(1))) {
 						for (String value : matcher.group(3).split(",")) {
 							disc.add(tag, value);

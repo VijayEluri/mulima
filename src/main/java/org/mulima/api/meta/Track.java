@@ -33,6 +33,7 @@ public class Track extends AbstractMetadata implements Metadata, Comparable<Trac
 	}
 	
 	public Track(CuePoint startPoint, CuePoint endPoint) {
+		super();
 		this.startPoint = startPoint;
 		this.endPoint = endPoint;
 	}

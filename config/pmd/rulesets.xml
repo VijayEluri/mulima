@@ -14,6 +14,7 @@
 	<rule ref="rulesets/codesize.xml" />
 	<rule ref="rulesets/controversial.xml">
 		<exclude name="OnlyOneReturn" />
+		<exclude name="DataflowAnomalyAnalysis" />
 	</rule>
 	<rule ref="rulesets/coupling.xml" />
 	<rule ref="rulesets/design.xml" />
@@ -27,10 +28,12 @@
 	<rule ref="rulesets/junit.xml" />
 	<rule ref="rulesets/logging-jakarta-commons.xml" />
 	<rule ref="rulesets/logging-java.xml">
-		<exclude name="LoggerIsNotStaticFinal" />
+		<exclude name="LoggerIsNotStaticFinal" />	
 	</rule>
 	<rule ref="rulesets/migrating.xml" />
-	<rule ref="rulesets/naming.xml" />
+	<rule ref="rulesets/naming.xml">
+		<exclude name="ShortVariable" />
+	</rule>
 	<rule ref="rulesets/optimizations.xml">
 		<exclude name="LocalVariableCouldBeFinal" />
 		<exclude name="MethodArgumentCouldBeFinal" />

@@ -17,12 +17,10 @@
 */
 package org.mulima.meta.dao.impl.test
 
-import java.io.File;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mulima.api.meta.Album;
+import org.junit.After
+import org.junit.Before
+import org.junit.Test
+import org.mulima.api.meta.Album
 import org.mulima.meta.dao.impl.AlbumXmlDaoImpl
 
 class AlbumXmlDaoImplTest {

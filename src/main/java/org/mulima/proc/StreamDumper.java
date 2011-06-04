@@ -37,8 +37,8 @@ import org.slf4j.LoggerFactory;
  */
 public class StreamDumper implements Callable<String> {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
+	private final StringBuilder buffer;
 	private InputStream in;
-	private StringBuilder buffer;
 	
 	/**
 	 * Constructs a <code>StreamDumper</code> without an associated

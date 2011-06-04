@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.mulima.api.audio.AudioFileType;
-import org.mulima.meta.dao.MetadataFileDao;
 
 /**
  * A library is a copy of your music collection somewhere on your machine.

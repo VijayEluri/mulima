@@ -30,13 +30,13 @@ import java.util.TreeSet;
 public class CueSheet extends AbstractMetadata implements Metadata, Comparable<CueSheet> {
 	private File file;
 	private int num;
-	private SortedSet<CuePoint> cuePoints = new TreeSet<CuePoint>();
+	private final SortedSet<CuePoint> cuePoints = new TreeSet<CuePoint>();
 	
 	/**
 	 * Constructs an empty CueSheet.
 	 */
 	public CueSheet() {
-		
+		super();
 	}
 	
 	/**

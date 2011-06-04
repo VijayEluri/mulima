@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
  * @version 0.1.0
  * @since 0.1.0
  */
-public class FileUtil {
-	private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
+public final class FileUtil {
+	private static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);
 	
 	/**
 	 * This class should never be instantiated.
@@ -78,7 +78,7 @@ public class FileUtil {
 		try {
 			return file.getCanonicalPath();
 		} catch (IOException e) {
-			logger.warn("Problem getting canonical path: {}", file.getAbsolutePath());
+			LOGGER.warn("Problem getting canonical path: {}", file.getAbsolutePath());
 			return null;
 		}
 	}

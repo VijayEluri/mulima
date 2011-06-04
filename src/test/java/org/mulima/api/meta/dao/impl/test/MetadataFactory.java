@@ -30,12 +30,12 @@ import org.mulima.api.meta.Tag;
  * objects from various forms of <code>Map</code>s.
  * @see Metadata
  */
-public class MetadataFactory {
+public final class MetadataFactory {
 	/**
 	 * This class should never be instantiated.
 	 * @throws UnsupportedOperationException always
 	 */
-	protected MetadataFactory() {
+	private MetadataFactory() {
 		throw new UnsupportedOperationException("Cannot instantiate this class.");
 	}
 	

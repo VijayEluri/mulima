@@ -64,7 +64,7 @@ public class Context {
 	 * Gets the codec config for this context.
 	 * @return the codec config
 	 */
-	public CodecConfig getCodecConfig() {
+	public final CodecConfig getCodecConfig() {
 		return codecConfig;
 	}
 
@@ -72,7 +72,7 @@ public class Context {
 	 * Sets the codec config for this context
 	 * @param codecConfig the codec config
 	 */
-	public void setCodecConfig(CodecConfig codecConfig) {
+	public final void setCodecConfig(CodecConfig codecConfig) {
 		this.codecConfig = codecConfig;
 	}
 
@@ -80,7 +80,7 @@ public class Context {
 	 * Gets the input files in this context.
 	 * @return the input files
 	 */
-	public Set<AudioFile> getInputFiles() {
+	public final Set<AudioFile> getInputFiles() {
 		return inputFiles;
 	}
 
@@ -88,7 +88,7 @@ public class Context {
 	 * Sets the input files in this context.
 	 * @param inputFiles the input files
 	 */
-	public void setInputFiles(Set<AudioFile> inputFiles) {
+	public final void setInputFiles(Set<AudioFile> inputFiles) {
 		this.inputFiles = inputFiles;
 	}
 
@@ -96,7 +96,7 @@ public class Context {
 	 * Gets the output files in this context.
 	 * @return the output files
 	 */
-	public Set<AudioFile> getOutputFiles() {
+	public final Set<AudioFile> getOutputFiles() {
 		return outputFiles;
 	}
 
@@ -104,7 +104,7 @@ public class Context {
 	 * Sets the output files in this context
 	 * @param outputFiles the output files
 	 */
-	public void setOutputFiles(Set<AudioFile> outputFiles) {
+	public final void setOutputFiles(Set<AudioFile> outputFiles) {
 		this.outputFiles = outputFiles;
 	}
 
@@ -112,7 +112,7 @@ public class Context {
 	 * Gets the temporary directory for this context.
 	 * @return the temp dir
 	 */
-	public File getTempDir() {
+	public final File getTempDir() {
 		return tempDir;
 	}
 	
@@ -120,7 +120,7 @@ public class Context {
 	 * Sets the temporary directory for this context.
 	 * @param tempDir the temp dir
 	 */
-	public void setTempDir(File tempDir) {
+	public final void setTempDir(File tempDir) {
 		this.tempDir = tempDir;
 	}
 

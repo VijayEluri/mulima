@@ -17,6 +17,9 @@
  */
 package org.mulima.util.io.test;
 
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PipedInputStream;
@@ -33,9 +36,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mulima.proc.ProcessFuture;
-
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProcessFutureTest {
