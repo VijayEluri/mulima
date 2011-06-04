@@ -9,5 +9,5 @@ appender('CONSOLE', ConsoleAppender) {
 	}
 }
 
-root(INFO, ['CONSOLE')
+root(INFO, ['CONSOLE'])
 logger('org.springframework', WARN)
