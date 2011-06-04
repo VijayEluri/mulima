@@ -26,8 +26,8 @@ import java.util.regex.Pattern;
  * @version 0.1.0
  * @since 0.1.0
  */
-public class CuePoint {
-	private static final Pattern TIME_REGEX = Pattern.compile("^[0-9]{2}:[0-9]{2}.[0-9]{3}$");
+public class CuePoint implements Comparable<CuePoint> {
+	private static final Pattern TIME_REGEX = Pattern.compile("^[0-9]{2}:[0-9]{2}:[0-9]{2}$");
 	
 	private final int track;
 	private final int index;
@@ -92,5 +92,26 @@ public class CuePoint {
 	 */
 	public String getTime() {
 		return time;
+	}
+
+	/**
+	 * Compares to another cue point. Order is determined
+	 * based on track, index, and then time.
+	 */
+	@Override
+	public int compareTo(CuePoint arg0) {
+		if (track == arg0.getTrack()) {
+			if (index == arg0.getIndex()) {
+				if (time == arg0.getTime()) {
+					return 0;
+				} else {
+					return time.compareTo(arg0.getTime());
+				}
+			} else {
+				return index < arg0.getIndex() ? -1 : 1;
+			}
+		} else {
+			return track < arg0.getTrack() ? -1 : 1;
+		}
 	}
 }

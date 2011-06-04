@@ -28,9 +28,16 @@ import java.util.TreeSet;
  * @since 0.1.0
  */
 public class CueSheet extends AbstractMetadata implements Metadata {
-	private final File file;
-	private final int num;
-	private final SortedSet<CuePoint> cuePoints = new TreeSet<CuePoint>();
+	private File file;
+	private int num;
+	private SortedSet<CuePoint> cuePoints = new TreeSet<CuePoint>();
+	
+	/**
+	 * Constructs an empty CueSheet.
+	 */
+	public CueSheet() {
+		
+	}
 	
 	/**
 	 * Creates a CueSheet that was not sourced from
@@ -62,6 +69,15 @@ public class CueSheet extends AbstractMetadata implements Metadata {
 	}
 	
 	/**
+	 * Sets the file that this CueSheet was
+	 * parsed from.
+	 * @param file the source file
+	 */
+	public void setFile(File file) {
+		this.file = file;
+	}
+	
+	/**
 	 * Gets the number of this cue sheet.
 	 * This will correspond to the disc
 	 * number.
@@ -69,6 +85,16 @@ public class CueSheet extends AbstractMetadata implements Metadata {
 	 */
 	public int getNum() {
 		return num;
+	}
+	
+	/**
+	 * Sets the number of this cue sheet.
+	 * This will correspond to the disc
+	 * number.
+	 * @param num the number
+	 */
+	public void setNum(int num) {
+		this.num = num;
 	}
 	
 	/**

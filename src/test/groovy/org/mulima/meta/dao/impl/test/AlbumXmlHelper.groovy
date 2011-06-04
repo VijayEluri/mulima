@@ -19,10 +19,13 @@ package org.mulima.meta.dao.impl.test
 
 import groovy.xml.MarkupBuilder
 
-import org.mulima.api.meta.dao.impl.test.MetadataFactory;
-import org.mulima.meta.Album
-import org.mulima.meta.Disc
-import org.mulima.meta.Track
+import java.io.File
+import java.util.Map
+
+import org.mulima.api.meta.Album
+import org.mulima.api.meta.Disc
+import org.mulima.api.meta.Track
+import org.mulima.api.meta.dao.impl.test.MetadataFactory
 
 class AlbumXmlHelper {
 	static Album getExampleAlbum() {
@@ -33,9 +36,6 @@ class AlbumXmlHelper {
 		
 		def cue = CueSheetHelper.exampleCue
 		cue.map.clear()
-		cue.tracks.each { it.map.clear() }
-		
-		album.cues.add(cue)
 		
 		disc = MetadataFactory.fromStringString([DISC_NUMBER:'1'], Disc.class)
 		
@@ -61,34 +61,7 @@ class AlbumXmlHelper {
 		def indenter = new IndentPrinter(writer)
 		def xml = new MarkupBuilder(indenter)
 		
-		xml.album {
-			cue(num:'1') {
-				track(num:'1') {
-					index(num:'0', time:'00:00:00')
-					index(num:'1', time:'00:01:00')
-				}
-				track(num:'2') {
-					index(num:'0', time:'07:24:12')
-					index(num:'1', time:'07:24:16')
-				}
-				track(num:'3') {
-					index(num:'0', time:'12:10:40')
-					index(num:'1', time:'12:10:43')
-				}
-				track(num:'4') {
-					index(num:'0', time:'20:46:12')
-					index(num:'1', time:'20:46:16')
-				}
-				track(num:'5') {
-					index(num:'0', time:'26:31:09')
-					index(num:'1', time:'26:31:13')
-				}
-				track(num:'6') {
-					index(num:'0', time:'28:12:21')
-					index(num:'1', time:'28:12:25')
-				}
-			}
-			
+		xml.album {			
 			tag(name:'artist', value:'Genesis')
 			tag(name:'album', value:'Foxtrot')
 			tag(name:'genre', value:'Progressive Rock')
@@ -125,4 +98,30 @@ class AlbumXmlHelper {
 		}
 		writer.close()
 	}
+	
+//	cue(num:'1') {
+//		track(num:'1') {
+//			
+//		}
+//		track(num:'2') {
+//			index(num:'0', time:'07:24:12')
+//			index(num:'1', time:'07:24:16')
+//		}
+//		track(num:'3') {
+//			index(num:'0', time:'12:10:40')
+//			index(num:'1', time:'12:10:43')
+//		}
+//		track(num:'4') {
+//			index(num:'0', time:'20:46:12')
+//			index(num:'1', time:'20:46:16')
+//		}
+//		track(num:'5') {
+//			index(num:'0', time:'26:31:09')
+//			index(num:'1', time:'26:31:13')
+//		}
+//		track(num:'6') {
+//			index(num:'0', time:'28:12:21')
+//			index(num:'1', time:'28:12:25')
+//		}
+//	}
 }

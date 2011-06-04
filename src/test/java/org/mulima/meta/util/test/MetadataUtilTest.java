@@ -17,13 +17,13 @@
  */
 package org.mulima.meta.util.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mulima.meta.Disc;
-import org.mulima.meta.GenericTag;
-import org.mulima.meta.Metadata;
+import org.mulima.api.meta.Disc;
+import org.mulima.api.meta.GenericTag;
+import org.mulima.api.meta.Metadata;
 import org.mulima.meta.util.MetadataUtil;
 
 public class MetadataUtilTest {

@@ -25,6 +25,7 @@ import org.mulima.api.meta.Album
 import org.mulima.api.meta.CuePoint
 import org.mulima.api.meta.CueSheet
 import org.mulima.api.meta.Disc
+import org.mulima.api.meta.GenericTag;
 import org.mulima.api.meta.Metadata
 import org.mulima.api.meta.Track
 import org.mulima.meta.dao.MetadataFileDao
@@ -41,7 +42,6 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		def xml = new MarkupBuilder(indenter)
 		
 		xml.album {
-			writeCues(xml, album.cues)
 			writeTags(xml, album)
 			writeDiscs(xml, album.discs)
 		}
@@ -63,21 +63,7 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 	}
 	
-	private void writeCues(MarkupBuilder xml, List<CueSheet> cues) {
-		cues.each { cueSheet ->
-			xml.cue(num:cueSheet.num) {
-				cueSheet.tracks.each { cueTrack ->
-					track(num:cueTrack.num) {
-						cueTrack.indices.each { cueIndex ->
-							index(num:cueIndex.num, time:cueIndex.time)
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	private void writeDiscs(MarkupBuilder xml, List<Disc> discs) {
+	private void writeDiscs(MarkupBuilder xml, SortedSet<Disc> discs) {
 		discs.each { albumDisc ->
 			xml.disc {
 				writeTags(xml, albumDisc)
@@ -86,7 +72,7 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 	}
 	
-	private void writeTracks(MarkupBuilder xml, List<Track> tracks) {
+	private void writeTracks(MarkupBuilder xml, SortedSet<Track> tracks) {
 		tracks.each { albumTrack ->
 			xml.track {
 				writeTags(xml, albumTrack)
@@ -107,7 +93,6 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 		def album = new Album()
 		
-		readCues(xml.cue, album.cues)
 		readTags(xml.tag, album)
 		readDiscs(xml.disc, album.discs)
 		
@@ -123,13 +108,13 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 	}
 	
-	private void readTags(MarkupBuilder xml, Metadata meta) {
+	private void readTags(NodeList xml, Metadata meta) {
 		xml.each { tagNode ->
 			meta.add(GenericTag.valueOfCamelCase(tagNode.'@name'), tagNode.'@value')
 		}
 	}
 	
-	private void readDiscs(MarkupBuilder xml, List<Disc> discs) {
+	private void readDiscs(NodeList xml, SortedSet<Disc> discs) {
 		xml.each { discNode ->
 			def disc = new Disc()
 			readTags(discNode.tag, disc)
@@ -138,26 +123,26 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 	}
 	
-	private void readTracks(MarkupBuilder xml, List<Track> tracks) {
+	private void readTracks(NodeList xml, SortedSet<Track> tracks) {
 		xml.each { trackNode ->
 			def track = new Track()
 			readTags(trackNode.tag, track)
 			
-			trackNode.startPoint.with {
-				track.startPoint = new CuePoint(
-					Integer.parseInt(it.'@track'),
-					Integer.parseInt(it.'@index'),
-					it.'@time'
-				)
-			}
-			
-			trackNode.endPoint.with {
-				track.endPoint = new CuePoint(
-					Integer.parseInt(it.'@track'),
-					Integer.parseInt(it.'@index'),
-					it.'@time'
-				)
-			}
+//			trackNode.startPoint.with {
+//				track.startPoint = new CuePoint(
+//					Integer.parseInt(it.'@track'),
+//					Integer.parseInt(it.'@index'),
+//					it.'@time'
+//				)
+//			}
+//			
+//			trackNode.endPoint.with {
+//				track.endPoint = new CuePoint(
+//					Integer.parseInt(it.'@track'),
+//					Integer.parseInt(it.'@index'),
+//					it.'@time'
+//				)
+//			}
 			
 			tracks.add(track)
 		}

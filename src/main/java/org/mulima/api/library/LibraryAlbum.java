@@ -96,7 +96,7 @@ public class LibraryAlbum {
 	 * album.
 	 * @return the audio files
 	 */
-	public Set<AudioFile> getAudioFiles() {
+	public SortedSet<AudioFile> getAudioFiles() {
 		return audioFiles;
 	}
 	

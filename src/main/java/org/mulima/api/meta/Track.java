@@ -24,7 +24,7 @@ package org.mulima.api.meta;
  * @version 0.1.0
  * @since 0.1.0
  */
-public class Track extends AbstractMetadata implements Metadata {
+public class Track extends AbstractMetadata implements Metadata, Comparable<Track> {
 	private final CuePoint startPoint;
 	private final CuePoint endPoint;
 	
@@ -61,5 +61,18 @@ public class Track extends AbstractMetadata implements Metadata {
 	 */
 	public CuePoint getEndPoint() {
 		return endPoint;
+	}
+
+	/**
+	 * Compares to another track by num.
+	 * @param o other track
+	 */
+	@Override
+	public int compareTo(Track o) {
+		if (getNum() == o.getNum()) {
+			return 0;
+		} else {
+			return getNum() < o.getNum() ? -1 : 1;
+		}
 	}
 }

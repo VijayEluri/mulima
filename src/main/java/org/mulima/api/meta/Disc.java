@@ -27,7 +27,7 @@ import java.util.TreeSet;
  * @version 0.1.0
  * @since 0.1.0
  */
-public class Disc extends AbstractMetadata implements Metadata {
+public class Disc extends AbstractMetadata implements Metadata, Comparable<Disc> {
 	private final SortedSet<Track> tracks = new TreeSet<Track>();
 	
 	/**
@@ -67,5 +67,18 @@ public class Disc extends AbstractMetadata implements Metadata {
 	 */
 	public void tidy() {
 		tidy(getTracks());
+	}
+	
+	/**
+	 * Compares to another disc by num.
+	 * @param o other disc
+	 */
+	@Override
+	public int compareTo(Disc o) {
+		if (getNum() == o.getNum()) {
+			return 0;
+		} else {
+			return getNum() < o.getNum() ? -1 : 1;
+		}
 	}
 }

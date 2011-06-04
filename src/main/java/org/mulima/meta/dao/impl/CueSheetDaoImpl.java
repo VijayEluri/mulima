@@ -2,7 +2,6 @@ package org.mulima.meta.dao.impl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.util.Scanner;
 import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
@@ -17,31 +16,32 @@ import org.slf4j.LoggerFactory;
 
 public class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 	private static final Pattern NUM_REGEX = Pattern.compile(".*\\(([0-9])\\)\\.flac");
-	private static final Pattern LINE_REGEX = Pattern.compile("^((?:REM )?[A-Z0-9]+) \"?([^\"]*)\"?.*$");
+	private static final Pattern LINE_REGEX = Pattern.compile("^((?:REM )?[A-Z0-9]+) [\"']?([^\"']*)[\"']?.*$");
 	private final Logger logger = LoggerFactory.getLogger(getClass()); 
 	
-	private String formatTag(CueSheetTag.Cue tag, String value, String indent) {
-		return indent + tag.toString(value);
-	}
+//	private String formatTag(CueSheetTag.Cue tag, String value, String indent) {
+//		return indent + tag.toString(value);
+//	}
 	
 	@Override
 	public void write(File file, CueSheet cue) throws FileNotFoundException {
-		PrintWriter writer = new PrintWriter(file);
-		
-		for (CueSheetTag.Cue tag : CueSheetTag.Cue.values()) {
-			writer.println(formatTag(tag, cue.getFlat(tag), ""));
-		}
-		
-		int currentTrack = -1;
-		for (CuePoint point : cue.getAllCuePoints()) {
-			if (point.getTrack() != currentTrack) {
-				writer.println(String.format("\tTRACK %1$02d AUDIO", point.getTrack()));
-				currentTrack = point.getTrack();
-			}
-			writer.println("\t\tINDEX " + point.getIndex() + " " + point.getTime());
-		}
-		
-		writer.close();
+		throw new UnsupportedOperationException("This method is not implemented at this time.");
+//		PrintWriter writer = new PrintWriter(file);
+//		
+//		for (CueSheetTag.Cue tag : CueSheetTag.Cue.values()) {
+//			writer.println(formatTag(tag, cue.getFlat(tag), ""));
+//		}
+//		
+//		int currentTrack = -1;
+//		for (CuePoint point : cue.getAllCuePoints()) {
+//			if (point.getTrack() != currentTrack) {
+//				writer.println(String.format("\tTRACK %1$02d AUDIO", point.getTrack()));
+//				currentTrack = point.getTrack();
+//			}
+//			writer.println("\t\tINDEX " + point.getIndex() + " " + point.getTime());
+//		}
+//		
+//		writer.close();
 	}
 
 	@Override
@@ -51,6 +51,7 @@ public class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 		CueSheet cue = new CueSheet(num, file);
 		
 		Scanner fin = new Scanner(file);
+		int currentTrack = -1;
 		while (fin.hasNext()) {
 			String line = fin.nextLine().trim();
 			matcher = LINE_REGEX.matcher(line);
@@ -61,13 +62,16 @@ public class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 			String name = matcher.group(1).trim().replaceAll(" ", "_");
 			String value = matcher.group(2).trim();
 			
-			int currentTrack = -1;
+			logger.warn("Name: {} Value: {}", name, value);
+			
 			if ("TRACK".equals(name)) {
 				currentTrack = Integer.valueOf(value.split(" ")[0]);
+				logger.warn("Current track: {}", currentTrack);
 			} else if (currentTrack < 0) {
 				try {
 					CueSheetTag.Cue tag = CueSheetTag.Cue.valueOf(name);
 					cue.add(tag, value);
+					logger.warn("Setting tag: {} value: {}", tag.name(), value);
 				} catch (IllegalArgumentException e) {
 					logger.debug(e.getMessage(), e);
 				}
@@ -76,6 +80,7 @@ public class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 				int index = Integer.valueOf(values[0]);
 				String time = values[1];
 				cue.getCuePoints().add(new CuePoint(currentTrack, index, time));
+				logger.warn("Adding cue point track: {} index: {} time: {}", new Object[] {currentTrack, index, time});
 //			} else {
 //				try {
 //					CueSheetTag.Track tag = CueSheetTag.Track.valueOf(name);
