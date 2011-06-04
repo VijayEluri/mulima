@@ -27,7 +27,7 @@ public class StringUtil {
 	 * This class should never be instantiated.
 	 * @throws UnsupportedOperationException always
 	 */
-	protected StringUtil() {
+	private StringUtil() {
 		throw new UnsupportedOperationException("Cannot instantiate this class.");
 	}
 	

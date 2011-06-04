@@ -22,6 +22,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Logs the progress of an operation using SLF4J INFO level messages.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
  */
 public class SLF4JProgressBar implements ProgressBar {
 	private final Logger logger = LoggerFactory.getLogger(ProgressBar.class);

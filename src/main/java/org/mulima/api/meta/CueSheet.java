@@ -27,7 +27,7 @@ import java.util.TreeSet;
  * @version 0.1.0
  * @since 0.1.0
  */
-public class CueSheet extends AbstractMetadata implements Metadata {
+public class CueSheet extends AbstractMetadata implements Metadata, Comparable<CueSheet> {
 	private File file;
 	private int num;
 	private SortedSet<CuePoint> cuePoints = new TreeSet<CuePoint>();
@@ -114,5 +114,18 @@ public class CueSheet extends AbstractMetadata implements Metadata {
 	 */
 	public SortedSet<CuePoint> getAllCuePoints() {
 		return cuePoints;
+	}
+	
+	/**
+	 * Compares to another cue by num.
+	 * @param o other cue
+	 */
+	@Override
+	public int compareTo(CueSheet o) {
+		if (getNum() == o.getNum()) {
+			return 0;
+		} else {
+			return getNum() < o.getNum() ? -1 : 1;
+		}
 	}
 }

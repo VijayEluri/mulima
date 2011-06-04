@@ -44,6 +44,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Provides access to a * .tar or .tar.bz2 file containing FreeDb information.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
  */
 public class FreeDbTarDaoImpl implements FreeDbDao {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -219,6 +222,11 @@ public class FreeDbTarDaoImpl implements FreeDbDao {
 		return discs;
 	}
 	
+	/**
+	 * Parses a byte array to get a disc.
+	 * @param content the bytes representing the disc
+	 * @return the disc
+	 */
 	private Disc bytesToDisc(byte[] content) {
 		String[] lines = new String(content).split("\n");
 		Disc disc = new Disc();

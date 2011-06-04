@@ -27,6 +27,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Helper methods for <code>File</code> operations.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
  */
 public class FileUtil {
 	private static final Logger logger = LoggerFactory.getLogger(FileUtil.class);
@@ -75,7 +78,7 @@ public class FileUtil {
 		try {
 			return file.getCanonicalPath();
 		} catch (IOException e) {
-			logger.warn("Problem getting canonical path: " + file.getAbsolutePath());
+			logger.warn("Problem getting canonical path: {}", file.getAbsolutePath());
 			return null;
 		}
 	}
@@ -110,6 +113,7 @@ public class FileUtil {
 	 * <strong>is</strong> recursive.
 	 * @param dir the directory to search
 	 * @return a list of all child directories
+	 * @throws IlegalArgumentException if <code>dir</code> is not a directory
 	 */
 	public static List<File> listDirsRecursive(File dir) {
 		return listDirsRecursive(dir, new ArrayList<File>());
@@ -120,6 +124,7 @@ public class FileUtil {
 	 * @param dir directory to search for child directories
 	 * @param dirs list of directories to add children to
 	 * @return list of child directories (including any already included in <code>dirs</code>)
+	 * @throws IlegalArgumentException if <code>dir</code> is not a directory
 	 */
 	private static List<File> listDirsRecursive(File dir, List<File> dirs) {
 		if (!dir.isDirectory()) {

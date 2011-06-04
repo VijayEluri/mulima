@@ -14,8 +14,14 @@ import org.mulima.meta.dao.MetadataFileDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * DAO that will read CueSheets.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
 public class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
-	private static final Pattern NUM_REGEX = Pattern.compile(".*\\(([0-9])\\)\\.flac");
+	private static final Pattern NUM_REGEX = Pattern.compile(".*\\(([0-9])\\)\\.cue");
 	private static final Pattern LINE_REGEX = Pattern.compile("^((?:REM )?[A-Z0-9]+) [\"']?([^\"']*)[\"']?.*$");
 	private final Logger logger = LoggerFactory.getLogger(getClass()); 
 	
@@ -23,6 +29,12 @@ public class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 //		return indent + tag.toString(value);
 //	}
 	
+	/**
+	 * This is not implemented.
+	 * @param file
+	 * @param cue
+	 * @throws FileNotFoundException
+	 */
 	@Override
 	public void write(File file, CueSheet cue) throws FileNotFoundException {
 		throw new UnsupportedOperationException("This method is not implemented at this time.");
@@ -44,6 +56,11 @@ public class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 //		writer.close();
 	}
 
+	/**
+	 * Parses a CueSheet from the specified file.
+	 * @param file the file to parse
+	 * @throws FileNotFoundException if the file does not exist
+	 */
 	@Override
 	public CueSheet read(File file) throws FileNotFoundException {
 		Matcher matcher = NUM_REGEX.matcher(file.getName());
@@ -62,16 +79,12 @@ public class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 			String name = matcher.group(1).trim().replaceAll(" ", "_");
 			String value = matcher.group(2).trim();
 			
-			logger.warn("Name: {} Value: {}", name, value);
-			
 			if ("TRACK".equals(name)) {
 				currentTrack = Integer.valueOf(value.split(" ")[0]);
-				logger.warn("Current track: {}", currentTrack);
 			} else if (currentTrack < 0) {
 				try {
 					CueSheetTag.Cue tag = CueSheetTag.Cue.valueOf(name);
 					cue.add(tag, value);
-					logger.warn("Setting tag: {} value: {}", tag.name(), value);
 				} catch (IllegalArgumentException e) {
 					logger.debug(e.getMessage(), e);
 				}
@@ -80,7 +93,6 @@ public class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 				int index = Integer.valueOf(values[0]);
 				String time = values[1];
 				cue.getCuePoints().add(new CuePoint(currentTrack, index, time));
-				logger.warn("Adding cue point track: {} index: {} time: {}", new Object[] {currentTrack, index, time});
 //			} else {
 //				try {
 //					CueSheetTag.Track tag = CueSheetTag.Track.valueOf(name);
@@ -94,6 +106,12 @@ public class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 		return cue;
 	}
 
+	/**
+	 * This is not implemented.
+	 * @param file
+	 * @param cue
+	 * @return 
+	 */
 	@Override
 	public Callable<Void> writeLater(final File file, final CueSheet meta) {
 		return new Callable<Void>() {
@@ -104,6 +122,11 @@ public class CueSheetDaoImpl implements MetadataFileDao<CueSheet> {
 		};
 	}
 
+	/**
+	 * Creates a Callable that will parse a CueSheet from the specified file.
+	 * @param file the file to parse
+	 * @return a Callable to parse the file
+	 */
 	@Override
 	public Callable<CueSheet> readLater(final File file) {
 		return new Callable<CueSheet>() {

@@ -29,6 +29,9 @@ import org.mulima.job.Context;
 /**
  * Service that allows the conversion of one library album
  * to its destination libraries.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
  */
 public class AudioConversionService {
 	private static AudioConversionService instance = new AudioConversionService();

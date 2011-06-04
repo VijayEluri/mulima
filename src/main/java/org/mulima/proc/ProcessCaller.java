@@ -33,8 +33,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Executes a <code>Process</code>.  This is an alternative to {@link ProcessBuilder#start()}
  * and {@link Runtime#exec(String)} that will give you a {@link ProcessResult} object.
- * 
- * @see ProcessResult
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
  */
 public class ProcessCaller implements Callable<ProcessResult> {
 	private final Logger logger = LoggerFactory.getLogger(getClass());

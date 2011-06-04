@@ -27,6 +27,9 @@ import java.util.Set;
 /**
  * An abstract implementation of a metadata object.  Provides
  * map-based tag support.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
  */
 public abstract class AbstractMetadata implements Metadata {
 	private final Map<GenericTag, List<String>> map = new LinkedHashMap<GenericTag, List<String>>();

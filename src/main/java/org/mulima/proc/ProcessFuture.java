@@ -35,7 +35,10 @@ import org.slf4j.LoggerFactory;
  * Represents the future result of a <code>Process</code>. In addition to the
  * <code>Process</code>'s return code, it also provides access to it's stdout
  * and stderr streams.
+ * @author Andrew Oberstar
+ * @version 0.1.0
  * @see Process, ProcessUtil, StreamDumper
+ * @since 0.1.0
  */
 public class ProcessFuture implements Future<Integer> {
 	private final Logger logger = LoggerFactory.getLogger(ProcessFuture.class);

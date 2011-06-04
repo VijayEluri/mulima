@@ -25,6 +25,9 @@ import org.mulima.api.meta.Metadata;
 
 /**
  * Defines operations to read and write metadata to a file.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
  */
 public interface MetadataFileDao<T extends Metadata> {
 	/**

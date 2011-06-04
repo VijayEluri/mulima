@@ -27,8 +27,9 @@ import org.mulima.api.audio.CodecConfig;
 
 /**
  * Holds information describing the context of the app.
- * 
- * Legal note: This was inspired by Apache Ivy's IvyContext class.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
  */
 public class Context {
 	private static Context rootContext = new Context();

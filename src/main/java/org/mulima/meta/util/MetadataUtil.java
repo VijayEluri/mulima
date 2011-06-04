@@ -24,6 +24,9 @@ import org.mulima.util.StringUtil;
 
 /**
  * Helper methods for Metadata operations.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
  */
 public class MetadataUtil {
 	/**

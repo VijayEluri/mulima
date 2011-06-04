@@ -108,12 +108,13 @@ public class ShnToolImpl implements Splitter {
 		command.add("\"" + cuePath + "\"");
 		command.add("\"" + sourcePath + "\"");
 		
-		return new SplitterCaller(command, source, destDir);
+		return new SplitterCaller(command, cue.getNum(), source, destDir);
 	}
 	
 	private static class SplitterCaller implements Callable<SplitterResult> {
 		private final Logger logger = LoggerFactory.getLogger(getClass());
 		private final List<String> command;
+		private final int num;
 		private final AudioFile source;
 		private final File destDir;
 		
@@ -123,8 +124,9 @@ public class ShnToolImpl implements Splitter {
 		 * @param source the source file
 		 * @param destDir the destination directory
 		 */
-		public SplitterCaller(List<String> command, AudioFile source, File destDir) {
+		public SplitterCaller(List<String> command, int num, AudioFile source, File destDir) {
 			this.command = command;
+			this.num = num;
 			this.source = source;
 			this.destDir = destDir;
 		}
@@ -142,7 +144,7 @@ public class ShnToolImpl implements Splitter {
 			
 			List<AudioFile> dest = new ArrayList<AudioFile>();
 			for (File file : destDir.listFiles()) {
-				Matcher matcher = Pattern.compile("^D([0-9]+)T([0-9]+).*").matcher(file.getName());
+				Matcher matcher = Pattern.compile("^D(" + num + ")T([0-9]+).*").matcher(file.getName());
 				if (matcher.matches()) {
 					AudioFile audioFile = new AudioFile(file);
 					audioFile.setDiscNum(Integer.valueOf(matcher.group(1)));

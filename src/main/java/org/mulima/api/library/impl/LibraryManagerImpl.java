@@ -170,6 +170,7 @@ public class LibraryManagerImpl implements LibraryManager {
 					iterator.remove();
 				} else if (cancelAll) {
 					future.cancel(true);
+					iterator.remove();
 				}
 			}
 			try {

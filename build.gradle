@@ -80,3 +80,10 @@ dependencies {
 	)
 }
 
+task stageLib(type:Sync, dependsOn:assemble) {
+	from configurations.archives.allArtifactFiles
+	from configurations.runtime
+	into file('C:/data/library/lib')
+}
+	
+task stage(dependsOn:stageLib)

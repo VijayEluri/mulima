@@ -25,8 +25,9 @@ import org.mulima.util.StringUtil;
  * Represents the result of a Process execution.  Provides
  * access to the exit value as well as the standard out
  * and standard error output.
- *
- * @see Process, ProcessCaller, ProcessFuture
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
  */
 public class ProcessResult {
 	private final String command;

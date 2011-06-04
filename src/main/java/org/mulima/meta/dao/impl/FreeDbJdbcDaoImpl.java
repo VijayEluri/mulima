@@ -42,6 +42,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Provides access to a JDBC source containing FreeDb information.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
  */
 public class FreeDbJdbcDaoImpl extends NamedParameterJdbcDaoSupport implements FreeDbDao {
 	private final Logger logger = LoggerFactory.getLogger(FreeDbJdbcDaoImpl.class);
@@ -232,6 +235,9 @@ public class FreeDbJdbcDaoImpl extends NamedParameterJdbcDaoSupport implements F
 		logger.trace("Exiting addCddbIds");
 	}
 	
+	/**
+	 * Map a row to a Disc.
+	 */
 	private static class DiscRowMapper implements RowMapper<Disc> {
 		@Override
 		public Disc mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -244,6 +250,9 @@ public class FreeDbJdbcDaoImpl extends NamedParameterJdbcDaoSupport implements F
 		}
 	}
 	
+	/**
+	 * Map a row to a Track.
+	 */
 	private static class TrackRowMapper implements RowMapper<Track> {
 		@Override
 		public Track mapRow(ResultSet rs, int rowNum) throws SQLException {

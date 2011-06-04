@@ -28,6 +28,9 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
  * Will update libraries by processing new albums and copying the changes.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
  */
 public class LibraryUpdater {
 	private final Logger logger = LoggerFactory.getLogger(getClass());

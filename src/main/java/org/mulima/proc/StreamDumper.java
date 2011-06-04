@@ -31,9 +31,9 @@ import org.slf4j.LoggerFactory;
  * Dumps an <code>InputStream</code> to a <code>String</code>. The 
  * stream will be handled in a separate thread.  A common use for 
  * this would be to handle <code>Process</code> output.
- * 
- * @see Process, ProcessUtil, ProcessFuture
- *
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
  */
 public class StreamDumper implements Callable<String> {
 	private final Logger logger = LoggerFactory.getLogger(getClass());

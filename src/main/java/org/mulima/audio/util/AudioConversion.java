@@ -170,10 +170,10 @@ public class AudioConversion implements Callable<List<LibraryAlbum>> {
 		logger.info("Encoding " + refAlbum.getAlbum().getFlat(GenericTag.ALBUM)); 
 		List<AudioFile> tempFiles = new ArrayList<AudioFile>();
 		for (LibraryAlbum destAlbum : destAlbums) {
-			for (AudioFile tempFile : tempFiles) {
-				AudioFile destFile = new AudioFile(destAlbum.getDir(), FileUtil.getBaseName(tempFile)
+			for (AudioFile splitFile : splitFiles) {
+				AudioFile destFile = new AudioFile(destAlbum.getDir(), FileUtil.getBaseName(splitFile)
 						+ "." + destAlbum.getLib().getType().getExtension());
-				CodecResult result = codecConfig.getCodec(destFile).encode(tempFile, destFile);
+				CodecResult result = codecConfig.getCodec(destFile).encode(splitFile, destFile);
 				if (result.getExitVal() == 0) {
 					tempFiles.add(result.getDest());
 					destAlbum.getAudioFiles().add(result.getDest());
@@ -205,6 +205,9 @@ public class AudioConversion implements Callable<List<LibraryAlbum>> {
 		SortedSet<Track> tracks = refAlbum.getAlbum().flatten();
 		for (LibraryAlbum destAlbum : destAlbums) {
 			for (AudioFile file : destAlbum.getAudioFiles()) {
+				if (file.getTrackNum() == 0) {
+					continue;
+				}
 				Track track = findTrack(tracks, file.getDiscNum(), file.getTrackNum());
 				TaggerResult result = codecConfig.getTagger(file).write(file, track);
 				if (result.getExitVal() != 0) {

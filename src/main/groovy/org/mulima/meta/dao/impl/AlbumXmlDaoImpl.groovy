@@ -32,9 +32,21 @@ import org.mulima.meta.dao.MetadataFileDao
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+/**
+ * DAO that will read and write album.xml files.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
 class AlbumXmlDaoImpl implements MetadataFileDao<Album> {	
 	private final Logger logger = LoggerFactory.getLogger(getClass())
 	
+	/**
+	 * Writes an album.xml file representing the specified
+	 * album.
+	 * @param file the file to write to
+	 * @param album the album to write
+	 */
 	void write(File file, Album album) {
 		album.tidy()
 		def writer = new PrintWriter(file, 'UTF-8')
@@ -47,6 +59,13 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 	}
 	
+	/**
+	 * Writes an album.xml file representing the specified
+	 * album.
+	 * @param file the file to write to
+	 * @param album the album to write
+	 * @return a Callable that will write the file
+	 */
 	Callable<Void> writeLater(File file, Album album) {
 		return new Callable<Void>() {
 			Void call() {
@@ -55,6 +74,11 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 	}
 	
+	/**
+	 * Helper to write tags.
+	 * @param xml a builder to write with
+	 * @param meta the metadata to write
+	 */
 	private void writeTags(MarkupBuilder xml, Metadata meta) {
 		meta.map.each { key, values ->
 			values.each { value ->
@@ -63,6 +87,11 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 	}
 	
+	/**
+	 * Helper to write discs.
+	 * @param xml a builder to write with
+	 * @param discs the discs to write
+	 */
 	private void writeDiscs(MarkupBuilder xml, SortedSet<Disc> discs) {
 		discs.each { albumDisc ->
 			xml.disc {
@@ -72,6 +101,11 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 	}
 	
+	/**
+	 * Helper to write tracks.
+	 * @param xml a builder to write with
+	 * @param tracks the tracks to write
+	 */
 	private void writeTracks(MarkupBuilder xml, SortedSet<Track> tracks) {
 		tracks.each { albumTrack ->
 			xml.track {
@@ -83,6 +117,11 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 	}
 	
+	/**
+	 * Parses an album.xml file.
+	 * @param file the file to parse
+	 * @return an Album representing the file contents
+	 */
 	Album read(File file) {
 		def xml
 		try {
@@ -100,6 +139,11 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		return album
 	}
 	
+	/**
+	 * Parses an album.xml file.
+	 * @param file the file to parse
+	 * @return a Callable that will parse the file
+	 */
 	Callable<Album> readLater(File file) {
 		return new Callable<Album>() {
 			Album call() {
@@ -108,12 +152,22 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 	}
 	
+	/**
+	 * Helper to read tags.
+	 * @param xml a node list to read from
+	 * @param meta the metadata to add tags to
+	 */
 	private void readTags(NodeList xml, Metadata meta) {
 		xml.each { tagNode ->
 			meta.add(GenericTag.valueOfCamelCase(tagNode.'@name'), tagNode.'@value')
 		}
 	}
 	
+	/**
+	 * Helper to read discs.
+	 * @param xml a node list to read from
+	 * @param discs the set to add discs to
+	 */
 	private void readDiscs(NodeList xml, SortedSet<Disc> discs) {
 		xml.each { discNode ->
 			def disc = new Disc()
@@ -123,6 +177,11 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 		}
 	}
 	
+	/**
+	 * Helper to read tracks.
+	 * @param xml a node list to read from
+	 * @param tracks the set to add tracks to
+	 */
 	private void readTracks(NodeList xml, SortedSet<Track> tracks) {
 		xml.each { trackNode ->
 			def track = new Track()
