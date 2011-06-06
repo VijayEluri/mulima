@@ -20,6 +20,7 @@ package org.mulima.api.library;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 import org.mulima.api.audio.AudioFileType;
 
@@ -32,6 +33,18 @@ import org.mulima.api.audio.AudioFileType;
  * @since 0.1.0
  */
 public interface Library {
+	/**
+	 * Gets the name of the library.
+	 * @return the name
+	 */
+	String getName();
+	
+	/**
+	 * Sets the name of the library.
+	 * @param name the name
+	 */
+	void setName(String name);
+	
 	/**
 	 * Returns the root directory of this library.
 	 * @return the root directory
@@ -71,17 +84,27 @@ public interface Library {
 	List<LibraryAlbum> getAll();
 	
 	/**
-	 * Gets all albums that have been changed outside of the
-	 * normal update process.
+	 * Gets all albums need updating.
 	 * @return list of modified albums
 	 */
-	List<LibraryAlbum> getModified();
+	List<LibraryAlbum> getOutdated();
 	
 	/**
-	 * Gets all albums that need to be updated from the reference.
-	 * @return list of out of date albums.
+	 * Gets the album with the specified ID.
+	 * @param id the ID of the album
+	 * @return the album or <code>null</code> if
+	 * it does not exist
 	 */
-	List<LibraryAlbum> getOld();
+	LibraryAlbum get(UUID id);
+	
+	/**
+	 * Gets the album sourced from the given
+	 * ID.
+	 * @param id the ID of the source album
+	 * @return the album or <code>null</code> if
+	 * it does not exist
+	 */
+	LibraryAlbum getWithSource(UUID id);
 	
 	/**
 	 * Creates a new album based on the parameter.

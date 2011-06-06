@@ -169,7 +169,7 @@ ruleset {
 		'MultipleLoggers'
 		'PrintStackTrace'
 		'Println' {
-			doNotApplyToClassNames = 'CueSheetHelper'
+			doNotApplyToClassNames = 'CueSheetHelper,Mulima'
 		}
 		'SystemErrPrint'
 		'SystemOutPrint'

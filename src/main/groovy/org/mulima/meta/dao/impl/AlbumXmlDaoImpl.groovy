@@ -130,7 +130,7 @@ class AlbumXmlDaoImpl implements MetadataFileDao<Album> {
 			throw e
 		}
 		def album = new Album()
-		
+		album.file = file
 		readTags(xml.tag, album)
 		readDiscs(xml.disc, album.discs)
 		

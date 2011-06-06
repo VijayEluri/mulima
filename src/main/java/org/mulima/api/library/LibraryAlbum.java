@@ -18,12 +18,16 @@
 package org.mulima.api.library;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.UUID;
 
 import org.mulima.api.audio.AudioFile;
 import org.mulima.api.meta.Album;
 import org.mulima.api.meta.CueSheet;
+import org.mulima.cache.Digest;
+import org.mulima.cache.DigestBuilder;
 
 /**
  * A library album is a collection of all items that correspond
@@ -36,11 +40,31 @@ import org.mulima.api.meta.CueSheet;
  * @since 0.1.0
  */
 public class LibraryAlbum {
+	private UUID id = null;
 	private Album album = null;
 	private Library lib = null;
 	private File dir = null;
 	private SortedSet<AudioFile> audioFiles = new TreeSet<AudioFile>();
 	private SortedSet<CueSheet> cues = new TreeSet<CueSheet>();
+	
+	private Digest digest;
+	private Digest sourceDigest;
+	
+	/**
+	 * Gets the ID of this object.
+	 * @return the ID
+	 */
+	public UUID getId() {
+		return id;
+	}
+	
+	/**
+	 * Sets the ID of this object.
+	 * @param id the ID
+	 */
+	public void setId(UUID id) {
+		this.id = id;
+	}
 	
 	/**
 	 * Gets the album metadata for this library album.
@@ -133,5 +157,68 @@ public class LibraryAlbum {
 			}
 		}
 		return null;
+	}
+	
+	public Digest getDigest() {
+		return digest;
+	}
+	
+	public void setDigest(Digest digest) {
+		this.digest = digest;
+	}
+	
+	public Digest getSourceDigest() {
+		return sourceDigest;
+	}
+	
+	public void setSourceDigest(Digest sourceDigest) {
+		this.sourceDigest = sourceDigest;
+	}
+	
+	/**
+	 * Determines whether this album needs to be updated.
+	 * @return <code>true</code> if it is up to date, <code>false</code> otherwise
+	 * @throws IOException if there is a problem generating the digests
+	 */
+	public boolean isUpToDate() throws IOException {
+		return isUpToDate(getDigest());
+	}
+	
+	/**
+	 * Determines whether this album needs to be updated.
+	 * @param checkSource whether to check if the source digest is up to date
+	 * @return <code>true</code> if it is up to date, <code>false</code> otherwise
+	 * @throws IOException if there is a problem generating the digests
+	 */
+	public boolean isUpToDate(boolean checkSource) throws IOException {
+		return isUpToDate(getDigest(), checkSource);
+	}
+	
+	/**
+	 * Determines whether this album needs to be updated.
+	 * @param digest the digest to check against the current state
+	 * @return <code>true</code> if it is up to date, <code>false</code> otherwise
+	 * @throws IOException if there is a problem generating the digests
+	 */
+	public boolean isUpToDate(Digest digest) throws IOException {
+		return isUpToDate(digest, true);
+	}
+	
+	/**
+	 * Determines whether this album needs to be updated.
+	 * @param digest the digest to check against the current state
+	 * @param checkSource whether to check if the source digest is up to date
+	 * @return <code>true</code> if it is up to date, <code>false</code> otherwise
+	 * @throws IOException if there is a problem generating the digests
+	 */
+	public boolean isUpToDate(Digest digest, boolean checkSource) throws IOException {
+		if (checkSource && sourceDigest != null) {
+			LibraryAlbum source = getLib().get(sourceDigest.getId());
+			if (!source.isUpToDate(sourceDigest)) {
+				return false;
+			}
+		}
+		Digest current = new DigestBuilder(this).build();
+		return digest == null ? false : digest.equals(current);
 	}
 }

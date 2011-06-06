@@ -20,8 +20,8 @@ package org.mulima.api.library.impl;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -35,6 +35,8 @@ import org.mulima.api.meta.CueSheet;
 import org.mulima.api.meta.Disc;
 import org.mulima.api.meta.GenericTag;
 import org.mulima.audio.util.AudioConversionService;
+import org.mulima.cache.DigestBuilder;
+import org.mulima.cache.DigestDao;
 import org.mulima.job.Context;
 import org.mulima.library.util.Chooser;
 import org.mulima.library.util.DiscCliChooser;
@@ -139,7 +141,7 @@ public class LibraryManagerImpl implements LibraryManager {
 	 * Updates a list of libraries.
 	 * @param libs the libraries to update.
 	 */
-	private void updateLibs(List<Library> libs) {
+	public void updateLibs(List<Library> libs) {
 		List<LibraryAlbum> refAlbums = new ArrayList<LibraryAlbum>();
 		for (ReferenceLibrary refLib : getRefLibs()) {
 			refAlbums.addAll(refLib.getAll());
@@ -149,43 +151,49 @@ public class LibraryManagerImpl implements LibraryManager {
 		for (LibraryAlbum refAlbum : refAlbums) {
 			List<LibraryAlbum> destAlbums = new ArrayList<LibraryAlbum>();
 			for (Library destLib : libs) {
-				destAlbums.add(destLib.newAlbum(refAlbum));
+				LibraryAlbum destAlbum = destLib.getWithSource(refAlbum.getId());
+				if (destAlbum == null) {
+					destAlbum = destLib.newAlbum(refAlbum);
+				}
+				destAlbums.add(destAlbum);
 			}
 			futures.add(AudioConversionService.getInstance().submitConvert(refAlbum, destAlbums));
 		}
 		
 		boolean cancelAll = false;
-		while (!futures.isEmpty()) {
-			Iterator<Future<List<LibraryAlbum>>> iterator = futures.iterator();
-			while (iterator.hasNext()) {
-				Future<?> future = iterator.next();
-				if (future.isDone()) {
-					try {
-						future.get();
-					} catch (ExecutionException e) {
-						logger.error("Problem converting album.", e);
-					} catch (InterruptedException e) {
-						logger.error("Problem converting album.", e);
-					}
-					iterator.remove();
-				} else if (cancelAll) {
-					future.cancel(true);
-					iterator.remove();
-				}
-			}
+		List<Future<?>> completed = new ArrayList<Future<?>>();
+		do {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				cancelAll = true;
 			}
-		}
+			for (Future<?> future : futures) {
+				if (future.isDone() && !completed.contains(future)) {
+					try {
+						future.get();
+					} catch (ExecutionException e) {
+						logger.error("Problem converting album.", e);
+						cancelAll = true;
+					} catch (InterruptedException e) {
+						logger.error("Problem converting album.", e);
+						cancelAll = true;
+					}
+					completed.add(future);
+				} else if (cancelAll) {
+					future.cancel(true);
+					completed.add(future);
+				}
+			}
+		} while (futures.equals(completed));
 	}
 
 	/**
 	 * {@inheritDoc}
+	 * @throws IOException 
 	 */
 	@Override
-	public void processNew() {
+	public void processNew() throws IOException {
 		for (ReferenceLibrary refLib : getRefLibs()) {
 			for (LibraryAlbum libAlbum : refLib.getNew()) {
 				Album album = new Album();
@@ -215,10 +223,17 @@ public class LibraryManagerImpl implements LibraryManager {
 				
 				libAlbum.setAlbum(album);
 				try {
-					albumDao.write(new File(libAlbum.getDir(), "album.xml"), album);
+					File albumFile = new File(libAlbum.getDir(), "album.xml");
+					albumDao.write(albumFile, album);
+					album.setFile(albumFile);
 				} catch (Exception e) {
 					logger.error("Problem writing album.xml", e);
 				}
+				
+				libAlbum.setId(UUID.randomUUID());
+				libAlbum.setDigest(new DigestBuilder(libAlbum).build());
+				DigestDao dao = new DigestDao();
+				dao.write(libAlbum);
 			}
 		}
 	}

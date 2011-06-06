@@ -33,6 +33,9 @@ import org.mulima.api.library.LibraryAlbum;
 import org.mulima.api.meta.CueSheet;
 import org.mulima.api.meta.GenericTag;
 import org.mulima.api.meta.Track;
+import org.mulima.cache.Digest;
+import org.mulima.cache.DigestBuilder;
+import org.mulima.cache.DigestDao;
 import org.mulima.exception.ConversionFailureException;
 import org.mulima.exception.ProcessExecutionException;
 import org.mulima.util.FileUtil;
@@ -52,6 +55,8 @@ public class AudioConversion implements Callable<List<LibraryAlbum>> {
 	private final List<LibraryAlbum> destAlbums;
 	private final CodecConfig codecConfig;
 	
+	private List<LibraryAlbum> tempAlbums;
+	
 	/**
 	 * Constructs a conversion for the given albums.
 	 * @param codecConfig the codec configurations to use 
@@ -70,11 +75,20 @@ public class AudioConversion implements Callable<List<LibraryAlbum>> {
 	@Override
 	public List<LibraryAlbum> call() throws ConversionFailureException {
 		try {
+			Digest digest = new DigestBuilder(refAlbum).build();
+			tempAlbums = needsUpdate(digest);
 			List<AudioFile> files = tag(encode(split(decode(refAlbum))));
-			if (files == null) {
+			if (files == null || files.isEmpty()) {
 				throw new ConversionFailureException("Failed to convert " 
 					+ refAlbum.getAlbum().getFlat(GenericTag.ALBUM));
 			} else {
+				for (LibraryAlbum destAlbum : tempAlbums) {
+					destAlbum.setDigest(new DigestBuilder(destAlbum).build());
+					destAlbum.setSourceDigest(digest);
+					DigestDao dao = new DigestDao();
+					dao.write(destAlbum);
+					dao.writeSource(destAlbum);
+				}
 				return destAlbums;
 			}
 		} catch (ProcessExecutionException e) {
@@ -82,6 +96,20 @@ public class AudioConversion implements Callable<List<LibraryAlbum>> {
 		} catch (IOException e) {
 			throw new ConversionFailureException(e);
 		}
+	}
+	
+	private List<LibraryAlbum> needsUpdate(Digest digest) throws IOException {
+		List<LibraryAlbum> tempAlbums = new ArrayList<LibraryAlbum>();
+		for (LibraryAlbum destAlbum : destAlbums) {
+			if (destAlbum.getSourceDigest() != null && !destAlbum.getSourceDigest().equals(digest)) {
+				tempAlbums.add(destAlbum);
+			} else if (!destAlbum.isUpToDate(false)) {
+				tempAlbums.add(destAlbum);
+			} else {
+				logger.debug("Album is up to date: {}", destAlbum.getDir());
+			}
+		}
+		return tempAlbums;
 	}
 	
 	/**
@@ -169,7 +197,7 @@ public class AudioConversion implements Callable<List<LibraryAlbum>> {
 		
 		logger.info("Encoding " + refAlbum.getAlbum().getFlat(GenericTag.ALBUM)); 
 		List<AudioFile> tempFiles = new ArrayList<AudioFile>();
-		for (LibraryAlbum destAlbum : destAlbums) {
+		for (LibraryAlbum destAlbum : tempAlbums) {
 			for (AudioFile splitFile : splitFiles) {
 				AudioFile destFile = new AudioFile(destAlbum.getDir(), FileUtil.getBaseName(splitFile)
 						+ "." + destAlbum.getLib().getType().getExtension());
@@ -203,7 +231,7 @@ public class AudioConversion implements Callable<List<LibraryAlbum>> {
 		
 		logger.info("Tagging " + refAlbum.getAlbum().getFlat(GenericTag.ALBUM));
 		SortedSet<Track> tracks = refAlbum.getAlbum().flatten();
-		for (LibraryAlbum destAlbum : destAlbums) {
+		for (LibraryAlbum destAlbum : tempAlbums) {
 			for (AudioFile file : destAlbum.getAudioFiles()) {
 				if (file.getTrackNum() == 0) {
 					continue;

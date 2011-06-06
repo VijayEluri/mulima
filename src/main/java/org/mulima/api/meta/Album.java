@@ -17,6 +17,7 @@
  */
 package org.mulima.api.meta;
 
+import java.io.File;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -29,6 +30,25 @@ import java.util.TreeSet;
  */
 public class Album extends AbstractMetadata implements Metadata {
 	private final SortedSet<Disc> discs = new TreeSet<Disc>();
+	private File file = null;
+	
+	/**
+	 * Gets the file that this Album was
+	 * parsed from.
+	 * @return the source file
+	 */
+	public File getFile() {
+		return file;
+	}
+	
+	/**
+	 * Sets the file that this Album was
+	 * parsed from.
+	 * @param file the source file
+	 */
+	public void setFile(File file) {
+		this.file = file;
+	}
 	
 	/**
 	 * Gets the discs that are part of this

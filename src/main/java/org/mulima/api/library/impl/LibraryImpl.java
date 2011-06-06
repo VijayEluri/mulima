@@ -18,9 +18,11 @@
 package org.mulima.api.library.impl;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,6 +34,7 @@ import org.mulima.api.meta.Album;
 import org.mulima.api.meta.CueSheet;
 import org.mulima.api.meta.Disc;
 import org.mulima.api.meta.GenericTag;
+import org.mulima.cache.DigestDao;
 import org.mulima.meta.dao.MetadataFileDao;
 import org.mulima.util.FileUtil;
 import org.mulima.util.StringUtil;
@@ -49,11 +52,22 @@ public class LibraryImpl implements Library {
 	private static final Pattern TRACK_REGEX = Pattern.compile("^D([0-9]+)T([0-9]+).*");
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-	private MetadataFileDao<Album> albumDao;
-	private MetadataFileDao<CueSheet> cueDao;
+	private String name;
 	private File rootDir = null;
 	private AudioFileType type = null;
+	private MetadataFileDao<Album> albumDao;
+	private MetadataFileDao<CueSheet> cueDao;
 	private List<LibraryAlbum> albums = null;
+	
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public void setName(String name) {
+		this.name = name;
+	}
 	
 	/**
 	 * Sets the DAO that will parse album.xml files.
@@ -115,18 +129,35 @@ public class LibraryImpl implements Library {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<LibraryAlbum> getModified() {
+	public List<LibraryAlbum> getOutdated() {
 		//TODO implement
 		throw new UnsupportedOperationException("Method not implemented.");
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public List<LibraryAlbum> getOld() {
-		//TODO implement
-		throw new UnsupportedOperationException("Method not implemented.");
+	public LibraryAlbum get(UUID id) {
+		for (LibraryAlbum album : getAll()) {
+			if (album.getId().equals(id)) {
+				return album;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public LibraryAlbum getWithSource(UUID id) {
+		for (LibraryAlbum album : getAll()) {
+			if (album.getSourceDigest() != null && album.getSourceDigest().getId().equals(id)) {
+				return album;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -154,6 +185,18 @@ public class LibraryImpl implements Library {
 		LibraryAlbum libAlbum = new LibraryAlbum();
 		libAlbum.setLib(this);
 		libAlbum.setDir(dir);
+		try {
+			libAlbum.setDigest(new DigestDao().read(libAlbum));
+			libAlbum.setId(libAlbum.getDigest().getId());
+		} catch (FileNotFoundException e) {
+			logger.debug("No digest found in {}", dir, e);
+		}
+		
+		try {
+			libAlbum.setSourceDigest(new DigestDao().readSource(libAlbum));
+		} catch (FileNotFoundException e) {
+			logger.debug("No source digest found in {}", dir, e);
+		}
 		
 		for (File file : dir.listFiles()) {
 			if (getType().isOfType(file)) {
@@ -250,6 +293,7 @@ public class LibraryImpl implements Library {
 		String relPath = StringUtil.makeSafe(libAlbum.getAlbum().getFlat(GenericTag.ARTIST))
 			+ File.separator + StringUtil.makeSafe(album);
 		LibraryAlbum newAlbum = new LibraryAlbum();
+		newAlbum.setId(UUID.randomUUID());
 		newAlbum.setAlbum(libAlbum.getAlbum());
 		newAlbum.setLib(this);
 		newAlbum.setDir(new File(this.getRootDir(), relPath));

@@ -60,8 +60,9 @@ public interface LibraryManager {
 	/**
 	 * Processes all new albums in the reference libraries.  These
 	 * albums will have album.xml files generated for them.
+	 * @throws IOException if there is a problem generating files
 	 */
-	void processNew();
+	void processNew() throws IOException;
 	
 	/**
 	 * Scans all libraries to update their contents.
@@ -75,6 +76,12 @@ public interface LibraryManager {
 	 * reference libraries.
 	 */
 	void updateAll();
+	
+	/**
+	 * Updates a list of libraries.
+	 * @param libs the libraries to update.
+	 */
+	void updateLibs(List<Library> libs);
 	
 	/**
 	 * Updates a specific destination library with the changes in the
