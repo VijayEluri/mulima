@@ -252,4 +252,26 @@ public class LibraryManagerImpl implements LibraryManager {
 			lib.scanAlbums();
 		}
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public LibraryAlbum getAlbum(UUID id) {
+		for (Library lib : getRefLibs()) {
+			LibraryAlbum album = lib.get(id);
+			if (album != null) {
+				return album;
+			}
+		}
+		
+		for (Library lib : getDestLibs()) {
+			LibraryAlbum album = lib.get(id);
+			if (album != null) {
+				return album;
+			}
+		}
+		
+		return null;
+	}
 }

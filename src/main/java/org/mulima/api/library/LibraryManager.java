@@ -19,6 +19,7 @@ package org.mulima.api.library;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * A library manager ties all of the copies of your
@@ -89,4 +90,13 @@ public interface LibraryManager {
 	 * @param lib the library to update
 	 */
 	void updateLib(Library lib);
+	
+	/**
+	 * Gets the album with the specified ID.  This method
+	 * will check all libraries.
+	 * @param id the ID of the album
+	 * @return the album or <code>null</code> if
+	 * it does not exist
+	 */
+	LibraryAlbum getAlbum(UUID id);
 }

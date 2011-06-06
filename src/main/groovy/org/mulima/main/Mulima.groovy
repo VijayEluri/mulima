@@ -36,7 +36,7 @@ class Mulima {
 		LibraryManager manager = context.getBean('libManager', LibraryManager.class)
 		
 		def filter = {
-			options.arguments().contains(it) || options.arguments().empty
+			options.arguments().contains(it.name) || options.arguments().empty
 		}
 		
 		def refLibs = manager.refLibs.findAll(filter)
@@ -59,7 +59,16 @@ class Mulima {
 				println formatLib(lib)
 				lib.scanAlbums()
 				lib.all.each { album ->
-					println '\t' + formatAlbum(album)
+					boolean upToDate = true
+					if (album.sourceDigest != null) {
+						def source = manager.getAlbum(album.sourceDigest.id)
+						upToDate = source.isUpToDate() 
+					}
+					if (upToDate) {
+						upToDate = album.isUpToDate(false)
+					}
+					
+					println '\t' + formatAlbum(album, upToDate)
 				}
 			}
 		} else if (options.p) {
@@ -76,11 +85,11 @@ class Mulima {
 		return "${lib.name} (${lib.type}) - ${lib.rootDir}"
 	}
 	
-	private static String formatAlbum(LibraryAlbum album) {
+	private static String formatAlbum(LibraryAlbum album, boolean upToDate) {
 		if (album.album == null) {
-			return "${album.dir.canonicalPath - album.lib.rootDir.canonicalPath} (New) - ${album.isUpToDate()}"
+			return "${album.dir.canonicalPath - album.lib.rootDir.canonicalPath} (New) - ${upToDate}"
 		} else {
-			return "${album.album.getFlat(GenericTag.ARTIST)} - ${album.album.getFlat(GenericTag.ALBUM)} - ${album.isUpToDate()}"
+			return "${album.album.getFlat(GenericTag.ARTIST)} - ${album.album.getFlat(GenericTag.ALBUM)} - ${upToDate}"
 		}
 	}
 }

@@ -36,9 +36,10 @@ public class DigestDao {
 		for (Map.Entry<Object, Object> entry : props.entrySet()) {
 			if (ID_KEY.equals(entry.getKey())) {
 				id = UUID.fromString((String) entry.getValue());
+			} else {
+				File key = new File(dir, (String) entry.getKey());
+				fileToDigest.put(key, (String) entry.getValue());
 			}
-			File key = new File(dir, (String) entry.getKey());
-			fileToDigest.put(key, (String) entry.getValue());
 		}
 		return new Digest(id, fileToDigest);
 	}

@@ -24,7 +24,8 @@ public class DigestBuilder {
 	}
 	
 	public Digest build() throws IOException {
-		if (libAlbum.getAlbum() != null) {
+		logger.info("Generating digest of {}", libAlbum.getDir());
+		if (libAlbum.getAlbum() != null && libAlbum.getAlbum().getFile().getParentFile().equals(libAlbum.getDir())) {
 			putDigest(libAlbum.getAlbum().getFile());
 		}
 		for (CueSheet cue : libAlbum.getCues()) {

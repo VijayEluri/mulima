@@ -139,8 +139,11 @@ public class LibraryImpl implements Library {
 	 */
 	@Override
 	public LibraryAlbum get(UUID id) {
+		if (id == null) {
+			throw new NullPointerException("Must pass a non-null ID.");
+		}
 		for (LibraryAlbum album : getAll()) {
-			if (album.getId().equals(id)) {
+			if (id.equals(album.getId())) {
 				return album;
 			}
 		}
