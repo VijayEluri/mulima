@@ -24,7 +24,7 @@ public class DigestBuilder {
 	}
 	
 	public Digest build() throws IOException {
-		logger.info("Generating digest of {}", libAlbum.getDir());
+		logger.debug("Generating digest of {}", libAlbum.getDir());
 		if (libAlbum.getAlbum() != null && libAlbum.getAlbum().getFile().getParentFile().equals(libAlbum.getDir())) {
 			putDigest(libAlbum.getAlbum().getFile());
 		}

@@ -35,8 +35,7 @@ import org.mulima.api.meta.CueSheet;
 import org.mulima.api.meta.Disc;
 import org.mulima.api.meta.GenericTag;
 import org.mulima.audio.util.AudioConversionService;
-import org.mulima.cache.DigestBuilder;
-import org.mulima.cache.DigestDao;
+import org.mulima.cache.DigestService;
 import org.mulima.job.Context;
 import org.mulima.library.util.Chooser;
 import org.mulima.library.util.DiscCliChooser;
@@ -57,7 +56,6 @@ public class LibraryManagerImpl implements LibraryManager {
 	private List<Library> destLibs = null;
 	private FreeDbDao freeDbDao = null;
 	private MetadataFileDao<Album> albumDao = null;
-	//private MetadataFileDao<CueSheet> cueDao = null;
 	
 	/**
 	 * {@inheritDoc}
@@ -97,6 +95,13 @@ public class LibraryManagerImpl implements LibraryManager {
 	public void setCodecConfig(CodecConfig codecConfig) {
 		Context.getRoot().setCodecConfig(codecConfig);
 	}
+	
+	/**
+	 * @param digestService the digestService to set
+	 */
+	public void setDigestService(DigestService digestService) {
+		Context.getRoot().setDigestService(digestService);
+	}
 
 	/**
 	 * @param freeDbDao the freeDbDao to set
@@ -111,7 +116,7 @@ public class LibraryManagerImpl implements LibraryManager {
 	public void setAlbumDao(MetadataFileDao<Album> albumDao) {
 		this.albumDao = albumDao;
 	}
-
+	
 	/**
 	 * @param cueDao the cueDao to set
 	 */
@@ -151,7 +156,7 @@ public class LibraryManagerImpl implements LibraryManager {
 		for (LibraryAlbum refAlbum : refAlbums) {
 			List<LibraryAlbum> destAlbums = new ArrayList<LibraryAlbum>();
 			for (Library destLib : libs) {
-				LibraryAlbum destAlbum = destLib.getWithSource(refAlbum.getId());
+				LibraryAlbum destAlbum = destLib.getSourcedFrom(refAlbum.getId());
 				if (destAlbum == null) {
 					destAlbum = destLib.newAlbum(refAlbum);
 				}
@@ -231,9 +236,8 @@ public class LibraryManagerImpl implements LibraryManager {
 				}
 				
 				libAlbum.setId(UUID.randomUUID());
-				libAlbum.setDigest(new DigestBuilder(libAlbum).build());
-				DigestDao dao = new DigestDao();
-				dao.write(libAlbum);
+				libAlbum.setDigest(Context.getCurrent().getDigestService().buildDigest(libAlbum));
+				Context.getCurrent().getDigestService().writeDigests(libAlbum);
 			}
 		}
 	}

@@ -104,7 +104,7 @@ public interface Library {
 	 * @return the album or <code>null</code> if
 	 * it does not exist
 	 */
-	LibraryAlbum getWithSource(UUID id);
+	LibraryAlbum getSourcedFrom(UUID id);
 	
 	/**
 	 * Creates a new album based on the parameter.

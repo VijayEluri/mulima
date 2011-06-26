@@ -23,13 +23,13 @@ package org.mulima.exception;
  * @version 0.1.0
  * @since 0.1.0
  */
-public class FatalIOException extends RuntimeException {
+public class UncheckedIOException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Constructs an empty exception.
 	 */
-	public FatalIOException() {
+	public UncheckedIOException() {
 		super();
 	}
 
@@ -37,7 +37,7 @@ public class FatalIOException extends RuntimeException {
 	 * Constructs an exception from parameters.
 	 * @param message the message
 	 */
-	public FatalIOException(String message) {
+	public UncheckedIOException(String message) {
 		super(message);
 	}
 
@@ -45,7 +45,7 @@ public class FatalIOException extends RuntimeException {
 	 * Constructs an exception from parameters.
 	 * @param cause the cause
 	 */
-	public FatalIOException(Throwable cause) {
+	public UncheckedIOException(Throwable cause) {
 		super(cause);
 	}
 
@@ -54,7 +54,7 @@ public class FatalIOException extends RuntimeException {
 	 * @param message the message
 	 * @param cause the cause
 	 */
-	public FatalIOException(String message, Throwable cause) {
+	public UncheckedIOException(String message, Throwable cause) {
 		super(message, cause);
 	}
 

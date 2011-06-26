@@ -20,10 +20,9 @@ package org.mulima.job;
 import java.io.File;
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.Set;
 
-import org.mulima.api.audio.AudioFile;
 import org.mulima.api.audio.CodecConfig;
+import org.mulima.cache.DigestService;
 
 /**
  * Holds information describing the context of the app.
@@ -36,8 +35,7 @@ public class Context {
 	private static ThreadLocal<Deque<Context>> current = new ThreadLocal<Deque<Context>>();
 	
 	private CodecConfig codecConfig;
-	private Set<AudioFile> inputFiles;
-	private Set<AudioFile> outputFiles;
+	private DigestService digestService;
 	private File tempDir;
 	
 	/**
@@ -45,8 +43,8 @@ public class Context {
 	 */
 	public Context() {
 		setCodecConfig(null);
-		setInputFiles(null);
-		setOutputFiles(null);
+		setDigestService(null);
+		setTempDir(null);
 	}
 	
 	/**
@@ -56,8 +54,8 @@ public class Context {
 	 */
 	public Context(Context context) {
 		setCodecConfig(context.getCodecConfig());
-		setInputFiles(context.getInputFiles());
-		setOutputFiles(context.getOutputFiles());
+		setDigestService(context.getDigestService());
+		setTempDir(context.getTempDir());
 	}
 	
 	/**
@@ -75,39 +73,23 @@ public class Context {
 	public final void setCodecConfig(CodecConfig codecConfig) {
 		this.codecConfig = codecConfig;
 	}
-
+	
 	/**
-	 * Gets the input files in this context.
-	 * @return the input files
+	 * Gets the digest service for this context.
+	 * @return the digest service
 	 */
-	public final Set<AudioFile> getInputFiles() {
-		return inputFiles;
+	public final DigestService getDigestService() {
+		return digestService;
 	}
-
+	
 	/**
-	 * Sets the input files in this context.
-	 * @param inputFiles the input files
+	 * Sets the digest service for this context.
+	 * @param digestService the digest service
 	 */
-	public final void setInputFiles(Set<AudioFile> inputFiles) {
-		this.inputFiles = inputFiles;
+	public final void setDigestService(DigestService digestService) {
+		this.digestService = digestService;
 	}
-
-	/**
-	 * Gets the output files in this context.
-	 * @return the output files
-	 */
-	public final Set<AudioFile> getOutputFiles() {
-		return outputFiles;
-	}
-
-	/**
-	 * Sets the output files in this context
-	 * @param outputFiles the output files
-	 */
-	public final void setOutputFiles(Set<AudioFile> outputFiles) {
-		this.outputFiles = outputFiles;
-	}
-
+	
 	/**
 	 * Gets the temporary directory for this context.
 	 * @return the temp dir

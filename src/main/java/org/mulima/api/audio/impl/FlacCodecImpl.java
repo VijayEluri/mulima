@@ -113,7 +113,7 @@ public class FlacCodecImpl implements Codec {
 		command.add("\"" + destPath + "\"");
 		command.add("\"" + sourcePath + "\"");
 		
-		return new CodecCaller("encoding " + destPath, source, dest, command);
+		return new CodecCaller("encoding " + sourcePath, source, dest, command);
 	}
 	
 	private CodecCaller prepDecode(AudioFile source, AudioFile dest) {
@@ -131,6 +131,6 @@ public class FlacCodecImpl implements Codec {
 		command.add("\"" + destPath + "\"");
 		command.add("\"" + sourcePath + "\"");
 		 
-		return new CodecCaller("decoding " + destPath, source, dest, command);
+		return new CodecCaller("decoding " + sourcePath, source, dest, command);
 	}
 }

@@ -35,7 +35,7 @@ import org.mulima.api.meta.GenericTag;
 import org.mulima.api.meta.Tag;
 import org.mulima.api.meta.Track;
 import org.mulima.api.meta.impl.FreeDbTag;
-import org.mulima.exception.FatalIOException;
+import org.mulima.exception.UncheckedIOException;
 import org.mulima.meta.dao.FreeDbDao;
 import org.mulima.util.ProgressBar;
 import org.mulima.util.SLF4JProgressBar;
@@ -101,7 +101,7 @@ public class FreeDbTarDaoImpl implements FreeDbDao {
 				logger.info("BZip2 Extraction complete.");
 			} catch (IOException e) {
 				logger.error("Problem extracting bzip2 archive.", e);
-				throw new FatalIOException("Problem extracting bzip2 archive", e);
+				throw new UncheckedIOException("Problem extracting bzip2 archive", e);
 			} finally {
 				try {
 					if (fout != null) {
@@ -203,7 +203,7 @@ public class FreeDbTarDaoImpl implements FreeDbDao {
 			}
 		} catch (IOException e) {
 			logger.error("Problem reading tar archive.", e);
-			throw new FatalIOException("Problem reading tar archive.", e);
+			throw new UncheckedIOException("Problem reading tar archive.", e);
 		} finally {
 			try {
 				if (tin != null) {

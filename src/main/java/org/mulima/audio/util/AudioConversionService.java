@@ -24,6 +24,7 @@ import java.util.concurrent.Future;
 
 import org.mulima.api.audio.CodecConfig;
 import org.mulima.api.library.LibraryAlbum;
+import org.mulima.cache.DigestService;
 import org.mulima.job.Context;
 
 /**
@@ -37,21 +38,24 @@ public class AudioConversionService {
 	private static AudioConversionService instance = new AudioConversionService();
 	private ExecutorService executor;
 	private CodecConfig codecConfig;
+	private DigestService digestService;
 	
 	/**
 	 * Constructs a service without a <code>CodecConfig</code>.
 	 */
 	protected AudioConversionService() {
-		this(Context.getCurrent().getCodecConfig());
+		this(Context.getCurrent().getCodecConfig(),
+				Context.getCurrent().getDigestService());
 	}
 	
 	/**
 	 * Constructs a service with the specified <code>CodecConfig</code>.
 	 * @param codecConfig the codec config to use
 	 */
-	protected AudioConversionService(CodecConfig codecConfig) {
+	protected AudioConversionService(CodecConfig codecConfig, DigestService digestService) {
 		this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 		this.codecConfig = codecConfig;
+		this.digestService = digestService;
 	}
 	
 	public static AudioConversionService getInstance() {
@@ -66,7 +70,7 @@ public class AudioConversionService {
 	 * @return a future list of library albums
 	 */
 	public Future<List<LibraryAlbum>> submitConvert(LibraryAlbum refAlbum, List<LibraryAlbum> destAlbums) {
-		return executor.submit(new AudioConversion(codecConfig, refAlbum, destAlbums));
+		return executor.submit(new AudioConversion(codecConfig, digestService, refAlbum, destAlbums));
 	}
 	
 	/**
