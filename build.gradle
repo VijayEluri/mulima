@@ -81,6 +81,10 @@ dependencies {
 		[group:'org.mockito', name:'mockito-core', version:'1.8.5'],
 		[group:'org.spockframework', name:'spock-core', version:'0.5-groovy-1.8']
 	)
+	
+	testRuntime(
+		[group:'cglib', name:'cglib-nodep', version:'2.2.2']	
+	)
 }
 
 task stageLib(type:Sync, dependsOn:assemble) {

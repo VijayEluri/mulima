@@ -1,7 +1,7 @@
-package z.org.mulima.api.audio.impl.test
+package z.org.mulima.api.file.impl.test
 
 import spock.lang.Specification
-import z.org.mulima.api.audio.impl.DefaultTrackFile
+import z.org.mulima.api.file.impl.DefaultTrackFile
 
 class DefaultDiscTrackSpec extends Specification {
 	def 'constructor works with positive disc number and positive track number'() {
