@@ -17,8 +17,6 @@
  */
 package x.org.mulima.api.audio.action;
 
-import java.util.concurrent.Callable;
-
 import x.org.mulima.api.audio.AudioFormat;
 import x.org.mulima.api.audio.file.AudioFile;
 
@@ -51,20 +49,4 @@ public interface Codec {
 	 * @return a codec result
 	 */
 	CodecResult decode(AudioFile source, AudioFile dest);
-	
-	/**
-	 * Prepare an encode operation for later execution.
-	 * @param source the file to encode
-	 * @param dest the destination for the encoded file
-	 * @return a callable that will execute the operation
-	 */
-	Callable<CodecResult> encodeLater(AudioFile source, AudioFile dest);
-	
-	/**
-	 * Prepare a decode operation for later execution.
-	 * @param source the file to decode
-	 * @param dest the destination for the decoded file
-	 * @return a callable that will execute the operation
-	 */
-	Callable<CodecResult> decodeLater(AudioFile source, AudioFile dest);
 }

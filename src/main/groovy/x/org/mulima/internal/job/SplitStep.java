@@ -21,7 +21,7 @@ public class SplitStep implements Step<Set<TrackFile>> {
 	private Set<TrackFile> outputs;
 	
 	public SplitStep(MulimaService service, Set<DiscFile> inputs) {
-		this(service, inputs, service.getTempDir().newChild().get());
+		this(service, inputs, service.getTempDir().newChild().getFile());
 	}
 	
 	public SplitStep(MulimaService service, Set<DiscFile> inputs, File destDir) {

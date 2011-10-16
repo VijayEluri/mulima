@@ -18,7 +18,6 @@
 package x.org.mulima.api.audio.action;
 
 import java.io.File;
-import java.util.concurrent.Callable;
 
 import x.org.mulima.api.audio.file.DiscFile;
 
@@ -37,12 +36,4 @@ public interface Splitter {
 	 * @return a splitter result
 	 */
 	SplitterResult split(DiscFile image, File destDir);
-	
-	/**
-	 * Prepares a split operation for later execution.
-	 * @param image the file to split
-	 * @param destDir the destination directory for the files
-	 * @return a callable that will execute the split
-	 */
-	Callable<SplitterResult> splitLater(DiscFile image, File destDir);
 }

@@ -22,7 +22,7 @@ public class DecodeStep implements Step<Set<AudioFile>> {
 	private Set<AudioFile> outputs;
 	
 	public DecodeStep(MulimaService service, Set<AudioFile> inputs) {
-		this(service, inputs, service.getTempDir().newChild().get());
+		this(service, inputs, service.getTempDir().newChild().getFile());
 	}
 	
 	public DecodeStep(MulimaService service, Set<AudioFile> inputs, File destDir) {

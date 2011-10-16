@@ -3,7 +3,7 @@ package x.org.mulima.api.file;
 import java.io.File;
 import java.util.UUID;
 
-public class TempDir {
+public class TempDir implements FileHolder {
 	private final File dir;
 	
 	public TempDir() {
@@ -23,10 +23,10 @@ public class TempDir {
 	}
 	
 	public TempDir(TempDir parent, String name) {
-		this(new File(parent.get(), name));
+		this(new File(parent.getFile(), name));
 	}
 	
-	public File get() {
+	public File getFile() {
 		return dir;
 	}
 	

@@ -17,8 +17,6 @@
  */
 package x.org.mulima.api.audio.action;
 
-import java.util.concurrent.Callable;
-
 import x.org.mulima.api.audio.file.AudioFile;
 
 /**
@@ -42,18 +40,4 @@ public interface Tagger {
 	 * @return a tagger result
 	 */
 	TaggerResult read(AudioFile file);
-	
-	/**
-	 * Preapres a write operation for later execution.
-	 * @param file the file to write to
-	 * @return a callable that will execute the tag
-	 */
-	Callable<TaggerResult> writeLater(AudioFile file);
-	
-	/**
-	 * Prepares a read operation for later execution.
-	 * @param file the file to read from
-	 * @return a callable that will execute the tag
-	 */
-	Callable<TaggerResult> readLater(AudioFile file);
 }

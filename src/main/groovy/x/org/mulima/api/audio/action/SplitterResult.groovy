@@ -37,7 +37,7 @@ class SplitterResult extends ProcessResult {
 	/**
 	 * The resulting files
 	 */
-	final List<TrackFile> dest;
+	final Set<TrackFile> dest;
 	
 	/**
 	 * Constructs a splitter result from a process result.
@@ -45,7 +45,7 @@ class SplitterResult extends ProcessResult {
 	 * @param dest the destination files of the split operation
 	 * @param result the result of the split process
 	 */
-	SplitterResult(DiscFile source, List<TrackFile> dest, ProcessResult result) {
+	SplitterResult(DiscFile source, Set<TrackFile> dest, ProcessResult result) {
 		this(source, dest, result.command, result.exitVal, result.output, result.error)
 	}
 	
@@ -58,7 +58,7 @@ class SplitterResult extends ProcessResult {
 	 * @param output the std out of the process
 	 * @param error the std err of the process
 	 */
-	SplitterResult(DiscFile source, List<TrackFile> dest, String command, int exitVal, String output,
+	SplitterResult(DiscFile source, Set<TrackFile> dest, String command, int exitVal, String output,
 		String error) {
 		super(command, exitVal, output, error)
 		this.source = source

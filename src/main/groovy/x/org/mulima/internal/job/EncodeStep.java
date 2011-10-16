@@ -23,7 +23,7 @@ public class EncodeStep implements Step<Set<AudioFile>> {
 	private Set<AudioFile> outputs;
 	
 	public EncodeStep(MulimaService service, AudioFormat format, Set<AudioFile> inputs) {
-		this(service, format, inputs, service.getTempDir().newChild().get());
+		this(service, format, inputs, service.getTempDir().newChild().getFile());
 	}
 	
 	public EncodeStep(MulimaService service, AudioFormat format, Set<AudioFile> inputs, File destDir) {

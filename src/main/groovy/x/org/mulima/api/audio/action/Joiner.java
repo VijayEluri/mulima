@@ -18,7 +18,6 @@
 package x.org.mulima.api.audio.action;
 
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import x.org.mulima.api.audio.file.AudioFile;
 
@@ -37,12 +36,4 @@ public interface Joiner {
 	 * @return a joiner result
 	 */
 	JoinerResult join(List<AudioFile> files, AudioFile dest);
-	
-	/**
-	 * Prepared a join operation for later execution.
-	 * @param files the files to join
-	 * @param dest the destination file
-	 * @return a callable that will execute the join
-	 */
-	Callable<JoinerResult> joinLater(List<AudioFile> files, AudioFile dest);
 }
