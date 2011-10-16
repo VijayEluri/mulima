@@ -1,9 +1,7 @@
 package x.org.mulima.api.library;
 
-import java.io.File;
+import x.org.mulima.api.file.FileParser;
 
-
-public interface LibraryAlbumFactory {
+public interface LibraryAlbumFactory extends FileParser<LibraryAlbum> {
 	LibraryAlbum create(Library lib, LibraryAlbum source);
-	LibraryAlbum create(Library lib, File dir);
 }

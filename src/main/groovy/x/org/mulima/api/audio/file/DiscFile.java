@@ -1,6 +1,6 @@
 package x.org.mulima.api.audio.file;
 
-import z.org.mulima.api.meta.Disc;
+import x.org.mulima.api.meta.Disc;
 
 public interface DiscFile extends AudioFile {
 	Disc getMeta();

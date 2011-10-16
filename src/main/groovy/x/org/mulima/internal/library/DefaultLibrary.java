@@ -8,6 +8,8 @@ import x.org.mulima.api.audio.AudioFormat;
 import x.org.mulima.api.file.CachedDir;
 import x.org.mulima.api.library.Library;
 import x.org.mulima.api.library.LibraryAlbum;
+import x.org.mulima.internal.file.DefaultCachedDir;
+import x.org.mulima.internal.file.LeafDirFilter;
 
 public class DefaultLibrary implements Library {
 	private final MulimaService service;
@@ -21,7 +23,7 @@ public class DefaultLibrary implements Library {
 		this.name = name;
 		this.rootDir = rootDir;
 		this.format = format;
-		//TODO: this.albums = new DefaultCachedDir(rootDir, dirFilter, LibraryAlbumViewer) 
+		this.albums = new DefaultCachedDir<LibraryAlbum>(service.getParser(LibraryAlbum.class), rootDir, new LeafDirFilter());
 	}
 	
 	@Override

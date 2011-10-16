@@ -6,12 +6,14 @@ import java.util.UUID;
 
 import x.org.mulima.api.audio.file.AudioFile;
 import x.org.mulima.api.file.Digest;
+import x.org.mulima.api.meta.Album;
 
 public interface LibraryAlbum {
 	UUID getId();
 	File getDir();
 	Library getLib();
 	LibraryAlbum getSource();
+	Album getAlbum();
 	Set<AudioFile> getAudioFiles();
 	Digest getDigest();
 	Digest getSourceDigest();
