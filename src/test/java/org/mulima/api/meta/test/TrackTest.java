@@ -23,11 +23,12 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.mulima.api.meta.GenericTag;
 import org.mulima.api.meta.Track;
+import org.mulima.internal.meta.DefaultTrack;
 
 public class TrackTest {
 	@Test
 	public void getNum() {
-		Track track = new Track();
+		Track track = new DefaultTrack();
 		track.add(GenericTag.TRACK_NUMBER, Integer.toString(1));
 		assertEquals(1, track.getNum());
 	}

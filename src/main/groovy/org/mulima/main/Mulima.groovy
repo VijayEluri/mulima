@@ -11,7 +11,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext
 class Mulima {
 	static void main(String[] args) {
 		CliBuilder cli = new CliBuilder(usage:'mulima [options] [libraryName]...', header:'Options:')
-		cli.with {	
+		cli.with {
 			h longOpt:'help', 'Prints this help message'
 			l longOpt:'list', 'Lists the libraries currently configured.'
 			s longOpt:'status', 'Lists the status of each album.'
@@ -33,6 +33,7 @@ class Mulima {
 		} else {
 			context = new FileSystemXmlApplicationContext(configFile)
 		}
+		
 		LibraryManager manager = context.getBean('libManager', LibraryManager.class)
 		
 		def filter = {
@@ -62,7 +63,7 @@ class Mulima {
 					boolean upToDate = true
 					if (album.sourceDigest != null) {
 						def source = manager.getAlbum(album.sourceDigest.id)
-						upToDate = source.isUpToDate() 
+						upToDate = source.isUpToDate()
 					}
 					if (upToDate) {
 						upToDate = album.isUpToDate(false)

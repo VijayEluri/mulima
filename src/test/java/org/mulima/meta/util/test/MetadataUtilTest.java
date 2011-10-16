@@ -21,10 +21,10 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mulima.api.meta.Disc;
 import org.mulima.api.meta.GenericTag;
 import org.mulima.api.meta.Metadata;
-import org.mulima.meta.util.MetadataUtil;
+import org.mulima.internal.meta.DefaultDisc;
+import org.mulima.util.MetadataUtil;
 
 public class MetadataUtilTest {
 	private Metadata meta1;
@@ -32,11 +32,11 @@ public class MetadataUtilTest {
 	
 	@Before
 	public void initMeta() {
-		meta1 = new Disc();
+		meta1 = new DefaultDisc();
 		meta1.add(GenericTag.ARTIST, "Genesis");
 		meta1.add(GenericTag.ALBUM, "The Lamb Lies Down On Broadway (Disc 1)");
 		
-		meta2 = new Disc();
+		meta2 = new DefaultDisc();
 		meta2.add(GenericTag.ARTIST, "Genesis");
 		meta2.add(GenericTag.ALBUM, "The Lamb Lies Down On Broadway (Disc 2)");
 	}

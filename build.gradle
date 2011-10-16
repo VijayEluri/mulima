@@ -23,6 +23,8 @@ sourceCompatibility = '1.6'
 
 checkstyleMain.ignoreFailures = true
 checkstyleTest.ignoreFailures = true
+codenarcMain.ignoreFailures = true
+codenarcTest.ignoreFailures = true
 findbugsMain.ignoreFailures = true
 findbugsTest.ignoreFailures = true
 pmdMain.ignoreFailures = true

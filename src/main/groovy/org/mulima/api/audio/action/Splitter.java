@@ -15,19 +15,26 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mulima.api.meta.test
+package org.mulima.api.audio.action;
 
-import org.junit.Test
-import org.mulima.internal.meta.DefaultCuePoint
+import java.io.File;
 
-class CuePointTest {
-	@Test
-	void construct_ValidTime_Success() {
-		assert new DefaultCuePoint(1, 1, '23:12:12')
-	}
-	
-	@Test(expected=IllegalArgumentException.class)
-	void construct_InvalidTime_Throw() {
-		new DefaultCuePoint(1, 1, '12:99:12')
-	}
+import org.mulima.api.audio.file.DiscFile;
+
+
+/**
+ * A splitter specifies operations for splitting an audio file
+ * as specified in a cue sheet.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
+public interface Splitter {
+	/**
+	 * Executes a split operation immediately.
+	 * @param image the file to split
+	 * @param destDir the destination directory for the files
+	 * @return a splitter result
+	 */
+	SplitterResult split(DiscFile image, File destDir);
 }

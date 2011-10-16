@@ -15,19 +15,26 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mulima.api.meta.test
+package org.mulima.api.audio.action;
 
-import org.junit.Test
-import org.mulima.internal.meta.DefaultCuePoint
+import java.util.List;
 
-class CuePointTest {
-	@Test
-	void construct_ValidTime_Success() {
-		assert new DefaultCuePoint(1, 1, '23:12:12')
-	}
-	
-	@Test(expected=IllegalArgumentException.class)
-	void construct_InvalidTime_Throw() {
-		new DefaultCuePoint(1, 1, '12:99:12')
-	}
+import org.mulima.api.audio.file.AudioFile;
+
+
+/**
+ * A joiner specifies operations for joining audio files into
+ * a single file.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
+public interface Joiner {
+	/**
+	 * Execute a join operation immediately.
+	 * @param files the files to join
+	 * @param dest the destination file
+	 * @return a joiner result
+	 */
+	JoinerResult join(List<AudioFile> files, AudioFile dest);
 }

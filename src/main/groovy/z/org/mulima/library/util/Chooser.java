@@ -1,5 +1,5 @@
 /*  
- *  Copyright (C) 2010  Andrew Oberstar.  All rights reserved.
+ *  Copyright (C) 2011  Andrew Oberstar.  All rights reserved.
  *  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -15,21 +15,21 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package z.org.mulima.library.util;
 
-package org.mulima.api.meta.test;
+import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
-import org.mulima.api.meta.Disc;
-import org.mulima.api.meta.GenericTag;
-import org.mulima.internal.meta.DefaultDisc;
-
-public class DiscTest {
-	@Test
-	public void getNum() {
-		Disc disc = new DefaultDisc();
-		disc.add(GenericTag.DISC_NUMBER, Integer.toString(1));
-		assertEquals(1, disc.getNum());
-	}
+/**
+ * Defines an interface to providing choices to the user.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
+public interface Chooser<T> {
+	/**
+	 * Asks the user to choose from the list.
+	 * @param choices list of choices for the user to pick from
+	 * @return the user's choice
+	 */
+	T choose(List<T> choices);
 }

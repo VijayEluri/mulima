@@ -15,19 +15,29 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mulima.api.meta.test
+package org.mulima.api.audio.action;
 
-import org.junit.Test
-import org.mulima.internal.meta.DefaultCuePoint
+import org.mulima.api.audio.file.AudioFile;
 
-class CuePointTest {
-	@Test
-	void construct_ValidTime_Success() {
-		assert new DefaultCuePoint(1, 1, '23:12:12')
-	}
+/**
+ * A tagger specifies operations to read and write metadata
+ * from an audio file.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
+public interface Tagger {
+	/**
+	 * Executes a write operation immediately.
+	 * @param file the file to write to
+	 * @return a tagger result
+	 */
+	TaggerResult write(AudioFile file);
 	
-	@Test(expected=IllegalArgumentException.class)
-	void construct_InvalidTime_Throw() {
-		new DefaultCuePoint(1, 1, '12:99:12')
-	}
+	/**
+	 * Executes a read operation immediately.
+	 * @param file the file to read from
+	 * @return a tagger result
+	 */
+	TaggerResult read(AudioFile file);
 }
