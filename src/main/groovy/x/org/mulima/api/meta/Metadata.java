@@ -20,7 +20,7 @@ package x.org.mulima.api.meta;
 import java.util.List;
 import java.util.Map;
 
-import z.org.mulima.api.meta.GenericTag;
+import x.org.mulima.api.meta.GenericTag;
 
 /**
  * Represents an object that holds metadata.  Implementations
@@ -99,4 +99,10 @@ public interface Metadata {
 	 * Removes all tags and values.
 	 */
 	void removeAll();
+	
+	/**
+	 * Simplify the metadata, by moving all values
+	 * common among all children to their parent.
+	 */
+	public void tidy();
 }

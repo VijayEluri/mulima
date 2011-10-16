@@ -15,31 +15,19 @@ import x.org.mulima.api.library.ReferenceLibrary;
 public class DefaultLibraryManager implements LibraryManager {
 	private static final Logger logger = LoggerFactory.getLogger(DefaultLibraryManager.class);
 	private final MulimaService service;
-	private final Set<ReferenceLibrary> refLibs;
-	private final Set<Library> destLibs;
 	
-	public DefaultLibraryManager(MulimaService service, Set<ReferenceLibrary> refLibs, Set<Library> destLibs) {
+	public DefaultLibraryManager(MulimaService service) {
 		this.service = service;
-		this.refLibs = refLibs;
-		this.destLibs = destLibs;
 	}
 	
 	@Override
-	public Set<ReferenceLibrary> getRefLibs() {
-		return refLibs;
-	}
-
-	@Override
-	public Set<Library> getDestLibs() {
-		return destLibs;
-	}
-	
 	public void updateAll() {
-		update(destLibs);
+		update(service.getDestLibs());
 	}
 	
+	@Override
 	public void update(Library lib) {
-		if (!destLibs.contains(lib)) {
+		if (!service.getDestLibs().contains(lib)) {
 			throw new IllegalArgumentException("Cannot update a library that doesn't belong to this manager.");
 		}
 		Set<Library> libs = new HashSet<Library>();
@@ -47,15 +35,16 @@ public class DefaultLibraryManager implements LibraryManager {
 		update(libs);
 	}
 	
+	@Override
 	public void update(Set<Library> lib) {
 		Set<LibraryAlbum> refAlbums = new HashSet<LibraryAlbum>();
-		for (ReferenceLibrary refLib : getRefLibs()) {
+		for (ReferenceLibrary refLib : service.getRefLibs()) {
 			refAlbums.addAll(refLib.getAll());
 		}
 		
 		for (LibraryAlbum refAlbum : refAlbums) {
 			Set<LibraryAlbum> destAlbums = new HashSet<LibraryAlbum>();
-			for (Library destLib : destLibs) {
+			for (Library destLib : service.getDestLibs()) {
 				destAlbums.add(destLib.getSourcedFrom(refAlbum));
 			}
 			service.getConversionService().submit(refAlbum, destAlbums);
