@@ -88,7 +88,7 @@ dependencies {
 		[group:'cglib', name:'cglib-nodep', version:'2.2.2']	
 	)
 }
-
+/*
 task stageLib(type:Sync, dependsOn:assemble) {
 	from configurations.archives.allArtifactFiles
 	from configurations.runtime
@@ -96,3 +96,4 @@ task stageLib(type:Sync, dependsOn:assemble) {
 }
 	
 task stage(dependsOn:stageLib)
+*/
