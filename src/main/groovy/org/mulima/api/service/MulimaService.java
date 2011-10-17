@@ -14,7 +14,6 @@ import org.mulima.api.file.CachedFileFactory;
 import org.mulima.api.file.DigestService;
 import org.mulima.api.file.FileComposer;
 import org.mulima.api.file.FileParser;
-import org.mulima.api.file.FileParserService;
 import org.mulima.api.file.TempDir;
 import org.mulima.api.job.AlbumConversionService;
 import org.mulima.api.library.Library;
@@ -23,7 +22,7 @@ import org.mulima.api.library.LibraryAlbumFactory;
 import org.mulima.api.library.ReferenceLibrary;
 
 
-public interface MulimaService extends FileParserService {
+public interface MulimaService {
 	Set<ReferenceLibrary> getRefLibs();
 	Set<Library> getDestLibs();
 	Library getLibFor(File dir);
