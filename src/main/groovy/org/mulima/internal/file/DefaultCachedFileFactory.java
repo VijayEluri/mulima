@@ -6,14 +6,14 @@ import java.util.Map;
 
 import org.mulima.api.file.CachedFile;
 import org.mulima.api.file.CachedFileFactory;
-import org.mulima.api.file.FileParserService;
+import org.mulima.api.service.MulimaService;
 
 
 public class DefaultCachedFileFactory implements CachedFileFactory {
-	private final FileParserService service;
+	private final MulimaService service;
 	private final Map<Class<?>, Map<File, CachedFile<?>>> caches = new HashMap<Class<?>, Map<File, CachedFile<?>>>();
-	
-	public DefaultCachedFileFactory(FileParserService service) {
+
+	public DefaultCachedFileFactory(MulimaService service) {
 		this.service = service;
 	}
 
