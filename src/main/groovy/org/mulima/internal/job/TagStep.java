@@ -2,8 +2,8 @@ package org.mulima.internal.job;
 
 import java.util.Set;
 
-import org.mulima.api.audio.action.TaggerResult;
-import org.mulima.api.audio.file.AudioFile;
+import org.mulima.api.audio.tool.TaggerResult;
+import org.mulima.api.file.audio.AudioFile;
 import org.mulima.api.service.MulimaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ public class TagStep implements Step<Void> {
 		logger.debug("Tagging {} files", inputs.size());
 		for (AudioFile input : inputs) {
 			logger.debug("Tagging {}", input);
-			TaggerResult result = service.getTagger(input.getFormat()).write(input);
+			TaggerResult result = service.getToolService().getTagger(input.getFormat()).write(input);
 			if (result.isSuccess()) {
 				logger.debug("SUCCESS: Tagged {}", input);
 			} else {

@@ -5,9 +5,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.mulima.api.audio.AudioFormat;
-import org.mulima.api.audio.action.Codec;
-import org.mulima.api.audio.action.CodecResult;
-import org.mulima.api.audio.file.AudioFile;
+import org.mulima.api.audio.tool.Codec;
+import org.mulima.api.audio.tool.CodecResult;
+import org.mulima.api.file.audio.AudioFile;
 import org.mulima.api.service.MulimaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +39,8 @@ public class EncodeStep implements Step<Set<AudioFile>> {
 		logger.debug("Encoding {} files", inputs.size());
 		for (AudioFile input : inputs) {
 			logger.debug("Encoding {}", input);
-			AudioFile output = service.getAudioFileFactory().createAudioFile(input, destDir, format);
-			Codec codec = service.getCodec(format);
+			AudioFile output = service.getFileService().createAudioFile(input, destDir, format);
+			Codec codec = service.getToolService().getCodec(format);
 			CodecResult result = codec.encode(input, output);
 			if (result.isSuccess()) {
 				outputs.add(result.getDest());

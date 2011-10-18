@@ -3,31 +3,37 @@ package org.mulima.internal.library;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.mulima.api.job.AlbumConversionService;
 import org.mulima.api.library.Library;
 import org.mulima.api.library.LibraryAlbum;
 import org.mulima.api.library.LibraryManager;
+import org.mulima.api.library.LibraryService;
 import org.mulima.api.library.ReferenceLibrary;
-import org.mulima.api.service.MulimaService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 public class DefaultLibraryManager implements LibraryManager {
-	private static final Logger logger = LoggerFactory.getLogger(DefaultLibraryManager.class);
-	private final MulimaService service;
+	private final LibraryService libraryService;
+	private final AlbumConversionService conversionService;
 	
-	public DefaultLibraryManager(MulimaService service) {
-		this.service = service;
+	public DefaultLibraryManager(LibraryService libraryService, AlbumConversionService conversionService) {
+		this.libraryService = libraryService;
+		this.conversionService = conversionService;
+	}
+	
+	
+	@Override
+	public void processNew() {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Implement this");
 	}
 	
 	@Override
 	public void updateAll() {
-		update(service.getDestLibs());
+		update(libraryService.getDestLibs());
 	}
 	
 	@Override
 	public void update(Library lib) {
-		if (!service.getDestLibs().contains(lib)) {
+		if (!libraryService.getDestLibs().contains(lib)) {
 			throw new IllegalArgumentException("Cannot update a library that doesn't belong to this manager.");
 		}
 		Set<Library> libs = new HashSet<Library>();
@@ -38,16 +44,16 @@ public class DefaultLibraryManager implements LibraryManager {
 	@Override
 	public void update(Set<Library> lib) {
 		Set<LibraryAlbum> refAlbums = new HashSet<LibraryAlbum>();
-		for (ReferenceLibrary refLib : service.getRefLibs()) {
+		for (ReferenceLibrary refLib : libraryService.getRefLibs()) {
 			refAlbums.addAll(refLib.getAll());
 		}
 		
 		for (LibraryAlbum refAlbum : refAlbums) {
 			Set<LibraryAlbum> destAlbums = new HashSet<LibraryAlbum>();
-			for (Library destLib : service.getDestLibs()) {
+			for (Library destLib : libraryService.getDestLibs()) {
 				destAlbums.add(destLib.getSourcedFrom(refAlbum));
 			}
-			service.getConversionService().submit(refAlbum, destAlbums);
+			conversionService.submit(refAlbum, destAlbums);
 		}
 	}
 }

@@ -7,22 +7,24 @@ import java.util.Set;
 
 import org.mulima.api.file.CachedDir;
 import org.mulima.api.file.CachedFile;
-import org.mulima.api.file.FileParser;
+import org.mulima.api.file.FileService;
 
 
 public class DefaultCachedDir<T> implements CachedDir<T> {
+	private final FileService service;
+	private final Class<T> type;
 	private final File dir;
 	private final FileFilter filter;
-	private final FileParser<T> parser;
 	private long lastRefreshed = 0;
 	private Set<CachedFile<T>> cached;
 	
-	public DefaultCachedDir(FileParser<T> parser, File dir) {
-		this(parser, dir, null);
+	public DefaultCachedDir(FileService service, Class<T> type, File dir) {
+		this(service, type, dir, null);
 	}
 	
-	public DefaultCachedDir(FileParser<T> parser, File dir, FileFilter filter) {
-		this.parser = parser;
+	public DefaultCachedDir(FileService service, Class<T> type, File dir, FileFilter filter) {
+		this.service = service;
+		this.type = type;
 		this.dir = dir;
 		this.filter = filter;
 	}
@@ -39,7 +41,7 @@ public class DefaultCachedDir<T> implements CachedDir<T> {
 		} else {
 			Set<CachedFile<T>> files = new HashSet<CachedFile<T>>();
 			for (File file : dir.listFiles(filter)) {
-				files.add(new DefaultCachedFile<T>(parser, file));
+				files.add(service.createCachedFile(type, file));
 			}
 			this.cached = files;
 			this.lastRefreshed = lastModified;

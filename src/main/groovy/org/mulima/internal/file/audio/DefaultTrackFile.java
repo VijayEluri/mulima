@@ -1,8 +1,8 @@
-package org.mulima.internal.audio.file;
+package org.mulima.internal.file.audio;
 
 import java.io.File;
 
-import org.mulima.api.audio.file.TrackFile;
+import org.mulima.api.file.audio.TrackFile;
 import org.mulima.api.meta.Track;
 
 

@@ -16,68 +16,59 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.mulima.internal.audio.action;
+package org.mulima.internal.audio.tool;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.mulima.api.audio.AudioFormat;
-import org.mulima.api.audio.action.Codec;
-import org.mulima.api.audio.action.CodecResult;
-import org.mulima.api.audio.file.AudioFile;
+import org.mulima.api.audio.tool.Codec;
+import org.mulima.api.audio.tool.CodecResult;
+import org.mulima.api.file.audio.AudioFile;
 import org.mulima.internal.proc.ProcessCaller;
 import org.mulima.util.FileUtil;
 
 
 /**
- * Supports Nero AAC encode/decode operations.
+ * Support for FLAC encoding/decoding.
  * @author Andrew Oberstar
  * @version 0.1.0
  * @since 0.1.0
  */
-public class NeroAacCodecImpl implements Codec {
+public class FlacCodecImpl implements Codec {
 	//private final Logger logger = LoggerFactory.getLogger(getClass());
-	private String encPath = "neroAacEnc";
-	private String decPath = "neroAacDec";
-	private String quality = "0.5";
+	private String path = "flac";
 	private String opts = "";
-
+	private int compressionLevel = 5;
+	
 	@Override
 	public AudioFormat getFormat() {
-		return AudioFormat.AAC;
+		return AudioFormat.FLAC;
 	}
 	
 	/**
-	 * Sets the path to the encoder executable.
-	 * @param encPath the encoder exe path
+	 * Sets the path to the FLAC executable.
+	 * @param path the path to the exe
 	 */
-	public void setEncPath(String encPath) {
-		this.encPath = encPath;
+	public void setPath(String path) {
+		this.path = path;
 	}
 
 	/**
-	 * Sets the path to the decoder executable.
-	 * @param decPath the decoder exe path
-	 */
-	public void setDecPath(String decPath) {
-		this.decPath = decPath;
-	}
-
-	/**
-	 * Sets the quality of the encode.
-	 * @param quality the quality (0.0-1.0)
-	 */
-	public void setQuality(String quality) {
-		this.quality = quality;
-	}
-
-	/**
-	 * Sets the additional options to use.  These will
-	 * be used in both encodes and decodes.
+	 * Sets additional options for this codec.  Will be
+	 * used on both encodes and decodes.
 	 * @param opts the options
 	 */
 	public void setOpts(String opts) {
 		this.opts = opts;
+	}
+
+	/**
+	 * Sets the compression level for encodes.
+	 * @param compressionLevel the compression level (1-8)
+	 */
+	public void setCompressionLevel(int compressionLevel) {
+		this.compressionLevel = compressionLevel;
 	}
 
 	/**
@@ -89,17 +80,16 @@ public class NeroAacCodecImpl implements Codec {
 		String destPath = FileUtil.getSafeCanonicalPath(dest);
 		
 		List<String> command = new ArrayList<String>();
-		command.add(encPath);
+		command.add(path);
+		command.add("-f");
 		if (!"".equals(opts)) {
 			command.add(opts);
 		}
-		command.add("-q");
-		command.add(quality);
-		command.add("-if");
-		command.add("\"" + sourcePath + "\"");
-		command.add("-of");
+		command.add("-" + compressionLevel);
+		command.add("-o");
 		command.add("\"" + destPath + "\"");
-		 
+		command.add("\"" + sourcePath + "\"");
+		
 		ProcessCaller caller = new ProcessCaller("encoding " + sourcePath, command);
 		return new CodecResult(source, dest, caller.call());
 	}
@@ -113,14 +103,15 @@ public class NeroAacCodecImpl implements Codec {
 		String destPath = FileUtil.getSafeCanonicalPath(dest);
 		
 		List<String> command = new ArrayList<String>();
-		command.add(decPath);
+		command.add(path);
+		command.add("-f");
 		if (!"".equals(opts)) {
 			command.add(opts);
 		}
-		command.add("-if");
-		command.add("\"" + sourcePath + "\"");
-		command.add("-of");
+		command.add("-d");
+		command.add("-o");
 		command.add("\"" + destPath + "\"");
+		command.add("\"" + sourcePath + "\"");
 		 
 		ProcessCaller caller = new ProcessCaller("decoding " + sourcePath, command);
 		return new CodecResult(source, dest, caller.call());

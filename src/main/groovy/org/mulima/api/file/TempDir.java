@@ -33,4 +33,8 @@ public class TempDir implements FileHolder {
 	public TempDir newChild() {
 		return new TempDir(this);
 	}
+	
+	public TempDir newChild(String name) {
+		return new TempDir(this, name);
+	}
 }

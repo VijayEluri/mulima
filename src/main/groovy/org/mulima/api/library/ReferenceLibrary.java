@@ -1,5 +1,7 @@
 package org.mulima.api.library;
 
-public interface ReferenceLibrary extends Library {
+import java.util.Set;
 
+public interface ReferenceLibrary extends Library {
+	Set<LibraryAlbum> getNew();
 }

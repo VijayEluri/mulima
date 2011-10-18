@@ -15,53 +15,54 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mulima.api.audio.action;
+package org.mulima.api.audio.tool
 
-import org.mulima.api.audio.file.DiscFile
-import org.mulima.api.audio.file.TrackFile
+import java.util.List
+
+import org.mulima.api.file.audio.AudioFile
 import org.mulima.api.proc.ProcessResult
 
 /**
- * Represents the result of a splitter operation.  Provides access to the
+ * Represents the result of a joiner operation.  Provides access to the
  * process's exit value, the source and destination files.
  * @author Andrew Oberstar
  * @version 0.1.0
  * @since 0.1.0
  */
-class SplitterResult extends ProcessResult {
+class JoinerResult extends ProcessResult {
 	/**
-	 * The source file
+	 * The source files
 	 */
-	final DiscFile source
+	final List<AudioFile> source
 	
 	/**
-	 * The resulting files
+	 * The destination file
 	 */
-	final Set<TrackFile> dest;
+	final AudioFile dest
 	
 	/**
-	 * Constructs a splitter result from a process result.
-	 * @param source the source of the split operation
-	 * @param dest the destination files of the split operation
-	 * @param result the result of the split process
+	 * Constructs a joiner result from a process result.
+	 * @param source the source files of the join operation
+	 * @param dest the destination of the join operation
+	 * @param result the result of the join process
 	 */
-	SplitterResult(DiscFile source, Set<TrackFile> dest, ProcessResult result) {
+	JoinerResult(List<AudioFile> source, AudioFile dest, ProcessResult result) {
 		this(source, dest, result.command, result.exitVal, result.output, result.error)
 	}
 	
 	/**
-	 * Constructs a splitter result from the parameters.
-	 * @param source the source of the split operation
-	 * @param dest the destination files of the split operation
+	 * Constructs a joiner result from the parameters.
+	 * @param source the source files of the join operation
+	 * @param dest the destination of the join operation
 	 * @param command the command executed
 	 * @param exitVal the exit value of the process
 	 * @param output the std out of the process
 	 * @param error the std err of the process
 	 */
-	SplitterResult(DiscFile source, Set<TrackFile> dest, String command, int exitVal, String output,
-		String error) {
+	JoinerResult(List<AudioFile> source, AudioFile dest, String command, int exitVal,
+		String output, String error) {
 		super(command, exitVal, output, error)
-		this.source = source
 		this.dest = dest
+		this.source = source
 	}
 }

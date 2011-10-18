@@ -15,51 +15,43 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mulima.api.audio.action
+package org.mulima.api.audio.tool
 
-import org.mulima.api.audio.file.AudioFile
+import org.mulima.api.file.audio.AudioFile
 import org.mulima.api.proc.ProcessResult
 
 /**
- * Represents the result of a codec operation.  Provides access to the
- * process's exit value, the source and destination files.
+ * Represents the result of a tagger operation.  Provides access to the
+ * process's exit value, the file and metadata.
  * @author Andrew Oberstar
  * @version 0.1.0
  * @since 0.1.0
  */
-class CodecResult extends ProcessResult {
+class TaggerResult extends ProcessResult {
 	/**
-	 * The source of the operation
+	 * The file to read or write to
 	 */
-	final AudioFile source
+	final AudioFile file
 	
 	/**
-	 * The destination for the operation
+	 * Constructs a tagger result from a process result.
+	 * @param file the file read from or written to
+	 * @param result the result of the tagger process
 	 */
-	final AudioFile dest
-	
-	/**
-	 * Constructs a codec result from a process result.
-	 * @param source the source of the codec operation
-	 * @param dest the destination of the codec operation
-	 * @param result the result of the codec process
-	 */
-	CodecResult(AudioFile source, AudioFile dest, ProcessResult result) {
-		this(source, dest, result.command, result.exitVal, result.output, result.error)
+	TaggerResult(AudioFile file, ProcessResult result) {
+		this(file, result.command, result.exitVal, result.output, result.error)
 	}
 	
 	/**
-	 * Constructs a codec result from the parameters.
-	 * @param source the source of the codec operation
-	 * @param dest the destination of the codec operation
+	 * Constructs a tagger result from the parameters.
+	 * @param file the file read from or written to
 	 * @param command the command executed
 	 * @param exitVal the exit value of the process
 	 * @param output the std out of the process
 	 * @param error the std err of the process
 	 */
-	CodecResult(AudioFile source, AudioFile dest, String command, int exitVal, String output, String error) {
+	TaggerResult(AudioFile file, String command, int exitVal, String output, String error) {
 		super(command, exitVal, output, error)
-		this.source = source
-		this.dest = dest
+		this.file = file
 	}
 }

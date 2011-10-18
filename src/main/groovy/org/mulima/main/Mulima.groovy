@@ -4,6 +4,7 @@ import org.mulima.api.library.Library
 import org.mulima.api.library.LibraryAlbum
 import org.mulima.api.library.LibraryManager
 import org.mulima.api.meta.GenericTag
+import org.mulima.api.service.MulimaService
 import org.springframework.context.ApplicationContext
 import org.springframework.context.support.ClassPathXmlApplicationContext
 import org.springframework.context.support.FileSystemXmlApplicationContext
@@ -34,6 +35,10 @@ class Mulima {
 			context = new FileSystemXmlApplicationContext(configFile)
 		}
 		
+		MulimaService service = context.getBean('service', MulimaService.class)
+		
+		
+		
 		LibraryManager manager = context.getBean('libManager', LibraryManager.class)
 		
 		def filter = {
@@ -56,13 +61,13 @@ class Mulima {
 				println formatLib(it)
 			}
 		} else if (options.s) {
-			(refLibs + destLibs).each { lib ->
+			(refLibs + destLibs).each { Library lib ->
 				println formatLib(lib)
-				lib.scanAlbums()
-				lib.all.each { album ->
+				lib.scanAll()
+				lib.all.each { LibraryAlbum album ->
 					boolean upToDate = true
 					if (album.sourceDigest != null) {
-						def source = manager.getAlbum(album.sourceDigest.id)
+						def source = manager.getById(album.sourceDigest.id)
 						upToDate = source.isUpToDate()
 					}
 					if (upToDate) {
@@ -78,12 +83,12 @@ class Mulima {
 		} else if (options.u) {
 			manager.scanAll()
 			manager.processNew()
-			manager.updateLibs(destLibs)
+			manager.update(destLibs)
 		}
 	}
 	
 	private static String formatLib(Library lib) {
-		return "${lib.name} (${lib.type}) - ${lib.rootDir}"
+		return "${lib.name} (${lib.format}) - ${lib.rootDir}"
 	}
 	
 	private static String formatAlbum(LibraryAlbum album, boolean upToDate) {

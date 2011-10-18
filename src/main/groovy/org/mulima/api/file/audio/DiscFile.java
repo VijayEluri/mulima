@@ -1,4 +1,4 @@
-package org.mulima.api.audio.file;
+package org.mulima.api.file.audio;
 
 import org.mulima.api.meta.Disc;
 

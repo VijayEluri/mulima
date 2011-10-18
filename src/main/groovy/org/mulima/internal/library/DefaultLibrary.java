@@ -1,31 +1,33 @@
 package org.mulima.internal.library;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 import org.mulima.api.audio.AudioFormat;
-import org.mulima.api.file.CachedDir;
+import org.mulima.api.file.FileService;
 import org.mulima.api.library.Library;
 import org.mulima.api.library.LibraryAlbum;
-import org.mulima.api.service.MulimaService;
-import org.mulima.internal.file.DefaultCachedDir;
+import org.mulima.api.meta.Disc;
+import org.mulima.api.meta.GenericTag;
 import org.mulima.internal.file.LeafDirFilter;
-
+import org.mulima.util.FileUtil;
+import org.mulima.util.StringUtil;
 
 public class DefaultLibrary implements Library {
-	private final MulimaService service;
+	private final FileService fileService;
 	private final String name;
 	private final File rootDir;
 	private final AudioFormat format;
-	private CachedDir<LibraryAlbum> albums;
+	private Set<LibraryAlbum> albums = null;
 	
-	public DefaultLibrary(MulimaService service, String name, File rootDir, AudioFormat format) {
-		this.service = service;
+	public DefaultLibrary(FileService fileService, String name, File rootDir, AudioFormat format) {
+		this.fileService = fileService;
 		this.name = name;
 		this.rootDir = rootDir;
 		this.format = format;
-		this.albums = new DefaultCachedDir<LibraryAlbum>(service.getParser(LibraryAlbum.class), rootDir, new LeafDirFilter());
 	}
 	
 	@Override
@@ -45,13 +47,23 @@ public class DefaultLibrary implements Library {
 
 	@Override
 	public Set<LibraryAlbum> getAll() {
-		return albums.getValues();
+		if (albums == null) {
+			scanAll();
+		}
+		return albums;
 	}
 	
 	@Override
 	public LibraryAlbum getById(UUID id) {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Implement this");
+		if (id == null) {
+			return null;
+		}
+		for (LibraryAlbum album : getAll()) {
+			if (id.equals(album.getId())) {
+				return album;
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -65,14 +77,45 @@ public class DefaultLibrary implements Library {
 			throw new NullPointerException("Source must not be null.");
 		}
 		for (LibraryAlbum album : getAll()) {
-			if (source.equals(album.getSource())) {
+			if (source.getId().equals(album.getSourceDigest().getId())) {
 				return album;
 			}
 		}
 		if (createIfNotFound) {
-			return service.getLibraryAlbumFactory().create(this, source);
+			return createAlbum(source);
 		} else {
 			return null;
 		}
+	}
+	
+	private void scanAll() {
+		this.albums = new HashSet<LibraryAlbum>();
+		FileFilter filter = new LeafDirFilter();
+		for (File dir : FileUtil.listDirsRecursive(getRootDir())) {
+			if (filter.accept(dir)) {
+				albums.add(new DefaultLibraryAlbum(fileService, dir, this));
+			}
+		}
+	}
+	
+	private LibraryAlbum createAlbum(LibraryAlbum source) {
+		String album = null;
+		if (source.getAlbum().isSet(GenericTag.ALBUM)) {
+			album = source.getAlbum().getFlat(GenericTag.ALBUM);
+		} else {
+			for (Disc disc : source.getAlbum().getDiscs()) {
+				if (disc.isSet(GenericTag.ALBUM)) {
+					if (album == null) {
+						album = disc.getFlat(GenericTag.ALBUM);
+					} else {
+						album = StringUtil.commonString(album, disc.getFlat(GenericTag.ALBUM));
+					}
+				}
+			}
+		}
+		String relPath = StringUtil.makeSafe(source.getAlbum().getFlat(GenericTag.ARTIST)).trim()
+			+ File.separator + StringUtil.makeSafe(album).trim();
+		File dir = new File(getRootDir(), relPath);
+		return new DefaultLibraryAlbum(fileService, dir, this);
 	}
 }

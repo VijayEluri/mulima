@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.mulima.api.file.Digest;
@@ -29,7 +30,8 @@ public class DigestBuilder {
 		for (File file : libAlbum.getDir().listFiles()) {
 			putDigest(file);
 		}
-		return new DefaultDigest(libAlbum.getId(), fileToDigest);
+		UUID id = libAlbum.getId() == null ? UUID.randomUUID() : libAlbum.getId();
+		return new DefaultDigest(id, fileToDigest);
 	}
 	
 	private void putDigest(File file) {

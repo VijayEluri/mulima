@@ -15,11 +15,11 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mulima.api.audio.action;
+package org.mulima.api.audio.tool;
 
 import java.util.List;
 
-import org.mulima.api.audio.file.AudioFile;
+import org.mulima.api.file.audio.AudioFile;
 
 
 /**

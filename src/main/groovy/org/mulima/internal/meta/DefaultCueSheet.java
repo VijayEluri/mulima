@@ -1,5 +1,6 @@
 package org.mulima.internal.meta;
 
+import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -26,8 +27,13 @@ public class DefaultCueSheet extends AbstractMetadata implements CueSheet {
 
 	@Override
 	public SortedSet<CuePoint> getCuePoints() {
-		//TODO only include the index 1 points
-		return cuePoints;
+		SortedSet<CuePoint> points = new TreeSet<CuePoint>();
+		for (CuePoint point : getAllCuePoints()) {
+			if (point.getIndex() == 1) {
+				points.add(point);
+			}
+		}
+		return Collections.unmodifiableSortedSet(points);
 	}
 
 	@Override

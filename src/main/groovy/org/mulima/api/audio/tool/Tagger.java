@@ -15,39 +15,32 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mulima.api.audio.action;
+package org.mulima.api.audio.tool;
 
 import org.mulima.api.audio.AudioFormat;
-import org.mulima.api.audio.file.AudioFile;
-
+import org.mulima.api.file.audio.AudioFile;
 
 /**
- * A codec specifies operations for encoding and decoding an
- * audio file.
+ * A tagger specifies operations to read and write metadata
+ * from an audio file.
  * @author Andrew Oberstar
  * @version 0.1.0
  * @since 0.1.0
  */
-public interface Codec {
-	/**
-	 * Gets the format supported by this codec.
-	 * @return the supported format
-	 */
+public interface Tagger {
 	AudioFormat getFormat();
 	
 	/**
-	 * Execute an encode operation immediately.
-	 * @param source the file to encode
-	 * @param dest the destination for the encoded file
-	 * @return a codec result
+	 * Executes a write operation immediately.
+	 * @param file the file to write to
+	 * @return a tagger result
 	 */
-	CodecResult encode(AudioFile source, AudioFile dest);
+	TaggerResult write(AudioFile file);
 	
 	/**
-	 * Execute a decode operation immediately.
-	 * @param source the file to decode
-	 * @param dest the destination for the decoded file
-	 * @return a codec result
+	 * Executes a read operation immediately.
+	 * @param file the file to read from
+	 * @return a tagger result
 	 */
-	CodecResult decode(AudioFile source, AudioFile dest);
+	TaggerResult read(AudioFile file);
 }

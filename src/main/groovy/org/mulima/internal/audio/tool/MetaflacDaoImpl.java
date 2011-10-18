@@ -15,16 +15,17 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mulima.internal.audio.action;
+package org.mulima.internal.audio.tool;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.mulima.api.audio.action.Tagger;
-import org.mulima.api.audio.action.TaggerResult;
-import org.mulima.api.audio.file.AudioFile;
+import org.mulima.api.audio.AudioFormat;
+import org.mulima.api.audio.tool.Tagger;
+import org.mulima.api.audio.tool.TaggerResult;
+import org.mulima.api.file.audio.AudioFile;
 import org.mulima.api.meta.GenericTag;
 import org.mulima.api.meta.Track;
 import org.mulima.api.proc.ProcessResult;
@@ -47,6 +48,10 @@ public class MetaflacDaoImpl implements Tagger {
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private String path = "metaflac";
 	private String opts = "";
+	
+	public AudioFormat getFormat() {
+		return AudioFormat.FLAC;
+	}
 	
 	/**
 	 * Sets the path to the metaflac executable.

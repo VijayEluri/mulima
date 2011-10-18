@@ -15,21 +15,21 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mulima.internal.audio.action;
+package org.mulima.internal.audio.tool;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mulima.api.audio.action.Splitter;
-import org.mulima.api.audio.action.SplitterResult;
-import org.mulima.api.audio.file.AudioFile;
-import org.mulima.api.audio.file.DiscFile;
-import org.mulima.api.audio.file.TrackFile;
+import org.mulima.api.audio.tool.Splitter;
+import org.mulima.api.audio.tool.SplitterResult;
 import org.mulima.api.file.CachedDir;
+import org.mulima.api.file.audio.AudioFile;
+import org.mulima.api.file.audio.DiscFile;
+import org.mulima.api.file.audio.TrackFile;
 import org.mulima.api.proc.ProcessResult;
-import org.mulima.internal.audio.file.DefaultAudioFileFactory;
 import org.mulima.internal.file.DefaultCachedDir;
+import org.mulima.internal.file.audio.DefaultAudioFileFactory;
 import org.mulima.internal.proc.ProcessCaller;
 import org.mulima.util.FileUtil;
 

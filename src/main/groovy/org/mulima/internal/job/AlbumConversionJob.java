@@ -3,9 +3,9 @@ package org.mulima.internal.job;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.mulima.api.audio.file.AudioFile;
-import org.mulima.api.audio.file.DiscFile;
 import org.mulima.api.file.DigestService;
+import org.mulima.api.file.audio.AudioFile;
+import org.mulima.api.file.audio.DiscFile;
 import org.mulima.api.library.LibraryAlbum;
 import org.mulima.api.service.MulimaService;
 
@@ -70,7 +70,7 @@ public class AlbumConversionJob implements Job<Boolean> {
 		
 		DigestService digestService = service.getDigestService();
 		for (LibraryAlbum destAlbum : outdated) {
-			digestService.write(destAlbum);
+			digestService.write(destAlbum, refAlbum);
 		}
 		
 		//log success
@@ -80,7 +80,7 @@ public class AlbumConversionJob implements Job<Boolean> {
 	private Set<LibraryAlbum> getOutdatedAlbums() {
 		Set<LibraryAlbum> tempAlbums = new HashSet<LibraryAlbum>();
 		for (LibraryAlbum destAlbum : destAlbums) {
-			if (!destAlbum.isUpToDate()) {
+			if (!service.getLibraryService().isUpToDate(destAlbum, true)) {
 				tempAlbums.add(destAlbum);
 			//} else {
 			//	logger.debug("Album is up to date: {}", destAlbum.getDir());

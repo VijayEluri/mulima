@@ -5,20 +5,22 @@ import java.io.File;
 import org.springframework.util.StringUtils;
 
 public enum AudioFormat {
-	WAVE("wav"),
-	FLAC("flac"),
-	VORBIS("ogg"),
-	AAC("m4a"),
-	MP3("mp3");
+	WAVE("wav", true),
+	FLAC("flac", true),
+	VORBIS("ogg", false),
+	AAC("m4a", false),
+	MP3("mp3", false);
 	
 	private final String ext;
+	private final boolean lossless;
 	
 	/**
 	 * Constructs an audio file type from an extension.
 	 * @param ext the extension
 	 */
-	private AudioFormat(String ext) {
+	private AudioFormat(String ext, boolean lossless) {
 		this.ext = ext;
+		this.lossless = lossless;
 	}
 
 	/**
@@ -27,6 +29,10 @@ public enum AudioFormat {
 	 */
 	public String getExtension() {
 		return ext;
+	}
+	
+	public boolean isLossless() {
+		return lossless;
 	}
 	
 	/**

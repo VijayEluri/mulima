@@ -1,9 +1,9 @@
-package org.mulima.internal.audio.file;
+package org.mulima.internal.file.audio;
 
 import java.io.File;
 
 import org.mulima.api.audio.AudioFormat;
-import org.mulima.api.audio.file.AudioFile;
+import org.mulima.api.file.audio.AudioFile;
 
 
 public abstract class AbstractAudioFile implements AudioFile {

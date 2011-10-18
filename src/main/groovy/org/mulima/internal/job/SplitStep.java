@@ -4,9 +4,9 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.mulima.api.audio.action.SplitterResult;
-import org.mulima.api.audio.file.DiscFile;
-import org.mulima.api.audio.file.TrackFile;
+import org.mulima.api.audio.tool.SplitterResult;
+import org.mulima.api.file.audio.DiscFile;
+import org.mulima.api.file.audio.TrackFile;
 import org.mulima.api.service.MulimaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +36,7 @@ public class SplitStep implements Step<Set<TrackFile>> {
 		logger.debug("Splitting {} files", inputs.size());
 		for (DiscFile input : inputs) {
 			logger.debug("Splitting {}", input);
-			SplitterResult result = service.getSplitter().split(input, destDir);
+			SplitterResult result = service.getToolService().getSplitter().split(input, destDir);
 			if (result.isSuccess()) {
 				outputs.addAll(result.getDest());
 				logger.debug("SUCCESS: Split {}", input);
