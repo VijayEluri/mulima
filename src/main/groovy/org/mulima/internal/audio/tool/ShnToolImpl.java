@@ -23,13 +23,8 @@ import java.util.List;
 
 import org.mulima.api.audio.tool.Splitter;
 import org.mulima.api.audio.tool.SplitterResult;
-import org.mulima.api.file.CachedDir;
-import org.mulima.api.file.audio.AudioFile;
 import org.mulima.api.file.audio.DiscFile;
-import org.mulima.api.file.audio.TrackFile;
 import org.mulima.api.proc.ProcessResult;
-import org.mulima.internal.file.DefaultCachedDir;
-import org.mulima.internal.file.audio.DefaultAudioFileFactory;
 import org.mulima.internal.proc.ProcessCaller;
 import org.mulima.util.FileUtil;
 

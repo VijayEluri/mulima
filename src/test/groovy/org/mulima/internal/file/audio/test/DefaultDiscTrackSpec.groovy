@@ -1,6 +1,6 @@
-package org.mulima.internal.audio.file.impl.test
+package org.mulima.internal.file.audio.test
 
-import org.mulima.internal.audio.file.DefaultTrackFile
+import org.mulima.internal.file.audio.DefaultTrackFile
 
 import spock.lang.Specification
 

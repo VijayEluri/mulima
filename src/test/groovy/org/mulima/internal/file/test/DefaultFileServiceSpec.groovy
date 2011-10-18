@@ -1,29 +1,27 @@
-package org.mulima.internal.audio.file.test
+package org.mulima.internal.file.test
 
 import org.mulima.api.audio.AudioFormat
-import org.mulima.api.audio.file.AudioFileFactory
-import org.mulima.api.audio.file.DiscFile
-import org.mulima.api.audio.file.TrackFile
 import org.mulima.api.file.CachedFile
-import org.mulima.api.file.CachedFileFactory
-import org.mulima.internal.audio.file.DefaultAudioFileFactory
+import org.mulima.api.file.FileService
+import org.mulima.api.file.audio.DiscFile
+import org.mulima.api.file.audio.TrackFile
+import org.mulima.internal.file.DefaultFileService
 import org.mulima.util.FileUtil
 
 import spock.lang.Specification
 
-class DefaultAudioFileFactorySpec extends Specification {
-	CachedFileFactory cachedFactory = Mock(CachedFileFactory)
-	AudioFileFactory factory = new DefaultAudioFileFactory(cachedFactory)
+class DefaultFileServiceSpec extends Specification {
+	FileService service = new DefaultFileService()
 	
 	def setup() {
-		cachedFactory.valueOf(_, _) >> Mock(CachedFile)
+		service.createCachedFile(_, _) >> Mock(CachedFile)
 	}
 	
 	def 'createDiscFile works with valid file name'() {
 		given:
 		def file = new File("D${discNum} DiscName.flac")
 		expect:
-		factory.createDiscFile(file).discNum == discNum
+		service.createDiscFile(file).discNum == discNum
 		where:
 		discNum << [1, 2, 11, 42]
 	}
@@ -32,7 +30,7 @@ class DefaultAudioFileFactorySpec extends Specification {
 		given:
 		def file = new File('D01T02 TrackName.wav')
 		when:
-		factory.createDiscFile(file)
+		service.createDiscFile(file)
 		then:
 		thrown(IllegalArgumentException)
 	}
@@ -45,7 +43,7 @@ class DefaultAudioFileFactorySpec extends Specification {
 		def dir = new File('test')
 		def format = AudioFormat.WAVE
 		expect:
-		def disc = factory.createDiscFile(source, dir, format)
+		def disc = service.createDiscFile(source, dir, format)
 		FileUtil.getBaseName(source.file) == FileUtil.getBaseName(disc.file)
 		disc.format == format
 		disc.file.parentFile == dir
@@ -61,7 +59,7 @@ class DefaultAudioFileFactorySpec extends Specification {
 		given:
 		def file = new File("D${discNum}T${trackNum} TrackName.flac")
 		expect:
-		def track = factory.createTrackFile(file)
+		def track = service.createTrackFile(file)
 		track.discNum == discNum
 		track.trackNum == trackNum
 		where:
@@ -89,7 +87,7 @@ class DefaultAudioFileFactorySpec extends Specification {
 		def dir = new File('test')
 		def format = AudioFormat.WAVE
 		expect:
-		def track = factory.createTrackFile(source, dir, format)
+		def track = service.createTrackFile(source, dir, format)
 		FileUtil.getBaseName(source.file) == FileUtil.getBaseName(track.file)
 		track.format == format
 		track.file.parentFile == dir
@@ -105,7 +103,7 @@ class DefaultAudioFileFactorySpec extends Specification {
 		given:
 		def file = new File("D${discNum} DiscName.flac")
 		expect:
-		def disc = factory.createAudioFile(file)
+		def disc = service.createAudioFile(file)
 		disc instanceof DiscFile
 		disc.discNum == discNum
 		where:
@@ -116,7 +114,7 @@ class DefaultAudioFileFactorySpec extends Specification {
 		given:
 		def file = new File("D${discNum}T${trackNum} TrackName.flac")
 		expect:
-		def track = factory.createAudioFile(file)
+		def track = service.createAudioFile(file)
 		track instanceof TrackFile
 		track.discNum == discNum
 		track.trackNum == trackNum
