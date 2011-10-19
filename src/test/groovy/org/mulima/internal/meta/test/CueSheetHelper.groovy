@@ -24,10 +24,10 @@ import org.mulima.internal.meta.DefaultCueSheet
 
 class CueSheetHelper {
 	static CueSheet getExampleCue() {
-		def cue = MetadataFactory.fromStringString([GENRE:'Progressive Rock', RELEASE_DATE:'1972', CDDB_ID:'520C0506', ARTIST:'Genesis', ALBUM:'Foxtrot', FILE:'Foxtrot.flac'], DefaultCueSheet.class)
+		CueSheet cue = MetadataFactory.fromStringString([GENRE:'Progressive Rock', RELEASE_DATE:'1972', CDDB_ID:'520C0506', ARTIST:'Genesis', ALBUM:'Foxtrot', FILE:'Foxtrot.flac'], DefaultCueSheet.class)
 		cue.num = 1
 		
-		cue.cuePoints.with {
+		cue.allCuePoints.with {
 			//Watcher of the Skies
 			add new DefaultCuePoint(1, 0, '00:00:00')
 			add new DefaultCuePoint(1, 1, '00:01:00')

@@ -73,7 +73,7 @@ class DefaultFileServiceSpec extends Specification {
 		given:
 		def file = new File('D01 DiscName.wav')
 		when:
-		factory.createTrackFile(file)
+		service.createTrackFile(file)
 		then:
 		thrown(IllegalArgumentException)
 	}

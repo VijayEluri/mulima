@@ -1,8 +1,5 @@
 package org.mulima.util.test
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
 import org.mulima.util.StringUtil
 
 import spock.lang.Specification
