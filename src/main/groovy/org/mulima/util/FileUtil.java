@@ -119,7 +119,7 @@ public final class FileUtil {
 	 * <strong>is</strong> recursive.
 	 * @param dir the directory to search
 	 * @return a list of all child directories
-	 * @throws IlegalArgumentException if {@code dir} is not a directory
+	 * @throws IllegalArgumentException if {@code dir} is not a directory
 	 */
 	public static List<File> listDirsRecursive(FileHolder dir) {
 		return listDirsRecursive(dir.getFile());
@@ -130,7 +130,7 @@ public final class FileUtil {
 	 * <strong>is</strong> recursive.
 	 * @param dir the directory to search
 	 * @return a list of all child directories
-	 * @throws IlegalArgumentException if {@code dir} is not a directory
+	 * @throws IllegalArgumentException if {@code dir} is not a directory
 	 */
 	public static List<File> listDirsRecursive(File dir) {
 		return listDirsRecursive(dir, new ArrayList<File>());
@@ -141,7 +141,7 @@ public final class FileUtil {
 	 * @param dir directory to search for child directories
 	 * @param dirs list of directories to add children to
 	 * @return list of child directories (including any already included in {@code dirs})
-	 * @throws IlegalArgumentException if {@code dir} is not a directory
+	 * @throws IllegalArgumentException if {@code dir} is not a directory
 	 */
 	private static List<File> listDirsRecursive(File dir, List<File> dirs) {
 		if (!dir.isDirectory()) {

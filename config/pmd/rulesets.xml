@@ -39,7 +39,9 @@
 		<exclude name="MethodArgumentCouldBeFinal" />
 		<exclude name="AvoidInstantiatingObjectsInLoops" />
 	</rule>
-	<rule ref="rulesets/scratchpad.xml" />
+	<rule ref="rulesets/scratchpad.xml">
+		<exclude name="DataflowAnomalyAnalysis" />
+	</rule>
 	<rule ref="rulesets/strictexception.xml" />
 	<rule ref="rulesets/strings.xml" /> 
 	<rule ref="rulesets/sunsecure.xml" />
