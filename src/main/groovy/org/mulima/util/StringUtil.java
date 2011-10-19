@@ -25,18 +25,18 @@ import java.util.List;
 public final class StringUtil {
 	/**
 	 * This class should never be instantiated.
-	 * @throws UnsupportedOperationException always
+	 * @throws AssertionError always
 	 */
 	private StringUtil() {
-		throw new UnsupportedOperationException("Cannot instantiate this class.");
+		throw new AssertionError("Cannot instantiate this class.");
 	}
 	
 	/**
-	 * Computes the Levenshtein distance between to <code>String</code>s.
+	 * Computes the Levenshtein distance between to {@code String}s.
 	 * This is computed as described here: {@link http://en.wikipedia.org/wiki/Levenshtein_distance}.
-	 * @param arg0 the first <code>String</code>
-	 * @param arg1 the second <code>String</code>
-	 * @return the Levenshtein distance between the two <code>String</code>s
+	 * @param arg0 the first {@code String}
+	 * @param arg1 the second {@code String}
+	 * @return the Levenshtein distance between the two {@code String}s
 	 */
 	public static int levenshteinDistance(String arg0, String arg1) {
 		int[][] dist = new int[arg0.length() + 1][arg1.length() + 1];
@@ -80,12 +80,11 @@ public final class StringUtil {
 	}
 	
 	/**
-	 * Joins a <code>String[]</code> using <code>glue</code> to separate
+	 * Joins a {@code String[]} using {@code glue} to separate
 	 * the elements of the array.
-	 * 
-	 * @param strings an array of <code>String</code>s to be joined together
-	 * @param glue the <code>String</code> to use in between elements of the array 
-	 * @return a <code>String</code> of the combined contents of the array.
+	 * @param strings an array of {@code String}s to be joined together
+	 * @param glue the {@code String} to use in between elements of the array 
+	 * @return a {@code String} of the combined contents of the array.
 	 */
 	public static String join(String[] strings, String glue) {
 		StringBuilder builder = new StringBuilder();
@@ -100,12 +99,12 @@ public final class StringUtil {
 	}
 	
 	/**
-	 * Joins a <code>List<String></code> using <code>glue</code> to separate
+	 * Joins a {@code List<String>} using {@code glue} to separate
 	 * the elements of the array.
 	 * 
-	 * @param strings an array of <code>String</code>s to be joined together
-	 * @param glue the <code>String</code> to use in between elements of the array 
-	 * @return a <code>String</code> of the combined contents of the array.
+	 * @param strings an array of {@code String}s to be joined together
+	 * @param glue the {@code String} to use in between elements of the array 
+	 * @return a {@code String} of the combined contents of the array.
 	 */
 	public static String join(List<String> strings, String glue) {
 		StringBuilder builder = new StringBuilder();
@@ -120,19 +119,31 @@ public final class StringUtil {
 	}
 	
 	/**
-	 * Makes a string safe for use in a file system path.
-	 * @param arg0 the string to make safe
-	 * @return a 
+	 * Makes a {@code String} safe for use in a file system path.  The following characters
+	 * will be replaced with underscores:
+	 * <ul>
+	 * <li>\</li>
+	 * <li>/</li>
+	 * <li>:</li>
+	 * <li>*</li>
+	 * <li>?</li>
+	 * <li>"</li>
+	 * <li>{@literal <}</li>
+	 * <li>{@literal >}</li>
+	 * <li>|</li>
+	 * </ul>
+	 * @param arg0 the {@code String} to make safe
+	 * @return the {@code String} with offending characters replaced with underscores
 	 */
 	public static String makeSafe(String arg0) {
 		return arg0.replaceAll("[\\\\/:\\*\\?\"<>\\|]", "_");
 	}
 	
 	/**
-	 * Converts a string to camel case.  The string must be in
+	 * Converts a {@code String} to camel case.  The {@code String} must be in
 	 * all uppercase letters, with underscores separating words.
-	 * @param value the string to convert
-	 * @return the camel case version of <code>value</code>
+	 * @param value the {@code String} to convert
+	 * @return the camel case version of {@code value}
 	 */
 	public static String toCamelCase(String value) {
 		StringBuilder builder = new StringBuilder();
@@ -150,11 +161,11 @@ public final class StringUtil {
 	}
 	
 	/**
-	 * Converts a camel case string to uppercase.  The string
+	 * Converts a camel case {@code String} to uppercase.  The {@code String}
 	 * must be in all lowercase, with uppercase first letters in
 	 * each word after the first.
-	 * @param value the camel case string to convert
-	 * @return the uppercase version of <code>value</code>
+	 * @param value the camel case {@code String} to convert
+	 * @return the uppercase version of {@code value}
 	 */
 	public static String fromCamelCase(String value) {
 		StringBuilder builder = new StringBuilder();
@@ -170,7 +181,7 @@ public final class StringUtil {
 	}
 	
 	/**
-	 * Returns the common portion of the two strings.
+	 * Returns the common portion of the two {@code String}s.
 	 * @param arg0 the first string
 	 * @param arg1 the second string
 	 * @return a substring (beginning at index 0) that is common to both strings

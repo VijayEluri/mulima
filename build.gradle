@@ -36,6 +36,7 @@ convention.plugins.pmd.rulesets 'config/pmd/rulesets.xml'
 
 repositories {
 	mavenCentral()
+	mavenRepo name:'spock', urls:['http://m2repo.spockframework.org/releases', 'http://m2repo.spockframework.org/snapshots']
 }
 
 dependencies {
@@ -81,7 +82,8 @@ dependencies {
 	testCompile(
 		[group:'junit', name:'junit', version:'4.8.2'],
 		[group:'org.mockito', name:'mockito-core', version:'1.8.5'],
-		[group:'org.spockframework', name:'spock-core', version:'0.5-groovy-1.8']
+		//[group:'org.spockframework', name:'spock-core', version:'0.5-groovy-1.8']
+		[group:'org.spockframework', name:'spock-core', version:'0.6-groovy-1.8-SNAPSHOT']
 	)
 	
 	testRuntime(

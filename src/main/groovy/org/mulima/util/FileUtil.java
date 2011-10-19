@@ -26,7 +26,6 @@ import org.mulima.api.file.FileHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Helper methods for <code>File</code> operations.
  * @author Andrew Oberstar
@@ -38,29 +37,29 @@ public final class FileUtil {
 	
 	/**
 	 * This class should never be instantiated.
-	 * @throws UnsupportedOperationException always
+	 * @throws AssertionError always
 	 */
 	private FileUtil() {
 		throw new AssertionError("Cannot instantiate this class.");
 	}
 
 	/**
-	 * Returns a <code>File</code> in the same location, but with a
-	 * different extension than the parameter.
-	 * @param original the original <code>File</code>
+	 * Returns a file in the same location, but with its
+	 * extension changed to the one provided.
+	 * @param original the original file
 	 * @param extension the new extension
-	 * @return a new <code>File</code> with specified extension
+	 * @return a new file with specified extension
 	 */
 	public static File changeExtension(FileHolder original, String extension) {
 		return changeExtension(original.getFile(), extension);
 	}
 	
 	/**
-	 * Returns a <code>File</code> in the same location, but with a
+	 * Returns a file in the same location, but with a
 	 * different extension than the parameter.
-	 * @param original the original <code>File</code>
+	 * @param original the original file
 	 * @param extension the new extension
-	 * @return a new <code>File</code> with specified extension
+	 * @return a new file with specified extension
 	 */
 	public static File changeExtension(File original, String extension) {
 		String ext = extension.charAt(0) == '.' ? extension : "." + extension;
@@ -69,20 +68,18 @@ public final class FileUtil {
 	}
 
 	/**
-	 * Gets the name of the <code>File</code> without
-	 * the extension.
-	 * @param file the <code>File</code> to get base name of
-	 * @return the name without the extension of <code>file</code>
+	 * Gets the name of the file without the extension.
+	 * @param file the file to get base name of
+	 * @return the name without the extension of file
 	 */
 	public static String getBaseName(FileHolder file) {
 		return getBaseName(file.getFile());
 	}
 	
 	/**
-	 * Gets the name of the <code>File</code> without
-	 * the extension.
-	 * @param file the <code>File</code> to get base name of
-	 * @return the name without the extension of <code>file</code>
+	 * Gets the name of the file without the extension.
+	 * @param file the file to get base name of
+	 * @return the name without the extension of file
 	 */
 	public static String getBaseName(File file) {
 		String name = file.getName();
@@ -118,36 +115,11 @@ public final class FileUtil {
 	}
 	
 	/**
-	 * Creates an empty directory in the default temporary-file directory,
-	 * using the given prefix and suffix to generate its name.
-	 * @param prefix The prefix string to be used in generating the dir's
-	 * name; must be at least three characters long
-	 * @param suffix The suffix string to be used in generating the dir's
-	 * name; may be null, in which case the suffix ".tmp" will be used
-	 * @return An abstract pathname denoting a newly-created empty dir
-	 * @throws IOException - If a dir could not be created
-	 * @see File#createTempFile(String, String)
-	 */
-	public static File createTempDir(String prefix, String suffix) throws IOException {
-		File tempFile = File.createTempFile(prefix, suffix);
-		if (!tempFile.delete()) {
-			throw new IOException("Could not delete file: " + tempFile.getCanonicalPath());
-		} else if (tempFile.exists()) {
-			throw new IOException("Did not delete file: " + tempFile.getCanonicalPath());
-		} else if (!tempFile.mkdirs()) {
-			throw new IOException("Could not create dir: " + tempFile.getCanonicalPath());
-		} else {
-			tempFile.deleteOnExit();
-			return tempFile;
-		}
-	}
-	
-	/**
 	 * Returns a list of directories underneath this directory.  This
 	 * <strong>is</strong> recursive.
 	 * @param dir the directory to search
 	 * @return a list of all child directories
-	 * @throws IlegalArgumentException if <code>dir</code> is not a directory
+	 * @throws IlegalArgumentException if {@code dir} is not a directory
 	 */
 	public static List<File> listDirsRecursive(FileHolder dir) {
 		return listDirsRecursive(dir.getFile());
@@ -158,7 +130,7 @@ public final class FileUtil {
 	 * <strong>is</strong> recursive.
 	 * @param dir the directory to search
 	 * @return a list of all child directories
-	 * @throws IlegalArgumentException if <code>dir</code> is not a directory
+	 * @throws IlegalArgumentException if {@code dir} is not a directory
 	 */
 	public static List<File> listDirsRecursive(File dir) {
 		return listDirsRecursive(dir, new ArrayList<File>());
@@ -168,8 +140,8 @@ public final class FileUtil {
 	 * Helper method for recursion of {@link #listDirsRecursive(File)}.
 	 * @param dir directory to search for child directories
 	 * @param dirs list of directories to add children to
-	 * @return list of child directories (including any already included in <code>dirs</code>)
-	 * @throws IlegalArgumentException if <code>dir</code> is not a directory
+	 * @return list of child directories (including any already included in {@code dirs})
+	 * @throws IlegalArgumentException if {@code dir} is not a directory
 	 */
 	private static List<File> listDirsRecursive(File dir, List<File> dirs) {
 		if (!dir.isDirectory()) {

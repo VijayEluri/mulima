@@ -31,10 +31,10 @@ import org.mulima.api.meta.Tag;
 public final class MetadataUtil {
 	/**
 	 * This class should never be instantiated.
-	 * @throws UnsupportedOperationException always
+	 * @throws AssertionError always
 	 */
 	private MetadataUtil() {
-		throw new UnsupportedOperationException("Cannot instantiate this class.");
+		throw new AssertionError("Cannot instantiate this class.");
 	}
 	
 	/**
@@ -48,9 +48,9 @@ public final class MetadataUtil {
 	public static int tagDistance(Metadata orig, Metadata cand, Tag tag) {
 		String origTag = orig.getFlat(tag);
 		String candTag = cand.getFlat(tag);
-		if (origTag.length() < candTag.length()) {
-			candTag = candTag.substring(0, origTag.length());
-		}
+//		if (origTag.length() < candTag.length()) {
+//			candTag = candTag.substring(0, origTag.length());
+//		}
 		return StringUtil.levenshteinDistance(origTag, candTag);
 	}
 	
