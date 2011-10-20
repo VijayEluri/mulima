@@ -142,7 +142,7 @@ ruleset {
 		'IllegalRegex'
 		'RequiredRegex'
 		'StatelessClass' {
-			doNotApplyToClassNames = '*Test'
+			enabled = false
 		}
 	}
 	
@@ -205,7 +205,7 @@ ruleset {
 		'ConfusingMethodName'
 		'FieldName' {
 			finalRegex = null
-			staticRegex = /[A-Z][A-Z0-9_]*/
+			staticRegex = /[A-Z][A-Z0-9_]*|logger/
 		}
 		'InterfaceName'
 		'MethodName'

@@ -39,6 +39,10 @@ public enum FreeDbTag implements Tag {
 	
 	private final GenericTag tag;
 	
+	/**
+	 * Constructs a tag.
+	 * @param tag the generic tag this maps to
+	 */
 	private FreeDbTag(GenericTag tag) {
 		this.tag = tag;
 	}

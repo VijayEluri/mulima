@@ -51,7 +51,7 @@ public final class MetadataFactory {
 		T meta = type.newInstance();
 		for (Entry<Tag, List<String>> entry : map.entrySet()) {
 			Tag tag = entry.getKey();
-			meta.add(tag, entry.getValue());
+			meta.addAll(tag, entry.getValue());
 		}
 		return meta;
 	}
@@ -68,7 +68,7 @@ public final class MetadataFactory {
 		T meta = type.newInstance();
 		for (Entry<String, List<String>> entry : map.entrySet()) {
 			Tag tag = GenericTag.valueOf(entry.getKey());
-			meta.add(tag, entry.getValue());
+			meta.addAll(tag, entry.getValue());
 		}
 		return meta;
 	}

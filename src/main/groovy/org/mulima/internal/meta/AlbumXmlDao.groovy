@@ -1,10 +1,6 @@
 package org.mulima.internal.meta
 
-import groovy.util.NodeList
 import groovy.xml.MarkupBuilder
-
-import java.io.File
-import java.util.SortedSet
 
 import org.mulima.api.file.FileComposer
 import org.mulima.api.file.FileParser
@@ -47,7 +43,7 @@ class AlbumXmlDao implements FileParser<Album>, FileComposer<Album> {
 	 */
 	private void parseTags(NodeList xml, Metadata meta) {
 		xml.each { tagNode ->
-			meta.add(GenericTag.valueOfCamelCase(tagNode.'@name'), tagNode.'@value')
+			meta.addAll(GenericTag.valueOfCamelCase(tagNode.'@name'), tagNode.'@value')
 		}
 	}
 	

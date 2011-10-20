@@ -33,8 +33,8 @@ public class DefaultCuePoint implements CuePoint {
 		}
 	}
 	
-	private boolean verifyTimeFormat(String time) {
-		Matcher matcher = TIME_REGEX.matcher(time);
+	private boolean verifyTimeFormat(String timeStr) {
+		Matcher matcher = TIME_REGEX.matcher(timeStr);
 		if (matcher.find()) {
 			int minutes = Integer.valueOf(matcher.group(1));
 			if (minutes < 0) {

@@ -10,7 +10,7 @@ class DefaultTrackSpec extends Specification {
 	def 'getNum gets value from tag value'() {
 		given:
 		Track track = new DefaultTrack()
-		track.add(GenericTag.TRACK_NUMBER, Integer.toString(num))
+		track.addAll(GenericTag.TRACK_NUMBER, Integer.toString(num))
 		expect:
 		track.getNum() == num
 		where:
@@ -20,12 +20,12 @@ class DefaultTrackSpec extends Specification {
 	def 'tracks sort by disc num first'() {
 		given:
 		Track track1 = new DefaultTrack()
-		track1.add(GenericTag.TRACK_NUMBER, Integer.toString(discNum1))
-		track1.add(GenericTag.TRACK_NUMBER, Integer.toString(trackNum1))
+		track1.addAll(GenericTag.TRACK_NUMBER, Integer.toString(discNum1))
+		track1.addAll(GenericTag.TRACK_NUMBER, Integer.toString(trackNum1))
 		and:
 		Track track2 = new DefaultTrack()
-		track2.add(GenericTag.TRACK_NUMBER, Integer.toString(discNum2))
-		track2.add(GenericTag.TRACK_NUMBER, Integer.toString(trackNum2))
+		track2.addAll(GenericTag.TRACK_NUMBER, Integer.toString(discNum2))
+		track2.addAll(GenericTag.TRACK_NUMBER, Integer.toString(trackNum2))
 		expect:
 		track1 > track2
 		where:

@@ -34,25 +34,30 @@ import org.mulima.api.meta.GenericTag;
 public interface Metadata {
 	/**
 	 * Checks if the given tag is set
-	 * on this metadata.
+	 * on this metadata.  If the tag is null
+	 * the method will return false.
 	 * @param tag the tag to check.
 	 * @return <code>true</code> if it is set, <code>false</code> otherwise
 	 */
 	boolean isSet(Tag tag);
 	
 	/**
-	 * Adds the specified value for the specified tag.
+	 * Adds the specified value for the specified tag.  If
+	 * the the tag or value is null the method will return
+	 * without taking any action.
 	 * @param tag the tag to add <code>value</code> for
 	 * @param value the value to add to <code>tag</code>
 	 */
 	void add(Tag tag, String value);
 	
 	/**
-	 * Adds all of the specified values for the specified tag.
+	 * Adds all of the specified values for the specified tag. If the
+	 * tag or list is null the method will return without taking
+	 * any action.
 	 * @param tag the tag to add <code>values</code> for
 	 * @param values the values to add to <code>tag</code>
 	 */
-	void add(Tag tag, List<String> values);
+	void addAll(Tag tag, List<String> values);
 	
 	/**
 	 * Adds all of the metadata from the given object
@@ -63,21 +68,26 @@ public interface Metadata {
 	void addAll(Metadata meta);
 	
 	/**
-	 * Gets all values for the given tag.
+	 * Gets all values for the given tag.  If there
+	 * are no values for the tag an empty list will
+	 * be returned.  If the tag is null, an empty
+	 * list will be returned.
 	 * @param tag the tag to get values for
 	 * @return the values of <code>tag</code>
 	 */
 	List<String> getAll(Tag tag);
 	
 	/**
-	 * Gets the first value for a given tag.
+	 * Gets the first value for a given tag.  If the
+	 * tag is null, the method will return null.
 	 * @param tag the tag to get the value of
 	 * @return the first value for <code>tag</code>
 	 */
 	String getFirst(Tag tag);
 	
 	/**
-	 * Gets all values for a tag in a single <code>String</code>.
+	 * Gets all values for a tag in a single <code>String</code>. If the
+	 * tag is null, this method will return null.
 	 * @param tag the tag to get the values of
 	 * @return all values of <code>tag</code> in <code>String</code> format
 	 */
@@ -85,13 +95,16 @@ public interface Metadata {
 	
 	/**
 	 * Gets a <code>Map</code> of the values backing this
-	 * object.
+	 * object.  If no tags are set, this method will
+	 * return an empty map.
 	 * @return map of values
 	 */
 	Map<GenericTag, List<String>> getMap();
 	
 	/**
-	 * Removes all values for a tag.
+	 * Removes all values for a tag.  If the tag is
+	 * null, the method will return with no action
+	 * taken.
 	 * @param tag that tag to remove
 	 */
 	void remove(Tag tag);

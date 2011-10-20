@@ -38,13 +38,15 @@ import org.mulima.api.meta.Tag;
  */
 public abstract class AbstractMetadata implements Metadata {
 	private final Map<GenericTag, List<String>> map = new TreeMap<GenericTag, List<String>>();
-	//private final Map<GenericTag, List<String>> map = new LinkedHashMap<GenericTag, List<String>>();
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public boolean isSet(Tag tag) {
+		if (tag == null) {
+			return false;
+		}
 		return map.containsKey(tag.getGeneric());
 	}
 	
@@ -53,7 +55,7 @@ public abstract class AbstractMetadata implements Metadata {
 	 */
 	@Override
 	public void add(Tag tag, String value) {
-		if (value == null) {
+		if (tag == null || value == null) {
 			return;
 		}
 		
@@ -69,8 +71,8 @@ public abstract class AbstractMetadata implements Metadata {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void add(Tag tag, List<String> values) {
-		if (values == null) {
+	public void addAll(Tag tag, List<String> values) {
+		if (tag == null || values == null) {
 			return;
 		}
 		
@@ -90,7 +92,6 @@ public abstract class AbstractMetadata implements Metadata {
 	 */
 	@Override
 	public void addAll(Metadata meta) {
-		//TODO: implement this
 		throw new UnsupportedOperationException("addAll not supported yet");
 	}
 
@@ -99,11 +100,14 @@ public abstract class AbstractMetadata implements Metadata {
 	 */
 	@Override
 	public List<String> getAll(Tag tag) {
+		if (tag == null) {
+			return Collections.unmodifiableList(new ArrayList<String>());
+		}
 		GenericTag generic = tag.getGeneric();
 		if (map.containsKey(generic)) {
-			return new ArrayList<String>(map.get(generic));
+			return Collections.unmodifiableList(map.get(generic));
 		} else {
-			return null;
+			return Collections.unmodifiableList(new ArrayList<String>());
 		}
 	}
 
@@ -112,6 +116,9 @@ public abstract class AbstractMetadata implements Metadata {
 	 */
 	@Override
 	public String getFirst(Tag tag) {
+		if (tag == null) {
+			return null;
+		}
 		GenericTag generic = tag.getGeneric();
 		if (map.containsKey(generic) && !map.get(generic).isEmpty()) {
 			return map.get(generic).get(0);
@@ -125,6 +132,9 @@ public abstract class AbstractMetadata implements Metadata {
 	 */
 	@Override
 	public String getFlat(Tag tag) {
+		if (tag == null) {
+			return null;
+		}
 		List<String> values = getAll(tag);
 		if (values == null) {
 			return null;
@@ -139,6 +149,9 @@ public abstract class AbstractMetadata implements Metadata {
 			builder.append(values.get(i));
 		}
 		if (i == values.size() - 1) {
+			if (values.size() > 2) {
+				builder.append(',');
+			}
 			builder.append(" & ");
 			builder.append(values.get(i));
 		}
@@ -159,6 +172,9 @@ public abstract class AbstractMetadata implements Metadata {
 	 */
 	@Override
 	public void remove(Tag tag) {
+		if (tag == null) {
+			return;
+		}
 		GenericTag generic = tag.getGeneric();
 		map.remove(generic);
 	}
@@ -168,9 +184,7 @@ public abstract class AbstractMetadata implements Metadata {
 	 */
 	@Override
 	public void removeAll() {
-		for (Tag key : map.keySet()) {
-			map.remove(key);
-		}
+		map.clear();
 	}
 	
 	@Override
@@ -216,7 +230,7 @@ public abstract class AbstractMetadata implements Metadata {
 			if (values == null || values.isEmpty()) {
 				values = findCommon(tag, children);
 				if (values != null) {
-					this.add(tag, values);
+					this.addAll(tag, values);
 					for (Metadata child : children) {
 						child.remove(tag);
 					}

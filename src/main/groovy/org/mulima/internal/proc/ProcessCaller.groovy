@@ -54,31 +54,33 @@ class ProcessCaller implements Callable {
 	
 	/**
 	* Constructs a process caller with the specified operating system program and arguments.
+	* @param description a description of the process to be executed
 	* @param command the list containing the program and its arguments.
 	*/
    ProcessCaller(String description, List command) {
-	   this.description = description;
+	   this.description = description
 	   this.command = command
    }
    
    /**
 	* Constructs a process caller with the specified operating system program and arguments.
+	* @param description a description of the process to be executed
 	* @param command a string array containing the program and its arguments.
 	*/
    ProcessCaller(String description, String... command) {
-	   this.description = description;
+	   this.description = description
 	   this.command = command
    }
 	
 	/**
 	 * Starts a process using the command specified in the constructor.
 	 * @return a process result holding the output of the process.
-	 * @throws ProcessExecutionException if there is a problem with the process
+	 * @throws FatalMulimaException if there is a problem with the process
 	 */
 	@Override
 	ProcessResult call() {
-		logger.info("Starting: " + description);
-		logger.debug("Executing command: " + command)
+		logger.info('Starting: {}', description)
+		logger.debug('Executing command: {}', command)
 		Process proc
 		try {
 			proc = new ProcessBuilder(command).start()
@@ -90,7 +92,7 @@ class ProcessCaller implements Callable {
 		StringBuilder error = new StringBuilder()
 		proc.waitForProcessOutput(output, error)
 		int exit = proc.exitValue()
-		logger.info("Finished: " + description);
+		logger.info('Finished: {}', description)
 		return new ProcessResult(command, exit, output, error)
 	}
 }

@@ -62,6 +62,10 @@ public enum VorbisTag implements Tag {
 	
 	private final GenericTag tag;
 	
+	/**
+	 * Constructs a tag.
+	 * @param tag the generic tag this maps to
+	 */
 	private VorbisTag(GenericTag tag) {
 		this.tag = tag;
 	}

@@ -17,7 +17,6 @@
  */
 package org.mulima.internal.meta;
 
-import org.mulima.api.meta.CueSheet;
 import org.mulima.api.meta.GenericTag;
 import org.mulima.api.meta.Tag;
 
@@ -45,6 +44,10 @@ public class CueSheetTag {
 		private String prefix;
 		private String suffix;
 		
+		/**
+		 * Constructs a tag.
+		 * @param tag the generic tag this maps to
+		 */
 		private Cue(GenericTag tag, String prefix, String suffix) {
 			this.tag = tag;
 			this.prefix = prefix;
@@ -86,6 +89,10 @@ public class CueSheetTag {
 		private String prefix;
 		private String suffix;
 		
+		/**
+		 * Constructs a tag.
+		 * @param tag the generic tag this maps to
+		 */
 		private Track(GenericTag tag, String prefix, String suffix) {
 			this.tag = tag;
 			this.prefix = prefix;

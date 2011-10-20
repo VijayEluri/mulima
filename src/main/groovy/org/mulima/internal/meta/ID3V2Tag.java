@@ -53,6 +53,10 @@ public enum ID3V2Tag implements Tag {
 	
 	private final GenericTag tag;
 	
+	/**
+	 * Constructs a tag.
+	 * @param tag the generic tag this maps to
+	 */
 	private ID3V2Tag(GenericTag tag) {
 		this.tag = tag;
 	}

@@ -36,11 +36,11 @@ public class DefaultAlbum extends AbstractMetadata implements Album {
 				Track temp = new DefaultTrack();
 				for (Tag tag : GenericTag.values()) {
 					if (track.isSet(tag)) {
-						temp.add(tag, track.getAll(tag));
+						temp.addAll(tag, track.getAll(tag));
 					} else if (disc.isSet(tag)) {
-						temp.add(tag, disc.getAll(tag));
+						temp.addAll(tag, disc.getAll(tag));
 					} else if (this.isSet(tag)) {
-						temp.add(tag, this.getAll(tag));
+						temp.addAll(tag, this.getAll(tag));
 					}
 				}
 				tracks.add(temp);
