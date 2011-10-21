@@ -18,13 +18,19 @@
 package org.mulima.internal.meta.test
 
 import org.mulima.api.meta.CueSheet
-import org.mulima.api.meta.dao.impl.test.MetadataFactory
+import org.mulima.api.meta.test.MetadataFactory
 import org.mulima.internal.meta.DefaultCuePoint
 import org.mulima.internal.meta.DefaultCueSheet
 
 class CueSheetHelper {
+	static MetadataFactory factory = new MetadataFactory()
+	
+	static {
+		factory.registerImplementation CueSheet, DefaultCueSheet
+	}
+	
 	static CueSheet getExampleCue() {
-		CueSheet cue = MetadataFactory.fromStringString([GENRE:'Progressive Rock', RELEASE_DATE:'1972', CDDB_ID:'520C0506', ARTIST:'Genesis', ALBUM:'Foxtrot', FILE:'Foxtrot.flac'], DefaultCueSheet.class)
+		CueSheet cue = factory.fromStringString([GENRE:'Progressive Rock', RELEASE_DATE:'1972', CDDB_ID:'520C0506', ARTIST:'Genesis', ALBUM:'Foxtrot', FILE:'Foxtrot.flac'], CueSheet)
 		cue.num = 1
 		
 		cue.allCuePoints.with {

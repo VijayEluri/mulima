@@ -43,7 +43,7 @@ class AlbumXmlDao implements FileParser<Album>, FileComposer<Album> {
 	 */
 	private void parseTags(NodeList xml, Metadata meta) {
 		xml.each { tagNode ->
-			meta.addAll(GenericTag.valueOfCamelCase(tagNode.'@name'), tagNode.'@value')
+			meta.add(GenericTag.valueOfCamelCase(tagNode.'@name'), tagNode.'@value')
 		}
 	}
 	

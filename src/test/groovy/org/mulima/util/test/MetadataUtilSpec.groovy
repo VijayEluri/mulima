@@ -15,19 +15,19 @@ class MetadataUtilSpec extends Specification {
 	
 	def setupSpec() {
 		meta1 = new DefaultDisc()
-		meta1.addAll(GenericTag.ARTIST, 'Genesis')
-		meta1.addAll(GenericTag.ALBUM, 'The Lamb Lies Down On Broadway (Disc 1)')
-		meta1.addAll(GenericTag.DISC_NUMBER, '1')
+		meta1.add(GenericTag.ARTIST, 'Genesis')
+		meta1.add(GenericTag.ALBUM, 'The Lamb Lies Down On Broadway (Disc 1)')
+		meta1.add(GenericTag.DISC_NUMBER, '1')
 		
 		meta2 = new DefaultDisc()
-		meta2.addAll(GenericTag.ARTIST, 'Genesis')
-		meta2.addAll(GenericTag.ALBUM, 'The Lamb Lies Down On Broadway (Disc 2)')
-		meta2.addAll(GenericTag.DISC_NUMBER, '2')
+		meta2.add(GenericTag.ARTIST, 'Genesis')
+		meta2.add(GenericTag.ALBUM, 'The Lamb Lies Down On Broadway (Disc 2)')
+		meta2.add(GenericTag.DISC_NUMBER, '2')
 		
 		meta3 = new DefaultDisc()
-		meta3.addAll(GenericTag.ARTIST, 'Regenesis')
-		meta3.addAll(GenericTag.ALBUM, 'A Tribute To The Lamb Lies Down On Broadway')
-		meta3.addAll(GenericTag.DISC_NUMBER, '1')
+		meta3.add(GenericTag.ARTIST, 'Regenesis')
+		meta3.add(GenericTag.ALBUM, 'A Tribute To The Lamb Lies Down On Broadway')
+		meta3.add(GenericTag.DISC_NUMBER, '1')
 	}
 	
 	def 'tagDistance shows levenshtein distance on a specific tag'() {

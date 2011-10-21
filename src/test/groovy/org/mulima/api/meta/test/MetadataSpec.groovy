@@ -1,12 +1,18 @@
 package org.mulima.api.meta.test
 
-import org.mulima.api.meta.Metadata
 import org.mulima.api.meta.GenericTag
+import org.mulima.api.meta.Metadata
 
+import spock.lang.Shared
 import spock.lang.Specification
 
-abstract class MetadataSpec extends Specification {
-	Metadata meta
+abstract class MetadataSpec<T extends Metadata> extends Specification {
+	@Shared MetadataFactory factory = new MetadataFactory()
+	T meta
+	
+	def setup() {
+		meta = factory.newInstance(Metadata)
+	}
 	
 	def 'isSet returns true only if tag is set'() {
 		given:
