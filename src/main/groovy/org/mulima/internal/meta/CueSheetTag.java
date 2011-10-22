@@ -47,6 +47,8 @@ public class CueSheetTag {
 		/**
 		 * Constructs a tag.
 		 * @param tag the generic tag this maps to
+		 * @param prefix the string to prepend to values of this tag
+		 * @param suffix the string append to values of this tag
 		 */
 		private Cue(GenericTag tag, String prefix, String suffix) {
 			this.tag = tag;
@@ -92,6 +94,8 @@ public class CueSheetTag {
 		/**
 		 * Constructs a tag.
 		 * @param tag the generic tag this maps to
+		 * @param prefix the string to prepend to values of this tag
+		 * @param suffix the string append to values of this tag
 		 */
 		private Track(GenericTag tag, String prefix, String suffix) {
 			this.tag = tag;

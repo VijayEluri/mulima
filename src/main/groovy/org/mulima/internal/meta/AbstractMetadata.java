@@ -183,7 +183,6 @@ public abstract class AbstractMetadata implements Metadata {
 	/**
 	 * Cleans up tags by taking the value of any tag that
 	 * is identical in all children and moving it to this object.
-	 * @param <T> the type of metadata of the children
 	 * @param children list of child metadata objects
 	 */
 	protected void tidy(Set<? extends Metadata> children) {
