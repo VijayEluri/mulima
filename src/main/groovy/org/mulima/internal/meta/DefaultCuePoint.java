@@ -5,7 +5,12 @@ import java.util.regex.Pattern;
 
 import org.mulima.api.meta.CuePoint;
 
-
+/**
+ * Default implementation of a cue point.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
 public class DefaultCuePoint implements CuePoint {
 	private static final Pattern TIME_REGEX = Pattern.compile("^(\\d{2}):(\\d{2}):(\\d{2})$");
 	
@@ -13,6 +18,12 @@ public class DefaultCuePoint implements CuePoint {
 	private final int index;
 	private final String time;
 	
+	/**
+	 * Constructs a cue point with the parameters.
+	 * @param track the track number
+	 * @param index the index number
+	 * @param time the timecode
+	 */
 	public DefaultCuePoint(int track, int index, String time) {
 		if (track > 0) {
 			this.track = track;
@@ -33,6 +44,12 @@ public class DefaultCuePoint implements CuePoint {
 		}
 	}
 	
+	/**
+	 * Verifies that the time string matches the expected
+	 * format.
+	 * @param timeStr the string to verify
+	 * @return {@code true} if it is valid, {@code false} otherwise
+	 */
 	private boolean verifyTimeFormat(String timeStr) {
 		Matcher matcher = TIME_REGEX.matcher(timeStr);
 		if (matcher.find()) {
@@ -54,21 +71,33 @@ public class DefaultCuePoint implements CuePoint {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getTrack() {
 		return track;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getIndex() {
 		return index;
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getTime() {
 		return time;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int compareTo(CuePoint other) {
 		if (track == other.getTrack()) {
@@ -86,6 +115,9 @@ public class DefaultCuePoint implements CuePoint {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null) {

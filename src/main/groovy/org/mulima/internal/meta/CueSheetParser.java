@@ -12,12 +12,22 @@ import org.mulima.exception.UncheckedIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * Default parser for cue sheets.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
 public class CueSheetParser implements FileParser<CueSheet> {
 	private static final Logger logger = LoggerFactory.getLogger(CueSheetParser.class);
 	private static final Pattern NUM_REGEX = Pattern.compile(".*\\(([0-9])\\)\\.cue");
 	private static final Pattern LINE_REGEX = Pattern.compile("^((?:REM )?[A-Z0-9]+) [\"']?([^\"']*)[\"']?.*$");
 
+	/**
+	 * Parses a cue sheet file.
+	 * @param file the file to parse
+	 * @return the parsed cue sheet
+	 */
 	@Override
 	public CueSheet parse(File file) {
 		Matcher matcher = NUM_REGEX.matcher(file.getName());
@@ -44,21 +54,40 @@ public class CueSheetParser implements FileParser<CueSheet> {
 			if ("TRACK".equals(name)) {
 				currentTrack = Integer.valueOf(value.split(" ")[0]);
 			} else if (currentTrack < 0) {
-				try {
-					CueSheetTag.Cue tag = CueSheetTag.Cue.valueOf(name);
-					cue.add(tag, value);
-				} catch (IllegalArgumentException e) {
-					logger.debug(e.getMessage(), e);
-				}
+				handleCueTag(cue, name, value);
 			} else if ("INDEX".equals(name)) {
-				String[] values = value.split(" ");
-				int index = Integer.valueOf(values[0]);
-				String time = values[1];
-				cue.getAllCuePoints().add(new DefaultCuePoint(currentTrack, index, time));
+				handleIndex(cue, currentTrack, value);
 			}
 		}
 		
 		return cue;
 	}
 
+	/**
+	 * Handles cue level tags.
+	 * @param cue the cue to add the tag to
+	 * @param name the name of the tag
+	 * @param value the value of the tag
+	 */
+	private void handleCueTag(CueSheet cue, String name, String value) {
+		try {
+			CueSheetTag.Cue tag = CueSheetTag.Cue.valueOf(name);
+			cue.add(tag, value);
+		} catch (IllegalArgumentException e) {
+			logger.debug(e.getMessage(), e);
+		}
+	}
+	
+	/**
+	 * Handles cue indices.
+	 * @param cue the cue to add the index to
+	 * @param currentTrack the current track being parsed
+	 * @param value the value of the index
+	 */
+	private void handleIndex(CueSheet cue, int currentTrack, String value) {
+		String[] values = value.split(" ");
+		int index = Integer.valueOf(values[0]);
+		String time = values[1];
+		cue.getAllCuePoints().add(new DefaultCuePoint(currentTrack, index, time));
+	}
 }

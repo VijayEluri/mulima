@@ -20,6 +20,7 @@ package org.mulima.internal.meta;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -132,30 +133,22 @@ public abstract class AbstractMetadata implements Metadata {
 	 */
 	@Override
 	public String getFlat(Tag tag) {
-		if (tag == null) {
+		if (tag == null || !isSet(tag)) {
 			return null;
 		}
+		
 		List<String> values = getAll(tag);
-		if (values == null) {
-			return null;
-		}
-		
 		StringBuilder builder = new StringBuilder();
-		
-		int i = 0;
-		builder.append(values.get(i));
-		for (i++; i < values.size() - 1; i++) {
-			builder.append(", ");
-			builder.append(values.get(i));
-		}
-		if (i == values.size() - 1) {
-			if (values.size() > 2) {
-				builder.append(',');
+		ListIterator<String> iterator = values.listIterator();
+		builder.append(iterator.next());
+		while (iterator.hasNext()) {
+			if (iterator.nextIndex() == values.size() - 1) {
+				builder.append(" & ");
+			} else {
+				builder.append(", ");	
 			}
-			builder.append(" & ");
-			builder.append(values.get(i));
+			builder.append(iterator.next());
 		}
-		
 		return builder.toString();
 	}
 	
@@ -198,14 +191,12 @@ public abstract class AbstractMetadata implements Metadata {
 			if (GenericTag.DISC_NUMBER.equals(tag) || GenericTag.TRACK_NUMBER.equals(tag)) {
 				continue;
 			}
-			List<String> values = this.getAll(tag);
-			if (values == null || values.isEmpty()) {
-				values = findCommon(tag, children);
-				if (values != null) {
-					this.addAll(tag, values);
-					for (Metadata child : children) {
-						child.remove(tag);
-					}
+			
+			List<String> values = findCommon(tag, children);
+			if (!isSet(tag) && values != null) {
+				addAll(tag, values);
+				for (Metadata child : children) {
+					child.remove(tag);
 				}
 			}
 		}
@@ -214,22 +205,35 @@ public abstract class AbstractMetadata implements Metadata {
 	/**
 	 * Finds the common value list for the given tag on the given children.  This will
 	 * only find common values if all children have an identical list of values.
-	 * @param <T> the type of metadata of the children
 	 * @param tag the tag to find the common values of
 	 * @param children list of child metadata objects
 	 * @return the list of common values or {@code null} if any children have a different value
 	 */
 	private List<String> findCommon(Tag tag, Set<? extends Metadata> children) {
-		List<String> newValues = null;
+		List<String> values = null;
 		for (Metadata child : children) {
-			if (!child.isSet(tag)) {
-				return null;
-			} else if (newValues == null) {
-				newValues = child.getAll(tag);
-			} else if (!newValues.equals(child.getAll(tag))) {
+			if (values == null) {
+				values = child.getAll(tag);
+			} else if (!isMatch(child, tag, values)) {
 				return null;
 			}
 		}
-		return newValues;
+		return values;
+	}
+	
+	/**
+	 * Checks if the metadata object has the specified values
+	 * set for the specified tag.
+	 * @param meta the metadata object
+	 * @param tag the tag to match values of
+	 * @param values the values to match against
+	 * @return {@code true} if it matches, {@code false} otherwise
+	 */
+	private boolean isMatch(Metadata meta, Tag tag, List<String> values) {
+		if (meta.isSet(tag)) {
+			return meta.getAll(tag).equals(values);
+		} else {
+			return false;
+		}
 	}
 }

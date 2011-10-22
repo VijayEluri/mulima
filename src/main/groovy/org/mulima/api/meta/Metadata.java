@@ -20,8 +20,6 @@ package org.mulima.api.meta;
 import java.util.List;
 import java.util.Map;
 
-import org.mulima.api.meta.GenericTag;
-
 
 /**
  * Represents an object that holds metadata.  Implementations
@@ -118,5 +116,5 @@ public interface Metadata {
 	 * Simplify the metadata, by moving all values
 	 * common among all children to their parent.
 	 */
-	public void tidy();
+	void tidy();
 }

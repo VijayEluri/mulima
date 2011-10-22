@@ -7,20 +7,34 @@ import org.mulima.api.meta.Disc;
 import org.mulima.api.meta.GenericTag;
 import org.mulima.api.meta.Track;
 
-
+/**
+ * Default implementation of a disc.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
 public class DefaultDisc extends AbstractMetadata implements Disc {
 	private final SortedSet<Track> tracks = new TreeSet<Track>();
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getNum() {
 		return Integer.valueOf(getFirst(GenericTag.DISC_NUMBER));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public SortedSet<Track> getTracks() {
 		return tracks;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Track getTrack(int num) {
 		for (Track track : tracks) {
@@ -31,16 +45,19 @@ public class DefaultDisc extends AbstractMetadata implements Disc {
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void tidy() {
 		tidy(getTracks());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int compareTo(Disc o) {
-		if (o == null) {
-			throw new NullPointerException("Cannot compare to null value");
-		}
 		if (this.equals(o)) {
 			return 0;
 		} else if (getNum() == o.getNum()) {
@@ -50,6 +67,9 @@ public class DefaultDisc extends AbstractMetadata implements Disc {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null) {

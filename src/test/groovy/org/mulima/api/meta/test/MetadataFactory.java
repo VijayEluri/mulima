@@ -32,7 +32,7 @@ import org.mulima.api.meta.Tag;
  * @see Metadata
  */
 public final class MetadataFactory {
-	private Map<Class<?>, Class<?>> implementations = new HashMap<Class<?>, Class<?>>();
+	private final Map<Class<?>, Class<?>> implementations = new HashMap<Class<?>, Class<?>>();
 	
 	@SuppressWarnings("unchecked")
 	public <T> Class<T> getImplementation(Class<T> type) {

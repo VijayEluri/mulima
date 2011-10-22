@@ -136,8 +136,9 @@ abstract class MetadataSpec<T extends Metadata> extends Specification {
 		meta.getFlat(GenericTag.CONDUCTOR) == flat
 		where:
 		list							| flat
-		['Emerson', 'Lake', 'Palmer']	| 'Emerson, Lake, & Palmer'
+		['Emerson', 'Lake', 'Palmer']	| 'Emerson, Lake & Palmer'
 		['Fripp', 'Eno']				| 'Fripp & Eno'
+		['Genesis']						| 'Genesis'
 	}
 	
 	def 'getFlat returns null if the tag is null'() {

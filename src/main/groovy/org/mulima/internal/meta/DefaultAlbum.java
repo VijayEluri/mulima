@@ -9,14 +9,26 @@ import org.mulima.api.meta.GenericTag;
 import org.mulima.api.meta.Tag;
 import org.mulima.api.meta.Track;
 
+/**
+ * Default implementation of an album.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
 public class DefaultAlbum extends AbstractMetadata implements Album {
 	private final SortedSet<Disc> discs = new TreeSet<Disc>();
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public SortedSet<Disc> getDiscs() {
 		return discs;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Disc getDisc(int num) {
 		for (Disc disc : discs) {
@@ -27,6 +39,9 @@ public class DefaultAlbum extends AbstractMetadata implements Album {
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public SortedSet<Track> flatten() {
 		SortedSet<Track> tracks = new TreeSet<Track>();
@@ -48,11 +63,17 @@ public class DefaultAlbum extends AbstractMetadata implements Album {
 		return tracks;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void tidy() {
 		tidy(getDiscs());
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null) {

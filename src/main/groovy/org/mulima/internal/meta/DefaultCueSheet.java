@@ -7,24 +7,43 @@ import java.util.TreeSet;
 import org.mulima.api.meta.CuePoint;
 import org.mulima.api.meta.CueSheet;
 
-
+/**
+ * Default implementation of a cue sheet.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
 public class DefaultCueSheet extends AbstractMetadata implements CueSheet {
 	private int num;
 	private final SortedSet<CuePoint> cuePoints = new TreeSet<CuePoint>();
 	
+	/**
+	 * Constructs an unnumbered cue sheet.
+	 */
 	public DefaultCueSheet() {
 		super();
 	}
 	
+	/**
+	 * Constructs a numbered cue sheet.
+	 * @param num the disc number
+	 */
 	public DefaultCueSheet(int num) {
+		super();
 		this.num = num;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getNum() {
 		return num;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public SortedSet<CuePoint> getCuePoints() {
 		SortedSet<CuePoint> points = new TreeSet<CuePoint>();
@@ -36,21 +55,27 @@ public class DefaultCueSheet extends AbstractMetadata implements CueSheet {
 		return Collections.unmodifiableSortedSet(points);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public SortedSet<CuePoint> getAllCuePoints() {
 		return cuePoints;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void tidy() {
-		return;
+		//no-op
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int compareTo(CueSheet o) {
-		if (o == null) {
-			throw new NullPointerException("Cannot compare to null value");
-		}
 		if (this.equals(o)) {
 			return 0;
 		} else if (getNum() == o.getNum()) {
@@ -60,6 +85,9 @@ public class DefaultCueSheet extends AbstractMetadata implements CueSheet {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null) {

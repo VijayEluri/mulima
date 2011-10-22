@@ -4,24 +4,45 @@ import org.mulima.api.meta.CuePoint;
 import org.mulima.api.meta.GenericTag;
 import org.mulima.api.meta.Track;
 
+/**
+ * Default implementation of a track.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
 public class DefaultTrack extends AbstractMetadata implements Track {
 	private final CuePoint startPoint;
 	private final CuePoint endPoint;
 	
+	/**
+	 * Constructs a track without start/end points.
+	 */
 	public DefaultTrack() {
 		this(null, null);
 	}
 	
+	/**
+	 * Constructs a track with start/end points.
+	 * @param startPoint the start point
+	 * @param endPoint the end point
+	 */
 	public DefaultTrack(CuePoint startPoint, CuePoint endPoint) {
+		super();
 		this.startPoint = startPoint;
 		this.endPoint = endPoint;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getNum() {
 		return Integer.valueOf(getFirst(GenericTag.TRACK_NUMBER));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getDiscNum() {
 		try {
@@ -31,26 +52,35 @@ public class DefaultTrack extends AbstractMetadata implements Track {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public CuePoint getStartPoint() {
 		return startPoint;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public CuePoint getEndPoint() {
 		return endPoint;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void tidy() {
-		return;
+		//no-op
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int compareTo(Track o) {
-		if (o == null) {
-			throw new NullPointerException("Cannot compare to null value");
-		}
 		if (this.equals(o)) {
 			return 0;
 		} else if (getDiscNum() == o.getDiscNum()) {
@@ -64,6 +94,9 @@ public class DefaultTrack extends AbstractMetadata implements Track {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null) {
