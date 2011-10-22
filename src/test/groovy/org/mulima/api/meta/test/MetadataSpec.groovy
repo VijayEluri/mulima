@@ -86,6 +86,14 @@ abstract class MetadataSpec<T extends Metadata> extends Specification {
 		notThrown(NullPointerException)
 	}
 	
+	def 'addAll is no-op if list is empty'() {
+		when:
+		meta.addAll(GenericTag.ARTIST, [])
+		then:
+		meta.map.isEmpty()
+		notThrown(NullPointerException)
+	}
+	
 	def 'getAll returns full list of values for the tag'() {
 		given:
 		def list1 = ['Peter Gabriel', 'Tony Banks', 'Mike Rutherford']

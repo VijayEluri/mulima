@@ -113,9 +113,11 @@ ruleset {
 	}
 
 	ruleset('rulesets/dry.xml') {
-		'DuplicateNumberLiteral'
+		'DuplicateNumberLiteral' {
+			doNotApplyToFilesMatching = /.*(Spec|Test)\.groovy/
+		}
 		'DuplicateStringLiteral' {
-			enabled = false
+			doNotApplyToFilesMatching = /.*(Spec|Test)\.groovy/
 		}
 	}
 	
@@ -169,7 +171,7 @@ ruleset {
 		'MultipleLoggers'
 		'PrintStackTrace'
 		'Println' {
-			doNotApplyToClassNames = 'CueSheetHelper,Mulima'
+			doNotApplyToClassNames = 'Mulima'
 		}
 		'SystemErrPrint'
 		'SystemOutPrint'
@@ -208,7 +210,9 @@ ruleset {
 			staticRegex = /[A-Z][A-Z0-9_]*|logger/
 		}
 		'InterfaceName'
-		'MethodName'
+		'MethodName' {
+			doNotApplyToFilesMatching = /.*(Spec|Test)\.groovy/
+		}
 		'ObjectOverrideMisspelledMethodName'
 		'PackageName'
 		'ParameterName'

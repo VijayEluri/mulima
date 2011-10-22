@@ -8,7 +8,7 @@ abstract class TrackSpec extends MetadataSpec<Track> {
 		given:
 		meta.add(GenericTag.TRACK_NUMBER, Integer.toString(num))
 		expect:
-		meta.getNum() == num
+		meta.num == num
 		where:
 		num << [1, 2, 3]
 	}

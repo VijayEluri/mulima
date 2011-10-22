@@ -85,4 +85,46 @@ public class DefaultCuePoint implements CuePoint {
 			return track < other.getTrack() ? -1 : 1;
 		}
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		} else if (obj instanceof DefaultCuePoint) {
+			DefaultCuePoint that = (DefaultCuePoint) obj;
+			return this.getTrack() == that.getTrack()
+				&& this.getIndex() == that.getIndex()
+				&& this.getTime().equals(that.getTime());
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		int result = 23;
+		result = result * 31 + getTrack();
+		result = result * 31 + getIndex();
+		result = result * 31 + getTime().hashCode();
+		return result;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("[track:");
+		builder.append(getTrack());
+		builder.append(", index:");
+		builder.append(getIndex());
+		builder.append(", time:");
+		builder.append(getTime());
+		builder.append("]");
+		return builder.toString();
+	}
 }

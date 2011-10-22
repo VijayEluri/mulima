@@ -9,7 +9,6 @@ import org.mulima.api.meta.GenericTag;
 import org.mulima.api.meta.Tag;
 import org.mulima.api.meta.Track;
 
-
 public class DefaultAlbum extends AbstractMetadata implements Album {
 	private final SortedSet<Disc> discs = new TreeSet<Disc>();
 
@@ -52,5 +51,42 @@ public class DefaultAlbum extends AbstractMetadata implements Album {
 	@Override
 	public void tidy() {
 		tidy(getDiscs());
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		} else if (obj instanceof DefaultAlbum) {
+			DefaultAlbum that = (DefaultAlbum) obj;
+			return this.getMap().equals(that.getMap()) && this.getDiscs().equals(that.getDiscs());
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		int result = 23;
+		result = result * 31 + getMap().hashCode();
+		result = result * 31 + getDiscs().hashCode();
+		return result;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("[tags:");
+		builder.append(getMap());
+		builder.append(", discs:");
+		builder.append(getDiscs());
+		builder.append("]");
+		return builder.toString();
 	}
 }

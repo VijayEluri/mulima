@@ -48,17 +48,61 @@ public class DefaultTrack extends AbstractMetadata implements Track {
 	
 	@Override
 	public int compareTo(Track o) {
-		int thisDisc = getDiscNum();
-		int otherDisc = o.getDiscNum();
-		
-		if (thisDisc == otherDisc) {
+		if (o == null) {
+			throw new NullPointerException("Cannot compare to null value");
+		}
+		if (this.equals(o)) {
+			return 0;
+		} else if (getDiscNum() == o.getDiscNum()) {
 			if (getNum() == o.getNum()) {
-				return 0;
+				return 1;
 			} else {
 				return getNum() < o.getNum() ? -1 : 1;
 			}
 		} else {
-			return thisDisc < otherDisc ? -1 : 1;
+			return getDiscNum() < o.getDiscNum() ? -1 : 1;
 		}
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		} else if (obj instanceof DefaultTrack) {
+			DefaultTrack that = (DefaultTrack) obj;
+			return this.getMap().equals(that.getMap())
+				&& ((this.getStartPoint() == null && that.getStartPoint() == null) || (this.getStartPoint().equals(that.getStartPoint())))
+				&& ((this.getEndPoint() == null && that.getEndPoint() == null) || (this.getEndPoint().equals(that.getEndPoint())));
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		int result = 23;
+		result = result * 31 + getMap().hashCode();
+		result = result * 31 + getStartPoint().hashCode();
+		result = result * 31 + getEndPoint().hashCode();
+		return result;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("[tags:");
+		builder.append(getMap());
+		builder.append(", start:");
+		builder.append(getStartPoint());
+		builder.append(", end:");
+		builder.append(getEndPoint());
+		builder.append("]");
+		return builder.toString();
 	}
 }

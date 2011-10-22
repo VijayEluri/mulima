@@ -38,10 +38,52 @@ public class DefaultDisc extends AbstractMetadata implements Disc {
 
 	@Override
 	public int compareTo(Disc o) {
-		if (getNum() == o.getNum()) {
+		if (o == null) {
+			throw new NullPointerException("Cannot compare to null value");
+		}
+		if (this.equals(o)) {
 			return 0;
-		} else {
+		} else if (getNum() == o.getNum()) {
+			return 1;
+		} else { 
 			return getNum() < o.getNum() ? -1 : 1;
 		}
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		} else if (obj instanceof DefaultDisc) {
+			DefaultDisc that = (DefaultDisc) obj;
+			return this.getMap().equals(that.getMap()) && this.getTracks().equals(that.getTracks());
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		int result = 23;
+		result = result * 31 + getMap().hashCode();
+		result = result * 31 + getTracks().hashCode();
+		return result;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("[tags:");
+		builder.append(getMap());
+		builder.append(", tracks:");
+		builder.append(getTracks());
+		builder.append("]");
+		return builder.toString();
 	}
 }

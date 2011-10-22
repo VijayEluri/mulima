@@ -1,8 +1,5 @@
 package org.mulima.util.test
 
-import java.io.File
-import java.util.List
-
 import org.mulima.util.FileUtil
 
 import spock.lang.Specification
@@ -60,11 +57,11 @@ class FileUtilSpec extends Specification {
 	}
 	
 	def mockFile(boolean isDirectory, List children) {
-		File file = Mock(File);
+		File file = Mock(File)
 		file.directory >> isDirectory
 		if (isDirectory && children != null) {
 			file.listFiles() >> (children as File[])
 		}
-		return file;
+		return file
 	}
 }

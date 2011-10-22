@@ -11,7 +11,7 @@ abstract class DiscSpec extends MetadataSpec<Disc> {
 		given:
 		meta.add(GenericTag.DISC_NUMBER, Integer.toString(num))
 		expect:
-		meta.getNum() == num
+		meta.num == num
 		where:
 		num << [1, 2, 3]
 	}

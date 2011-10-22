@@ -39,70 +39,70 @@ class CueSheetHelper {
 			add new DefaultCuePoint(1, 1, '00:01:00')
 			
 			//Time Table
-			add new DefaultCuePoint(1, 0, '07:24:12')
-			add new DefaultCuePoint(1, 1, '07:24:16')
+			add new DefaultCuePoint(2, 0, '07:24:12')
+			add new DefaultCuePoint(2, 1, '07:24:16')
 			
 			//Get 'Em Out By Friday
-			add new DefaultCuePoint(1, 0, '12:10:40')
-			add new DefaultCuePoint(1, 1, '12:10:43')
+			add new DefaultCuePoint(3, 0, '12:10:40')
+			add new DefaultCuePoint(3, 1, '12:10:43')
 			
 			//Can-Utility and the Coastliners
-			add new DefaultCuePoint(1, 0, '20:46:12')
-			add new DefaultCuePoint(1, 1, '20:46:16')
+			add new DefaultCuePoint(4, 0, '20:46:12')
+			add new DefaultCuePoint(4, 1, '20:46:16')
 			
 			//Horizons
-			add new DefaultCuePoint(1, 0, '26:31:09')
-			add new DefaultCuePoint(1, 1, '26:31:13')
+			add new DefaultCuePoint(5, 0, '26:31:09')
+			add new DefaultCuePoint(5, 1, '26:31:13')
 			
 			//Supper's Ready
-			add new DefaultCuePoint(1, 0, '28:12:21')
-			add new DefaultCuePoint(1, 1, '28:12:25')
+			add new DefaultCuePoint(6, 0, '28:12:21')
+			add new DefaultCuePoint(6, 1, '28:12:25')
 		}
 		
 		return cue
 	}
 	
 	static void writeExampleFile(File exampleFile) {
-		exampleFile.withPrintWriter {
-			it.with {
-				println('REM GENRE \'Progressive Rock\'')
-				println('REM DATE 1972')
-				println('REM DISCID 520C0506')
-				println('PERFORMER \'Genesis\'')
-				println('TITLE \'Foxtrot\'')
-				println('FILE \'Foxtrot.flac\' WAVE')
-				println('  TRACK 01 AUDIO')
-				println('    TITLE \'Watcher of the Skies\'')
-				println('    PERFORMER \'Genesis\'')
-				println('    INDEX 00 00:00:00')
-				println('    INDEX 01 00:01:00')
-				println('  TRACK 02 AUDIO')
-				println('    TITLE \'Time Table\'')
-				println('    PERFORMER \'Genesis\'')
-				println('    INDEX 00 07:24:12')
-				println('    INDEX 01 07:24:16')
-				println('  TRACK 03 AUDIO')
-				println('    TITLE \'Get \'Em Out By Friday\'')
-				println('    PERFORMER \'Genesis\'')
-				println('    INDEX 00 12:10:40')
-				println('    INDEX 01 12:10:43')
-				println('  TRACK 04 AUDIO')
-				println('    TITLE \'Can-Utility and the Coastliners\'')
-				println('    PERFORMER \'Genesis\'')
-				println('    INDEX 00 20:46:12')
-				println('    INDEX 01 20:46:16')
-				println('  TRACK 05 AUDIO')
-				println('    TITLE \'Horizons\'')
-				println('    PERFORMER \'Genesis\'')
-				println('    INDEX 00 26:31:09')
-				println('    INDEX 01 26:31:13')
-				println('  TRACK 06 AUDIO')
-				println('    TITLE \'Supper\'s Ready\'')
-				println('    PERFORMER \'Genesis\'')
-				println('    INDEX 00 28:12:21')
-				println('    INDEX 01 28:12:25')
-				close()
-			}
+		exampleFile.withPrintWriter { writer ->
+			writer.println '''\
+REM GENRE \'Progressive Rock\'
+REM DATE 1972
+REM DISCID 520C0506
+PERFORMER \'Genesis\'
+TITLE \'Foxtrot\'
+FILE \'Foxtrot.flac\' WAVE
+  TRACK 01 AUDIO
+    TITLE \'Watcher of the Skies\'
+    PERFORMER \'Genesis\'
+    INDEX 00 00:00:00
+    INDEX 01 00:01:00
+  TRACK 02 AUDIO
+    TITLE \'Time Table\'
+    PERFORMER \'Genesis\'
+    INDEX 00 07:24:12
+    INDEX 01 07:24:16
+  TRACK 03 AUDIO
+    TITLE \'Get \'Em Out By Friday\'
+    PERFORMER \'Genesis\'
+    INDEX 00 12:10:40
+    INDEX 01 12:10:43
+  TRACK 04 AUDIO
+    TITLE \'Can-Utility and the Coastliners\'
+    PERFORMER \'Genesis\'
+    INDEX 00 20:46:12
+    INDEX 01 20:46:16
+  TRACK 05 AUDIO
+    TITLE \'Horizons\'
+    PERFORMER \'Genesis\'
+    INDEX 00 26:31:09
+    INDEX 01 26:31:13
+  TRACK 06 AUDIO
+    TITLE \'Supper\'s Ready\'
+    PERFORMER \'Genesis\'
+    INDEX 00 28:12:21
+    INDEX 01 28:12:25
+'''
+			writer.close()
 		}
 	}
 }

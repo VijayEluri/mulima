@@ -72,7 +72,7 @@ public abstract class AbstractMetadata implements Metadata {
 	 */
 	@Override
 	public void addAll(Tag tag, List<String> values) {
-		if (tag == null || values == null) {
+		if (tag == null || values == null || values.isEmpty()) {
 			return;
 		}
 		
@@ -187,34 +187,6 @@ public abstract class AbstractMetadata implements Metadata {
 		map.clear();
 	}
 	
-	@Override
-	public boolean equals(Object obj) {
-		if (obj == null) {
-			return false;
-		} else if (obj instanceof Metadata) {
-			Metadata that = (Metadata) obj;
-			return this.getMap().equals(that.getMap());
-		} else {
-			return false;
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public int hashCode() {
-		return map.hashCode();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String toString() {
-		return map.toString();
-	}
-	
 	/**
 	 * Cleans up tags by taking the value of any tag that
 	 * is identical in all children and moving it to this object.
@@ -250,7 +222,9 @@ public abstract class AbstractMetadata implements Metadata {
 	private List<String> findCommon(Tag tag, Set<? extends Metadata> children) {
 		List<String> newValues = null;
 		for (Metadata child : children) {
-			if (newValues == null) {
+			if (!child.isSet(tag)) {
+				return null;
+			} else if (newValues == null) {
 				newValues = child.getAll(tag);
 			} else if (!newValues.equals(child.getAll(tag))) {
 				return null;

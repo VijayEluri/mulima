@@ -54,14 +54,7 @@ public class CueSheetParser implements FileParser<CueSheet> {
 				String[] values = value.split(" ");
 				int index = Integer.valueOf(values[0]);
 				String time = values[1];
-				cue.getCuePoints().add(new DefaultCuePoint(currentTrack, index, time));
-//			} else {
-//				try {
-//					CueSheetTag.Track tag = CueSheetTag.Track.valueOf(name);
-//					track.add(tag, value);
-//				} catch (IllegalArgumentException e) {
-//					logger.debug(e.getMessage(), e);
-//				}
+				cue.getAllCuePoints().add(new DefaultCuePoint(currentTrack, index, time));
 			}
 		}
 		

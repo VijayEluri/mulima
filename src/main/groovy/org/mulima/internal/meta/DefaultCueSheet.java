@@ -48,10 +48,57 @@ public class DefaultCueSheet extends AbstractMetadata implements CueSheet {
 
 	@Override
 	public int compareTo(CueSheet o) {
-		if (getNum() == o.getNum()) {
+		if (o == null) {
+			throw new NullPointerException("Cannot compare to null value");
+		}
+		if (this.equals(o)) {
 			return 0;
-		} else {
+		} else if (getNum() == o.getNum()) {
+			return 1;
+		} else { 
 			return getNum() < o.getNum() ? -1 : 1;
 		}
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		} else if (obj instanceof DefaultCueSheet) {
+			DefaultCueSheet that = (DefaultCueSheet) obj;
+			return this.getNum() == that.getNum()
+				&& this.getMap().equals(that.getMap())
+				&& this.getAllCuePoints().equals(that.getAllCuePoints());
+		} else {
+			return false;
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int hashCode() {
+		int result = 23;
+		result = result * 31 + getNum();
+		result = result * 31 + getMap().hashCode();
+		result = result * 31 + getAllCuePoints().hashCode();
+		return result;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		builder.append("[num:");
+		builder.append(getNum());
+		builder.append(", tags:");
+		builder.append(getMap());
+		builder.append(", points:");
+		builder.append(getAllCuePoints());
+		builder.append("]");
+		return builder.toString();
 	}
 }
