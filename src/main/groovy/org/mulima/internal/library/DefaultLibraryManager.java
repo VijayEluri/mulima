@@ -10,27 +10,46 @@ import org.mulima.api.library.LibraryManager;
 import org.mulima.api.library.LibraryService;
 import org.mulima.api.library.ReferenceLibrary;
 
+/**
+ * Default implementation of a library manager.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
 public class DefaultLibraryManager implements LibraryManager {
 	private final LibraryService libraryService;
 	private final AlbumConversionService conversionService;
 	
+	/**
+	 * Constructs a library manager from the parameters.
+	 * @param libraryService the service to use when interacting with the libraries
+	 * @param conversionService the service to convert albums between formats
+	 */
 	public DefaultLibraryManager(LibraryService libraryService, AlbumConversionService conversionService) {
 		this.libraryService = libraryService;
 		this.conversionService = conversionService;
 	}
 	
-	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void processNew() {
 		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException("Implement this");
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void updateAll() {
 		update(libraryService.getDestLibs());
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void update(Library lib) {
 		if (!libraryService.getDestLibs().contains(lib)) {
@@ -41,6 +60,9 @@ public class DefaultLibraryManager implements LibraryManager {
 		update(libs);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void update(Set<Library> lib) {
 		Set<LibraryAlbum> refAlbums = new HashSet<LibraryAlbum>();

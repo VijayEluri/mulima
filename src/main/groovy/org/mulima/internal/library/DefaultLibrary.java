@@ -16,6 +16,12 @@ import org.mulima.internal.file.LeafDirFilter;
 import org.mulima.util.FileUtil;
 import org.mulima.util.StringUtil;
 
+/**
+ * Default implementation of a library.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
 public class DefaultLibrary implements Library {
 	private final FileService fileService;
 	private final String name;
@@ -23,6 +29,13 @@ public class DefaultLibrary implements Library {
 	private final AudioFormat format;
 	private Set<LibraryAlbum> albums = null;
 	
+	/**
+	 * Constructs a library from the parameters.
+	 * @param fileService the service to pass to child albums
+	 * @param name the name of this library
+	 * @param rootDir the root directory of this library
+	 * @param format the audio format of the files in this library
+	 */
 	public DefaultLibrary(FileService fileService, String name, File rootDir, AudioFormat format) {
 		this.fileService = fileService;
 		this.name = name;
@@ -30,21 +43,33 @@ public class DefaultLibrary implements Library {
 		this.format = format;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public File getRootDir() {
 		return rootDir;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public AudioFormat getFormat() {
 		return format;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Set<LibraryAlbum> getAll() {
 		if (albums == null) {
@@ -53,6 +78,9 @@ public class DefaultLibrary implements Library {
 		return albums;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public LibraryAlbum getById(UUID id) {
 		if (id == null) {
@@ -66,11 +94,17 @@ public class DefaultLibrary implements Library {
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public LibraryAlbum getSourcedFrom(LibraryAlbum source) {
 		return getSourcedFrom(source, true);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public LibraryAlbum getSourcedFrom(LibraryAlbum source, boolean createIfNotFound) {
 		if (source == null) {
@@ -88,6 +122,10 @@ public class DefaultLibrary implements Library {
 		}
 	}
 	
+	/**
+	 * Scans all directories under the root directory for
+	 * library albums.
+	 */
 	private void scanAll() {
 		this.albums = new HashSet<LibraryAlbum>();
 		FileFilter filter = new LeafDirFilter();
@@ -98,6 +136,11 @@ public class DefaultLibrary implements Library {
 		}
 	}
 	
+	/**
+	 * Creates a new library album from the source.
+	 * @param source the source album
+	 * @return the new album
+	 */
 	private LibraryAlbum createAlbum(LibraryAlbum source) {
 		String album = null;
 		if (source.getAlbum().isSet(GenericTag.ALBUM)) {
