@@ -12,7 +12,12 @@ import org.mulima.api.service.MulimaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * A step to decode audio files to WAVE format in a directory.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
 public class DecodeStep implements Step<Set<AudioFile>> {
 	private static final Logger logger = LoggerFactory.getLogger(DecodeStep.class);
 	private final MulimaService service;
@@ -21,16 +26,31 @@ public class DecodeStep implements Step<Set<AudioFile>> {
 	private Status status = Status.NOT_STARTED;
 	private Set<AudioFile> outputs;
 	
+	/**
+	 * Constructs a step from the parameters.  The files
+	 * will be put into a temp directory.
+	 * @param service the service to use during execution
+	 * @param inputs the files to decode
+	 */
 	public DecodeStep(MulimaService service, Set<AudioFile> inputs) {
 		this(service, inputs, service.getTempDir().newChild().getFile());
 	}
 	
+	/**
+	 * Constructs a step from the parameters.
+	 * @param service the service to use during execution
+	 * @param inputs the files to decode
+	 * @param destDir the directory to put the decoded files into
+	 */
 	public DecodeStep(MulimaService service, Set<AudioFile> inputs, File destDir) {
 		this.service = service;
 		this.inputs = inputs;
 		this.destDir = destDir;
 	}
 	
+	/**
+	 * Executes the step.
+	 */
 	public boolean execute() {
 		this.status = Status.IN_PROGRESS;
 		outputs = new HashSet<AudioFile>();
@@ -55,6 +75,11 @@ public class DecodeStep implements Step<Set<AudioFile>> {
 		return true;
 	}
 	
+	/**
+	 * Executes the step.
+	 * @return the decoded files
+	 */
+	@Override
 	public Set<AudioFile> call() {
 		if (execute()) {
 			return getOutputs();
@@ -63,10 +88,18 @@ public class DecodeStep implements Step<Set<AudioFile>> {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc} 
+	 */
 	public Status getStatus() {
 		return status;
 	}
 	
+	/**
+	 * Gets the decoded files (now in WAVE format).
+	 * @return the decoded files
+	 * @throws IllegalStateException if the step is not in SUCCESS state
+	 */
 	public Set<AudioFile> getOutputs() {
 		if (!Status.SUCCESS.equals(status)) {
 			throw new IllegalStateException("Cannot get outputs in current state: " + status);

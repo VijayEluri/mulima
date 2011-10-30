@@ -9,23 +9,40 @@ import org.mulima.api.file.audio.DiscFile;
 import org.mulima.api.library.LibraryAlbum;
 import org.mulima.api.service.MulimaService;
 
-
+/**
+ * A job to convert albums.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
 public class AlbumConversionJob implements Job<Boolean> {
 	private final MulimaService service;
 	private final LibraryAlbum refAlbum;
 	private final Set<LibraryAlbum> destAlbums;
 	
+	/**
+	 * Constructs a job from the parameters.
+	 * @param service the service to use during job execution
+	 * @param refAlbum the reference album
+	 * @param destAlbums the destination albums
+	 */
 	public AlbumConversionJob(MulimaService service, LibraryAlbum refAlbum, Set<LibraryAlbum> destAlbums) {
 		this.service = service;
 		this.refAlbum = refAlbum;
 		this.destAlbums = destAlbums;
 	}
 	
+	/**
+	 * Executes the job.
+	 */
 	@Override
 	public Boolean call() throws Exception {
 		return execute();
 	}
 	
+	/**
+	 * Executes the job.
+	 */
 	public Boolean execute() {
 		Set<LibraryAlbum> outdated = getOutdatedAlbums();
 		if (outdated.size() == 0) {
@@ -77,6 +94,10 @@ public class AlbumConversionJob implements Job<Boolean> {
 		return true;
 	}
 	
+	/**
+	 * Gets a set of all outdated albums.
+	 * @return the set of outdated albums
+	 */
 	private Set<LibraryAlbum> getOutdatedAlbums() {
 		Set<LibraryAlbum> tempAlbums = new HashSet<LibraryAlbum>();
 		for (LibraryAlbum destAlbum : destAlbums) {

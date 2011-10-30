@@ -12,7 +12,12 @@ import org.mulima.api.service.MulimaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * A step to encode WAVE files to another format.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
 public class EncodeStep implements Step<Set<AudioFile>> {
 	private static final Logger logger = LoggerFactory.getLogger(EncodeStep.class);
 	private final MulimaService service;
@@ -22,10 +27,24 @@ public class EncodeStep implements Step<Set<AudioFile>> {
 	private Status status = Status.NOT_STARTED;
 	private Set<AudioFile> outputs;
 	
+	/**
+	 * Constructs a step from the parameters.  The files
+	 * will be put into a temp directory.
+	 * @param service the service to use during execution
+	 * @param format the format to encode the files to
+	 * @param inputs the files to encode
+	 */
 	public EncodeStep(MulimaService service, AudioFormat format, Set<AudioFile> inputs) {
 		this(service, format, inputs, service.getTempDir().newChild().getFile());
 	}
 	
+	/**
+	 * Constructs a step from the parameters.
+	 * @param service the service to use during execution
+	 * @param format the format to encode the files to
+	 * @param inputs the files to encode
+	 * @param destDir the directory to put the encoded files into
+	 */
 	public EncodeStep(MulimaService service, AudioFormat format, Set<AudioFile> inputs, File destDir) {
 		this.service = service;
 		this.format = format;
@@ -33,6 +52,10 @@ public class EncodeStep implements Step<Set<AudioFile>> {
 		this.destDir = destDir;
 	}
 	
+	/**
+	 * Executes this step.
+	 */
+	@Override
 	public boolean execute() {
 		this.status = Status.IN_PROGRESS;
 		outputs = new HashSet<AudioFile>();
@@ -57,6 +80,11 @@ public class EncodeStep implements Step<Set<AudioFile>> {
 		return true;
 	}
 	
+	/**
+	 * Executes this step.
+	 * @return the encoded files
+	 */
+	@Override
 	public Set<AudioFile> call() {
 		if (execute()) {
 			return getOutputs();
@@ -65,10 +93,20 @@ public class EncodeStep implements Step<Set<AudioFile>> {
 		}
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Status getStatus() {
 		return status;
 	}
 	
+	/**
+	 * Gets the encoded files.
+	 * @return the encoded files
+	 * @throws IllegalStateException if the step is not in SUCCESS state
+	 */
+	@Override
 	public Set<AudioFile> getOutputs() {
 		if (!Status.SUCCESS.equals(status)) {
 			throw new IllegalStateException("Cannot get outputs in current state: " + status);

@@ -5,21 +5,36 @@ import java.io.File;
 import org.mulima.api.audio.AudioFormat;
 import org.mulima.api.file.audio.AudioFile;
 
-
+/**
+ * A base implementation of an audio file.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
 public abstract class AbstractAudioFile implements AudioFile {
 	private final File file;
 	private final AudioFormat format;
 	
+	/**
+	 * Constructs an audio file from the parameters.
+	 * @param file the file
+	 */
 	public AbstractAudioFile(File file) {
 		this.file = file;
 		this.format = AudioFormat.valueOf(file);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public File getFile() {
 		return file;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public AudioFormat getFormat() {
 		return format;

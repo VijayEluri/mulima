@@ -5,12 +5,22 @@ import java.io.File;
 import org.mulima.api.file.audio.TrackFile;
 import org.mulima.api.meta.Track;
 
-
+/**
+ * Default implementation of a track file.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
 public class DefaultTrackFile extends AbstractAudioFile implements TrackFile {
 	private final Track track;
 	private final int discNum;
 	private final int trackNum;
 	
+	/**
+	 * Constructs a track file from the parameters.
+	 * @param file the file
+	 * @param track the metadata for the file
+	 */
 	public DefaultTrackFile(File file, Track track) {
 		super(file);
 		if (track == null) {
@@ -21,6 +31,12 @@ public class DefaultTrackFile extends AbstractAudioFile implements TrackFile {
 		this.trackNum = -1;
 	}
 	
+	/**
+	 * Constructs a track file from the parameters.
+	 * @param file the file
+	 * @param discNum the disc number
+	 * @param trackNum the track number
+	 */
 	public DefaultTrackFile(File file, int discNum, int trackNum) {
 		super(file);
 		if (discNum < 0) {
@@ -34,6 +50,9 @@ public class DefaultTrackFile extends AbstractAudioFile implements TrackFile {
 		this.track = null;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getDiscNum() {
 		if (track == null) {
@@ -43,6 +62,9 @@ public class DefaultTrackFile extends AbstractAudioFile implements TrackFile {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int getTrackNum() {
 		if (track == null) {
@@ -52,6 +74,9 @@ public class DefaultTrackFile extends AbstractAudioFile implements TrackFile {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Track getMeta() {
 		return track;
