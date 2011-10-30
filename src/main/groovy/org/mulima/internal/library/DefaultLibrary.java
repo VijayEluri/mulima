@@ -9,11 +9,7 @@ import java.util.UUID;
 import org.mulima.api.audio.AudioFormat;
 import org.mulima.api.library.Library;
 import org.mulima.api.library.LibraryAlbum;
-<<<<<<< HEAD
 import org.mulima.api.library.LibraryAlbumFactory;
-import org.mulima.api.meta.Disc;
-=======
->>>>>>> 2e6054cd481debdee6a804df9088c8eef7e3b7cf
 import org.mulima.api.meta.GenericTag;
 import org.mulima.internal.file.LeafDirFilter;
 import org.mulima.util.FileUtil;
@@ -33,20 +29,15 @@ public class DefaultLibrary implements Library {
 	private final AudioFormat format;
 	private Set<LibraryAlbum> albums = null;
 	
-<<<<<<< HEAD
-	public DefaultLibrary(LibraryAlbumFactory libAlbumFactory, String name, File rootDir, AudioFormat format) {
-		this.libAlbumFactory = libAlbumFactory;
-=======
 	/**
 	 * Constructs a library from the parameters.
-	 * @param fileService the service to pass to child albums
+	 * @param libAlbumFactory the factory to create library albums
 	 * @param name the name of this library
 	 * @param rootDir the root directory of this library
 	 * @param format the audio format of the files in this library
 	 */
-	public DefaultLibrary(FileService fileService, String name, File rootDir, AudioFormat format) {
-		this.fileService = fileService;
->>>>>>> 2e6054cd481debdee6a804df9088c8eef7e3b7cf
+	public DefaultLibrary(LibraryAlbumFactory libAlbumFactory, String name, File rootDir, AudioFormat format) {
+		this.libAlbumFactory = libAlbumFactory;
 		this.name = name;
 		this.rootDir = rootDir;
 		this.format = format;

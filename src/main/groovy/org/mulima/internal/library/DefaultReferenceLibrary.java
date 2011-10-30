@@ -17,20 +17,15 @@ import org.mulima.api.library.ReferenceLibrary;
  * @since 0.1.0
  */
 public class DefaultReferenceLibrary extends DefaultLibrary implements ReferenceLibrary {
-<<<<<<< HEAD
-	public DefaultReferenceLibrary(LibraryAlbumFactory libAlbumFactory, String name, File rootDir, AudioFormat format) {
-		super(libAlbumFactory, name, rootDir, format);
-=======
 	/**
 	 * Constructs a reference library from the parameters.
-	 * @param fileService the service to pass to child albums
+	 * @param libAlbumFactory the factory to create library albums
 	 * @param name the name of this library
 	 * @param rootDir the root directory of this library
 	 * @param format the audio format of the files in this library
 	 */
-	public DefaultReferenceLibrary(FileService fileService, String name, File rootDir, AudioFormat format) {
-		super(fileService, name, rootDir, format);
->>>>>>> 2e6054cd481debdee6a804df9088c8eef7e3b7cf
+	public DefaultReferenceLibrary(LibraryAlbumFactory libAlbumFactory, String name, File rootDir, AudioFormat format) {
+		super(libAlbumFactory, name, rootDir, format);
 	}
 
 	/**

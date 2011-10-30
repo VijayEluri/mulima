@@ -21,15 +21,17 @@ public interface LibraryAlbum {
 	 * @return the ID
 	 */
 	UUID getId();
-<<<<<<< HEAD
+
+	/**
+	 * Gets the ID of this album's source.
+	 * @return the source ID
+	 */
 	UUID getSourceId();
-=======
 	
 	/**
 	 * Gets the directory this album is stored in.
 	 * @return the directory
 	 */
->>>>>>> 2e6054cd481debdee6a804df9088c8eef7e3b7cf
 	File getDir();
 	
 	/**
