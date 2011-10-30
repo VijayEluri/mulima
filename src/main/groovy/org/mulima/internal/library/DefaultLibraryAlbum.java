@@ -25,7 +25,7 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 	private final CachedFile<Album> album;
 	private final CachedFile<Digest> digest;
 	private final CachedFile<Digest> sourceDigest;
-	private CachedDir<AudioFile> audioFiles;
+	private final CachedDir<AudioFile> audioFiles;
 	
 	/**
 	 * Constructs a library album from the parameters.

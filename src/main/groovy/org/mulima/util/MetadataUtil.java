@@ -65,4 +65,22 @@ public final class MetadataUtil {
 	public static int discDistance(Metadata orig, Metadata cand) {
 		return tagDistance(orig, cand, GenericTag.ARTIST) + tagDistance(orig, cand, GenericTag.ALBUM);
 	}
+	
+	/**
+	 * Finds the common string of the flat values for {@code tag}
+	 * on each object in {@code metas}. 
+	 * @param metas the metadata objects to search
+	 * @param tag the tag to search on
+	 * @return the common string to find
+	 */
+	public static String commonValueFlat(Iterable<? extends Metadata> metas, Tag tag) {
+		String value = null;
+		for (Metadata meta : metas) {
+			if (meta.isSet(tag)) {
+				String temp = meta.getFlat(tag);
+				value = value == null ? temp : StringUtil.commonString(value, temp);
+			}
+		}
+		return value;
+	}
 }

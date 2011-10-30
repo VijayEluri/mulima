@@ -102,18 +102,32 @@ public class DefaultLibraryService implements LibraryService {
 		
 		if (digest == null) {
 			return false;
-		} else if (checkSource) {
-			Digest sourceDigest = libAlbum.getSourceDigest();
-			if (sourceDigest != null) {
-				LibraryAlbum source = getAlbumById(sourceDigest.getId());
-				if (source == null) {
-					throw new FatalMulimaException("Source album for " + libAlbum.getId() + " not found: " + sourceDigest.getId());
-				} else if (!isUpToDate(source, false)) {
-					return false;
-				}
-			}
+		} else if (checkSource && !isSourceUpToDate(libAlbum)) {
+			return false;
 		}
 		Digest current = digestService.create(libAlbum);
 		return digest.equals(current);
+	}
+	
+	/**
+	 * Checks if the source of the specified album
+	 * is up to date.
+	 * @param libAlbum the album to check
+	 * @return {@code true} if the source is up to
+	 * date, {@code false} otherwise
+	 */
+	private boolean isSourceUpToDate(LibraryAlbum libAlbum) {
+		Digest sourceDigest = libAlbum.getSourceDigest();
+		if (sourceDigest == null) {
+			return true;
+		}
+		LibraryAlbum source = getAlbumById(sourceDigest.getId());
+		if (source == null) {
+			throw new FatalMulimaException("Source album for " + libAlbum.getId() + " not found: " + sourceDigest.getId());
+		} else if (!isUpToDate(source, false)) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 }

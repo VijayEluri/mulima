@@ -2,7 +2,9 @@ package org.mulima.util.test
 
 import org.mulima.api.meta.GenericTag
 import org.mulima.api.meta.Metadata
+import org.mulima.api.meta.test.MetadataFactory
 import org.mulima.internal.meta.DefaultDisc
+import org.mulima.internal.meta.DefaultTrack
 import org.mulima.util.MetadataUtil
 
 import spock.lang.Shared
@@ -49,5 +51,16 @@ class MetadataUtilSpec extends Specification {
 		obj1	| obj2	| distance
 		meta1	| meta2	| 1
 		meta2	| meta3	| 25
+	}
+	
+	def 'commonValueFlat returns the common value for the tag'() {
+		given:
+		MetadataFactory factory = new MetadataFactory();
+		factory.registerImplementation(Metadata, DefaultTrack)
+		Metadata meta1 = factory.fromStringString([ALBUM:'The Sane Day (Disc 1)'], Metadata)
+		Metadata meta2 = factory.fromStringString([ALBUM:'The Sane Day (Disc 2)'], Metadata)
+		List metas = [meta1, meta2]
+		expect:
+		MetadataUtil.commonValueFlat(metas, GenericTag.ALBUM) == 'The Sane Day (Disc '
 	}
 }

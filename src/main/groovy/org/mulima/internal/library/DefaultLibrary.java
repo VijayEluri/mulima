@@ -10,10 +10,10 @@ import org.mulima.api.audio.AudioFormat;
 import org.mulima.api.file.FileService;
 import org.mulima.api.library.Library;
 import org.mulima.api.library.LibraryAlbum;
-import org.mulima.api.meta.Disc;
 import org.mulima.api.meta.GenericTag;
 import org.mulima.internal.file.LeafDirFilter;
 import org.mulima.util.FileUtil;
+import org.mulima.util.MetadataUtil;
 import org.mulima.util.StringUtil;
 
 /**
@@ -108,7 +108,7 @@ public class DefaultLibrary implements Library {
 	@Override
 	public LibraryAlbum getSourcedFrom(LibraryAlbum source, boolean createIfNotFound) {
 		if (source == null) {
-			throw new NullPointerException("Source must not be null.");
+			throw new IllegalArgumentException("Source must not be null.");
 		}
 		for (LibraryAlbum album : getAll()) {
 			if (source.getId().equals(album.getSourceDigest().getId())) {
@@ -146,15 +146,7 @@ public class DefaultLibrary implements Library {
 		if (source.getAlbum().isSet(GenericTag.ALBUM)) {
 			album = source.getAlbum().getFlat(GenericTag.ALBUM);
 		} else {
-			for (Disc disc : source.getAlbum().getDiscs()) {
-				if (disc.isSet(GenericTag.ALBUM)) {
-					if (album == null) {
-						album = disc.getFlat(GenericTag.ALBUM);
-					} else {
-						album = StringUtil.commonString(album, disc.getFlat(GenericTag.ALBUM));
-					}
-				}
-			}
+			album = MetadataUtil.commonValueFlat(source.getAlbum().getDiscs(), GenericTag.ALBUM);
 		}
 		String relPath = StringUtil.makeSafe(source.getAlbum().getFlat(GenericTag.ARTIST)).trim()
 			+ File.separator + StringUtil.makeSafe(album).trim();
