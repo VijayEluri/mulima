@@ -7,9 +7,9 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.mulima.api.audio.AudioFormat;
-import org.mulima.api.file.FileService;
 import org.mulima.api.library.Library;
 import org.mulima.api.library.LibraryAlbum;
+import org.mulima.api.library.LibraryAlbumFactory;
 import org.mulima.api.meta.Disc;
 import org.mulima.api.meta.GenericTag;
 import org.mulima.internal.file.LeafDirFilter;
@@ -17,14 +17,14 @@ import org.mulima.util.FileUtil;
 import org.mulima.util.StringUtil;
 
 public class DefaultLibrary implements Library {
-	private final FileService fileService;
+	private final LibraryAlbumFactory libAlbumFactory;
 	private final String name;
 	private final File rootDir;
 	private final AudioFormat format;
 	private Set<LibraryAlbum> albums = null;
 	
-	public DefaultLibrary(FileService fileService, String name, File rootDir, AudioFormat format) {
-		this.fileService = fileService;
+	public DefaultLibrary(LibraryAlbumFactory libAlbumFactory, String name, File rootDir, AudioFormat format) {
+		this.libAlbumFactory = libAlbumFactory;
 		this.name = name;
 		this.rootDir = rootDir;
 		this.format = format;
@@ -77,7 +77,7 @@ public class DefaultLibrary implements Library {
 			throw new NullPointerException("Source must not be null.");
 		}
 		for (LibraryAlbum album : getAll()) {
-			if (source.getId().equals(album.getSourceDigest().getId())) {
+			if (source.getId().equals(album.getSourceId())) {
 				return album;
 			}
 		}
@@ -93,7 +93,7 @@ public class DefaultLibrary implements Library {
 		FileFilter filter = new LeafDirFilter();
 		for (File dir : FileUtil.listDirsRecursive(getRootDir())) {
 			if (filter.accept(dir)) {
-				albums.add(new DefaultLibraryAlbum(fileService, dir, this));
+				albums.add(libAlbumFactory.create(dir, this));
 			}
 		}
 	}
@@ -116,6 +116,6 @@ public class DefaultLibrary implements Library {
 		String relPath = StringUtil.makeSafe(source.getAlbum().getFlat(GenericTag.ARTIST)).trim()
 			+ File.separator + StringUtil.makeSafe(album).trim();
 		File dir = new File(getRootDir(), relPath);
-		return new DefaultLibraryAlbum(fileService, dir, this);
+		return libAlbumFactory.create(dir, this);
 	}
 }

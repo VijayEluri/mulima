@@ -6,13 +6,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.mulima.api.audio.AudioFormat;
-import org.mulima.api.file.FileService;
 import org.mulima.api.library.LibraryAlbum;
+import org.mulima.api.library.LibraryAlbumFactory;
 import org.mulima.api.library.ReferenceLibrary;
 
 public class DefaultReferenceLibrary extends DefaultLibrary implements ReferenceLibrary {
-	public DefaultReferenceLibrary(FileService fileService, String name, File rootDir, AudioFormat format) {
-		super(fileService, name, rootDir, format);
+	public DefaultReferenceLibrary(LibraryAlbumFactory libAlbumFactory, String name, File rootDir, AudioFormat format) {
+		super(libAlbumFactory, name, rootDir, format);
 	}
 
 	@Override

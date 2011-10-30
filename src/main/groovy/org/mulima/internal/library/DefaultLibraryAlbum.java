@@ -36,6 +36,12 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 		Digest digest = getDigest();
 		return digest == null ? null : digest.getId();
 	}
+	
+	@Override
+	public UUID getSourceId() {
+		Digest digest = getSourceDigest();
+		return digest == null ? null : digest.getId();
+	}
 
 	@Override
 	public File getDir() {

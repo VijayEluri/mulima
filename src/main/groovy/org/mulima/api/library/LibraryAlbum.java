@@ -11,6 +11,7 @@ import org.mulima.api.meta.Album;
 
 public interface LibraryAlbum {
 	UUID getId();
+	UUID getSourceId();
 	File getDir();
 	Library getLib();
 	Album getAlbum();
