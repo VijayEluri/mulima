@@ -55,7 +55,7 @@ class MetadataUtilSpec extends Specification {
 	
 	def 'commonValueFlat returns the common value for the tag'() {
 		given:
-		MetadataFactory factory = new MetadataFactory();
+		MetadataFactory factory = new MetadataFactory()
 		factory.registerImplementation(Metadata, DefaultTrack)
 		Metadata meta1 = factory.fromStringString([ALBUM:'The Sane Day (Disc 1)'], Metadata)
 		Metadata meta2 = factory.fromStringString([ALBUM:'The Sane Day (Disc 2)'], Metadata)

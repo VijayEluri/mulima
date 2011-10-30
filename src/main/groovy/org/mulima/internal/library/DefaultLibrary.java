@@ -115,11 +115,7 @@ public class DefaultLibrary implements Library {
 				return album;
 			}
 		}
-		if (createIfNotFound) {
-			return createAlbum(source);
-		} else {
-			return null;
-		}
+		return createIfNotFound ? createAlbum(source) : null;
 	}
 	
 	/**

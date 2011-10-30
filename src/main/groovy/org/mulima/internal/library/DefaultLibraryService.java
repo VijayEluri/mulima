@@ -124,10 +124,8 @@ public class DefaultLibraryService implements LibraryService {
 		LibraryAlbum source = getAlbumById(sourceDigest.getId());
 		if (source == null) {
 			throw new FatalMulimaException("Source album for " + libAlbum.getId() + " not found: " + sourceDigest.getId());
-		} else if (!isUpToDate(source, false)) {
-			return false;
 		} else {
-			return true;
+			return isUpToDate(source, false);
 		}
 	}
 }

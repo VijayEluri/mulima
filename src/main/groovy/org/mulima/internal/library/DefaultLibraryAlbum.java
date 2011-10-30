@@ -48,8 +48,8 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 	 */
 	@Override
 	public UUID getId() {
-		Digest digest = getDigest();
-		return digest == null ? null : digest.getId();
+		Digest dig = getDigest();
+		return dig == null ? null : dig.getId();
 	}
 
 	/**
