@@ -39,7 +39,9 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 		
 		this.album = fileService.createCachedFile(Album.class, new File(dir, "album.xml")); 
 		this.digest = fileService.createCachedFile(Digest.class, new File(dir, Digest.FILE_NAME));
+		System.out.println("Digest: " + digest);
 		this.sourceDigest = fileService.createCachedFile(Digest.class, new File(dir, Digest.SOURCE_FILE_NAME));
+		System.out.println("Source Digest: " + sourceDigest);
 		this.audioFiles = fileService.createCachedDir(AudioFile.class, dir);
 	}
 	
@@ -52,6 +54,9 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 		return dig == null ? null : dig.getId();
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public UUID getSourceId() {
 		Digest digest = getSourceDigest();
