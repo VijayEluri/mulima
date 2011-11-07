@@ -17,6 +17,7 @@ class DefaultLibraryManagerSpec extends Specification {
 	List refLibs
 	List destLibs
 	Map libToRefToDest
+	Map refToDests
 	
 	def setup() {
 		ReferenceLibrary refLib1 = Mock(ReferenceLibrary)
@@ -32,14 +33,15 @@ class DefaultLibraryManagerSpec extends Specification {
 		Library destLib3 = Mock(Library)
 		destLibs = [destLib1, destLib2, destLib3]
 		
-		libToRefToDest = destLibs.inject([:]) { libMap, destLib ->
-			libMap[destLib] = (refLib1.all + refLib2.all).inject([:]) { albumMap, ref ->
+		refToDests = (refLib1.all + refLib2.all).inject([:]) { map, ref ->
+			map[ref] = [] as Set
+			destLibs.each { destLib -> 
 				LibraryAlbum dest = Mock(LibraryAlbum)
+				dest.lib >> destLib
 				destLib.getSourcedFrom(ref) >> dest
-				albumMap[ref] = dest
-				return albumMap
+				map[ref] << dest
 			}
-			return libMap
+			return map
 		}
 		
 		LibraryService libService = Mock(LibraryService)
@@ -56,28 +58,21 @@ class DefaultLibraryManagerSpec extends Specification {
 		manager.update(lib)
 		then:
 		interaction {
-			int num = libToRefToDest[lib].size()
-			num*service.submit(_, _)
+			(refLibs[0].all + refLibs[1].all).each { ref ->
+				def dests = refToDests[ref].findAll { it.lib == lib }
+				1*service.submit(ref, dests)
+			}
 		}
 	}
 	
 	def 'updateAll converts all libraries'() {
-		given:
-		Map refToDests = destLibs.inject([:]) { map, destLib ->
-			libToRefToDest[destLib].each { ref, dest ->
-				if (!map.containsKey(ref)) {
-					map[ref] = []
-				}
-				map[ref] << dest
-			}
-			return map
-		}
 		when:
 		manager.updateAll()
 		then:
 		interaction {
-			int num = refToDests.size()
-			num*service.submit(_, _)
+			(refLibs[0].all + refLibs[1].all).each { ref ->
+				1*service.submit(ref, refToDests[ref])	
+			}
 		}
 	}
 }
