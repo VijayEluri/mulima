@@ -64,7 +64,7 @@ public class DefaultLibraryManager implements LibraryManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void update(Set<Library> lib) {
+	public void update(Set<Library> libs) {
 		Set<LibraryAlbum> refAlbums = new HashSet<LibraryAlbum>();
 		for (ReferenceLibrary refLib : libraryService.getRefLibs()) {
 			refAlbums.addAll(refLib.getAll());
@@ -72,9 +72,11 @@ public class DefaultLibraryManager implements LibraryManager {
 		
 		for (LibraryAlbum refAlbum : refAlbums) {
 			Set<LibraryAlbum> destAlbums = new HashSet<LibraryAlbum>();
-			for (Library destLib : libraryService.getDestLibs()) {
+			for (Library destLib : libs) {
 				destAlbums.add(destLib.getSourcedFrom(refAlbum));
 			}
+			System.out.println("Ref: " + refAlbum);
+			System.out.println("Dests: " + destAlbums);
 			conversionService.submit(refAlbum, destAlbums);
 		}
 	}
