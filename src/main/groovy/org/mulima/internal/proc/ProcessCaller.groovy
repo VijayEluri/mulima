@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory
  * @since 0.1.0
  */
 class ProcessCaller implements Callable {
-	private static final Logger logger = LoggerFactory.getLogger(ProcessCaller.class)
+	private static final Logger logger = LoggerFactory.getLogger(ProcessCaller)
 	private final String description
 	private final List command
 	

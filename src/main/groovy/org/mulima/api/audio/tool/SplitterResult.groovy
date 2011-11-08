@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.mulima.api.audio.tool;
+package org.mulima.api.audio.tool
 
 import org.mulima.api.file.audio.DiscFile
 import org.mulima.api.file.audio.TrackFile
@@ -37,7 +37,7 @@ class SplitterResult extends ProcessResult {
 	/**
 	 * The resulting files
 	 */
-	final Set<TrackFile> dest;
+	final Set<TrackFile> dest
 	
 	/**
 	 * Constructs a splitter result from a process result.

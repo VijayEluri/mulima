@@ -75,8 +75,6 @@ public class DefaultLibraryManager implements LibraryManager {
 			for (Library destLib : libs) {
 				destAlbums.add(destLib.getSourcedFrom(refAlbum));
 			}
-			System.out.println("Ref: " + refAlbum);
-			System.out.println("Dests: " + destAlbums);
 			conversionService.submit(refAlbum, destAlbums);
 		}
 	}

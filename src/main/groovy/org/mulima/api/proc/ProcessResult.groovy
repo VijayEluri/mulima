@@ -49,7 +49,7 @@ class ProcessResult {
 	final String error
 	
 	ProcessResult(List<String> command, int exitVal, String output, String error) {
-		this(StringUtil.join(command, " "), exitVal, output, error)
+		this(StringUtil.join(command, ' '), exitVal, output, error)
 	}
 	
 	ProcessResult(String command, int exitVal, String output, String error) {

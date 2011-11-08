@@ -17,8 +17,6 @@
  */
 package org.mulima.api.audio.tool
 
-import java.util.List
-
 import org.mulima.api.file.audio.AudioFile
 import org.mulima.api.proc.ProcessResult
 

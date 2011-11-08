@@ -1,13 +1,11 @@
 package org.mulima.internal.file
 
-import java.io.File
-
 import org.mulima.api.file.Digest
 import org.mulima.api.file.FileComposer
 import org.mulima.api.file.FileParser
 
 class DigestDao implements FileParser<Digest>, FileComposer<Digest> {
-	private static final String ID_KEY = "id";
+	private static final String ID_KEY = 'id'
 	
 	Digest parse(File file) {
 		Properties props = new Properties()
@@ -30,9 +28,9 @@ class DigestDao implements FileParser<Digest>, FileComposer<Digest> {
 	
 	void compose(File file, Digest digest) {
 		if (digest == null) {
-			throw new NullPointerException('Digest cannot be null.')
+			throw new IllegalArgumentException('Digest cannot be null.')
 		} else if (digest.id == null) {
-			throw new NullPointerException('Digest ID cannot be null.')
+			throw new IllegalArgumentException('Digest ID cannot be null.')
 		}
 		
 		Properties props = new Properties()
