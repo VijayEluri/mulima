@@ -8,26 +8,45 @@ import java.util.UUID;
 
 import org.mulima.api.file.Digest;
 
-
+/**
+ * Default implementation of a digest.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
+ */
 public class DefaultDigest implements Digest {
 	private final UUID id;
 	private final Map<File, String> fileToDigest;
 	
+	/**
+	 * Constructs a digest from the parameters.
+	 * @param id the ID
+	 * @param fileToDigest map of files to their hash strings
+	 */
 	public DefaultDigest(UUID id, Map<File, String> fileToDigest) {
 		this.id = id;
 		this.fileToDigest = new HashMap<File, String>(fileToDigest);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public UUID getId() {
 		return id;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getDigest(File file) {
 		return fileToDigest.get(file);
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Map<File, String> getMap() {
 		return Collections.unmodifiableMap(fileToDigest);
