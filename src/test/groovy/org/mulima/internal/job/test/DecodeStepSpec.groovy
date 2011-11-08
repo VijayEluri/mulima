@@ -35,11 +35,16 @@ class DecodeStepSpec extends Specification {
 		def result = Mock(CodecResult)
 		result.success >> true
 		codec.format >> AudioFormat.MP3
-		codec.decode(_, _) >> result
-		def files = [new DefaultDiscFile(new File('test.mp3'), 1)] as Set
-		def step = new DecodeStep(service, files)
-		expect:
-		step.execute()
+		def files = [new DefaultDiscFile(new File('test.mp3'), 1), new DefaultDiscFile(new File('test2.mp3'), 1)] as Set
+		when:
+		def success = new DecodeStep(service, files).execute()
+		then:
+		success
+		interaction {
+			files.each {
+				1*codec.decode(it, _) >> result
+			}
+		}
 	}
 	
 	def 'execute fails when a decode fails'() {
@@ -53,8 +58,7 @@ class DecodeStepSpec extends Specification {
 		codec.format >> AudioFormat.MP3
 		codec.decode(_, _) >> result
 		def files = [new DefaultDiscFile(new File('test.mp3'), 1), new DefaultDiscFile(new File('test2.mp3'), 1), new DefaultDiscFile(new File('test3.mp3'), 1)] as Set
-		def step = new DecodeStep(service, files)
 		expect:
-		!step.execute()
+		!new DecodeStep(service, files).execute()
 	}
 }
