@@ -1,10 +1,21 @@
 package org.mulima.main
 
+import org.mulima.api.audio.AudioFormat
+import org.mulima.api.file.Digest
+import org.mulima.api.file.TempDir
 import org.mulima.api.library.Library
 import org.mulima.api.library.LibraryAlbum
+import org.mulima.api.library.LibraryAlbumFactory
 import org.mulima.api.library.LibraryManager
-import org.mulima.api.meta.GenericTag
+import org.mulima.api.meta.Album
+import org.mulima.api.meta.CueSheet
 import org.mulima.api.service.MulimaService
+import org.mulima.internal.file.DigestDao
+import org.mulima.internal.library.DefaultLibrary
+import org.mulima.internal.library.DefaultLibraryAlbumFactory
+import org.mulima.internal.library.DefaultReferenceLibrary
+import org.mulima.internal.meta.AlbumXmlDao
+import org.mulima.internal.meta.CueSheetParser
 import org.springframework.context.ApplicationContext
 import org.springframework.context.support.ClassPathXmlApplicationContext
 import org.springframework.context.support.FileSystemXmlApplicationContext
@@ -30,23 +41,33 @@ class Mulima {
 		def configFile = System.properties['mulima.configurationFile']
 		ApplicationContext context
 		if (configFile == null) {
-			context = new ClassPathXmlApplicationContext('applicationContext.xml')
+			context = new ClassPathXmlApplicationContext('spring-context.xml')
 		} else {
 			context = new FileSystemXmlApplicationContext(configFile)
 		}
 		
-		MulimaService service = context.getBean('service', MulimaService.class)
+		MulimaService service = context.getBean(MulimaService.class)
+		service.tempDir = new TempDir().newChild('mulima')
+		service.fileService.registerParser(Album, new AlbumXmlDao())
+		service.fileService.registerComposer(Album, new AlbumXmlDao())
+		service.fileService.registerParser(CueSheet, new CueSheetParser())
+		service.fileService.registerParser(Digest, new DigestDao())
 		
+		File rootDir = new File('C:/Users/Andy/Desktop/Mulima')
+		LibraryAlbumFactory albumFactory = new DefaultLibraryAlbumFactory(service.fileService)
+		service.libraryService.refLibs = [new DefaultReferenceLibrary(albumFactory, 'Lossless Images', new File(rootDir, 'Beardfish'), AudioFormat.FLAC)
+			/*, new DefaultReferenceLibrary(albumFactory, 'MP3 Reference', new File(rootDir, 'BeardfishMP3'), AudioFormat.MP3)*/] as Set
+		service.libraryService.destLibs = [new DefaultLibrary(albumFactory, 'Lossless', new File(rootDir, 'BeardfishFlacLib'), AudioFormat.FLAC),
+			new DefaultLibrary(albumFactory, 'iTunes', new File(rootDir, 'BeardfishAacLib'), AudioFormat.AAC)] as Set
 		
-		
-		LibraryManager manager = context.getBean('libManager', LibraryManager.class)
+		LibraryManager manager = context.getBean(LibraryManager.class)
 		
 		def filter = {
 			options.arguments().contains(it.name) || options.arguments().empty
 		}
 		
-		def refLibs = manager.refLibs.findAll(filter)
-		def destLibs = manager.destLibs.findAll(filter)
+		def refLibs = service.libraryService.refLibs.findAll(filter)
+		def destLibs = service.libraryService.destLibs.findAll(filter)
 		
 		if (options.l) {
 			println 'Reference Libraries:'
@@ -63,25 +84,14 @@ class Mulima {
 		} else if (options.s) {
 			(refLibs + destLibs).each { Library lib ->
 				println formatLib(lib)
-				lib.scanAll()
 				lib.all.each { LibraryAlbum album ->
-					boolean upToDate = true
-					if (album.sourceDigest != null) {
-						def source = manager.getById(album.sourceDigest.id)
-						upToDate = source.isUpToDate()
-					}
-					if (upToDate) {
-						upToDate = album.isUpToDate(false)
-					}
-					
+					boolean upToDate = service.libraryService.isUpToDate(album, true)
 					println '\t' + formatAlbum(album, upToDate)
 				}
 			}
 		} else if (options.p) {
-			manager.scanAll()
 			manager.processNew()
 		} else if (options.u) {
-			manager.scanAll()
 			manager.processNew()
 			manager.update(destLibs)
 		}
@@ -95,7 +105,7 @@ class Mulima {
 		if (album.album == null) {
 			return "${album.dir.canonicalPath - album.lib.rootDir.canonicalPath} (New) - ${upToDate}"
 		} else {
-			return "${album.album.getFlat(GenericTag.ARTIST)} - ${album.album.getFlat(GenericTag.ALBUM)} - ${upToDate}"
+			return "${album.album.name} - ${upToDate}"
 		}
 	}
 }

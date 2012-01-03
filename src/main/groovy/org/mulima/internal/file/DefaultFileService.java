@@ -20,9 +20,14 @@ import org.mulima.api.meta.Album;
 import org.mulima.internal.file.audio.DefaultDiscFile;
 import org.mulima.internal.file.audio.DefaultTrackFile;
 import org.mulima.util.FileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
+@Service
 public class DefaultFileService implements FileService {
-	private static final Pattern DISC_REGEX = Pattern.compile("^D(\\d+)[^T\\d]");
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultFileService.class);
+	private static final Pattern DISC_REGEX = Pattern.compile("^D(\\d+)[^T\\d]|.*\\(\\d+\\)\\..*");
 	private static final Pattern TRACK_REGEX = Pattern.compile("^D(\\d+)T(\\d+)");
 	private final Map<Class<?>, FileParser<?>> parsers = new HashMap<Class<?>, FileParser<?>>();
 	private final Map<Class<?>, FileComposer<?>> composers = new HashMap<Class<?>, FileComposer<?>>();
@@ -95,7 +100,7 @@ public class DefaultFileService implements FileService {
 				return new DefaultDiscFile(file, album.getDisc(discNum));
 			}
 		} else {
-			throw new IllegalArgumentException("File name must match pattern: " + DISC_REGEX.pattern());
+			throw new IllegalArgumentException("File name (" + file.getName() + ") must match pattern: " + DISC_REGEX.pattern());
 		}
 	}
 	
@@ -122,7 +127,7 @@ public class DefaultFileService implements FileService {
 				return new DefaultTrackFile(file, album.getDisc(discNum).getTrack(trackNum));
 			}
 		} else {
-			throw new IllegalArgumentException("File name must match pattern: " + TRACK_REGEX.pattern());
+			throw new IllegalArgumentException("File name (" + file.getName() + ") must match pattern: " + TRACK_REGEX.pattern());
 		}
 	}
 	
@@ -145,19 +150,21 @@ public class DefaultFileService implements FileService {
 			try {
 				return createTrackFile(file);
 			} catch (IllegalArgumentException e2) {
-				throw new IllegalArgumentException("File name must match pattern: " + DISC_REGEX.pattern() + " or " + TRACK_REGEX.pattern());
+				throw new IllegalArgumentException("File name (" + file.getName() + ") must match pattern: " + DISC_REGEX.pattern() + " or " + TRACK_REGEX.pattern());
 			}
 		}
 	}
 	
 	@Override
 	public AudioFile createAudioFile(AudioFile source, File newDir, AudioFormat newFormat) {
-		if (source instanceof DiscFile) {
+		if (source == null) {
+			throw new IllegalArgumentException("Source file cannot be null.");
+		} else if (source instanceof DiscFile) {
 			return createDiscFile((DiscFile) source, newDir, newFormat);
 		} else if (source instanceof TrackFile) {
 			return createTrackFile((TrackFile) source, newDir, newFormat);
 		} else {
-			throw new IllegalArgumentException("Unsupported audio file.");
+			throw new IllegalArgumentException("Unsupported audio file: " + source);
 		}
 	}
 	
@@ -169,7 +176,12 @@ public class DefaultFileService implements FileService {
 	private class AudioFileParser implements FileParser<AudioFile> {
 		@Override
 		public AudioFile parse(File file) {
-			return createAudioFile(file);
+			try {
+				return createAudioFile(file);
+			} catch (IllegalArgumentException e) {
+				LOGGER.debug("Invalid file: {}", e.getMessage());
+				return null;
+			}
 		}
 	}
 }

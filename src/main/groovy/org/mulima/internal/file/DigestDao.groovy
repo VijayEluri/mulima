@@ -34,7 +34,7 @@ class DigestDao implements FileParser<Digest>, FileComposer<Digest> {
 		}
 		
 		Properties props = new Properties()
-		props[ID_KEY] = digest.id
+		props[ID_KEY] = digest.id.toString()
 		digest.map.each { key, value ->
 			props[key.name] = value	
 		}

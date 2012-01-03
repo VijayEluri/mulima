@@ -13,6 +13,8 @@ import org.mulima.api.library.LibraryAlbum;
 import org.mulima.api.library.LibraryService;
 import org.mulima.api.library.ReferenceLibrary;
 import org.mulima.exception.FatalMulimaException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Default implementation of a library service.
@@ -20,10 +22,11 @@ import org.mulima.exception.FatalMulimaException;
  * @version 0.1.0
  * @since 0.1.0
  */
+@Service
 public class DefaultLibraryService implements LibraryService {
 	private final DigestService digestService;
-	private final Set<ReferenceLibrary> refLibs;
-	private final Set<Library> destLibs;
+	private Set<ReferenceLibrary> refLibs;
+	private Set<Library> destLibs;
 	
 	/**
 	 * Constructs a library service from the parameters.
@@ -31,10 +34,9 @@ public class DefaultLibraryService implements LibraryService {
 	 * @param refLibs the reference libraries
 	 * @param destLibs the destination libraries
 	 */
-	public DefaultLibraryService(DigestService digestService, Set<ReferenceLibrary> refLibs, Set<Library> destLibs) {
+	@Autowired
+	public DefaultLibraryService(DigestService digestService) {
 		this.digestService = digestService;
-		this.refLibs = Collections.unmodifiableSet(refLibs);
-		this.destLibs = Collections.unmodifiableSet(destLibs);
 	}
 	
 	/**
@@ -44,6 +46,13 @@ public class DefaultLibraryService implements LibraryService {
 	public Set<ReferenceLibrary> getRefLibs() {
 		return refLibs;
 	}
+	
+	public void setRefLibs(Set<ReferenceLibrary> refLibs) {
+		if (this.refLibs != null) {
+			throw new IllegalStateException("Cannot change refernce libraries after they have been set.");
+		}
+		this.refLibs = Collections.unmodifiableSet(refLibs);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -51,6 +60,13 @@ public class DefaultLibraryService implements LibraryService {
 	@Override
 	public Set<Library> getDestLibs() {
 		return destLibs;
+	}
+	
+	public void setDestLibs(Set<Library> destLibs) {
+		if (this.destLibs != null) {
+			throw new IllegalStateException("Cannot change destination libraries after they have been set.");
+		}
+		this.destLibs = Collections.unmodifiableSet(destLibs);
 	}
 	
 	/**

@@ -26,6 +26,15 @@ class DefaultFileServiceSpec extends Specification {
 		discNum << [1, 2, 11, 42]
 	}
 	
+	def 'createDiscFile works with valid file name 2'() {
+		given:
+		def file = new File("DiscName (${discNum}).flac")
+		expect:
+		service.createDiscFile(file).discNum == discNum
+		where:
+		discNum << [1, 2, 11, 42]
+	}
+	
 	def 'createDiscFile fails when called on a track'() {
 		given:
 		def file = new File('D01T02 TrackName.wav')

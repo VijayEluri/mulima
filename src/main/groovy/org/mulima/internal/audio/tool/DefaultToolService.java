@@ -9,7 +9,9 @@ import org.mulima.api.audio.tool.Joiner;
 import org.mulima.api.audio.tool.Splitter;
 import org.mulima.api.audio.tool.Tagger;
 import org.mulima.api.audio.tool.ToolService;
+import org.springframework.stereotype.Service;
 
+@Service
 public class DefaultToolService implements ToolService {
 	private final Map<AudioFormat, Codec> codecs = new HashMap<AudioFormat, Codec>();
 	private final Map<AudioFormat, Tagger> taggers = new HashMap<AudioFormat, Tagger>();

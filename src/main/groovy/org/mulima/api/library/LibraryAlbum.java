@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.mulima.api.file.Digest;
 import org.mulima.api.file.audio.AudioFile;
 import org.mulima.api.meta.Album;
+import org.mulima.api.meta.CueSheet;
 
 /**
  * An object representing an album as stored
@@ -51,6 +52,12 @@ public interface LibraryAlbum {
 	 * @return the audio files
 	 */
 	Set<AudioFile> getAudioFiles();
+	
+	/**
+	 * Gets the cue sheets for this album.
+	 * @return the cue sheets
+	 */
+	Set<CueSheet> getCueSheets();
 	
 	/**
 	 * Gets a digest representing the state

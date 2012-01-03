@@ -27,6 +27,9 @@ public class DigestBuilder {
 	
 	public Digest build() {
 		logger.debug("Generating digest of {}", libAlbum.getDir());
+		if (!libAlbum.getDir().exists()) {
+			throw new IllegalArgumentException("Album directory does not exists: " + libAlbum.getDir());
+		}
 		for (File file : libAlbum.getDir().listFiles()) {
 			putDigest(file);
 		}

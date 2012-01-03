@@ -16,6 +16,12 @@ public interface Album extends Metadata {
 	String FILE_NAME = "album.xml";
 	
 	/**
+	 * Gets a human readable name for this album.
+	 * @return the name
+	 */
+	String getName();
+	
+	/**
 	 * Gets the discs that are part of this album.
 	 * @return the discs
 	 */

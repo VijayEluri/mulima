@@ -9,6 +9,7 @@ buildscript {
 }
 
 apply plugin: 'groovy'
+apply plugin: 'application'
 apply plugin: 'code-quality' 
 apply plugin: 'jdepend'
 apply plugin: 'pmd'
@@ -19,16 +20,14 @@ apply from: 'emma.gradle'
 group = 'org.ajoberstar'
 version = '0.1.0.SNAPSHOT'
 
+applicationName = 'mulima'
+mainClassName = 'org.mulima.main.Mulima'
+
 sourceCompatibility = '1.6'
 
-checkstyleMain.ignoreFailures = true
-checkstyleTest.ignoreFailures = true
-codenarcMain.ignoreFailures = true
-codenarcTest.ignoreFailures = true
-findbugsMain.ignoreFailures = true
-findbugsTest.ignoreFailures = true
-pmdMain.ignoreFailures = true
-pmdTest.ignoreFailures = true
+tasks.withType(VerificationTask) {
+	ignoreFailures = true
+}
 
 codeNarcConfigFileName = 'config/codenarc/codenarc.groovy'
 

@@ -1,6 +1,7 @@
 package org.mulima.internal.library;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.Set;
 import java.util.UUID;
 
@@ -12,6 +13,7 @@ import org.mulima.api.file.audio.AudioFile;
 import org.mulima.api.library.Library;
 import org.mulima.api.library.LibraryAlbum;
 import org.mulima.api.meta.Album;
+import org.mulima.api.meta.CueSheet;
 
 /**
  * Default implementation of a library album.
@@ -26,6 +28,7 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 	private final CachedFile<Digest> digest;
 	private final CachedFile<Digest> sourceDigest;
 	private final CachedDir<AudioFile> audioFiles;
+	private final CachedDir<CueSheet> cueSheets;
 	
 	/**
 	 * Constructs a library album from the parameters.
@@ -41,6 +44,12 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 		this.digest = fileService.createCachedFile(Digest.class, new File(dir, Digest.FILE_NAME));
 		this.sourceDigest = fileService.createCachedFile(Digest.class, new File(dir, Digest.SOURCE_FILE_NAME));
 		this.audioFiles = fileService.createCachedDir(AudioFile.class, dir);
+		this.cueSheets = fileService.createCachedDir(CueSheet.class, dir, new FileFilter() {
+			@Override
+			public boolean accept(File pathname) {
+				return pathname.getName().endsWith(".cue");
+			}
+		});
 	}
 	
 	/**
@@ -91,6 +100,14 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 	@Override
 	public Set<AudioFile> getAudioFiles() {
 		return audioFiles.getValues();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<CueSheet> getCueSheets() {
+		return cueSheets.getValues();
 	}
 	
 	/**
