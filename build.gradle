@@ -1,7 +1,6 @@
 buildscript {
 	repositories {
 		mavenCentral()
-		mavenRepo(name:'sonatype', urls:['https://oss.sonatype.org/content/groups/public/'])
 	}
 	dependencies {
 		classpath group:'org.ajoberstar', name:'gradle-plugins', version:'0.1.1'
@@ -26,8 +25,12 @@ mainClassName = 'org.mulima.main.Mulima'
 sourceCompatibility = '1.6'
 
 tasks.withType(VerificationTask) {
-	ignoreFailures = true
+	if (!(it instanceof Test)) {
+		ignoreFailures = true
+	}
 }
+
+
 
 codeNarcConfigFileName = 'config/codenarc/codenarc.groovy'
 
@@ -35,7 +38,12 @@ convention.plugins.pmd.rulesets 'config/pmd/rulesets.xml'
 
 repositories {
 	mavenCentral()
-	mavenRepo name:'spock', urls:['http://m2repo.spockframework.org/releases', 'http://m2repo.spockframework.org/snapshots']
+	maven {
+		url = 'http://m2repo.spockframework.org/releases'
+	}
+	maven {
+		url = 'http://m2repo.spockframework.org/snapshots'
+	}
 }
 
 dependencies {
