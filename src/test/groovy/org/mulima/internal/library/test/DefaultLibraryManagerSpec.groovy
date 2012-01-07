@@ -1,19 +1,23 @@
 package org.mulima.internal.library.test
 
-import org.mulima.api.audio.AudioFormat
+import java.util.concurrent.Future;
+
+import org.mulima.api.freedb.FreeDbDao
 import org.mulima.api.job.AlbumConversionService
 import org.mulima.api.library.Library
 import org.mulima.api.library.LibraryAlbum
 import org.mulima.api.library.LibraryManager
 import org.mulima.api.library.LibraryService
 import org.mulima.api.library.ReferenceLibrary
+import org.mulima.api.service.MulimaService
 import org.mulima.internal.library.DefaultLibraryManager
 
 import spock.lang.Specification
 
 class DefaultLibraryManagerSpec extends Specification {
 	LibraryManager manager
-	AlbumConversionService service
+	AlbumConversionService conversionService
+	FreeDbDao freeDb
 	List refLibs
 	List destLibs
 	Map libToRefToDest
@@ -36,7 +40,7 @@ class DefaultLibraryManagerSpec extends Specification {
 		refToDests = (refLib1.all + refLib2.all).inject([:]) { map, ref ->
 			map[ref] = [] as Set
 			destLibs.each { destLib -> 
-				LibraryAlbum dest = Mock(LibraryAlbum)
+				LibraryAlbum dest = Mock()
 				dest.lib >> destLib
 				destLib.getSourcedFrom(ref) >> dest
 				map[ref] << dest
@@ -44,11 +48,14 @@ class DefaultLibraryManagerSpec extends Specification {
 			return map
 		}
 		
-		LibraryService libService = Mock(LibraryService)
+		MulimaService service = Mock()
+		LibraryService libService = Mock()
+		service.libraryService >> libService
 		libService.refLibs >> refLibs
 		libService.destLibs >> destLibs
-		service = Mock(AlbumConversionService)
-		manager = new DefaultLibraryManager(libService, service)
+		conversionService = Mock()
+		freeDb = Mock()
+		manager = new DefaultLibraryManager(service, conversionService, freeDb)
 	}
 	
 	def 'update only converts one library'() {
@@ -60,7 +67,7 @@ class DefaultLibraryManagerSpec extends Specification {
 		interaction {
 			(refLibs[0].all + refLibs[1].all).each { ref ->
 				def dests = refToDests[ref].findAll { it.lib == lib }
-				1*service.submit(ref, dests)
+				1*conversionService.submit(ref, dests) >> mockFuture()
 			}
 		}
 	}
@@ -71,8 +78,14 @@ class DefaultLibraryManagerSpec extends Specification {
 		then:
 		interaction {
 			(refLibs[0].all + refLibs[1].all).each { ref ->
-				1*service.submit(ref, refToDests[ref])	
+				1*conversionService.submit(ref, refToDests[ref]) >> mockFuture()
 			}
 		}
+	}
+	
+	def mockFuture() {
+		Future future = Mock()
+		future.done >> true
+		return future
 	}
 }

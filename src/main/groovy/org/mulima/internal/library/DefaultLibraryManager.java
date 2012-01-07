@@ -129,33 +129,36 @@ public class DefaultLibraryManager implements LibraryManager {
 			}
 		}
 		
-		boolean cancelAll = false;
-		boolean anyRunning = true;
-		while (anyRunning) {
-			anyRunning = false;
-			for (Future<Boolean> future : futures) {
-				if (future.isDone()) {
-					try {
-						future.get();
-					} catch (ExecutionException e) {
-						LOGGER.error("Conversion failed.", e);
-					} catch (InterruptedException e) {
-						LOGGER.error("Conversion interrupted.", e);
+		try {
+			boolean cancelAll = false;
+			boolean anyRunning = true;
+			while (anyRunning) {
+				anyRunning = false;
+				for (Future<Boolean> future : futures) {
+					if (future.isDone()) {
+						try {
+							future.get();
+						} catch (ExecutionException e) {
+							LOGGER.error("Conversion failed.", e);
+						} catch (InterruptedException e) {
+							LOGGER.error("Conversion interrupted.", e);
+						}
+					} else {
+						if (cancelAll) {
+							future.cancel(true);
+						}
+						anyRunning = true;
 					}
-				} else {
-					if (cancelAll) {
-						future.cancel(true);
-					}
-					anyRunning = true;
+				}
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					conversionService.shutdownNow();
+					Thread.currentThread().interrupt();
 				}
 			}
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				conversionService.shutdownNow();
-				Thread.currentThread().interrupt();
-			}
+		} finally {
+			conversionService.shutdown(5, TimeUnit.SECONDS);
 		}
-		conversionService.shutdown(5, TimeUnit.SECONDS);
 	}
 }

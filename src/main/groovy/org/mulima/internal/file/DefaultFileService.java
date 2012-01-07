@@ -27,8 +27,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class DefaultFileService implements FileService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultFileService.class);
-	private static final Pattern DISC_REGEX = Pattern.compile("^D(\\d+)[^T\\d]|.*\\(\\d+\\)\\..*");
-	private static final Pattern TRACK_REGEX = Pattern.compile("^D(\\d+)T(\\d+)");
+	private static final Pattern[] DISC_REGEX = { Pattern.compile("^D(\\d++)(?!T\\d+)"), Pattern.compile("\\((\\d+)\\)\\..*?$"), Pattern.compile("^(?!D\\d{1," + (Integer.MAX_VALUE - 4) + "}T\\d)") };
+	private static final Pattern[] TRACK_REGEX = { Pattern.compile("^D(\\d+)T(\\d+)") };
 	private final Map<Class<?>, FileParser<?>> parsers = new HashMap<Class<?>, FileParser<?>>();
 	private final Map<Class<?>, FileComposer<?>> composers = new HashMap<Class<?>, FileComposer<?>>();
 	private final Map<Class<?>, Map<File, CachedFile<?>>> filesCache = new HashMap<Class<?>, Map<File, CachedFile<?>>>();
@@ -90,18 +90,23 @@ public class DefaultFileService implements FileService {
 	
 	@Override
 	public DiscFile createDiscFile(File file) {
-		Matcher matcher = DISC_REGEX.matcher(file.getName());
-		if (matcher.find()) {
-			int discNum = Integer.valueOf(matcher.group(1));
-			Album album = createCachedFile(Album.class, new File(file.getParentFile(), Album.FILE_NAME)).getValue();
-			if (album == null) {
-				return new DefaultDiscFile(file, discNum);	
-			} else {
-				return new DefaultDiscFile(file, album.getDisc(discNum));
-			}
-		} else {
-			throw new IllegalArgumentException("File name (" + file.getName() + ") must match pattern: " + DISC_REGEX.pattern());
+		if (!isAudioFile(file)) {
+			throw new IllegalArgumentException("File (" + file.getName() + ") is not a supported audio file.");
 		}
+		for (Pattern pattern : DISC_REGEX) {
+			Matcher matcher = pattern.matcher(file.getName());
+			if (matcher.find()) {
+				System.out.println("String: " + file.getName() + ", Pattern: " + pattern.pattern() + ", Groups: " + matcher.groupCount());
+				int discNum = matcher.groupCount() == 0 ? 1 : Integer.valueOf(matcher.group(1));
+				Album album = createCachedFile(Album.class, new File(file.getParentFile(), Album.FILE_NAME)).getValue();
+				if (album == null) {
+					return new DefaultDiscFile(file, discNum);	
+				} else {
+					return new DefaultDiscFile(file, album.getDisc(discNum));
+				}
+			}
+		}
+		throw new IllegalArgumentException(messageForNoMatch(file.getName(), DISC_REGEX));
 	}
 	
 	@Override
@@ -116,19 +121,23 @@ public class DefaultFileService implements FileService {
 	
 	@Override
 	public TrackFile createTrackFile(File file) {
-		Matcher matcher = TRACK_REGEX.matcher(file.getName());
-		if (matcher.find()) {
-			int discNum = Integer.valueOf(matcher.group(1));
-			int trackNum = Integer.valueOf(matcher.group(2));
-			Album album = createCachedFile(Album.class, new File(file.getParentFile(), Album.FILE_NAME)).getValue();
-			if (album == null) {
-				return new DefaultTrackFile(file, discNum, trackNum);
-			} else {
-				return new DefaultTrackFile(file, album.getDisc(discNum).getTrack(trackNum));
-			}
-		} else {
-			throw new IllegalArgumentException("File name (" + file.getName() + ") must match pattern: " + TRACK_REGEX.pattern());
+		if (!isAudioFile(file)) {
+			throw new IllegalArgumentException("File (" + file.getName() + ") is not a supported audio file.");
 		}
+		for (Pattern pattern : TRACK_REGEX) {
+			Matcher matcher = pattern.matcher(file.getName());
+			if (matcher.find()) {
+				int discNum = Integer.valueOf(matcher.group(1));
+				int trackNum = Integer.valueOf(matcher.group(2));
+				Album album = createCachedFile(Album.class, new File(file.getParentFile(), Album.FILE_NAME)).getValue();
+				if (album == null) {
+					return new DefaultTrackFile(file, discNum, trackNum);
+				} else {
+					return new DefaultTrackFile(file, album.getDisc(discNum).getTrack(trackNum));
+				}
+			}
+		}
+		throw new IllegalArgumentException(messageForNoMatch(file.getName(), TRACK_REGEX));
 	}
 	
 	@Override
@@ -150,7 +159,7 @@ public class DefaultFileService implements FileService {
 			try {
 				return createTrackFile(file);
 			} catch (IllegalArgumentException e2) {
-				throw new IllegalArgumentException("File name (" + file.getName() + ") must match pattern: " + DISC_REGEX.pattern() + " or " + TRACK_REGEX.pattern());
+				throw new IllegalArgumentException(messageForNoMatch(file.getName(), DISC_REGEX, TRACK_REGEX));
 			}
 		}
 	}
@@ -171,6 +180,33 @@ public class DefaultFileService implements FileService {
 	private File createFile(AudioFile source, File newDir, AudioFormat newFormat) {
 		String baseName = FileUtil.getBaseName(source.getFile());
 		return new File(newDir, baseName + "." + newFormat.getExtension());
+	}
+	
+	private boolean isAudioFile(File file) {
+		for (AudioFormat format : AudioFormat.values()) {
+			if (file.getName().endsWith(format.getExtension())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private String messageForNoMatch(String fileName, Pattern[]... patternArrays) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("File name (");
+		builder.append(fileName);
+		builder.append(") must match pattern: ");
+		boolean first = true;
+		for (Pattern[] patterns : patternArrays) {
+			for (Pattern pattern : patterns) {
+				if (!first) {
+					builder.append(" or ");
+				}
+				builder.append(pattern.pattern());
+				first = false;
+			}
+		}
+		return builder.toString();
 	}
 	
 	private class AudioFileParser implements FileParser<AudioFile> {

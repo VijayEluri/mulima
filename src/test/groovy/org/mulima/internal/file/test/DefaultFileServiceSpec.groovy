@@ -35,9 +35,25 @@ class DefaultFileServiceSpec extends Specification {
 		discNum << [1, 2, 11, 42]
 	}
 	
+	def 'createDiscFile works with valid file name 3'() {
+		given:
+		def file = new File("DiscName.flac")
+		expect:
+		service.createDiscFile(file).discNum == 1
+	}
+	
 	def 'createDiscFile fails when called on a track'() {
 		given:
 		def file = new File('D01T02 TrackName.wav')
+		when:
+		service.createDiscFile(file)
+		then:
+		thrown(IllegalArgumentException)
+	}
+	
+	def 'createDiscFile fails when called on non-audio file'() {
+		given:
+		def file = new File('D01 Test.txt')
 		when:
 		service.createDiscFile(file)
 		then:
@@ -80,7 +96,18 @@ class DefaultFileServiceSpec extends Specification {
 	
 	def 'createTrackFile fails when called on a disc'() {
 		given:
-		def file = new File('D01 DiscName.wav')
+		def file = new File(fileName)
+		when:
+		service.createTrackFile(file)
+		then:
+		thrown(IllegalArgumentException)
+		where:
+		fileName << ['D01 DiscName.wav', 'DiscName.wav']
+	}
+	
+	def 'createTrackFile fails when called on non-audio file'() {
+		given:
+		def file = new File('D01T01 Test.txt')
 		when:
 		service.createTrackFile(file)
 		then:
