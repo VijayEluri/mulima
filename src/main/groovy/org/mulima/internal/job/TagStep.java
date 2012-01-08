@@ -4,6 +4,8 @@ import java.util.Set;
 
 import org.mulima.api.audio.tool.TaggerResult;
 import org.mulima.api.file.audio.AudioFile;
+import org.mulima.api.job.Status;
+import org.mulima.api.job.Step;
 import org.mulima.api.service.MulimaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

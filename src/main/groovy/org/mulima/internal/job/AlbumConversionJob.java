@@ -7,6 +7,7 @@ import org.mulima.api.file.DigestService;
 import org.mulima.api.file.TempDir;
 import org.mulima.api.file.audio.AudioFile;
 import org.mulima.api.file.audio.DiscFile;
+import org.mulima.api.job.Job;
 import org.mulima.api.library.LibraryAlbum;
 import org.mulima.api.service.MulimaService;
 import org.mulima.util.FileUtil;
@@ -49,17 +50,17 @@ public class AlbumConversionJob implements Job<Boolean> {
 	 * Executes the job.
 	 */
 	public Boolean execute() {
-		LOGGER.info("Beginning conversion of: " + refAlbum.getAlbum().getName());
+		LOGGER.info("Beginning conversion of: " + refAlbum.getName());
 		Set<LibraryAlbum> outdated = getOutdatedAlbums();
 		if (outdated.size() == 0) {
-			LOGGER.info("Skipping conversion for " + refAlbum.getAlbum().getName() + ". No albums are out of date.");
+			LOGGER.info("Skipping conversion for " + refAlbum.getName() + ". No albums are out of date.");
 			return true;
 		}
 		TempDir tempDir = service.getTempDir().newChild();
 		
 		DecodeStep decode = new DecodeStep(service, refAlbum.getAudioFiles(), tempDir.newChild().getFile());
 		if (!decode.execute()) {
-			LOGGER.error("Failed to decode: " + refAlbum.getAlbum().getName());
+			LOGGER.error("Failed to decode: " + refAlbum.getName());
 			return false;
 		}
 		Set<AudioFile> tempFiles = new HashSet<AudioFile>();
@@ -73,7 +74,7 @@ public class AlbumConversionJob implements Job<Boolean> {
 		}
 		SplitStep split = new SplitStep(service, discFiles, tempDir.newChild().getFile());
 		if (!split.execute()) {
-			LOGGER.error("Failed to split: " + refAlbum.getAlbum().getName());
+			LOGGER.error("Failed to split: " + refAlbum.getName());
 			return false;
 		}
 		tempFiles.addAll(split.getOutputs());
@@ -83,13 +84,13 @@ public class AlbumConversionJob implements Job<Boolean> {
 			destAlbum.cleanDir();
 			EncodeStep encode = new EncodeStep(service, destAlbum.getLib().getFormat(), tempFiles, destAlbum.getDir());
 			if (!encode.execute()) {
-				LOGGER.error("Failed to encode: " + refAlbum.getAlbum().getName());
+				LOGGER.error("Failed to encode: " + refAlbum.getName());
 				return false;
 			}
 			
 			TagStep tag = new TagStep(service, encode.getOutputs());
 			if (!tag.execute()) {
-				LOGGER.error("Failed to tag: " + refAlbum.getAlbum().getName());
+				LOGGER.error("Failed to tag: " + refAlbum.getName());
 				return false;
 			}
 		}
@@ -102,7 +103,7 @@ public class AlbumConversionJob implements Job<Boolean> {
 		}
 		digestService.write(refAlbum, null);
 		
-		LOGGER.info("Successfully converted: " + refAlbum.getAlbum().getName());
+		LOGGER.info("Successfully converted: " + refAlbum.getName());
 		return true;
 	}
 	

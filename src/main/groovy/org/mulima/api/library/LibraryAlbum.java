@@ -30,6 +30,12 @@ public interface LibraryAlbum {
 	UUID getSourceId();
 	
 	/**
+	 * Gets a human readable name for this album.
+	 * @return the name
+	 */
+	String getName();
+	
+	/**
 	 * Gets the directory this album is stored in.
 	 * @return the directory
 	 */

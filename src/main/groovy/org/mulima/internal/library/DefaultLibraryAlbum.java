@@ -14,7 +14,10 @@ import org.mulima.api.library.Library;
 import org.mulima.api.library.LibraryAlbum;
 import org.mulima.api.meta.Album;
 import org.mulima.api.meta.CueSheet;
+import org.mulima.api.meta.GenericTag;
 import org.mulima.exception.UncheckedIOException;
+import org.mulima.util.FileUtil;
+import org.mulima.util.MetadataUtil;
 
 /**
  * Default implementation of a library album.
@@ -60,6 +63,20 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 	public UUID getSourceId() {
 		Digest dig = getSourceDigest();
 		return dig == null ? null : dig.getId();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getName() {
+		if (getAlbum() == null) {
+			return FileUtil.getSafeCanonicalPath(getDir());
+		} else {
+			String album = getAlbum().isSet(GenericTag.ALBUM) ? getAlbum().getFlat(GenericTag.ALBUM) :
+				MetadataUtil.commonValueFlat(getAlbum().getDiscs(), GenericTag.ALBUM);
+			return getAlbum().getFlat(GenericTag.ARTIST) + " - " + album;
+		}
 	}
 
 	/**

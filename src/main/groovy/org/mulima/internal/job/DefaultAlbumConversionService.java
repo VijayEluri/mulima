@@ -42,7 +42,7 @@ public class DefaultAlbumConversionService implements AlbumConversionService {
 	 */
 	@Override
 	public Future<Boolean> submit(LibraryAlbum source, Set<LibraryAlbum> dests) {
-		LOGGER.debug("Submitting conversion for: " + source.getAlbum().getName());
+		LOGGER.debug("Submitting conversion for: " + source.getName());
 		return executor.submit(new AlbumConversionJob(service, source, dests));
 	}
 	

@@ -8,6 +8,8 @@ import org.mulima.api.audio.AudioFormat;
 import org.mulima.api.audio.tool.Codec;
 import org.mulima.api.audio.tool.CodecResult;
 import org.mulima.api.file.audio.AudioFile;
+import org.mulima.api.job.Status;
+import org.mulima.api.job.Step;
 import org.mulima.api.service.MulimaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

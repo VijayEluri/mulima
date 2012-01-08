@@ -29,7 +29,7 @@ class DefaultLibraryManagerSpec extends Specification {
 		refLibs = [refLib1, refLib2]
 		
 		refLibs.each {
-			it.all >> ([Mock(LibraryAlbum), Mock(LibraryAlbum)] as Set)
+			it.all >> ([mockAlbum(true), mockAlbum(false), mockAlbum(true)] as Set)
 		}
 		
 		Library destLib1 = Mock(Library)
@@ -67,7 +67,11 @@ class DefaultLibraryManagerSpec extends Specification {
 		interaction {
 			(refLibs[0].all + refLibs[1].all).each { ref ->
 				def dests = refToDests[ref].findAll { it.lib == lib }
-				1*conversionService.submit(ref, dests) >> mockFuture()
+				if (ref.id) {
+					1*conversionService.submit(ref, dests) >> mockFuture()
+				} else {
+					0*conversionService.submit(ref, dests)
+				}
 			}
 		}
 	}
@@ -78,7 +82,11 @@ class DefaultLibraryManagerSpec extends Specification {
 		then:
 		interaction {
 			(refLibs[0].all + refLibs[1].all).each { ref ->
-				1*conversionService.submit(ref, refToDests[ref]) >> mockFuture()
+				if (ref.id) {
+					1*conversionService.submit(ref, refToDests[ref]) >> mockFuture()
+				} else {
+					0*conversionService.submit(ref, refToDests[ref])
+				}
 			}
 		}
 	}
@@ -87,5 +95,11 @@ class DefaultLibraryManagerSpec extends Specification {
 		Future future = Mock()
 		future.done >> true
 		return future
+	}
+	
+	def mockAlbum(boolean hasId) {
+		LibraryAlbum album = Mock(LibraryAlbum)
+		album.id >> (hasId ? UUID.randomUUID() : null)
+		return album
 	}
 }

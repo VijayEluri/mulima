@@ -8,7 +8,6 @@ import org.mulima.api.meta.Disc;
 import org.mulima.api.meta.GenericTag;
 import org.mulima.api.meta.Tag;
 import org.mulima.api.meta.Track;
-import org.mulima.util.MetadataUtil;
 
 /**
  * Default implementation of an album.
@@ -18,16 +17,6 @@ import org.mulima.util.MetadataUtil;
  */
 public class DefaultAlbum extends AbstractMetadata implements Album {
 	private final SortedSet<Disc> discs = new TreeSet<Disc>();
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public String getName() {
-		String album = isSet(GenericTag.ALBUM) ? getFlat(GenericTag.ALBUM) :
-			MetadataUtil.commonValueFlat(getDiscs(), GenericTag.ALBUM);
-		return getFlat(GenericTag.ARTIST) + " - " + album;
-	}
 	
 	/**
 	 * {@inheritDoc}

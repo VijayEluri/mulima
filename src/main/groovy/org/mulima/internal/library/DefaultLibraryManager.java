@@ -64,6 +64,9 @@ public class DefaultLibraryManager implements LibraryManager {
 	public void processNew() {
 		for (ReferenceLibrary refLib : service.getLibraryService().getRefLibs()) {
 			for (LibraryAlbum refAlbum : refLib.getNew()) {
+				if (refAlbum.getAlbum() != null) {
+					continue;
+				}
 				Album album = new DefaultAlbum();
 				for (CueSheet cue : refAlbum.getCueSheets()) {
 					LOGGER.info("*** Searching for disc ***");
@@ -97,8 +100,10 @@ public class DefaultLibraryManager implements LibraryManager {
 						album.getDiscs().add(choice);
 					}
 				}
-				service.getFileService().getComposer(Album.class).compose(new File(refAlbum.getDir(), "album.xml"), album);
-				service.getDigestService().write(refAlbum, null);
+				if (album.getDiscs().size() == refAlbum.getCueSheets().size()) {
+					service.getFileService().getComposer(Album.class).compose(new File(refAlbum.getDir(), "album.xml"), album);
+					service.getDigestService().write(refAlbum, null);
+				}
 			}
 		}
 	}
@@ -132,6 +137,10 @@ public class DefaultLibraryManager implements LibraryManager {
 		Collection<Future<Boolean>> futures = new ArrayList<Future<Boolean>>();
 		for (ReferenceLibrary refLib : service.getLibraryService().getRefLibs()) {
 			for (LibraryAlbum refAlbum : refLib.getAll()) {
+				if (refAlbum.getId() == null) {
+					LOGGER.debug("Skipping {}.  It has no ID.", refAlbum.getName());
+					continue;
+				}
 				Set<LibraryAlbum> destAlbums = new HashSet<LibraryAlbum>();
 				for (Library destLib : libs) {
 					destAlbums.add(destLib.getSourcedFrom(refAlbum));
