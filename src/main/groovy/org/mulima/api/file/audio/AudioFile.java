@@ -22,4 +22,10 @@ public interface AudioFile extends FileHolder {
 	 * @return the metadata
 	 */
 	Metadata getMeta();
+	
+	/**
+	 * Sets the metadata associated with this file.
+	 * @param meta the metadata
+	 */
+	void setMeta(Metadata meta);
 }

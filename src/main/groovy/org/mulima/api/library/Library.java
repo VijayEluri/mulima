@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.mulima.api.audio.AudioFormat;
+import org.mulima.api.meta.Album;
 
 /**
  * An object representing a related collection of music.
@@ -70,4 +71,13 @@ public interface Library {
 	 * @return an album source from {@code source}
 	 */
 	LibraryAlbum getSourcedFrom(LibraryAlbum source, boolean createIfNotFound);
+	
+	/**
+	 * Determine the directory within this library
+	 * that a library album for the given metadata
+	 * should go.
+	 * @param meta the metadata to determine the dir for
+	 * @return the directory a library album should be in
+	 */
+	File determineDir(Album meta);
 }

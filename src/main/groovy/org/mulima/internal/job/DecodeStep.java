@@ -27,16 +27,6 @@ public class DecodeStep implements Step<Set<AudioFile>> {
 	private Set<AudioFile> outputs;
 	
 	/**
-	 * Constructs a step from the parameters.  The files
-	 * will be put into a temp directory.
-	 * @param service the service to use during execution
-	 * @param inputs the files to decode
-	 */
-	public DecodeStep(MulimaService service, Set<AudioFile> inputs) {
-		this(service, inputs, service.getTempDir().newChild().getFile());
-	}
-	
-	/**
 	 * Constructs a step from the parameters.
 	 * @param service the service to use during execution
 	 * @param inputs the files to decode

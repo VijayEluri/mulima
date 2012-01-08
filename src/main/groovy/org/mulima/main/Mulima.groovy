@@ -48,10 +48,6 @@ class Mulima {
 		
 		MulimaService service = context.getBean(MulimaService.class)
 		service.tempDir = new TempDir().newChild('mulima')
-		service.fileService.registerParser(Album, new AlbumXmlDao())
-		service.fileService.registerComposer(Album, new AlbumXmlDao())
-		service.fileService.registerParser(CueSheet, new CueSheetParser())
-		service.fileService.registerParser(Digest, new DigestDao())
 		
 		File rootDir = new File('C:/Users/Andy/Desktop/Mulima')
 		LibraryAlbumFactory albumFactory = new DefaultLibraryAlbumFactory(service.fileService)

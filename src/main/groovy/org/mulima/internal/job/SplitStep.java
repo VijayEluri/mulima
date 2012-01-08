@@ -26,16 +26,6 @@ public class SplitStep implements Step<Set<TrackFile>> {
 	private Set<TrackFile> outputs;
 	
 	/**
-	 * Constructs a step from the parameters.  The files
-	 * will be put into a temp directory.
-	 * @param service the service to use during execution
-	 * @param inputs the files to split
-	 */
-	public SplitStep(MulimaService service, Set<DiscFile> inputs) {
-		this(service, inputs, service.getTempDir().newChild().getFile());
-	}
-	
-	/**
 	 * Constructs a step from the parameters.
 	 * @param service the service to use during execution
 	 * @param inputs the files to split
@@ -56,10 +46,17 @@ public class SplitStep implements Step<Set<TrackFile>> {
 		outputs = new HashSet<TrackFile>();
 		logger.debug("Splitting {} files", inputs.size());
 		for (DiscFile input : inputs) {
+			File discDestDir = new File(destDir, Integer.toString(input.getDiscNum()));
+			discDestDir.mkdirs();
 			logger.debug("Splitting {}", input);
-			SplitterResult result = service.getToolService().getSplitter().split(input, destDir);
+			SplitterResult result = service.getToolService().getSplitter().split(input, discDestDir);
 			if (result.isSuccess()) {
 				outputs.addAll(result.getDest());
+				
+				for (TrackFile file : result.getDest()) {
+					file.setMeta(input.getMeta().getTrack(file.getTrackNum()));
+				}
+				
 				logger.debug("SUCCESS: Split {}", input);
 			} else {
 				logger.error("FAILURE: [{}] Splitting {}", result.getExitVal(), input);

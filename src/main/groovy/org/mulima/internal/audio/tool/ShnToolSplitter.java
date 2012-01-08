@@ -18,15 +18,27 @@
 package org.mulima.internal.audio.tool;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.mulima.api.audio.AudioFormat;
 import org.mulima.api.audio.tool.Splitter;
 import org.mulima.api.audio.tool.SplitterResult;
+import org.mulima.api.file.CachedDir;
+import org.mulima.api.file.FileService;
+import org.mulima.api.file.audio.AudioFile;
 import org.mulima.api.file.audio.DiscFile;
+import org.mulima.api.file.audio.TrackFile;
+import org.mulima.api.meta.Track;
 import org.mulima.api.proc.ProcessResult;
 import org.mulima.internal.proc.ProcessCaller;
 import org.mulima.util.FileUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 
 /**
@@ -35,11 +47,23 @@ import org.mulima.util.FileUtil;
  * @version 0.1.0
  * @since 0.1.0
  */
-public class ShnToolImpl implements Splitter {
+@Component
+public class ShnToolSplitter implements Splitter {
+	private static final Pattern SPLIT_FILE_REGEX = Pattern.compile("^split-track(\\d+)\\.");
 	//private final Logger logger = LoggerFactory.getLogger(getClass());
+	private FileService fileService = null;
 	private String path = "shntool";
 	private String opts = "";
 	private boolean overwrite = false;
+	
+	/**
+	 * Sets the file service to use.
+	 * @param fileService the file service
+	 */
+	@Autowired
+	public void setFileService(FileService fileService) {
+		this.fileService = fileService;
+	}
 	
 	/**
 	 * Sets the path to the executable.
@@ -83,16 +107,38 @@ public class ShnToolImpl implements Splitter {
 		command.add(overwrite ? "always" : "never");
 		command.add("-d");
 		command.add("\"" + destPath + "\"");
-		command.add("-t");
-		command.add("\"D" + source.getDiscNum() + "T%n\"");
-		//command.add("-f");
-		//command.add("\"" + cuePath + "\"");
 		command.add("\"" + sourcePath + "\"");
 		
-		ProcessResult procResult = new ProcessCaller("split of " + FileUtil.getSafeCanonicalPath(source), command).call();
+		boolean track0 = true;
+		StringWriter input = new StringWriter();
+		PrintWriter writer = new PrintWriter(input);
+		for (Track track : source.getMeta().getTracks()) {
+			String time = track.getStartPoint().getTime();
+			if ("00:00:00".equals(time)) {
+				track0 = false;
+			}
+			writer.println(time.replaceAll("(.+):(.+)", "$1.$2"));
+		}
+		writer.close();
 		
-		//CachedDir<AudioFile> dest = new DefaultCachedDir<AudioFile>(new DefaultAudioFileFactory(), destDir);
-		//return new SplitterResult(source, dest.getValues(TrackFile.class), procResult);
-		throw new UnsupportedOperationException("Finish implementing");
+		ProcessResult procResult = new ProcessCaller("split of " + FileUtil.getSafeCanonicalPath(source), command, input.toString()).call();
+		
+		int offset = track0 ? -1 : 0;
+		for (File file : destDir.listFiles()) {
+			Matcher matcher = SPLIT_FILE_REGEX.matcher(file.getName());
+			if (matcher.find()) {
+				int num = Integer.parseInt(matcher.group(1)) + offset;
+				if (num == 0) {
+					file.delete();
+				} else {
+					file.renameTo(new File(destDir, String.format("D%02dT%02d.%s", source.getDiscNum(), num, AudioFormat.WAVE.getExtension())));
+				}
+			}
+		}
+		
+		CachedDir<AudioFile> dest = fileService.createCachedDir(AudioFile.class, destDir);
+		return new SplitterResult(source, dest.getValues(TrackFile.class), procResult);
 	}
+	
+	
 }

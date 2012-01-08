@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -17,11 +16,14 @@ import org.mulima.api.library.LibraryAlbum;
 import org.mulima.api.library.LibraryManager;
 import org.mulima.api.library.ReferenceLibrary;
 import org.mulima.api.meta.Album;
+import org.mulima.api.meta.CuePoint;
 import org.mulima.api.meta.CueSheet;
 import org.mulima.api.meta.Disc;
 import org.mulima.api.meta.GenericTag;
+import org.mulima.api.meta.Track;
 import org.mulima.api.service.MulimaService;
 import org.mulima.internal.meta.DefaultAlbum;
+import org.mulima.internal.proc.FutureHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +85,15 @@ public class DefaultLibraryManager implements LibraryManager {
 						LOGGER.info("Disc found: Artist: " + cue.getFlat(GenericTag.ARTIST)
 							+ "\tAlbum: " + cue.getFlat(GenericTag.ALBUM));
 						choice.add(GenericTag.DISC_NUMBER, Integer.toString(cue.getNum()));
+						for (Track track : choice.getTracks()) {
+							CuePoint startPoint = null;
+							for (CuePoint point : cue.getCuePoints()) {
+								if (point.getTrack() == track.getNum()) {
+									startPoint = point;
+								}
+							}
+							track.setStartPoint(startPoint);
+						}
 						album.getDiscs().add(choice);
 					}
 				}
@@ -130,33 +141,10 @@ public class DefaultLibraryManager implements LibraryManager {
 		}
 		
 		try {
-			boolean cancelAll = false;
-			boolean anyRunning = true;
-			while (anyRunning) {
-				anyRunning = false;
-				for (Future<Boolean> future : futures) {
-					if (future.isDone()) {
-						try {
-							future.get();
-						} catch (ExecutionException e) {
-							LOGGER.error("Conversion failed.", e);
-						} catch (InterruptedException e) {
-							LOGGER.error("Conversion interrupted.", e);
-						}
-					} else {
-						if (cancelAll) {
-							future.cancel(true);
-						}
-						anyRunning = true;
-					}
-				}
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					conversionService.shutdownNow();
-					Thread.currentThread().interrupt();
-				}
-			}
+			new FutureHandler().handle("Conversion", futures);
+		} catch (InterruptedException e) {
+			conversionService.shutdownNow();
+			Thread.currentThread().interrupt();
 		} finally {
 			conversionService.shutdown(5, TimeUnit.SECONDS);
 		}

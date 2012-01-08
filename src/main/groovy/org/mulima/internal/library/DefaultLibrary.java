@@ -10,6 +10,7 @@ import org.mulima.api.audio.AudioFormat;
 import org.mulima.api.library.Library;
 import org.mulima.api.library.LibraryAlbum;
 import org.mulima.api.library.LibraryAlbumFactory;
+import org.mulima.api.meta.Album;
 import org.mulima.api.meta.GenericTag;
 import org.mulima.internal.file.LeafDirFilter;
 import org.mulima.util.FileUtil;
@@ -119,6 +120,22 @@ public class DefaultLibrary implements Library {
 	}
 	
 	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public File determineDir(Album meta) {
+		String album = null;
+		if (meta.isSet(GenericTag.ALBUM)) {
+			album = meta.getFlat(GenericTag.ALBUM);
+		} else {
+			album = MetadataUtil.commonValueFlat(meta.getDiscs(), GenericTag.ALBUM);
+		}
+		String relPath = StringUtil.makeSafe(meta.getFlat(GenericTag.ARTIST)).trim()
+			+ File.separator + StringUtil.makeSafe(album).trim();
+		return new File(getRootDir(), relPath);
+	}
+	
+	/**
 	 * Scans all directories under the root directory for
 	 * library albums.
 	 */
@@ -138,15 +155,8 @@ public class DefaultLibrary implements Library {
 	 * @return the new album
 	 */
 	private LibraryAlbum createAlbum(LibraryAlbum source) {
-		String album = null;
-		if (source.getAlbum().isSet(GenericTag.ALBUM)) {
-			album = source.getAlbum().getFlat(GenericTag.ALBUM);
-		} else {
-			album = MetadataUtil.commonValueFlat(source.getAlbum().getDiscs(), GenericTag.ALBUM);
-		}
-		String relPath = StringUtil.makeSafe(source.getAlbum().getFlat(GenericTag.ARTIST)).trim()
-			+ File.separator + StringUtil.makeSafe(album).trim();
-		File dir = new File(getRootDir(), relPath);
+		File dir = determineDir(source.getAlbum());
+		dir.mkdirs();
 		return libAlbumFactory.create(dir, this);
 	}
 }

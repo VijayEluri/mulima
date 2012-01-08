@@ -27,48 +27,59 @@ import org.mulima.api.audio.tool.CodecResult;
 import org.mulima.api.file.audio.AudioFile;
 import org.mulima.internal.proc.ProcessCaller;
 import org.mulima.util.FileUtil;
+import org.springframework.stereotype.Component;
 
 
 /**
- * Support for FLAC encoding/decoding.
+ * Supports Nero AAC encode/decode operations.
  * @author Andrew Oberstar
  * @version 0.1.0
  * @since 0.1.0
  */
-public class FlacCodecImpl implements Codec {
+@Component
+public class NeroAacCodec implements Codec {
 	//private final Logger logger = LoggerFactory.getLogger(getClass());
-	private String path = "flac";
+	private String encPath = "neroAacEnc";
+	private String decPath = "neroAacDec";
+	private String quality = "0.5";
 	private String opts = "";
-	private int compressionLevel = 5;
-	
+
 	@Override
 	public AudioFormat getFormat() {
-		return AudioFormat.FLAC;
+		return AudioFormat.AAC;
 	}
 	
 	/**
-	 * Sets the path to the FLAC executable.
-	 * @param path the path to the exe
+	 * Sets the path to the encoder executable.
+	 * @param encPath the encoder exe path
 	 */
-	public void setPath(String path) {
-		this.path = path;
+	public void setEncPath(String encPath) {
+		this.encPath = encPath;
 	}
 
 	/**
-	 * Sets additional options for this codec.  Will be
-	 * used on both encodes and decodes.
+	 * Sets the path to the decoder executable.
+	 * @param decPath the decoder exe path
+	 */
+	public void setDecPath(String decPath) {
+		this.decPath = decPath;
+	}
+
+	/**
+	 * Sets the quality of the encode.
+	 * @param quality the quality (0.0-1.0)
+	 */
+	public void setQuality(String quality) {
+		this.quality = quality;
+	}
+
+	/**
+	 * Sets the additional options to use.  These will
+	 * be used in both encodes and decodes.
 	 * @param opts the options
 	 */
 	public void setOpts(String opts) {
 		this.opts = opts;
-	}
-
-	/**
-	 * Sets the compression level for encodes.
-	 * @param compressionLevel the compression level (1-8)
-	 */
-	public void setCompressionLevel(int compressionLevel) {
-		this.compressionLevel = compressionLevel;
 	}
 
 	/**
@@ -80,16 +91,17 @@ public class FlacCodecImpl implements Codec {
 		String destPath = FileUtil.getSafeCanonicalPath(dest);
 		
 		List<String> command = new ArrayList<String>();
-		command.add(path);
-		command.add("-f");
+		command.add(encPath);
 		if (!"".equals(opts)) {
 			command.add(opts);
 		}
-		command.add("-" + compressionLevel);
-		command.add("-o");
-		command.add("\"" + destPath + "\"");
+		command.add("-q");
+		command.add(quality);
+		command.add("-if");
 		command.add("\"" + sourcePath + "\"");
-		
+		command.add("-of");
+		command.add("\"" + destPath + "\"");
+		 
 		ProcessCaller caller = new ProcessCaller("encoding " + sourcePath, command);
 		return new CodecResult(source, dest, caller.call());
 	}
@@ -103,15 +115,14 @@ public class FlacCodecImpl implements Codec {
 		String destPath = FileUtil.getSafeCanonicalPath(dest);
 		
 		List<String> command = new ArrayList<String>();
-		command.add(path);
-		command.add("-f");
+		command.add(decPath);
 		if (!"".equals(opts)) {
 			command.add(opts);
 		}
-		command.add("-d");
-		command.add("-o");
-		command.add("\"" + destPath + "\"");
+		command.add("-if");
 		command.add("\"" + sourcePath + "\"");
+		command.add("-of");
+		command.add("\"" + destPath + "\"");
 		 
 		ProcessCaller caller = new ProcessCaller("decoding " + sourcePath, command);
 		return new CodecResult(source, dest, caller.call());

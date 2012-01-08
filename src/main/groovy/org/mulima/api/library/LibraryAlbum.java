@@ -36,6 +36,14 @@ public interface LibraryAlbum {
 	File getDir();
 	
 	/**
+	 * Sets the directory this album is stored in.
+	 * If the dir was already set, this will rename
+	 * the existing directory.
+	 * @param dir the new directory
+	 */
+	void setDir(File dir);
+	
+	/**
 	 * Gets the library this album is stored in.
 	 * @return the library
 	 */
@@ -73,4 +81,10 @@ public interface LibraryAlbum {
 	 * @return the source digest
 	 */
 	Digest getSourceDigest();
+	
+	/**
+	 * Cleans up all files (except digest files), generally
+	 * in preparation for a new conversion.
+	 */
+	void cleanDir();
 }

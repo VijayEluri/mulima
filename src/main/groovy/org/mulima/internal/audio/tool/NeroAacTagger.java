@@ -30,44 +30,36 @@ import org.mulima.api.meta.GenericTag;
 import org.mulima.api.meta.Track;
 import org.mulima.api.proc.ProcessResult;
 import org.mulima.internal.meta.DefaultTrack;
-import org.mulima.internal.meta.VorbisTag;
+import org.mulima.internal.meta.ITunesTag;
 import org.mulima.internal.proc.ProcessCaller;
 import org.mulima.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 
 /**
- * Support for reading and writing tags via Metaflac.
+ * Support for Nero AAC read/write tag operations.
  * @author Andrew Oberstar
  * @version 0.1.0
  * @since 0.1.0
  */
-public class MetaflacDaoImpl implements Tagger {
-	private static final Pattern REGEX = Pattern.compile("comment\\[[0-9]+\\]: ([A-Za-z]+)=(.+)");
+@Component
+public class NeroAacTagger implements Tagger {
+	private static final Pattern REGEX = Pattern.compile("([A-Za-z]+) = (.+)");
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-	private String path = "metaflac";
-	private String opts = "";
+	private String path = "neroAacTag";
 	
 	public AudioFormat getFormat() {
-		return AudioFormat.FLAC;
+		return AudioFormat.AAC;
 	}
 	
 	/**
-	 * Sets the path to the metaflac executable.
-	 * @param path the path to the exe
+	 * Sets the path to the executable.
+	 * @param path exe path
 	 */
 	public void setPath(String path) {
 		this.path = path;
-	}
-	
-	/**
-	 * Sets additional options for this codec.  These will
-	 * be used on both reads and writes.
-	 * @param opts the options
-	 */
-	public void setOpts(String opts) {
-		this.opts = opts;
 	}
 	
 	/**
@@ -79,19 +71,15 @@ public class MetaflacDaoImpl implements Tagger {
 		
 		List<String> command = new ArrayList<String>();
 		command.add(path);
-		if (!"".equals(opts)) {
-			command.add(opts);
-		}
-		command.add("--remove-all-tags");
+		command.add("\"" + filePath + "\"");
 		for (GenericTag generic : file.getMeta().getMap().keySet()) {
-			VorbisTag tag = VorbisTag.valueOf(generic);
+			ITunesTag tag = ITunesTag.valueOf(generic);
 			if (tag != null) {
 				for (String value : file.getMeta().getAll(tag)) {
-					command.add("--set-tag=" + tag.toString() + "=" + value);
+					command.add("-meta-user:" + tag.toString() + "=" + value);
 				}
 			}
 		}
-		command.add("\"" + filePath + "\"");
 		
 		logger.info("Starting: setting tags on " + filePath);
 		ProcessResult result = new ProcessCaller(command).call();
@@ -107,29 +95,25 @@ public class MetaflacDaoImpl implements Tagger {
 		
 		List<String> command = new ArrayList<String>();
 		command.add(path);
-		if (!"".equals(opts)) {
-			command.add(opts);
-		}
-		command.add("--list");
-		command.add("--block-type=VORBIS_COMMENT");
 		command.add("\"" + filePath + "\"");
+		command.add("-list-meta");
 		
 		logger.info("Starting: reading tags from " + filePath);
-		ProcessResult result = new ProcessCaller(command).call();
+		ProcessResult result = new ProcessCaller("tag of " + FileUtil.getSafeCanonicalPath(file), command).call();
 		
 		Track track = new DefaultTrack();
 		for (String line : result.getOutput().split("\n")) {
 			Matcher matcher = REGEX.matcher(line.trim());
 			if (matcher.matches()) {
-				String name = matcher.group(1).toUpperCase();
+				String name = matcher.group(1).toLowerCase();
 				
-				VorbisTag tag = VorbisTag.valueOf(name);
+				ITunesTag tag = ITunesTag.valueOf(name);
 				if (tag != null) {
 					track.add(tag, matcher.group(2));
 				}
 			}
 		}
-
+		
 		return new TaggerResult(file, result);
 	}
 }

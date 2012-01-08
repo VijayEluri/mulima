@@ -39,4 +39,9 @@ public abstract class AbstractAudioFile implements AudioFile {
 	public AudioFormat getFormat() {
 		return format;
 	}
+	
+	@Override
+	public String toString() {
+		return file.toString();
+	}
 }

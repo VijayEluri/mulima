@@ -16,6 +16,7 @@ public class TempDir implements FileHolder {
 	
 	public TempDir(File tempDir) {
 		this.dir = tempDir;
+		this.dir.mkdirs();
 	}
 	
 	public TempDir(TempDir parent) {

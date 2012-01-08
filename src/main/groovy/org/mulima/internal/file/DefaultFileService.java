@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 import org.mulima.api.audio.AudioFormat;
 import org.mulima.api.file.CachedDir;
 import org.mulima.api.file.CachedFile;
+import org.mulima.api.file.Digest;
 import org.mulima.api.file.FileComposer;
 import org.mulima.api.file.FileParser;
 import org.mulima.api.file.FileService;
@@ -17,8 +18,11 @@ import org.mulima.api.file.audio.AudioFile;
 import org.mulima.api.file.audio.DiscFile;
 import org.mulima.api.file.audio.TrackFile;
 import org.mulima.api.meta.Album;
+import org.mulima.api.meta.CueSheet;
 import org.mulima.internal.file.audio.DefaultDiscFile;
 import org.mulima.internal.file.audio.DefaultTrackFile;
+import org.mulima.internal.meta.AlbumXmlDao;
+import org.mulima.internal.meta.CueSheetParser;
 import org.mulima.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +39,10 @@ public class DefaultFileService implements FileService {
 	
 	public DefaultFileService() {
 		registerParser(AudioFile.class, new AudioFileParser());
+		registerParser(CueSheet.class, new CueSheetParser());
+		registerParser(Digest.class, new DigestDao());
+		registerParser(Album.class, new AlbumXmlDao());
+		registerComposer(Album.class, new AlbumXmlDao());
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -96,7 +104,6 @@ public class DefaultFileService implements FileService {
 		for (Pattern pattern : DISC_REGEX) {
 			Matcher matcher = pattern.matcher(file.getName());
 			if (matcher.find()) {
-				System.out.println("String: " + file.getName() + ", Pattern: " + pattern.pattern() + ", Groups: " + matcher.groupCount());
 				int discNum = matcher.groupCount() == 0 ? 1 : Integer.valueOf(matcher.group(1));
 				Album album = createCachedFile(Album.class, new File(file.getParentFile(), Album.FILE_NAME)).getValue();
 				if (album == null) {

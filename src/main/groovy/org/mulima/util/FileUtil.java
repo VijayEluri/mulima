@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.mulima.api.file.FileHolder;
+import org.mulima.exception.UncheckedIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,5 +155,31 @@ public final class FileUtil {
 			}
 		}
 		return dirs;
+	}
+	
+	/**
+	 * Deletes a directory and all of its contents.
+	 * @param dir the directory to delete
+	 */
+	public static void deleteDir(FileHolder dir) {
+		deleteDir(dir.getFile());
+	}
+	
+	/**
+	 * Deletes a directory and all of its contents.
+	 * @param dir the directory to delete
+	 */
+	public static void deleteDir(File dir) {
+		for (File file : dir.listFiles()) {
+			if (file.isDirectory()) {
+				deleteDir(file);
+			}
+			if (file.exists() && !file.delete()) {
+				throw new UncheckedIOException("Could not delete: " + file);
+			}
+		}
+		if (dir.exists() && !dir.delete()) {
+			throw new UncheckedIOException("Could not delete: " + dir);
+		}
 	}
 }

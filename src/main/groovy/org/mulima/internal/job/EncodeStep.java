@@ -28,17 +28,6 @@ public class EncodeStep implements Step<Set<AudioFile>> {
 	private Set<AudioFile> outputs;
 	
 	/**
-	 * Constructs a step from the parameters.  The files
-	 * will be put into a temp directory.
-	 * @param service the service to use during execution
-	 * @param format the format to encode the files to
-	 * @param inputs the files to encode
-	 */
-	public EncodeStep(MulimaService service, AudioFormat format, Set<AudioFile> inputs) {
-		this(service, format, inputs, service.getTempDir().newChild().getFile());
-	}
-	
-	/**
 	 * Constructs a step from the parameters.
 	 * @param service the service to use during execution
 	 * @param format the format to encode the files to

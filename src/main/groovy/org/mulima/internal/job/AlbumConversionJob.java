@@ -4,10 +4,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.mulima.api.file.DigestService;
+import org.mulima.api.file.TempDir;
 import org.mulima.api.file.audio.AudioFile;
 import org.mulima.api.file.audio.DiscFile;
 import org.mulima.api.library.LibraryAlbum;
 import org.mulima.api.service.MulimaService;
+import org.mulima.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,8 +55,9 @@ public class AlbumConversionJob implements Job<Boolean> {
 			LOGGER.info("Skipping conversion for " + refAlbum.getAlbum().getName() + ". No albums are out of date.");
 			return true;
 		}
+		TempDir tempDir = service.getTempDir().newChild();
 		
-		DecodeStep decode = new DecodeStep(service, refAlbum.getAudioFiles());
+		DecodeStep decode = new DecodeStep(service, refAlbum.getAudioFiles(), tempDir.newChild().getFile());
 		if (!decode.execute()) {
 			LOGGER.error("Failed to decode: " + refAlbum.getAlbum().getName());
 			return false;
@@ -68,7 +71,7 @@ public class AlbumConversionJob implements Job<Boolean> {
 				tempFiles.add(temp);
 			}
 		}
-		SplitStep split = new SplitStep(service, discFiles);
+		SplitStep split = new SplitStep(service, discFiles, tempDir.newChild().getFile());
 		if (!split.execute()) {
 			LOGGER.error("Failed to split: " + refAlbum.getAlbum().getName());
 			return false;
@@ -76,6 +79,8 @@ public class AlbumConversionJob implements Job<Boolean> {
 		tempFiles.addAll(split.getOutputs());
 		
 		for (LibraryAlbum destAlbum : outdated) {
+			destAlbum.setDir(destAlbum.getLib().determineDir(refAlbum.getAlbum()));
+			destAlbum.cleanDir();
 			EncodeStep encode = new EncodeStep(service, destAlbum.getLib().getFormat(), tempFiles, destAlbum.getDir());
 			if (!encode.execute()) {
 				LOGGER.error("Failed to encode: " + refAlbum.getAlbum().getName());
@@ -89,10 +94,13 @@ public class AlbumConversionJob implements Job<Boolean> {
 			}
 		}
 		
+		FileUtil.deleteDir(tempDir);
+		
 		DigestService digestService = service.getDigestService();
 		for (LibraryAlbum destAlbum : outdated) {
 			digestService.write(destAlbum, refAlbum);
 		}
+		digestService.write(refAlbum, null);
 		
 		LOGGER.info("Successfully converted: " + refAlbum.getAlbum().getName());
 		return true;
@@ -107,8 +115,9 @@ public class AlbumConversionJob implements Job<Boolean> {
 		for (LibraryAlbum destAlbum : destAlbums) {
 			if (!service.getLibraryService().isUpToDate(destAlbum, true)) {
 				tempAlbums.add(destAlbum);
-			//} else {
-			//	logger.debug("Album is up to date: {}", destAlbum.getDir());
+				LOGGER.debug("Album is out of date: {}", destAlbum.getDir());
+			} else {
+				LOGGER.debug("Album is up to date: {}", destAlbum.getDir());
 			}
 		}
 		return tempAlbums;

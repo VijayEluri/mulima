@@ -31,6 +31,9 @@ public class DigestBuilder {
 			throw new IllegalArgumentException("Album directory does not exists: " + libAlbum.getDir());
 		}
 		for (File file : libAlbum.getDir().listFiles()) {
+			if (Digest.FILE_NAME.equals(file.getName()) || Digest.SOURCE_FILE_NAME.equals(file.getName())) {
+				continue;
+			}
 			putDigest(file);
 		}
 		UUID id = libAlbum.getId() == null ? UUID.randomUUID() : libAlbum.getId();
