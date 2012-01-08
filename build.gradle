@@ -30,8 +30,6 @@ tasks.withType(VerificationTask) {
 	}
 }
 
-
-
 codeNarcConfigFileName = 'config/codenarc/codenarc.groovy'
 
 convention.plugins.pmd.rulesets 'config/pmd/rulesets.xml'
@@ -47,46 +45,30 @@ repositories {
 }
 
 dependencies {
-	compile (
-		[group:'org.slf4j', name:'slf4j-api', version:'1.6.1'],
-		[group:'org.springframework', name:'spring-context', version:'3.0.5.RELEASE'],
-		[group:'org.springframework', name:'spring-jdbc', version:'3.0.5.RELEASE'],
-		[group:'org.springframework', name:'spring-tx', version:'3.0.5.RELEASE'],
-		[group:'org.apache.commons', name:'commons-compress', version:'1.1'],
-		[group:'commons-codec', name:'commons-codec', version:'1.5']
-	)
+	compile 'org.slf4j:slf4j-api:1.6.4'
+	compile 'org.springframework:spring-context:3.1.0.RELEASE'
+	compile 'org.springframework:spring-jdbc:3.1.0.RELEASE'
+	compile 'org.springframework:spring-tx:3.1.0.RELEASE'
+	compile 'org.apache.commons:commons-compress:1.3'
+	compile 'commons-codec:commons-codec:1.6'
 	
-	runtime (
-		[group:'org.slf4j', name:'jcl-over-slf4j', version:'1.6.1'],
-		[group:'ch.qos.logback', name:'logback-classic', version:'0.9.28'],
-		[group:'mysql', name:'mysql-connector-java', version:'5.1.13'],
-		[group:'commons-cli', name:'commons-cli', version:'1.2']
-	)
+	runtime 'org.slf4j:jcl-over-slf4j:1.6.4'
+	runtime 'ch.qos.logback:logback-classic:1.0.0'
+	runtime 'mysql:mysql-connector-java:5.1.18'
+	runtime 'commons-cli:commons-cli:1.2'
 	
-	groovy 'org.codehaus.groovy:groovy-all:1.8.2'
+	groovy 'org.codehaus.groovy:groovy-all:1.8.5'
 	findbugs 'com.google.code.findbugs:findbugs:1.3.9'
 	findbugs 'com.google.code.findbugs:findbugs-ant:1.3.9'
-	pmd 'pmd:pmd:4.2.5'	
-	emma 'emma:emma:2.0.5312'
-	emma 'emma:emma_ant:2.0.5312'
+	pmd 'pmd:pmd:4.3'	
+	emma 'emma:emma:2.1.5320'
+	emma 'emma:emma_ant:2.1.5320'
 	jdepend 'jdepend:jdepend:2.9.1'
-	jdepend 'org.apache.ant:ant-jdepend:1.7.1'	
+	jdepend 'org.apache.ant:ant-jdepend:1.8.2'	
 	
-	testCompile(
-		[group:'junit', name:'junit', version:'4.8.2'],
-		[group:'org.mockito', name:'mockito-core', version:'1.8.5'],
-		//[group:'org.spockframework', name:'spock-core', version:'0.5-groovy-1.8']
-		[group:'org.spockframework', name:'spock-core', version:'0.6-groovy-1.8-SNAPSHOT']
-	)
+	testCompile 'junit:junit:4.10'
+	testCompile 'org.mockito:mockito-core:1.9.0'
+	testCompile 'org.spockframework:spock-core:0.6-groovy-1.8-SNAPSHOT'
 	
 	testRuntime 'cglib:cglib-nodep:2.2.2'	
 }
-/*
-task stageLib(type:Sync, dependsOn:assemble) {
-	from configurations.archives.allArtifactFiles
-	from configurations.runtime
-	into file('C:/data/library/lib')
-}
-	
-task stage(dependsOn:stageLib)
-*/
