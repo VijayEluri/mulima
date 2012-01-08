@@ -37,7 +37,7 @@ class DecodeStepSpec extends Specification {
 		codec.format >> AudioFormat.MP3
 		def files = [new DefaultDiscFile(new File('test.mp3'), 1), new DefaultDiscFile(new File('test2.mp3'), 1)] as Set
 		when:
-		def success = new DecodeStep(service, files).execute()
+		def success = new DecodeStep(service, files, service.tempDir.newChild().file).execute()
 		then:
 		success
 		interaction {
@@ -59,6 +59,6 @@ class DecodeStepSpec extends Specification {
 		codec.decode(_, _) >> result
 		def files = [new DefaultDiscFile(new File('test.mp3'), 1), new DefaultDiscFile(new File('test2.mp3'), 1), new DefaultDiscFile(new File('test3.mp3'), 1)] as Set
 		expect:
-		!new DecodeStep(service, files).execute()
+		!new DecodeStep(service, files, service.tempDir.newChild().file).execute()
 	}
 }
