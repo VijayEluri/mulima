@@ -15,7 +15,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package z.org.mulima.library.util;
+package org.mulima.internal.ui;
 
 import java.util.List;
 import java.util.Scanner;

@@ -15,8 +15,21 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package org.mulima.internal.ui;
+
+import java.util.List;
 
 /**
- * Provides library utility classes.
+ * Defines an interface to providing choices to the user.
+ * @author Andrew Oberstar
+ * @version 0.1.0
+ * @since 0.1.0
  */
-package z.org.mulima.library.util;
+public interface Chooser<T> {
+	/**
+	 * Asks the user to choose from the list.
+	 * @param choices list of choices for the user to pick from
+	 * @return the user's choice
+	 */
+	T choose(List<T> choices);
+}

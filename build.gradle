@@ -17,7 +17,7 @@ apply plugin: 'eclipse'
 apply from: 'emma.gradle'
 
 group = 'org.ajoberstar'
-version = '0.1.0.SNAPSHOT'
+version = '0.1.0'
 
 applicationName = 'mulima'
 mainClassName = 'org.mulima.main.Mulima'
@@ -71,4 +71,11 @@ dependencies {
 	testCompile 'org.spockframework:spock-core:0.6-groovy-1.8-SNAPSHOT'
 	
 	testRuntime 'cglib:cglib-nodep:2.2.2'	
+}
+
+jar {
+	manifest {
+		attributes 'Implementation-Title':'Mulima'
+		attributes 'Implementation-Version':version
+	}
 }

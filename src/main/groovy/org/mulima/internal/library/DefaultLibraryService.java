@@ -3,16 +3,21 @@ package org.mulima.internal.library;
 import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import org.mulima.api.file.Digest;
 import org.mulima.api.file.DigestService;
+import org.mulima.api.file.audio.AudioFormat;
 import org.mulima.api.library.Library;
 import org.mulima.api.library.LibraryAlbum;
+import org.mulima.api.library.LibraryAlbumFactory;
 import org.mulima.api.library.LibraryService;
 import org.mulima.api.library.ReferenceLibrary;
+import org.mulima.api.service.MulimaProperties;
 import org.mulima.exception.FatalMulimaException;
+import org.mulima.internal.service.MulimaPropertiesSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,19 +28,22 @@ import org.springframework.stereotype.Service;
  * @since 0.1.0
  */
 @Service
-public class DefaultLibraryService implements LibraryService {
+public class DefaultLibraryService extends MulimaPropertiesSupport implements LibraryService {
+	private LibraryAlbumFactory libAlbumFactory;
 	private final DigestService digestService;
 	private Set<ReferenceLibrary> refLibs;
 	private Set<Library> destLibs;
 	
 	/**
 	 * Constructs a library service from the parameters.
+	 * @param libAlbumFactory the library album factory to pass to libraries
 	 * @param digestService the service to use when calculating digests
 	 * @param refLibs the reference libraries
 	 * @param destLibs the destination libraries
 	 */
 	@Autowired
-	public DefaultLibraryService(DigestService digestService) {
+	public DefaultLibraryService(LibraryAlbumFactory libAlbumFactory, DigestService digestService) {
+		this.libAlbumFactory = libAlbumFactory;
 		this.digestService = digestService;
 	}
 	
@@ -44,6 +52,9 @@ public class DefaultLibraryService implements LibraryService {
 	 */
 	@Override
 	public Set<ReferenceLibrary> getRefLibs() {
+		if (refLibs == null) {
+			this.refLibs = createLibs(ReferenceLibrary.class, getProperties().withScope("reflib"));
+		}
 		return refLibs;
 	}
 	
@@ -59,6 +70,9 @@ public class DefaultLibraryService implements LibraryService {
 	 */
 	@Override
 	public Set<Library> getDestLibs() {
+		if (destLibs == null) {
+			this.destLibs = createLibs(Library.class, getProperties().withScope("lib"));
+		}
 		return destLibs;
 	}
 	
@@ -143,5 +157,27 @@ public class DefaultLibraryService implements LibraryService {
 		} else {
 			return isUpToDate(source, false);
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private <T extends Library> Set<T> createLibs(Class<T> type, MulimaProperties props) {
+		Set<T> libs = new HashSet<T>();
+		Set<String> names = props.getSubScopes();
+		for (String name : names) {
+			MulimaProperties namedProps = props.withScope(name);
+			File dir = new File(namedProps.getProperty("dir"));
+			AudioFormat format = AudioFormat.valueOf(namedProps.getProperty("format"));
+			if (type.isAssignableFrom(ReferenceLibrary.class)) {
+				libs.add((T) new DefaultReferenceLibrary(libAlbumFactory, name, dir, format));	
+			} else {
+				libs.add((T) new DefaultLibrary(libAlbumFactory, name, dir, format));
+			}
+		}
+		return libs;
+	}
+
+	@Override
+	protected List<String> getScope() {
+		return Collections.emptyList();
 	}
 }

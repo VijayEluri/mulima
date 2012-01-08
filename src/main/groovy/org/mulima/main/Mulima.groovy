@@ -49,13 +49,6 @@ class Mulima {
 		MulimaService service = context.getBean(MulimaService.class)
 		service.tempDir = new TempDir().newChild('mulima')
 		
-		File rootDir = new File('C:/Users/Andy/Desktop/Mulima')
-		LibraryAlbumFactory albumFactory = new DefaultLibraryAlbumFactory(service.fileService)
-		service.libraryService.refLibs = [new DefaultReferenceLibrary(albumFactory, 'Lossless Images', new File(rootDir, 'Beardfish'), AudioFormat.FLAC)
-			/*, new DefaultReferenceLibrary(albumFactory, 'MP3 Reference', new File(rootDir, 'BeardfishMP3'), AudioFormat.MP3)*/] as Set
-		service.libraryService.destLibs = [new DefaultLibrary(albumFactory, 'Lossless', new File(rootDir, 'BeardfishFlacLib'), AudioFormat.FLAC),
-			new DefaultLibrary(albumFactory, 'iTunes', new File(rootDir, 'BeardfishAacLib'), AudioFormat.AAC)] as Set
-		
 		LibraryManager manager = context.getBean(LibraryManager.class)
 		
 		def filter = {

@@ -1,9 +1,23 @@
 Mulima (Music Library Manager)
 org.mulima
 
-This is a free (GPLv3 licensed) tool to manage your music library.  Your master copies are maintained in FLAC images with metadata stored in XML files.  The Music Library Manager can then maintain copies in different formats (e.g. for iPod, desktop, etc.).
+This is a free (GPLv3 licensed) tool to manage your music library.
 
-To do the file conversions it uses codecs installed on your computer.
+There are two types of libraries that you can have.  One is a reference library, which contains the master copy of a collection of music.
+You can have multiple reference libaries for different formats, or an arbitrary boundary you feel like using.
 
-NOTE: Right now this is a work in progress. It is not ready for use.
+The other type of library is a destination library.  These are the libraries that you actually make use of.  For example, a FLAC library
+for listening at home and an AAC one to go on your iPod.
 
+Once configured (see config/mulima.properties for more details), executing "mulima -u" will go propogate all changes to your reference libraries
+(metadata, album artwork, the actual files themselves) to the destination libraries.  It will also undo any changes made in your destination
+libraries.  Choosing a directory as a destination library means that Mulima is in control of that directory.  Do not expect anything you do in
+that directory (outside of executing Mulima) to stick around.
+
+Metadata is stored in album.xml files inside your reference libraries.  These can be created from scratch, or pulled from a database.  Right now,
+the only option is to import FreeDB into a MySQL database and reference it from there.  This will probably be changed to reference an online
+source at some point.
+
+Currently Mulima only supports the reference FLAC encoder/decoder/tagger, NeroAAC, and SHNTool (for splitting image files).
+
+NOTE: Right now this is a work in progress. While it does work for a limited use case, it will be significantly expanded.

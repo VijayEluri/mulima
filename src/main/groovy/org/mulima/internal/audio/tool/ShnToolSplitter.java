@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,6 +37,7 @@ import org.mulima.api.file.audio.TrackFile;
 import org.mulima.api.meta.Track;
 import org.mulima.api.proc.ProcessResult;
 import org.mulima.internal.proc.ProcessCaller;
+import org.mulima.internal.service.MulimaPropertiesSupport;
 import org.mulima.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -48,13 +50,18 @@ import org.springframework.stereotype.Component;
  * @since 0.1.0
  */
 @Component
-public class ShnToolSplitter implements Splitter {
+public class ShnToolSplitter extends MulimaPropertiesSupport implements Splitter {
 	private static final Pattern SPLIT_FILE_REGEX = Pattern.compile("^split-track(\\d+)\\.");
 	//private final Logger logger = LoggerFactory.getLogger(getClass());
 	private FileService fileService = null;
 	private String path = "shntool";
 	private String opts = "";
 	private boolean overwrite = false;
+	
+	@Override
+	protected List<String> getScope() {
+		return Arrays.asList("splitter", "path");
+	}
 	
 	/**
 	 * Sets the file service to use.
@@ -65,12 +72,20 @@ public class ShnToolSplitter implements Splitter {
 		this.fileService = fileService;
 	}
 	
+	public String getPath() {
+		return getProperties().getProperty("path", path);
+	}
+	
 	/**
 	 * Sets the path to the executable.
 	 * @param path the exe path
 	 */
 	public void setPath(String path) {
 		this.path = path;
+	}
+	
+	public String getOpts() {
+		return getProperties().getProperty("opts", opts);
 	}
 
 	/**
@@ -98,10 +113,10 @@ public class ShnToolSplitter implements Splitter {
 		String destPath = FileUtil.getSafeCanonicalPath(destDir);
 		
 		List<String> command = new ArrayList<String>();
-		command.add(path);
+		command.add(getPath());
 		command.add("split");
-		if (!"".equals(opts)) {
-			command.add(opts);
+		if (!"".equals(getOpts())) {
+			command.add(getOpts());
 		}
 		command.add("-O");
 		command.add(overwrite ? "always" : "never");

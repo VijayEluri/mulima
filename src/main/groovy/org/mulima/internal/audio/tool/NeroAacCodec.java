@@ -19,6 +19,7 @@
 package org.mulima.internal.audio.tool;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.mulima.api.audio.tool.Codec;
@@ -26,6 +27,7 @@ import org.mulima.api.audio.tool.CodecResult;
 import org.mulima.api.file.audio.AudioFile;
 import org.mulima.api.file.audio.AudioFormat;
 import org.mulima.internal.proc.ProcessCaller;
+import org.mulima.internal.service.MulimaPropertiesSupport;
 import org.mulima.util.FileUtil;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +39,7 @@ import org.springframework.stereotype.Component;
  * @since 0.1.0
  */
 @Component
-public class NeroAacCodec implements Codec {
+public class NeroAacCodec extends MulimaPropertiesSupport implements Codec {
 	//private final Logger logger = LoggerFactory.getLogger(getClass());
 	private String encPath = "neroAacEnc";
 	private String decPath = "neroAacDec";
@@ -45,8 +47,17 @@ public class NeroAacCodec implements Codec {
 	private String opts = "";
 
 	@Override
+	public List<String> getScope() {
+		return Arrays.asList("codec", "aac");
+	}
+	
+	@Override
 	public AudioFormat getFormat() {
 		return AudioFormat.AAC;
+	}
+	
+	public String getEncPath() {
+		return getProperties().getProperty("encPath", encPath);
 	}
 	
 	/**
@@ -55,6 +66,10 @@ public class NeroAacCodec implements Codec {
 	 */
 	public void setEncPath(String encPath) {
 		this.encPath = encPath;
+	}
+	
+	public String getDecPath() {
+		return getProperties().getProperty("decPath", decPath);
 	}
 
 	/**
@@ -65,6 +80,10 @@ public class NeroAacCodec implements Codec {
 		this.decPath = decPath;
 	}
 
+	public String getQuality() {
+		return getProperties().getProperty("quality", quality);
+	}
+	
 	/**
 	 * Sets the quality of the encode.
 	 * @param quality the quality (0.0-1.0)
@@ -73,6 +92,10 @@ public class NeroAacCodec implements Codec {
 		this.quality = quality;
 	}
 
+	public String getOpts() {
+		return getProperties().getProperty("opts", opts);
+	}
+	
 	/**
 	 * Sets the additional options to use.  These will
 	 * be used in both encodes and decodes.
@@ -91,12 +114,12 @@ public class NeroAacCodec implements Codec {
 		String destPath = FileUtil.getSafeCanonicalPath(dest);
 		
 		List<String> command = new ArrayList<String>();
-		command.add(encPath);
-		if (!"".equals(opts)) {
-			command.add(opts);
+		command.add(getEncPath());
+		if (!"".equals(getOpts())) {
+			command.add(getOpts());
 		}
 		command.add("-q");
-		command.add(quality);
+		command.add(getQuality());
 		command.add("-if");
 		command.add("\"" + sourcePath + "\"");
 		command.add("-of");
@@ -115,9 +138,9 @@ public class NeroAacCodec implements Codec {
 		String destPath = FileUtil.getSafeCanonicalPath(dest);
 		
 		List<String> command = new ArrayList<String>();
-		command.add(decPath);
-		if (!"".equals(opts)) {
-			command.add(opts);
+		command.add(getDecPath());
+		if (!"".equals(getOpts())) {
+			command.add(getOpts());
 		}
 		command.add("-if");
 		command.add("\"" + sourcePath + "\"");

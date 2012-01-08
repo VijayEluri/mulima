@@ -6,6 +6,8 @@ import org.mulima.api.file.FileService;
 import org.mulima.api.library.Library;
 import org.mulima.api.library.LibraryAlbum;
 import org.mulima.api.library.LibraryAlbumFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * Default implementation of a library album factory.
@@ -13,6 +15,7 @@ import org.mulima.api.library.LibraryAlbumFactory;
  * @version 0.1.0
  * @since 0.1.0
  */
+@Service
 public class DefaultLibraryAlbumFactory implements LibraryAlbumFactory {
 	private final FileService fileService;
 	
@@ -20,6 +23,7 @@ public class DefaultLibraryAlbumFactory implements LibraryAlbumFactory {
 	 * Constructs a factory that will use the specified file service.
 	 * @param fileService the file service to use
 	 */
+	@Autowired
 	public DefaultLibraryAlbumFactory(FileService fileService) {
 		this.fileService = fileService;
 	}

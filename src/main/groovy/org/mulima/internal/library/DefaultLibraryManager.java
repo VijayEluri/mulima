@@ -24,13 +24,13 @@ import org.mulima.api.meta.Track;
 import org.mulima.api.service.MulimaService;
 import org.mulima.internal.meta.DefaultAlbum;
 import org.mulima.internal.proc.FutureHandler;
+import org.mulima.internal.ui.Chooser;
+import org.mulima.internal.ui.DiscCliChooser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import z.org.mulima.library.util.Chooser;
-import z.org.mulima.library.util.DiscCliChooser;
 
 /**
  * Default implementation of a library manager.

@@ -18,6 +18,7 @@
 package org.mulima.internal.audio.tool;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,6 +33,7 @@ import org.mulima.api.proc.ProcessResult;
 import org.mulima.internal.meta.DefaultTrack;
 import org.mulima.internal.meta.ITunesTag;
 import org.mulima.internal.proc.ProcessCaller;
+import org.mulima.internal.service.MulimaPropertiesSupport;
 import org.mulima.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,13 +47,23 @@ import org.springframework.stereotype.Component;
  * @since 0.1.0
  */
 @Component
-public class NeroAacTagger implements Tagger {
+public class NeroAacTagger extends MulimaPropertiesSupport implements Tagger {
 	private static final Pattern REGEX = Pattern.compile("([A-Za-z]+) = (.+)");
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private String path = "neroAacTag";
 	
+	@Override
+	protected List<String> getScope() {
+		return Arrays.asList("tagger", "aac");
+	}
+	
+	@Override
 	public AudioFormat getFormat() {
 		return AudioFormat.AAC;
+	}
+	
+	public String getPath() {
+		return getProperties().getProperty("path", path);
 	}
 	
 	/**
@@ -70,7 +82,7 @@ public class NeroAacTagger implements Tagger {
 		String filePath = FileUtil.getSafeCanonicalPath(file);
 		
 		List<String> command = new ArrayList<String>();
-		command.add(path);
+		command.add(getPath());
 		command.add("\"" + filePath + "\"");
 		for (GenericTag generic : file.getMeta().getMap().keySet()) {
 			ITunesTag tag = ITunesTag.valueOf(generic);
@@ -94,7 +106,7 @@ public class NeroAacTagger implements Tagger {
 		String filePath = FileUtil.getSafeCanonicalPath(file);
 		
 		List<String> command = new ArrayList<String>();
-		command.add(path);
+		command.add(getPath());
 		command.add("\"" + filePath + "\"");
 		command.add("-list-meta");
 		

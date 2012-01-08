@@ -19,6 +19,7 @@
 package org.mulima.internal.audio.tool;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.mulima.api.audio.tool.Codec;
@@ -26,6 +27,7 @@ import org.mulima.api.audio.tool.CodecResult;
 import org.mulima.api.file.audio.AudioFile;
 import org.mulima.api.file.audio.AudioFormat;
 import org.mulima.internal.proc.ProcessCaller;
+import org.mulima.internal.service.MulimaPropertiesSupport;
 import org.mulima.util.FileUtil;
 import org.springframework.stereotype.Component;
 
@@ -37,15 +39,28 @@ import org.springframework.stereotype.Component;
  * @since 0.1.0
  */
 @Component
-public class FlacCodec implements Codec {
+public class FlacCodec extends MulimaPropertiesSupport implements Codec {
 	//private final Logger logger = LoggerFactory.getLogger(getClass());
 	private String path = "flac";
 	private String opts = "";
-	private int compressionLevel = 5;
+	private String compressionLevel = "5";
+	
+	@Override
+	protected List<String> getScope() {
+		return Arrays.asList("codec", "flac");
+	}
 	
 	@Override
 	public AudioFormat getFormat() {
 		return AudioFormat.FLAC;
+	}
+	
+	/**
+	 * Gets the path to the FLAC executable.
+	 * @return the path to the exe
+	 */
+	public String getPath() {
+		return getProperties().getProperty("path", path);
 	}
 	
 	/**
@@ -57,6 +72,14 @@ public class FlacCodec implements Codec {
 	}
 
 	/**
+	 * Gets the additional options for this codec.
+	 * @return the options
+	 */
+	public String getOpts() {
+		return getProperties().getProperty("opts", opts);
+	}
+	
+	/**
 	 * Sets additional options for this codec.  Will be
 	 * used on both encodes and decodes.
 	 * @param opts the options
@@ -65,11 +88,15 @@ public class FlacCodec implements Codec {
 		this.opts = opts;
 	}
 
+	public String getCompressionLevel() {
+		return getProperties().getProperty("compressionLevel", compressionLevel);
+	}
+	
 	/**
 	 * Sets the compression level for encodes.
 	 * @param compressionLevel the compression level (1-8)
 	 */
-	public void setCompressionLevel(int compressionLevel) {
+	public void setCompressionLevel(String compressionLevel) {
 		this.compressionLevel = compressionLevel;
 	}
 
@@ -82,12 +109,12 @@ public class FlacCodec implements Codec {
 		String destPath = FileUtil.getSafeCanonicalPath(dest);
 		
 		List<String> command = new ArrayList<String>();
-		command.add(path);
+		command.add(getPath());
 		command.add("-f");
-		if (!"".equals(opts)) {
-			command.add(opts);
+		if (!"".equals(getOpts())) {
+			command.add(getOpts());
 		}
-		command.add("-" + compressionLevel);
+		command.add("-" + getCompressionLevel());
 		command.add("-o");
 		command.add("\"" + destPath + "\"");
 		command.add("\"" + sourcePath + "\"");
@@ -105,10 +132,10 @@ public class FlacCodec implements Codec {
 		String destPath = FileUtil.getSafeCanonicalPath(dest);
 		
 		List<String> command = new ArrayList<String>();
-		command.add(path);
+		command.add(getPath());
 		command.add("-f");
-		if (!"".equals(opts)) {
-			command.add(opts);
+		if (!"".equals(getOpts())) {
+			command.add(getOpts());
 		}
 		command.add("-d");
 		command.add("-o");
