@@ -18,8 +18,12 @@
 package org.mulima.util;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.mulima.api.file.FileHolder;
@@ -180,6 +184,58 @@ public final class FileUtil {
 		}
 		if (dir.exists() && !dir.delete()) {
 			throw new UncheckedIOException("Could not delete: " + dir);
+		}
+	}
+	
+	/**
+	 * Copies a file to another directory.
+	 * @param source the file to copy
+	 * @param dir the directory to copy to
+	 */
+	public static void copy(FileHolder source, File dir) {
+		copy(source.getFile(), dir);
+	}
+	
+	/**
+	 * Copies a file to another directory.
+	 * @param source the file to copy
+	 * @param dir the directory to copy to
+	 */
+	public static void copy(File source, File dir) {
+		try {
+			File dest = new File(dir, source.getName());
+			FileChannel sourceChannel = new FileInputStream(source).getChannel();
+			FileChannel destChannel = new FileOutputStream(dest).getChannel();
+			try {
+				sourceChannel.transferTo(0, sourceChannel.size(), destChannel);
+			} finally {
+				if (sourceChannel != null) {
+					sourceChannel.close();
+				}
+				if (destChannel != null) {
+					destChannel.close();
+				}
+			}
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+	}
+	
+	/**
+	 * Copies all files in the collection to another
+	 * directory.  Any elements in the collection that
+	 * are not {@code File}'s or {@code FileHolder}'s
+	 * will not be copied.
+	 * @param files the files to copy
+	 * @param dir the directory to copy them to
+	 */
+	public static void copyAll(Collection<?> files, File dir) {
+		for (Object object : files) {
+			if (object instanceof File) {
+				copy((File) object, dir);
+			} else if (object instanceof FileHolder) {
+				copy((FileHolder) object, dir);
+			}
 		}
 	}
 }

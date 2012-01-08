@@ -1,6 +1,5 @@
 package org.mulima.internal.job.test
 
-import org.mulima.api.audio.AudioFormat
 import org.mulima.api.audio.tool.Codec
 import org.mulima.api.audio.tool.CodecResult
 import org.mulima.api.audio.tool.Tagger
@@ -9,6 +8,7 @@ import org.mulima.api.audio.tool.ToolService
 import org.mulima.api.file.FileService
 import org.mulima.api.file.TempDir
 import org.mulima.api.file.audio.AudioFile
+import org.mulima.api.file.audio.AudioFormat;
 import org.mulima.api.service.MulimaService
 import org.mulima.internal.file.audio.DefaultDiscFile
 import org.mulima.internal.job.DecodeStep

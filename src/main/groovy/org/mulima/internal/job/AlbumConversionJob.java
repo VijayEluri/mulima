@@ -93,6 +93,10 @@ public class AlbumConversionJob implements Job<Boolean> {
 				LOGGER.error("Failed to tag: " + refAlbum.getName());
 				return false;
 			}
+			
+			LOGGER.info("Starting to copy artwork to {}", destAlbum.getDir());
+			FileUtil.copyAll(refAlbum.getArtwork(), destAlbum.getDir());
+			LOGGER.info("Finished copying artwork to {}", destAlbum.getDir());
 		}
 		
 		FileUtil.deleteDir(tempDir);

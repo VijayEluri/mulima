@@ -25,12 +25,12 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.mulima.api.audio.AudioFormat;
 import org.mulima.api.audio.tool.Splitter;
 import org.mulima.api.audio.tool.SplitterResult;
 import org.mulima.api.file.CachedDir;
 import org.mulima.api.file.FileService;
 import org.mulima.api.file.audio.AudioFile;
+import org.mulima.api.file.audio.AudioFormat;
 import org.mulima.api.file.audio.DiscFile;
 import org.mulima.api.file.audio.TrackFile;
 import org.mulima.api.meta.Track;

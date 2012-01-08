@@ -21,10 +21,10 @@ package org.mulima.internal.audio.tool;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.mulima.api.audio.AudioFormat;
 import org.mulima.api.audio.tool.Codec;
 import org.mulima.api.audio.tool.CodecResult;
 import org.mulima.api.file.audio.AudioFile;
+import org.mulima.api.file.audio.AudioFormat;
 import org.mulima.internal.proc.ProcessCaller;
 import org.mulima.util.FileUtil;
 import org.springframework.stereotype.Component;

@@ -1,8 +1,8 @@
 package org.mulima.main
 
-import org.mulima.api.audio.AudioFormat
 import org.mulima.api.file.Digest
 import org.mulima.api.file.TempDir
+import org.mulima.api.file.audio.AudioFormat;
 import org.mulima.api.library.Library
 import org.mulima.api.library.LibraryAlbum
 import org.mulima.api.library.LibraryAlbumFactory

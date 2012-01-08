@@ -9,6 +9,7 @@ import org.mulima.api.file.CachedDir;
 import org.mulima.api.file.CachedFile;
 import org.mulima.api.file.Digest;
 import org.mulima.api.file.FileService;
+import org.mulima.api.file.audio.ArtworkFile;
 import org.mulima.api.file.audio.AudioFile;
 import org.mulima.api.library.Library;
 import org.mulima.api.library.LibraryAlbum;
@@ -34,6 +35,7 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 	private CachedFile<Digest> sourceDigest;
 	private CachedDir<AudioFile> audioFiles;
 	private CachedDir<CueSheet> cueSheets;
+	private CachedDir<ArtworkFile> artwork;
 	
 	/**
 	 * Constructs a library album from the parameters.
@@ -112,6 +114,7 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 				return pathname.getName().endsWith(".cue");
 			}
 		});
+		this.artwork = fileService.createCachedDir(ArtworkFile.class, dir);
 	}
 
 	/**
@@ -144,6 +147,14 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 	@Override
 	public Set<CueSheet> getCueSheets() {
 		return cueSheets.getValues();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Set<ArtworkFile> getArtwork() {
+		return artwork.getValues();
 	}
 	
 	/**

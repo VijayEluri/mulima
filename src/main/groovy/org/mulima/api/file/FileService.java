@@ -3,8 +3,8 @@ package org.mulima.api.file;
 import java.io.File;
 import java.io.FileFilter;
 
-import org.mulima.api.audio.AudioFormat;
 import org.mulima.api.file.audio.AudioFile;
+import org.mulima.api.file.audio.AudioFormat;
 import org.mulima.api.file.audio.DiscFile;
 import org.mulima.api.file.audio.TrackFile;
 

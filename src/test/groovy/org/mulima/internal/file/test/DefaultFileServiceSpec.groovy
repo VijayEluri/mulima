@@ -1,8 +1,8 @@
 package org.mulima.internal.file.test
 
-import org.mulima.api.audio.AudioFormat
 import org.mulima.api.file.CachedFile
 import org.mulima.api.file.FileService
+import org.mulima.api.file.audio.AudioFormat;
 import org.mulima.api.file.audio.DiscFile
 import org.mulima.api.file.audio.TrackFile
 import org.mulima.internal.file.DefaultFileService

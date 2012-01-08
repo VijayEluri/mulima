@@ -7,18 +7,21 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.mulima.api.audio.AudioFormat;
 import org.mulima.api.file.CachedDir;
 import org.mulima.api.file.CachedFile;
 import org.mulima.api.file.Digest;
 import org.mulima.api.file.FileComposer;
 import org.mulima.api.file.FileParser;
 import org.mulima.api.file.FileService;
+import org.mulima.api.file.audio.ArtworkFile;
+import org.mulima.api.file.audio.ArtworkFormat;
 import org.mulima.api.file.audio.AudioFile;
+import org.mulima.api.file.audio.AudioFormat;
 import org.mulima.api.file.audio.DiscFile;
 import org.mulima.api.file.audio.TrackFile;
 import org.mulima.api.meta.Album;
 import org.mulima.api.meta.CueSheet;
+import org.mulima.internal.file.audio.DefaultArtworkFile;
 import org.mulima.internal.file.audio.DefaultDiscFile;
 import org.mulima.internal.file.audio.DefaultTrackFile;
 import org.mulima.internal.meta.AlbumXmlDao;
@@ -38,6 +41,7 @@ public class DefaultFileService implements FileService {
 	private final Map<Class<?>, Map<File, CachedFile<?>>> filesCache = new HashMap<Class<?>, Map<File, CachedFile<?>>>();
 	
 	public DefaultFileService() {
+		registerParser(ArtworkFile.class, new ArtworkFileParser());
 		registerParser(AudioFile.class, new AudioFileParser());
 		registerParser(CueSheet.class, new CueSheetParser());
 		registerParser(Digest.class, new DigestDao());
@@ -191,7 +195,7 @@ public class DefaultFileService implements FileService {
 	
 	private boolean isAudioFile(File file) {
 		for (AudioFormat format : AudioFormat.values()) {
-			if (file.getName().endsWith(format.getExtension())) {
+			if (format.isFormatOf(file)) {
 				return true;
 			}
 		}
@@ -225,6 +229,22 @@ public class DefaultFileService implements FileService {
 				LOGGER.debug("Invalid file: {}", e.getMessage());
 				return null;
 			}
+		}
+	}
+	
+	private static class ArtworkFileParser implements FileParser<ArtworkFile> {
+		@Override
+		public ArtworkFile parse(File file) {
+			return isArtworkFile(file) ? new DefaultArtworkFile(file) : null;
+		}
+		
+		private boolean isArtworkFile(File file) {
+			for (ArtworkFormat format : ArtworkFormat.values()) {
+				if (format.isFormatOf(file)) {
+					return true;
+				}
+			}
+			return false;
 		}
 	}
 }

@@ -2,8 +2,8 @@ package org.mulima.internal.file.audio;
 
 import java.io.File;
 
-import org.mulima.api.audio.AudioFormat;
 import org.mulima.api.file.audio.AudioFile;
+import org.mulima.api.file.audio.AudioFormat;
 
 /**
  * A base implementation of an audio file.

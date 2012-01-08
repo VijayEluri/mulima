@@ -1,4 +1,4 @@
-package org.mulima.api.audio;
+package org.mulima.api.file.audio;
 
 import java.io.File;
 

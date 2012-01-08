@@ -4,12 +4,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.mulima.api.audio.AudioFormat;
 import org.mulima.api.audio.tool.Codec;
 import org.mulima.api.audio.tool.Joiner;
 import org.mulima.api.audio.tool.Splitter;
 import org.mulima.api.audio.tool.Tagger;
 import org.mulima.api.audio.tool.ToolService;
+import org.mulima.api.file.audio.AudioFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

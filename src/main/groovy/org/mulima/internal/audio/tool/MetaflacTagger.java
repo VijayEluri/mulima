@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.mulima.api.audio.AudioFormat;
 import org.mulima.api.audio.tool.Tagger;
 import org.mulima.api.audio.tool.TaggerResult;
 import org.mulima.api.file.audio.AudioFile;
+import org.mulima.api.file.audio.AudioFormat;
 import org.mulima.api.meta.GenericTag;
 import org.mulima.api.meta.Track;
 import org.mulima.api.proc.ProcessResult;

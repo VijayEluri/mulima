@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import org.mulima.api.audio.AudioFormat;
+import org.mulima.api.file.audio.AudioFormat;
 import org.mulima.api.library.Library;
 import org.mulima.api.library.LibraryAlbum;
 import org.mulima.api.library.LibraryAlbumFactory;
