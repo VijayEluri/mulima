@@ -10,5 +10,5 @@ appender('CONSOLE', ConsoleAppender) {
 	}
 }
 
-root(Level.valueOf(System.properties['log.level']) ?: Level.INFO, ['CONSOLE'])
+root(Level.valueOf(System.properties['log.level'] ?: 'INFO'), ['CONSOLE'])
 logger('org.springframework', Level.WARN)
