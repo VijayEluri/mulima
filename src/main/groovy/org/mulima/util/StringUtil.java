@@ -39,6 +39,13 @@ public final class StringUtil {
 	 * @return the Levenshtein distance between the two {@code String}s
 	 */
 	public static int levenshteinDistance(String arg0, String arg1) {
+		if (arg0 == arg1) {
+			return 0;
+		} else if (arg0 == null) {
+			return arg1.length();
+		} else if (arg1 == null) {
+			return arg0.length();
+		}
 		int[][] dist = new int[arg0.length() + 1][arg1.length() + 1];
 		
 		for (int i = 0; i < dist.length; i++) {

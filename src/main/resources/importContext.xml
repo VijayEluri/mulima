@@ -10,12 +10,24 @@
      	http://www.springframework.org/schema/aop 
      	http://www.springframework.org/schema/aop/spring-aop-3.0.xsd"
 >
-	<import resource="applicationContext.xml" />
+	<bean id="tarDao" class="org.mulima.internal.freedb.FreeDbTarDaoImpl" init-method="init" destroy-method="destroy">
+		<property name="tarArchive" value="C:\Users\Andy\Desktop\freedb-complete-20120101.tar" />
+	</bean>
 	
-	<bean id="tarDao" class="com.andrewoberstar.library.meta.dao.impl.FreeDbTarDaoImpl"
-		init-method="init"
-		destroy-method="destroy"
-	>
-		<property name="bz2Archive" value="C:\Users\Andy\Desktop\freedb-complete-20101101.tar.bz2" />
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+	    <property name="url" value="jdbc:mysql://localhost/freedb"/>
+	    <property name="username" value="mulima"/>
+		<property name="password" value="passw0rd"/>
+	</bean>
+	
+	<bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+	
+	<tx:annotation-driven transaction-manager="txManager"/>
+	
+	<bean id="jdbcDao" class="org.mulima.internal.freedb.FreeDbJdbcDaoImpl">
+		<property name="dataSource" ref="dataSource" />
 	</bean>
 </beans>

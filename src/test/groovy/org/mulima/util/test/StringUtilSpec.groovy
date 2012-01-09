@@ -16,6 +16,9 @@ class StringUtilSpec extends Specification {
 		'kitten'	| 'sitting'		| 3
 		'Potatoes'	| 'potatoe'		| 2
 		'Genesis'	| 'Regenesis'	| 3
+		null        | null          | 0
+		null        | 'Test'        | 4
+		'Testing'   | null          | 7	
 	}
 	
 	def 'join returns all elements contatenated together with the glue text in between'() {

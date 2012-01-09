@@ -7,6 +7,7 @@ import org.mulima.api.library.Library
 import org.mulima.api.library.LibraryAlbum
 import org.mulima.api.library.LibraryAlbumFactory
 import org.mulima.api.library.LibraryManager
+import org.mulima.api.library.ReferenceLibrary
 import org.mulima.api.meta.Album
 import org.mulima.api.meta.CueSheet
 import org.mulima.api.service.MulimaService
@@ -26,10 +27,12 @@ class Mulima {
 		cli.with {
 			h longOpt:'help', 'Prints this help message'
 			l longOpt:'list', 'Lists the libraries currently configured.'
-			s longOpt:'status', 'Lists the status of each album.'
+			s longOpt:'stats', 'Gives stats on the number of albums in each library.'
 			p longOpt:'process', 'Process new albums to generate album.xml files. (affects all ref libs)'
 			u longOpt:'update', 'Updates albums in your destination libraries. (implies --process)'
 			f longOpt:'force', 'Forces the update on all albums, including up to date. (only used with --update)'
+			_ longOpt:'no-prompt', 'Will not prompt user to choose if algorithm is unsure.'
+			_ longOpt:'status', 'Lists the status of each album.'
 		}
 		
 		def options = cli.parse(args)
@@ -71,6 +74,12 @@ class Mulima {
 				println formatLib(it)
 			}
 		} else if (options.s) {
+			refLibs.each { ReferenceLibrary lib ->
+				println formatLib(lib)
+				println "\tNew:\t${lib.new.size()}"
+				println "\tTotal:\t${lib.all.size()}"
+			}
+		} else if (options.status) {
 			(refLibs + destLibs).each { Library lib ->
 				println formatLib(lib)
 				lib.all.each { LibraryAlbum album ->
@@ -79,9 +88,9 @@ class Mulima {
 				}
 			}
 		} else if (options.p) {
-			manager.processNew()
+			manager.processNew(!options.'no-prompt')
 		} else if (options.u) {
-			manager.processNew()
+			manager.processNew(!options.'no-prompt')
 			manager.update(destLibs)
 		}
 	}

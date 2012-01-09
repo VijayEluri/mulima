@@ -26,6 +26,7 @@ import org.mulima.internal.meta.DefaultAlbum;
 import org.mulima.internal.proc.FutureHandler;
 import org.mulima.internal.ui.Chooser;
 import org.mulima.internal.ui.DiscCliChooser;
+import org.mulima.util.MetadataUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +62,7 @@ public class DefaultLibraryManager implements LibraryManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void processNew() {
+	public void processNew(boolean prompt) {
 		for (ReferenceLibrary refLib : service.getLibraryService().getRefLibs()) {
 			for (LibraryAlbum refAlbum : refLib.getNew()) {
 				if (refAlbum.getAlbum() != null) {
@@ -69,23 +70,34 @@ public class DefaultLibraryManager implements LibraryManager {
 				}
 				Album album = new DefaultAlbum();
 				for (CueSheet cue : refAlbum.getCueSheets()) {
-					LOGGER.info("*** Searching for disc ***");
-					LOGGER.info("Cue: DiscId: " + cue.getFlat(GenericTag.CDDB_ID)
+					LOGGER.debug("Searching for: Cue: DiscId: " + cue.getFlat(GenericTag.CDDB_ID)
 							+ "\tArtist: " + cue.getFlat(GenericTag.ARTIST) 
 							+ "\tAlbum: " + cue.getFlat(GenericTag.ALBUM));
 					
 					List<String> cddbIds = cue.getAll(GenericTag.CDDB_ID);
 					List<Disc> candidates = freeDbDao.getDiscsById(cddbIds);
 
-					Chooser<Disc> chooser = new DiscCliChooser(cue);
-					Disc choice = chooser.choose(candidates);
-
+					int min = Integer.MAX_VALUE;
+					Disc choice = null;
+					for (Disc cand : candidates) {
+						int dist = MetadataUtil.discDistance(cue, cand);
+						if (dist < min) {
+							min = dist;
+							choice = cand;
+						}
+					}
+					
+					if (prompt && !candidates.isEmpty() && min > 10) {
+						Chooser<Disc> chooser = new DiscCliChooser(cue);
+						choice = chooser.choose(candidates);
+					}
+					
 					if (choice == null) {
 						LOGGER.warn("Disc not found: Artist: "
 							+ cue.getFlat(GenericTag.ARTIST) + "\tAlbum: "
 							+ cue.getFlat(GenericTag.ALBUM));
 					} else {
-						LOGGER.info("Disc found: Artist: " + cue.getFlat(GenericTag.ARTIST)
+						LOGGER.debug("Disc found: Artist: " + cue.getFlat(GenericTag.ARTIST)
 							+ "\tAlbum: " + cue.getFlat(GenericTag.ALBUM));
 						choice.add(GenericTag.DISC_NUMBER, Integer.toString(cue.getNum()));
 						for (Track track : choice.getTracks()) {

@@ -54,25 +54,11 @@ public class DiscCliChooser implements Chooser<Disc> {
 	 */
 	@Override
 	public Disc choose(List<Disc> choices) {
-		int min = Integer.MAX_VALUE;
-		Disc closest = null;
-		for (Disc cand : choices) {
-			int dist = MetadataUtil.discDistance(cue, cand);
-			if (dist < min) {
-				min = dist;
-				closest = cand;
-			}
-		}
-		
-		if (!choices.isEmpty() && min > 10) {
-			System.out.println("***** User Input Requested *****");
-			System.out.println("Cue Disc ID: " + cue.getFlat(GenericTag.CDDB_ID));
-			System.out.println("Cue Artist: " + cue.getFlat(GenericTag.ARTIST));
-			System.out.println("Cue Album: " + cue.getFlat(GenericTag.ALBUM));
-			return askUser(choices);
-		} else {
-			return closest;
-		}
+		System.out.println("***** User Input Requested *****");
+		System.out.println("Cue Disc ID: " + cue.getFlat(GenericTag.CDDB_ID));
+		System.out.println("Cue Artist: " + cue.getFlat(GenericTag.ARTIST));
+		System.out.println("Cue Album: " + cue.getFlat(GenericTag.ALBUM));
+		return askUser(choices);
 	}
 	
 	/**
