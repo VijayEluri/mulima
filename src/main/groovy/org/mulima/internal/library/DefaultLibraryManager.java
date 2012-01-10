@@ -87,9 +87,13 @@ public class DefaultLibraryManager implements LibraryManager {
 						}
 					}
 					
-					if (prompt && !candidates.isEmpty() && min > 10) {
-						Chooser<Disc> chooser = new DiscCliChooser(cue);
-						choice = chooser.choose(candidates);
+					if (!candidates.isEmpty() && min > 10) {
+						if (prompt) {
+							Chooser<Disc> chooser = new DiscCliChooser(cue);
+							choice = chooser.choose(candidates);
+						} else {
+							choice = null;
+						}
 					}
 					
 					if (choice == null) {
