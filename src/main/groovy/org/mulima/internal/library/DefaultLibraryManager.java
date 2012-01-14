@@ -150,22 +150,21 @@ public class DefaultLibraryManager implements LibraryManager {
 	 */
 	@Override
 	public void update(Set<Library> libs) {
-		Collection<Future<Boolean>> futures = new ArrayList<Future<Boolean>>();
-		for (ReferenceLibrary refLib : service.getLibraryService().getRefLibs()) {
-			for (LibraryAlbum refAlbum : refLib.getAll()) {
-				if (refAlbum.getId() == null) {
-					LOGGER.debug("Skipping {}.  It has no ID.", refAlbum.getName());
-					continue;
-				}
-				Set<LibraryAlbum> destAlbums = new HashSet<LibraryAlbum>();
-				for (Library destLib : libs) {
-					destAlbums.add(destLib.getSourcedFrom(refAlbum));
-				}
-				futures.add(conversionService.submit(refAlbum, destAlbums));	
-			}
-		}
-		
 		try {
+			Collection<Future<Boolean>> futures = new ArrayList<Future<Boolean>>();
+			for (ReferenceLibrary refLib : service.getLibraryService().getRefLibs()) {
+				for (LibraryAlbum refAlbum : refLib.getAll()) {
+					if (refAlbum.getId() == null) {
+						LOGGER.debug("Skipping {}.  It has no ID.", refAlbum.getName());
+						continue;
+					}
+					Set<LibraryAlbum> destAlbums = new HashSet<LibraryAlbum>();
+					for (Library destLib : libs) {
+						destAlbums.add(destLib.getSourcedFrom(refAlbum));
+					}
+					futures.add(conversionService.submit(refAlbum, destAlbums));	
+				}
+			}		
 			new FutureHandler().handle("Conversion", futures);
 		} catch (InterruptedException e) {
 			conversionService.shutdownNow();

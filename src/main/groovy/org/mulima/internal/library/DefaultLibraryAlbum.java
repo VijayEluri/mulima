@@ -186,4 +186,11 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 			}
 		}
 	}
+
+	@Override
+	public int compareTo(LibraryAlbum o) {
+		String thisName = getName();
+		String oName = o.getName();
+		return thisName.compareToIgnoreCase(oName);
+	}
 }

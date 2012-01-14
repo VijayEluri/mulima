@@ -24,7 +24,9 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.mulima.api.file.FileHolder;
 import org.mulima.exception.UncheckedIOException;
@@ -192,8 +194,8 @@ public final class FileUtil {
 	 * @param source the file to copy
 	 * @param dir the directory to copy to
 	 */
-	public static void copy(FileHolder source, File dir) {
-		copy(source.getFile(), dir);
+	public static File copy(FileHolder source, File dir) {
+		return copy(source.getFile(), dir);
 	}
 	
 	/**
@@ -201,7 +203,7 @@ public final class FileUtil {
 	 * @param source the file to copy
 	 * @param dir the directory to copy to
 	 */
-	public static void copy(File source, File dir) {
+	public static File copy(File source, File dir) {
 		try {
 			File dest = new File(dir, source.getName());
 			FileChannel sourceChannel = new FileInputStream(source).getChannel();
@@ -216,6 +218,7 @@ public final class FileUtil {
 					destChannel.close();
 				}
 			}
+			return dest;
 		} catch (IOException e) {
 			throw new UncheckedIOException(e);
 		}
@@ -229,13 +232,15 @@ public final class FileUtil {
 	 * @param files the files to copy
 	 * @param dir the directory to copy them to
 	 */
-	public static void copyAll(Collection<?> files, File dir) {
+	public static Set<File> copyAll(Collection<?> files, File dir) {
+		Set<File> dests = new HashSet<File>();
 		for (Object object : files) {
 			if (object instanceof File) {
-				copy((File) object, dir);
+				dests.add(copy((File) object, dir));
 			} else if (object instanceof FileHolder) {
-				copy((FileHolder) object, dir);
+				dests.add(copy((FileHolder) object, dir));
 			}
 		}
+		return dests;
 	}
 }

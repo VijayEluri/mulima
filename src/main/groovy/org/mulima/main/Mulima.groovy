@@ -31,6 +31,7 @@ class Mulima {
 			p longOpt:'process', 'Process new albums to generate album.xml files. (affects all ref libs)'
 			u longOpt:'update', 'Updates albums in your destination libraries. (implies --process)'
 			f longOpt:'force', 'Forces the update on all albums, including up to date. (only used with --update)'
+			v longOpt:'verify', 'Verifies all album.xml files.'
 			_ longOpt:'no-prompt', 'Will not prompt user to choose if algorithm is unsure.'
 			_ longOpt:'status', 'Lists the status of each album.'
 		}
@@ -92,6 +93,20 @@ class Mulima {
 		} else if (options.u) {
 			manager.processNew(!options.'no-prompt')
 			manager.update(destLibs)
+		} else if (options.v) {
+			refLibs*.all*.each { LibraryAlbum refAlbum ->
+				if (refAlbum.id != null) {
+					if (refAlbum.album == null) {
+						println "Invalid album.xml ${refAlbum.dir}"
+					} else {
+						try {
+							refAlbum.name
+						} catch (Exception e) {
+							println "Invalid album.xml ${refAlbum.dir}: ${e.message}"
+						}
+					}
+				}
+			}
 		}
 	}
 	

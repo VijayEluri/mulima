@@ -2,8 +2,8 @@ package org.mulima.internal.library;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 import org.mulima.api.file.audio.AudioFormat;
@@ -12,6 +12,7 @@ import org.mulima.api.library.LibraryAlbum;
 import org.mulima.api.library.LibraryAlbumFactory;
 import org.mulima.api.meta.Album;
 import org.mulima.api.meta.GenericTag;
+import org.mulima.exception.FatalMulimaException;
 import org.mulima.internal.file.LeafDirFilter;
 import org.mulima.util.FileUtil;
 import org.mulima.util.MetadataUtil;
@@ -130,6 +131,9 @@ public class DefaultLibrary implements Library {
 		} else {
 			album = MetadataUtil.commonValueFlat(meta.getDiscs(), GenericTag.ALBUM);
 		}
+		if (album == null || !meta.isSet(GenericTag.ARTIST)) {
+			throw new FatalMulimaException("Could not determine directory due to missing ALBUM or ARTIST tag.");
+		}
 		String relPath = StringUtil.makeSafe(meta.getFlat(GenericTag.ARTIST)).trim()
 			+ File.separator + StringUtil.makeSafe(album).trim();
 		return new File(getRootDir(), relPath);
@@ -140,7 +144,7 @@ public class DefaultLibrary implements Library {
 	 * library albums.
 	 */
 	private void scanAll() {
-		this.albums = new HashSet<LibraryAlbum>();
+		this.albums = new TreeSet<LibraryAlbum>();
 		FileFilter filter = new LeafDirFilter();
 		for (File dir : FileUtil.listDirsRecursive(getRootDir())) {
 			if (filter.accept(dir)) {
@@ -155,8 +159,12 @@ public class DefaultLibrary implements Library {
 	 * @return the new album
 	 */
 	private LibraryAlbum createAlbum(LibraryAlbum source) {
-		File dir = determineDir(source.getAlbum());
-		dir.mkdirs();
-		return libAlbumFactory.create(dir, this);
+		try {
+			File dir = determineDir(source.getAlbum());
+			dir.mkdirs();
+			return libAlbumFactory.create(dir, this);
+		} catch (FatalMulimaException e) {
+			throw new FatalMulimaException("Could not determine directory from source album: " + source.getDir(), e);
+		}
 	}
 }

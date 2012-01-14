@@ -29,19 +29,17 @@ class AlbumXmlDao implements FileParser<Album>, FileComposer<Album> {
 	 * @return an Album representing the file contents
 	 */
 	Album parse(File file) {
-		def xml
 		try {
-			xml = new XmlParser().parse(file)
+			def xml = new XmlParser().parse(file)
+			def album = new DefaultAlbum()
+			parseTags(xml.tag, album)
+			parseDiscs(xml.disc, album.discs)
+			album.tidy()
+			return album
 		} catch (e) {
-			logger.error "Problem reading file: ${file.canonicalPath},", e
-			throw e
+			logger.info "Problem reading file: ${file.canonicalPath},", e
+			return null
 		}
-		def album = new DefaultAlbum()
-		parseTags(xml.tag, album)
-		parseDiscs(xml.disc, album.discs)
-		
-		album.tidy()
-		return album
 	}
 	
 	/**

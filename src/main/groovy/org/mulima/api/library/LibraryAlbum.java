@@ -17,7 +17,7 @@ import org.mulima.api.meta.CueSheet;
  * @version 0.1.0
  * @since 0.1.0
  */
-public interface LibraryAlbum {
+public interface LibraryAlbum extends Comparable<LibraryAlbum> {
 	/**
 	 * Gets the ID of this album.
 	 * @return the ID
