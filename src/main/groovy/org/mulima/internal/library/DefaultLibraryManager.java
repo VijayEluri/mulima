@@ -65,55 +65,55 @@ public class DefaultLibraryManager implements LibraryManager {
 	public void processNew(boolean prompt) {
 		for (ReferenceLibrary refLib : service.getLibraryService().getRefLibs()) {
 			for (LibraryAlbum refAlbum : refLib.getNew()) {
-				if (refAlbum.getAlbum() != null) {
-					continue;
-				}
-				Album album = new DefaultAlbum();
-				for (CueSheet cue : refAlbum.getCueSheets()) {
-					LOGGER.debug("Searching for: Cue: DiscId: " + cue.getFlat(GenericTag.CDDB_ID)
-							+ "\tArtist: " + cue.getFlat(GenericTag.ARTIST) 
-							+ "\tAlbum: " + cue.getFlat(GenericTag.ALBUM));
-					
-					List<String> cddbIds = cue.getAll(GenericTag.CDDB_ID);
-					List<Disc> candidates = freeDbDao.getDiscsById(cddbIds);
-
-					int min = Integer.MAX_VALUE;
-					Disc choice = null;
-					for (Disc cand : candidates) {
-						int dist = MetadataUtil.discDistance(cue, cand);
-						if (dist < min) {
-							min = dist;
-							choice = cand;
-						}
-					}
-					
-					if (!candidates.isEmpty() && min > 10) {
-						if (prompt) {
-							Chooser<Disc> chooser = new DiscCliChooser(cue);
-							choice = chooser.choose(candidates);
-						} else {
-							choice = null;
-						}
-					}
-					
-					if (choice == null) {
-						LOGGER.warn("Disc not found: Artist: "
-							+ cue.getFlat(GenericTag.ARTIST) + "\tAlbum: "
-							+ cue.getFlat(GenericTag.ALBUM));
-					} else {
-						LOGGER.debug("Disc found: Artist: " + cue.getFlat(GenericTag.ARTIST)
-							+ "\tAlbum: " + cue.getFlat(GenericTag.ALBUM));
-						choice.add(GenericTag.DISC_NUMBER, Integer.toString(cue.getNum()));
-						for (Track track : choice.getTracks()) {
-							CuePoint startPoint = null;
-							for (CuePoint point : cue.getCuePoints()) {
-								if (point.getTrack() == track.getNum()) {
-									startPoint = point;
-								}
+				Album album = refAlbum.getAlbum();
+				if (album == null) {
+					album = new DefaultAlbum();
+					for (CueSheet cue : refAlbum.getCueSheets()) {
+						LOGGER.debug("Searching for: Cue: DiscId: " + cue.getFlat(GenericTag.CDDB_ID)
+								+ "\tArtist: " + cue.getFlat(GenericTag.ARTIST) 
+								+ "\tAlbum: " + cue.getFlat(GenericTag.ALBUM));
+						
+						List<String> cddbIds = cue.getAll(GenericTag.CDDB_ID);
+						List<Disc> candidates = freeDbDao.getDiscsById(cddbIds);
+	
+						int min = Integer.MAX_VALUE;
+						Disc choice = null;
+						for (Disc cand : candidates) {
+							int dist = MetadataUtil.discDistance(cue, cand);
+							if (dist < min) {
+								min = dist;
+								choice = cand;
 							}
-							track.setStartPoint(startPoint);
 						}
-						album.getDiscs().add(choice);
+						
+						if (!candidates.isEmpty() && min > 10) {
+							if (prompt) {
+								Chooser<Disc> chooser = new DiscCliChooser(cue);
+								choice = chooser.choose(candidates);
+							} else {
+								choice = null;
+							}
+						}
+						
+						if (choice == null) {
+							LOGGER.warn("Disc not found: Artist: "
+								+ cue.getFlat(GenericTag.ARTIST) + "\tAlbum: "
+								+ cue.getFlat(GenericTag.ALBUM));
+						} else {
+							LOGGER.debug("Disc found: Artist: " + cue.getFlat(GenericTag.ARTIST)
+								+ "\tAlbum: " + cue.getFlat(GenericTag.ALBUM));
+							choice.add(GenericTag.DISC_NUMBER, Integer.toString(cue.getNum()));
+							for (Track track : choice.getTracks()) {
+								CuePoint startPoint = null;
+								for (CuePoint point : cue.getCuePoints()) {
+									if (point.getTrack() == track.getNum()) {
+										startPoint = point;
+									}
+								}
+								track.setStartPoint(startPoint);
+							}
+							album.getDiscs().add(choice);
+						}
 					}
 				}
 				if (album.getDiscs().size() == refAlbum.getCueSheets().size()) {

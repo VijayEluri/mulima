@@ -48,7 +48,9 @@ class DefaultReferenceLibrarySpec extends Specification {
 	def mockFile(boolean isDirectory, File... children = null) {
 		File file = Mock(File)
 		file.directory >> isDirectory
-		file.path >> UUID.randomUUID().toString()
+		def path = UUID.randomUUID().toString() + '.flac'
+		file.path >> path
+		file.absolutePath >> path
 		if (isDirectory) {
 			file.listFiles() >> (children ?: [] as File[])
 		}

@@ -45,6 +45,7 @@ public enum GenericTag implements Tag {
 	PERFORMER,
 	PRODUCER,
 	ENGINEER,
+	MIXER,
 	CONDUCTOR,
 	ENSEMBLE,
 

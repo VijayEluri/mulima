@@ -24,7 +24,7 @@ class DefaultLibrarySpec extends Specification {
 		LibraryAlbum album1 = mockAlbum(new UUID(0L, 1L), null, mockFile(true, mockFile(false), mockFile(false)))
 		LibraryAlbum album2 = mockAlbum(new UUID(0L, 2L), new UUID(1L, 1L), mockFile(true, mockFile(false), mockFile(false), mockFile(false)))
 		LibraryAlbum album3 = mockAlbum(new UUID(0L, 3L), new UUID(1L, 2L), mockFile(true, mockFile(false)))
-		LibraryAlbum album4 = mockAlbum(new UUID(0L, 4L), new UUID(1L, 3L), mockFile(true))
+		LibraryAlbum album4 = mockAlbum(new UUID(0L, 4L), new UUID(1L, 3L), mockFile(true, mockFile(false), mockFile(false)))
 		allLibAlbums = [album1, album2, album3, album4]
 		File dir5 = mockFile(true, album1.dir, mockFile(false), album3.dir)
 		File dir6 = mockFile(true, mockFile(false), mockFile(false), album2.dir)
@@ -74,7 +74,9 @@ class DefaultLibrarySpec extends Specification {
 	def mockFile(boolean isDirectory, File... children = null) {
 		File file = Mock(File)
 		file.directory >> isDirectory
-		file.path >> UUID.randomUUID().toString()
+		def path = UUID.randomUUID().toString() + '.flac'
+		file.path >> path
+		file.absolutePath >> path
 		if (isDirectory) {
 			file.listFiles() >> (children ?: [] as File[])
 		}

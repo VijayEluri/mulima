@@ -7,8 +7,13 @@ import spock.lang.Specification
 class LeafDirFilterSpec extends Specification {
 	def 'accept returns true for directories with no subdirs'() {
 		expect:
-		new LeafDirFilter().accept(mockFile(true))
+		new LeafDirFilter().accept(mockFile(true, mockFile(false)))
 		new LeafDirFilter().accept(mockFile(true, mockFile(false), mockFile(false)))
+	}
+	
+	def 'accept returns false for empty directories'() {
+		expect:
+		!new LeafDirFilter().accept(mockFile(true))
 	}
 	
 	def 'accept returns false for directories with subdirs'() {
@@ -28,6 +33,7 @@ class LeafDirFilterSpec extends Specification {
 		if (isDirectory && children != null) {
 			file.listFiles() >> (children as File[])
 		}
+		file.absolutePath >> '/opt/music/blah.flac'
 		return file
 	}
 }
