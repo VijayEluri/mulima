@@ -118,7 +118,7 @@ class Mulima {
 		if (album.album == null) {
 			return "${album.dir.canonicalPath - album.lib.rootDir.canonicalPath} (New) - ${upToDate}"
 		} else {
-			return "${album.album.name} - ${upToDate}"
+			return "${album.name} - ${upToDate}"
 		}
 	}
 }

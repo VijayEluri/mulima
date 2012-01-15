@@ -1,7 +1,7 @@
 package org.mulima.api.file;
 
 import java.io.File;
-import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public interface Digest {
@@ -9,5 +9,6 @@ public interface Digest {
 	String SOURCE_FILE_NAME = ".source.digest";
 	UUID getId();	
 	String getDigest(File file);
-	Map<File, String> getMap();
+	DigestEntry getEntry(File file);
+	Set<DigestEntry> getEntries();
 }

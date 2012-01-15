@@ -20,7 +20,7 @@ class DefaultReferenceLibrarySpec extends Specification {
 		LibraryAlbum album1 = mockAlbum(null, null, mockFile(true, mockFile(false), mockFile(false)))
 		LibraryAlbum album2 = mockAlbum(new UUID(0L, 2L), new UUID(1L, 1L), mockFile(true, mockFile(false), mockFile(false), mockFile(false)))
 		LibraryAlbum album3 = mockAlbum(null, new UUID(1L, 2L), mockFile(true, mockFile(false)))
-		LibraryAlbum album4 = mockAlbum(new UUID(0L, 4L), new UUID(1L, 3L), mockFile(true))
+		LibraryAlbum album4 = mockAlbum(new UUID(0L, 4L), new UUID(1L, 3L), mockFile(true, mockFile(false)))
 		def allLibAlbums = [album1, album2, album3, album4]
 		newLibAlbums = [album1, album3]
 		File dir5 = mockFile(true, album1.dir, mockFile(false), album3.dir)

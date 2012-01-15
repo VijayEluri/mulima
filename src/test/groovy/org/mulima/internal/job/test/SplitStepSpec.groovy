@@ -7,8 +7,8 @@ import org.mulima.api.file.FileService
 import org.mulima.api.file.TempDir
 import org.mulima.api.file.audio.AudioFile
 import org.mulima.api.file.audio.TrackFile
-import org.mulima.api.meta.Disc;
-import org.mulima.api.meta.Track;
+import org.mulima.api.meta.Disc
+import org.mulima.api.meta.Track
 import org.mulima.api.service.MulimaService
 import org.mulima.internal.file.audio.DefaultDiscFile
 import org.mulima.internal.job.SplitStep
@@ -26,6 +26,7 @@ class SplitStepSpec extends Specification {
 		FileService fileService = Mock(FileService)
 		service.fileService >> fileService
 		fileService.createAudioFile(_, _, _) >> Mock(AudioFile)
+		fileService.createTrackFile(_) >> Mock(TrackFile)
 	}
 	
 	def 'execute succeeds when files split successfully'() {
@@ -39,7 +40,7 @@ class SplitStepSpec extends Specification {
 		def files = [new DefaultDiscFile(new File('test.wav'), 1), new DefaultDiscFile(new File('test2.wav'), 1)] as Set
 		files.each {
 			it.meta = Mock(Disc)
-			it.meta.tracks >> [Mock(Track)]
+			it.meta.tracks >> ([Mock(Track)] as SortedSet)
 		}
 		when:
 		def success = new SplitStep(service, files, service.tempDir.newChild().file).execute()
@@ -65,7 +66,7 @@ class SplitStepSpec extends Specification {
 		def files = [new DefaultDiscFile(new File('test.wav'), 1), new DefaultDiscFile(new File('test2.wav'), 1), new DefaultDiscFile(new File('test3.wav'), 1)] as Set
 		files.each {
 			it.meta = Mock(Disc)
-			it.meta.tracks >> [Mock(Track)]
+			it.meta.tracks >> ([Mock(Track)] as SortedSet)
 		}
 		expect:
 		!new SplitStep(service, files, service.tempDir.newChild().file).execute()
