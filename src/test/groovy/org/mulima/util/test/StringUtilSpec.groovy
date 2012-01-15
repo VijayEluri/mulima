@@ -39,10 +39,12 @@ class StringUtilSpec extends Specification {
 		'Blah/456'		| 'Blah_456'
 		':test'			| '_test'
 		'google?'		| 'google_'
-		'h*m*m**'		| 'h_m_m__'
+		'h*m*m**'		| 'h_m_m_'
 		'w>hy'			| 'w_hy'
 		'wh<o'			| 'wh_o'
-		'||or'			| '__or'
+		'||or'			| '_or'
+		'...And...'     | 'And'
+		'   Blah. '     | 'Blah'
 	}
 	
 	def 'commonString finds the common part of the string from the beginning'() {

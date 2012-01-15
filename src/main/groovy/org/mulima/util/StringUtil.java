@@ -143,7 +143,8 @@ public final class StringUtil {
 	 * @return the {@code String} with offending characters replaced with underscores
 	 */
 	public static String makeSafe(String arg0) {
-		return arg0.replaceAll("[\\\\/:\\*\\?\"<>\\|]", "_");
+		String woIllegals = arg0.trim().replaceAll("[\\\\/:\\*\\?\"<>\\|]+", "_");
+		return woIllegals.replaceAll("^\\.+|\\.+$", "");
 	}
 	
 	/**
