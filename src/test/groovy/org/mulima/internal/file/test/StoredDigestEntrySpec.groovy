@@ -5,14 +5,14 @@ import org.mulima.internal.file.StoredDigestEntry
 import spock.lang.Specification
 
 class StoredDigestEntrySpec extends Specification {
-	File file
+	String fileName
 	long lastModified
 	long size
 	String digest
 	String notation
 	
 	def setup() {
-		file = Mock()
+		fileName = 'temp'
 		lastModified = 123456
 		size = 1000
 		digest = 'kajhakjewhfoawiejf'
@@ -21,19 +21,19 @@ class StoredDigestEntrySpec extends Specification {
 	
 	def 'getModified returens file\'s last modified date'() {
 		expect:
-		new StoredDigestEntry(file, lastModified, size, digest).modified == lastModified
-		new StoredDigestEntry(file, notation).modified == lastModified
+		new StoredDigestEntry(fileName, lastModified, size, digest).modified == lastModified
+		new StoredDigestEntry(fileName, notation).modified == lastModified
 	}
 	
 	def 'getSize returns file\'s length'() {
 		expect:
-		new StoredDigestEntry(file, lastModified, size, digest).size == size
-		new StoredDigestEntry(file, notation).size == size
+		new StoredDigestEntry(fileName, lastModified, size, digest).size == size
+		new StoredDigestEntry(fileName, notation).size == size
 	}
 	
 	def 'getDigest returns digest of file contents'() {
 		expect:
-		new StoredDigestEntry(file, lastModified, size, digest).digest == digest
-		new StoredDigestEntry(file, notation).digest == digest
+		new StoredDigestEntry(fileName, lastModified, size, digest).digest == digest
+		new StoredDigestEntry(fileName, notation).digest == digest
 	}
 }

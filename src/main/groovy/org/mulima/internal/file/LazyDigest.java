@@ -21,7 +21,7 @@ public class LazyDigest extends AbstractDigest implements Digest {
 				return false;
 			}
 			for (DigestEntry thisEntry : this.getEntries()) {
-				DigestEntry thatEntry = that.getEntry(thisEntry.getFile());
+				DigestEntry thatEntry = that.getEntry(thisEntry.getFileName());
 				if (!thisEntry.lazyEquals(thatEntry)) {
 					return false;
 				}

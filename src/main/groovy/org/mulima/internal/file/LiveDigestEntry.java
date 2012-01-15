@@ -20,18 +20,22 @@ public class LiveDigestEntry extends AbstractDigestEntry implements DigestEntry 
 		this.file = file;
 	}
 	
-	public File getFile() {
-		return file;
+	@Override
+	public String getFileName() {
+		return file.getName();
 	}
 	
+	@Override
 	public long getModified() {
 		return file.lastModified();
 	}
 	
+	@Override
 	public long getSize() { 
 		return file.length();
 	}
 	
+	@Override
 	public String getDigest() {
 		if (digest == null) {
 			InputStream is = null;

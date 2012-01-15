@@ -135,8 +135,7 @@ public class DefaultLibraryService extends MulimaPropertiesSupport implements Li
 		} else if (checkSource && !isSourceUpToDate(libAlbum)) {
 			return false;
 		}
-		Digest current = digestService.create(libAlbum);
-		return digest.equals(current);
+		return isUpToDate(libAlbum, digest);
 	}
 	
 	/**
@@ -155,8 +154,23 @@ public class DefaultLibraryService extends MulimaPropertiesSupport implements Li
 		if (source == null) {
 			throw new FatalMulimaException("Source album for " + libAlbum.getId() + " not found: " + sourceDigest.getId());
 		} else {
-			return isUpToDate(source, false);
+			return isUpToDate(source, sourceDigest);
 		}
+	}
+	
+	/**
+	 * Checks if an album is up to date compared to the cached
+	 * digest.
+	 * @param album the album to check
+	 * @param digest the digest representing a previous state
+	 * @return {@code true} if up to date, {@code false} otherwise
+	 */
+	private boolean isUpToDate(LibraryAlbum album, Digest cached) {
+		if (cached == null) {
+			return false;
+		}
+		Digest current = digestService.create(album);
+		return cached.equals(current);
 	}
 	
 	@SuppressWarnings("unchecked")

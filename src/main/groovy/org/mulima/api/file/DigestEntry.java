@@ -1,9 +1,8 @@
 package org.mulima.api.file;
 
-import java.io.File;
 
 public interface DigestEntry {
-	File getFile();
+	String getFileName();
 	long getModified();
 	long getSize();
 	String getDigest();

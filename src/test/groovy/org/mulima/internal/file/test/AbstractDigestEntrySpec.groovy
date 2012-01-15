@@ -22,10 +22,10 @@ class AbstractDigestEntrySpec extends Specification {
 		long size = file.length()
 		String digest = '43d20799f81b8e5b4a85febdffb07eb2a59f84c6'
 		live = new LiveDigestEntry(file)
-		store = new StoredDigestEntry(file, lastModified, size, digest)
-		storeM = new StoredDigestEntry(file, 0, size, digest)
-		storeS = new StoredDigestEntry(file, lastModified, 0, digest)
-		storeD = new StoredDigestEntry(file, lastModified, size, '')
+		store = new StoredDigestEntry(file.name, lastModified, size, digest)
+		storeM = new StoredDigestEntry(file.name, 0, size, digest)
+		storeS = new StoredDigestEntry(file.name, lastModified, 0, digest)
+		storeD = new StoredDigestEntry(file.name, lastModified, size, '')
 	}
 	
 	def 'equals returns false only if digest is different'() {

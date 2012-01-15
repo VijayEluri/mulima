@@ -1,6 +1,5 @@
 package org.mulima.internal.file;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
@@ -23,15 +22,15 @@ public abstract class AbstractDigest implements Digest {
 	}
 
 	@Override
-	public String getDigest(File file) {
-		DigestEntry entry = getEntry(file);
+	public String getDigest(String fileName) {
+		DigestEntry entry = getEntry(fileName);
 		return entry == null ? null : entry.getDigest();
 	}
 	
 	@Override
-	public DigestEntry getEntry(File file) {
+	public DigestEntry getEntry(String fileName) {
 		for (DigestEntry entry : entries) {
-			if (entry.getFile().equals(file)) {
+			if (entry.getFileName().equals(fileName)) {
 				return entry;
 			}
 		}

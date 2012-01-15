@@ -17,7 +17,7 @@ public abstract class AbstractDigestEntry implements DigestEntry {
 	
 	@Override
 	public int hashCode() {
-		return getFile().hashCode();
+		return getFileName().hashCode();
 	}
 	
 	public boolean lazyEquals(Object o) {

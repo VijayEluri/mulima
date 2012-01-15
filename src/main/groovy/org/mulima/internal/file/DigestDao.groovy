@@ -19,11 +19,10 @@ class DigestDao implements FileParser<Digest>, FileComposer<Digest> {
 			if (ID_KEY == key) {
 				id = UUID.fromString(value)
 			} else {
-				File keyFile = new File(file.parentFile, key)
 				if (value.contains(',')) {
-					entries << new StoredDigestEntry(keyFile, value)
+					entries << new StoredDigestEntry(key, value)
 				} else {
-					entries << new StoredDigestEntry(keyFile, "0,0,${value}")
+					entries << new StoredDigestEntry(key, "0,0,${value}")
 				}
 			}
 		}
