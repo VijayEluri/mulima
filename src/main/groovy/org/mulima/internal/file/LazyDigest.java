@@ -17,7 +17,7 @@ public class LazyDigest extends AbstractDigest implements Digest {
 			return false;
 		} else if (o instanceof LazyDigest) {
 			Digest that = (Digest) o;
-			if (this.getId() != that.getId()) {
+			if (!this.getId().equals(that.getId())) {
 				return false;
 			}
 			for (DigestEntry thisEntry : this.getEntries()) {

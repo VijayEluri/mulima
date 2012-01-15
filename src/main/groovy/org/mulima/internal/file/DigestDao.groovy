@@ -39,7 +39,7 @@ class DigestDao implements FileParser<Digest>, FileComposer<Digest> {
 		Properties props = new Properties()
 		props[ID_KEY] = digest.id.toString()
 		digest.entries.each { entry ->
-			props[entry.file.name] = entry
+			props[entry.file.name] = entry.toString()
 		}
 		file.withPrintWriter { writer ->
 			props.store(writer, null)	

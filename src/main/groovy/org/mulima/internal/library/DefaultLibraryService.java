@@ -129,7 +129,6 @@ public class DefaultLibraryService extends MulimaPropertiesSupport implements Li
 	@Override
 	public boolean isUpToDate(LibraryAlbum libAlbum, boolean checkSource) {
 		Digest digest = libAlbum.getDigest();
-		
 		if (digest == null) {
 			return false;
 		} else if (checkSource && !isSourceUpToDate(libAlbum)) {
