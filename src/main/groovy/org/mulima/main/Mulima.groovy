@@ -115,10 +115,10 @@ class Mulima {
 	}
 	
 	private static String formatAlbum(LibraryAlbum album, boolean upToDate) {
-		if (album.album == null) {
-			return "${album.dir.canonicalPath - album.lib.rootDir.canonicalPath} (New) - ${upToDate}"
+		if (album.id == null) {
+			return "${upToDate} - ${album.dir.canonicalPath - album.lib.rootDir.canonicalPath} (New)"
 		} else {
-			return "${album.name} - ${upToDate}"
+			return "${upToDate} - ${album.name}"
 		}
 	}
 }
