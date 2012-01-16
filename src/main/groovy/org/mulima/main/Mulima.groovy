@@ -1,22 +1,14 @@
 package org.mulima.main
 
 import org.mulima.api.file.Digest
+import org.mulima.api.file.DigestService
 import org.mulima.api.file.TempDir
-import org.mulima.api.file.audio.AudioFormat;
 import org.mulima.api.library.Library
 import org.mulima.api.library.LibraryAlbum
-import org.mulima.api.library.LibraryAlbumFactory
 import org.mulima.api.library.LibraryManager
+import org.mulima.api.library.LibraryService
 import org.mulima.api.library.ReferenceLibrary
-import org.mulima.api.meta.Album
-import org.mulima.api.meta.CueSheet
 import org.mulima.api.service.MulimaService
-import org.mulima.internal.file.DigestDao
-import org.mulima.internal.library.DefaultLibrary
-import org.mulima.internal.library.DefaultLibraryAlbumFactory
-import org.mulima.internal.library.DefaultReferenceLibrary
-import org.mulima.internal.meta.AlbumXmlDao
-import org.mulima.internal.meta.CueSheetParser
 import org.springframework.context.ApplicationContext
 import org.springframework.context.support.ClassPathXmlApplicationContext
 import org.springframework.context.support.FileSystemXmlApplicationContext
@@ -75,10 +67,16 @@ class Mulima {
 				println formatLib(it)
 			}
 		} else if (options.s) {
-			refLibs.each { ReferenceLibrary lib ->
+			(refLibs + destLibs).each { Library lib ->
+				def outdated = lib.all.findAll { LibraryAlbum album ->
+					album.id != null && !service.libraryService.isUpToDate(album, true)
+				}
 				println formatLib(lib)
-				println "\tNew:\t${lib.new.size()}"
-				println "\tTotal:\t${lib.all.size()}"
+				if (lib instanceof ReferenceLibrary) {
+					println "  New:          ${lib.new.size()}"
+				}
+				println "  Out of Date:  ${outdated.size()}"
+				println "  Total:        ${lib.all.size()}"
 			}
 		} else if (options.status) {
 			(refLibs + destLibs).each { Library lib ->
