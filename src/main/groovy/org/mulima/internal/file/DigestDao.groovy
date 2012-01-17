@@ -27,16 +27,15 @@ class DigestDao implements FileParser<Digest>, FileComposer<Digest> {
 		}
 		
 		UUID id = null
-		Map fileToDigest = [:]
+		Set entries = [] as Set
 		props.each { key, value ->
 			if (ID_KEY == key) {
 				id = UUID.fromString(value)
 			} else {
-				File keyFile = new File(file.parentFile, key)
-				fileToDigest[keyFile] = value
+				entries << new StoredDigestEntry(key, value)
 			}
 		}
-		return new DefaultDigest(id, fileToDigest)
+		return new LazyDigest(id, entries)
 	}
 	
 	/**
@@ -52,9 +51,9 @@ class DigestDao implements FileParser<Digest>, FileComposer<Digest> {
 		}
 		
 		Properties props = new Properties()
-		props[ID_KEY] = digest.id
-		digest.map.each { key, value ->
-			props[key.name] = value	
+		props[ID_KEY] = digest.id.toString()
+		digest.entries.each { entry ->
+			props[entry.file.name] = entry.toString()
 		}
 		file.withPrintWriter { writer ->
 			props.store(writer, null)	

@@ -5,6 +5,7 @@ import groovy.xml.MarkupBuilder
 import org.mulima.api.file.FileComposer
 import org.mulima.api.file.FileParser
 import org.mulima.api.meta.Album
+import org.mulima.api.meta.CuePoint
 import org.mulima.api.meta.Disc
 import org.mulima.api.meta.GenericTag
 import org.mulima.api.meta.Metadata
@@ -28,19 +29,17 @@ class AlbumXmlDao implements FileParser<Album>, FileComposer<Album> {
 	 * @return an Album representing the file contents
 	 */
 	Album parse(File file) {
-		def xml
 		try {
-			xml = new XmlParser().parse(file)
+			def xml = new XmlParser().parse(file)
+			def album = new DefaultAlbum()
+			parseTags(xml.tag, album)
+			parseDiscs(xml.disc, album.discs)
+			album.tidy()
+			return album
 		} catch (e) {
-			logger.error "Problem reading file: ${file.canonicalPath},", e
-			throw e
+			logger.info "Problem reading file: ${file.canonicalPath},", e
+			return null
 		}
-		def album = new DefaultAlbum()
-		parseTags(xml.tag, album)
-		parseDiscs(xml.disc, album.discs)
-		
-		album.tidy()
-		return album
 	}
 	
 	/**
@@ -78,14 +77,16 @@ class AlbumXmlDao implements FileParser<Album>, FileComposer<Album> {
 			def track = new DefaultTrack()
 			parseTags(trackNode.tag, track)
 			
-//			trackNode.startPoint.with {
-//				track.startPoint = new CuePoint(
-//					Integer.parseInt(it.'@track'),
-//					Integer.parseInt(it.'@index'),
-//					it.'@time'
-//				)
-//			}
-//
+			if (trackNode.startPoint) {
+				trackNode.startPoint[0].with {
+					track.startPoint = new DefaultCuePoint(
+						Integer.parseInt(it.'@track'),
+						Integer.parseInt(it.'@index'),
+						it.'@time'
+					)
+				}
+			}
+
 //			trackNode.endPoint.with {
 //				track.endPoint = new CuePoint(
 //					Integer.parseInt(it.'@track'),
@@ -150,12 +151,13 @@ class AlbumXmlDao implements FileParser<Album>, FileComposer<Album> {
 	 * @param tracks the tracks to write
 	 */
 	private void composeTracks(MarkupBuilder xml, SortedSet<Track> tracks) {
-		tracks.each { albumTrack ->
+		tracks.each { Track albumTrack ->
 			xml.track {
 				composeTags(xml, albumTrack)
-				//if (albumTrack.cueRef != null) {
-				//	cueRef(cueNum:albumTrack.cueRef.cueNum, startNum:albumTrack.cueRef.startNum, endNum:albumTrack.cueRef.endNum)
-				//}
+				CuePoint point = albumTrack.startPoint
+				if (point) {
+					startPoint(track:point.track, index:point.index, time:point.time)
+				}
 			}
 		}
 	}

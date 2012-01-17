@@ -5,8 +5,10 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.mulima.api.file.Digest;
+import org.mulima.api.file.audio.ArtworkFile;
 import org.mulima.api.file.audio.AudioFile;
 import org.mulima.api.meta.Album;
+import org.mulima.api.meta.CueSheet;
 
 /**
  * An object representing an album as stored
@@ -15,7 +17,7 @@ import org.mulima.api.meta.Album;
  * @version 0.1.0
  * @since 0.1.0
  */
-public interface LibraryAlbum {
+public interface LibraryAlbum extends Comparable<LibraryAlbum> {
 	/**
 	 * Gets the ID of this album.
 	 * @return the ID
@@ -29,10 +31,24 @@ public interface LibraryAlbum {
 	UUID getSourceId();
 	
 	/**
+	 * Gets a human readable name for this album.
+	 * @return the name
+	 */
+	String getName();
+	
+	/**
 	 * Gets the directory this album is stored in.
 	 * @return the directory
 	 */
 	File getDir();
+	
+	/**
+	 * Sets the directory this album is stored in.
+	 * If the dir was already set, this will rename
+	 * the existing directory.
+	 * @param dir the new directory
+	 */
+	void setDir(File dir);
 	
 	/**
 	 * Gets the library this album is stored in.
@@ -53,6 +69,18 @@ public interface LibraryAlbum {
 	Set<AudioFile> getAudioFiles();
 	
 	/**
+	 * Gets the cue sheets for this album.
+	 * @return the cue sheets
+	 */
+	Set<CueSheet> getCueSheets();
+	
+	/**
+	 * Gets the artwork files for this album.
+	 * @return the artwork
+	 */
+	Set<ArtworkFile> getArtwork();
+	
+	/**
 	 * Gets a digest representing the state
 	 * of this album the last time it was updated.
 	 * @return the digest
@@ -66,4 +94,10 @@ public interface LibraryAlbum {
 	 * @return the source digest
 	 */
 	Digest getSourceDigest();
+	
+	/**
+	 * Cleans up all files (except digest files), generally
+	 * in preparation for a new conversion.
+	 */
+	void cleanDir();
 }

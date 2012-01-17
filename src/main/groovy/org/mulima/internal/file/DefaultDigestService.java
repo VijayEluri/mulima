@@ -5,6 +5,7 @@ import java.io.File;
 import org.mulima.api.file.Digest;
 import org.mulima.api.file.DigestService;
 import org.mulima.api.library.LibraryAlbum;
+import org.springframework.stereotype.Service;
 
 /**
  * Default implementation of a digest service.
@@ -12,6 +13,7 @@ import org.mulima.api.library.LibraryAlbum;
  * @version 0.1.0
  * @since 0.1.0
  */
+@Service
 public class DefaultDigestService implements DigestService {
 	private DigestDao dao = new DigestDao();
 	

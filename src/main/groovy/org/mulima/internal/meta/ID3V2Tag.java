@@ -39,6 +39,7 @@ public enum ID3V2Tag implements Tag {
 	TMLC(GenericTag.PERFORMER),
 	TIPL_producer(GenericTag.PRODUCER),
 	TIPL_engineer(GenericTag.ENGINEER),
+	TIPL_mix(GenericTag.MIXER),
 	TPE3(GenericTag.CONDUCTOR),
 
 	TPOS(GenericTag.DISC_NUMBER),

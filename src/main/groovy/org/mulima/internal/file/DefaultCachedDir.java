@@ -95,7 +95,10 @@ public class DefaultCachedDir<T> implements CachedDir<T> {
 	public Set<T> getValues() {
 		Set<T> values = new HashSet<T>();
 		for (CachedFile<T> file : getCachedFiles()) {
-			values.add(file.getValue());
+			T value = file.getValue();
+			if (value != null) {
+				values.add(value);
+			}
 		}
 		return values;
 	}

@@ -35,43 +35,29 @@ class ProcessCaller implements Callable {
 	private static final Logger logger = LoggerFactory.getLogger(ProcessCaller)
 	private final String description
 	private final List command
+	private final String input;
 	
 	/**
 	 * Constructs a process caller with the specified operating system program and arguments.
 	 * @param command the list containing the program and its arguments.
+	 * @param input the input to this process (optional)
 	 */
-	ProcessCaller(List command) {
-		this(null, command)
-	}
-	
-	/**
-	 * Constructs a process caller with the specified operating system program and arguments.
-	 * @param command a string array containing the program and its arguments.
-	 */
-	ProcessCaller(String... command) {
-		this(null, command)
+	ProcessCaller(List command, String input = null) {
+		this(null, command, input)
 	}
 	
 	/**
 	* Constructs a process caller with the specified operating system program and arguments.
 	* @param description a description of the process to be executed
 	* @param command the list containing the program and its arguments.
+	* @param input the input to this process (optional)
 	*/
-   ProcessCaller(String description, List command) {
+   ProcessCaller(String description, List command, String input = null) {
 	   this.description = description
 	   this.command = command
+	   this.input = input
    }
    
-   /**
-	* Constructs a process caller with the specified operating system program and arguments.
-	* @param description a description of the process to be executed
-	* @param command a string array containing the program and its arguments.
-	*/
-   ProcessCaller(String description, String... command) {
-	   this.description = description
-	   this.command = command
-   }
-	
 	/**
 	 * Starts a process using the command specified in the constructor.
 	 * @return a process result holding the output of the process.
@@ -81,18 +67,19 @@ class ProcessCaller implements Callable {
 	ProcessResult call() {
 		logger.info('Starting: {}', description)
 		logger.debug('Executing command: {}', command)
-		Process proc
-		try {
-			proc = new ProcessBuilder(command).start()
-		} catch (IOException e) {
-			throw new FatalMulimaException(e)
-		}
+		Process proc = new ProcessBuilder(command).start()
 		
+		if (input) {
+			proc.outputStream.withWriter { writer ->
+				writer.write(input)
+			}
+		}
+			
 		StringBuilder output = new StringBuilder()
 		StringBuilder error = new StringBuilder()
 		proc.waitForProcessOutput(output, error)
 		int exit = proc.exitValue()
 		logger.info('Finished: {}', description)
-		return new ProcessResult(command, exit, output, error)
+		return new ProcessResult(command, exit, output.toString(), error.toString())
 	}
 }

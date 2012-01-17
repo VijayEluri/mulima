@@ -1,4 +1,4 @@
-package org.mulima.api.audio;
+package org.mulima.api.file.audio;
 
 import java.io.File;
 
@@ -59,5 +59,19 @@ public enum AudioFormat {
 			}
 		}
 		throw new IllegalArgumentException("No type with extension \"" + extension + "\" exists.");
+	}
+	
+	/**
+	 * Determines whether the given file is a supported
+	 * audio file.
+	 * @param file the file to check
+	 * @return {@code true} if it is an audio file
+	 */
+	public static boolean isAudioFile(File file) {
+		try {
+			return AudioFormat.valueOf(file) != null;
+		} catch (IllegalArgumentException e) {
+			return false;
+		}
 	}
 }

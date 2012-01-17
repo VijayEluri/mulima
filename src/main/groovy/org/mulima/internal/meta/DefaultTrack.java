@@ -11,26 +11,8 @@ import org.mulima.api.meta.Track;
  * @since 0.1.0
  */
 public class DefaultTrack extends AbstractMetadata implements Track {
-	private final CuePoint startPoint;
-	private final CuePoint endPoint;
-	
-	/**
-	 * Constructs a track without start/end points.
-	 */
-	public DefaultTrack() {
-		this(null, null);
-	}
-	
-	/**
-	 * Constructs a track with start/end points.
-	 * @param startPoint the start point
-	 * @param endPoint the end point
-	 */
-	public DefaultTrack(CuePoint startPoint, CuePoint endPoint) {
-		super();
-		this.startPoint = startPoint;
-		this.endPoint = endPoint;
-	}
+	private CuePoint startPoint = null;
+	private CuePoint endPoint = null;
 	
 	/**
 	 * {@inheritDoc}
@@ -59,6 +41,14 @@ public class DefaultTrack extends AbstractMetadata implements Track {
 	public CuePoint getStartPoint() {
 		return startPoint;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setStartPoint(CuePoint startPoint) {
+		this.startPoint = startPoint;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -66,6 +56,14 @@ public class DefaultTrack extends AbstractMetadata implements Track {
 	@Override
 	public CuePoint getEndPoint() {
 		return endPoint;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setEndPoint(CuePoint endPoint) {
+		this.endPoint = endPoint;
 	}
 	
 	/**

@@ -17,6 +17,7 @@
  */
 package org.mulima.internal.freedb;
 
+import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -205,15 +206,15 @@ public class FreeDbJdbcDaoImpl extends NamedParameterJdbcDaoSupport implements F
 		final String sql = "INSERT INTO `tracks` VALUES(null, :disc_id, :num, :title)";
 		
 		MapSqlParameterSource[] trackParms = new MapSqlParameterSource[tracks.size()];
-		
+		 
+		int i = 0;
 		for (Track track : tracks) {
-			int i = track.getNum() - 1;
 			trackParms[i] = new MapSqlParameterSource();
 			trackParms[i].addValue("disc_id", discId);
 			trackParms[i].addValue("num", track.getNum());
-			trackParms[i].addValue("title", track.getFlat(GenericTag.TITLE));	
+			trackParms[i].addValue("title", track.getFlat(GenericTag.TITLE));
+			i++;
 		}
-		
 		this.getNamedParameterJdbcTemplate().batchUpdate(sql, trackParms);
 		logger.trace("Exiting addTracks");
 	}

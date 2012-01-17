@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.mulima.api.file.audio.DiscFile;
 import org.mulima.api.meta.Disc;
+import org.mulima.api.meta.Metadata;
 
 /**
  * Default implementation of a disc file.
@@ -12,8 +13,8 @@ import org.mulima.api.meta.Disc;
  * @since 0.1.0
  */
 public class DefaultDiscFile extends AbstractAudioFile implements DiscFile {
-	private final int discNum;
-	private final Disc disc;
+	private int discNum;
+	private Disc disc;
 	
 	/**
 	 * Constructs a disc file from the parameters.
@@ -61,5 +62,17 @@ public class DefaultDiscFile extends AbstractAudioFile implements DiscFile {
 	@Override
 	public Disc getMeta() {
 		return disc;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setMeta(Metadata meta) {
+		if (meta instanceof Disc) {
+			this.disc = (Disc) meta;
+		} else {
+			throw new IllegalArgumentException("DiscFiles only accept Disc metadata.");
+		}
 	}
 }

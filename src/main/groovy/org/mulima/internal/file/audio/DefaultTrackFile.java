@@ -3,6 +3,7 @@ package org.mulima.internal.file.audio;
 import java.io.File;
 
 import org.mulima.api.file.audio.TrackFile;
+import org.mulima.api.meta.Metadata;
 import org.mulima.api.meta.Track;
 
 /**
@@ -12,9 +13,9 @@ import org.mulima.api.meta.Track;
  * @since 0.1.0
  */
 public class DefaultTrackFile extends AbstractAudioFile implements TrackFile {
-	private final Track track;
-	private final int discNum;
-	private final int trackNum;
+	private Track track;
+	private int discNum;
+	private int trackNum;
 	
 	/**
 	 * Constructs a track file from the parameters.
@@ -80,5 +81,17 @@ public class DefaultTrackFile extends AbstractAudioFile implements TrackFile {
 	@Override
 	public Track getMeta() {
 		return track;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setMeta(Metadata meta) {
+		if (meta instanceof Track) {
+			this.track = (Track) meta;
+		} else {
+			throw new IllegalArgumentException("TrackFiles only accept Track metadata.");
+		}
 	}
 }

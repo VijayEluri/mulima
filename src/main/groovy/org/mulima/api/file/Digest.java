@@ -1,7 +1,6 @@
 package org.mulima.api.file;
 
-import java.io.File;
-import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -26,11 +25,11 @@ public interface Digest {
 	 * @param file the file to get the hash of
 	 * @return the digest
 	 */
-	String getDigest(File file);
+	String getDigest(String fileName);
 	
 	/**
-	 * Gets a map of files to digest strings.
-	 * @return the map
+	 * Gets all digest entries for this digest.
+	 * @return the entries
 	 */
-	Map<File, String> getMap();
+	Set<DigestEntry> getEntries();
 }

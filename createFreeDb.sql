@@ -1,5 +1,5 @@
-﻿DROP DATABASE IF EXISTS `freedb`;
-CREATE DATABASE `freedb` /*!40100 DEFAULT CHARACTER SET latin1 */;
+DROP DATABASE IF EXISTS `freedb`;
+CREATE DATABASE `freedb`;
 
 DROP TABLE IF EXISTS `freedb`.`discs`;
 CREATE TABLE  `freedb`.`discs` (

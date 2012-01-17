@@ -18,11 +18,18 @@
 package org.mulima.util;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.mulima.api.file.FileHolder;
+import org.mulima.exception.UncheckedIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,5 +161,86 @@ public final class FileUtil {
 			}
 		}
 		return dirs;
+	}
+	
+	/**
+	 * Deletes a directory and all of its contents.
+	 * @param dir the directory to delete
+	 */
+	public static void deleteDir(FileHolder dir) {
+		deleteDir(dir.getFile());
+	}
+	
+	/**
+	 * Deletes a directory and all of its contents.
+	 * @param dir the directory to delete
+	 */
+	public static void deleteDir(File dir) {
+		for (File file : dir.listFiles()) {
+			if (file.isDirectory()) {
+				deleteDir(file);
+			}
+			if (file.exists() && !file.delete()) {
+				throw new UncheckedIOException("Could not delete: " + file);
+			}
+		}
+		if (dir.exists() && !dir.delete()) {
+			throw new UncheckedIOException("Could not delete: " + dir);
+		}
+	}
+	
+	/**
+	 * Copies a file to another directory.
+	 * @param source the file to copy
+	 * @param dir the directory to copy to
+	 */
+	public static File copy(FileHolder source, File dir) {
+		return copy(source.getFile(), dir);
+	}
+	
+	/**
+	 * Copies a file to another directory.
+	 * @param source the file to copy
+	 * @param dir the directory to copy to
+	 */
+	public static File copy(File source, File dir) {
+		try {
+			File dest = new File(dir, source.getName());
+			FileChannel sourceChannel = new FileInputStream(source).getChannel();
+			FileChannel destChannel = new FileOutputStream(dest).getChannel();
+			try {
+				sourceChannel.transferTo(0, sourceChannel.size(), destChannel);
+			} finally {
+				if (sourceChannel != null) {
+					sourceChannel.close();
+				}
+				if (destChannel != null) {
+					destChannel.close();
+				}
+			}
+			return dest;
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
+		}
+	}
+	
+	/**
+	 * Copies all files in the collection to another
+	 * directory.  Any elements in the collection that
+	 * are not {@code File}'s or {@code FileHolder}'s
+	 * will not be copied.
+	 * @param files the files to copy
+	 * @param dir the directory to copy them to
+	 */
+	public static Set<File> copyAll(Collection<?> files, File dir) {
+		Set<File> dests = new HashSet<File>();
+		for (Object object : files) {
+			if (object instanceof File) {
+				dests.add(copy((File) object, dir));
+			} else if (object instanceof FileHolder) {
+				dests.add(copy((FileHolder) object, dir));
+			}
+		}
+		return dests;
 	}
 }

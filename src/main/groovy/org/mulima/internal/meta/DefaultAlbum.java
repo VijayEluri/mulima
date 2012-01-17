@@ -17,7 +17,7 @@ import org.mulima.api.meta.Track;
  */
 public class DefaultAlbum extends AbstractMetadata implements Album {
 	private final SortedSet<Disc> discs = new TreeSet<Disc>();
-
+	
 	/**
 	 * {@inheritDoc}
 	 */

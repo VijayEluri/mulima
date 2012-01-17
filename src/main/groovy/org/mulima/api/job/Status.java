@@ -1,4 +1,4 @@
-package org.mulima.internal.job;
+package org.mulima.api.job;
 
 /**
  * Enum representing the statuses that

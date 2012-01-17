@@ -4,6 +4,7 @@ import org.mulima.api.file.Digest
 import org.mulima.api.file.DigestService
 import org.mulima.api.library.Library
 import org.mulima.api.library.LibraryAlbum
+import org.mulima.api.library.LibraryAlbumFactory
 import org.mulima.api.library.LibraryService
 import org.mulima.api.library.ReferenceLibrary
 import org.mulima.internal.library.DefaultLibraryService
@@ -25,7 +26,9 @@ class DefaultLibraryServiceSpec extends Specification {
 		Library destLib2 = Mock(Library)
 		Library destLib3 = Mock(Library)
 		destLibs = [destLib1, destLib2, destLib3]
-		service = new DefaultLibraryService(digestService, refLibs as Set, destLibs as Set)
+		service = new DefaultLibraryService(Mock(LibraryAlbumFactory), digestService)
+		service.refLibs = refLibs as Set
+		service.destLibs = destLibs as Set
 	}
 	
 	def 'getLibFor returns null if argument is not a subdirectory of any lib root dirs'() {

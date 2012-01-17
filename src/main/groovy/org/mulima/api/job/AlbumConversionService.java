@@ -3,6 +3,7 @@ package org.mulima.api.job;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.mulima.api.library.LibraryAlbum;
 
@@ -20,12 +21,19 @@ public interface AlbumConversionService {
 	 * @param dests the destination albums
 	 * @return a future representing the execution of the conversion
 	 */
-	Future<Void> submit(LibraryAlbum source, Set<LibraryAlbum> dests);
+	Future<Boolean> submit(LibraryAlbum source, Set<LibraryAlbum> dests);
 	
 	/**
 	 * Shuts down the service.
 	 */
 	void shutdown();
+	
+	/**
+	 * Shuts down the service and waits for termination.
+	 * @param timeout the maximum time to wait
+	 * @param unit the time unit of the timeout arg
+	 */
+	void shutdown(long timeout, TimeUnit unit);
 	
 	/**
 	 * Shuts the service down now.

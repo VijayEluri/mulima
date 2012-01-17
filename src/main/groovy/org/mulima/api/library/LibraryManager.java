@@ -14,8 +14,9 @@ public interface LibraryManager {
 	 * Processes all new albums in the
 	 * reference libraries in order
 	 * to get initial metadata.
+	 * @param prompt prompt the user if unsure
 	 */
-	void processNew();
+	void processNew(boolean prompt);
 	
 	/**
 	 * Updates all albums in all

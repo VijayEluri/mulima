@@ -26,8 +26,20 @@ public interface Track extends Metadata, Comparable<Track> {
 	CuePoint getStartPoint();
 	
 	/**
+	 * Sets the start point of this track.
+	 * @param startPoint the start point
+	 */
+	void setStartPoint(CuePoint startPoint);
+	
+	/**
 	 * Gets the end point of this track.
 	 * @return the end point
 	 */
 	CuePoint getEndPoint();
+	
+	/**
+	 * Sets the end point of this track.
+	 * @param endPoint the end point
+	 */
+	void setEndPoint(CuePoint endPoint);
 }

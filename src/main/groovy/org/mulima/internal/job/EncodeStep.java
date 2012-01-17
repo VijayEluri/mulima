@@ -4,10 +4,12 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.mulima.api.audio.AudioFormat;
 import org.mulima.api.audio.tool.Codec;
 import org.mulima.api.audio.tool.CodecResult;
 import org.mulima.api.file.audio.AudioFile;
+import org.mulima.api.file.audio.AudioFormat;
+import org.mulima.api.job.Status;
+import org.mulima.api.job.Step;
 import org.mulima.api.service.MulimaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,17 +28,6 @@ public class EncodeStep implements Step<Set<AudioFile>> {
 	private final File destDir;
 	private Status status = Status.NOT_STARTED;
 	private Set<AudioFile> outputs;
-	
-	/**
-	 * Constructs a step from the parameters.  The files
-	 * will be put into a temp directory.
-	 * @param service the service to use during execution
-	 * @param format the format to encode the files to
-	 * @param inputs the files to encode
-	 */
-	public EncodeStep(MulimaService service, AudioFormat format, Set<AudioFile> inputs) {
-		this(service, format, inputs, service.getTempDir().newChild().getFile());
-	}
 	
 	/**
 	 * Constructs a step from the parameters.

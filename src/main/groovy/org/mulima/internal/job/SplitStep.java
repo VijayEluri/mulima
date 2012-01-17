@@ -5,8 +5,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.mulima.api.audio.tool.SplitterResult;
+import org.mulima.api.file.audio.AudioFormat;
 import org.mulima.api.file.audio.DiscFile;
 import org.mulima.api.file.audio.TrackFile;
+import org.mulima.api.job.Status;
+import org.mulima.api.job.Step;
+import org.mulima.api.meta.Track;
 import org.mulima.api.service.MulimaService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,16 +28,6 @@ public class SplitStep implements Step<Set<TrackFile>> {
 	private final File destDir;
 	private Status status = Status.NOT_STARTED;
 	private Set<TrackFile> outputs;
-	
-	/**
-	 * Constructs a step from the parameters.  The files
-	 * will be put into a temp directory.
-	 * @param service the service to use during execution
-	 * @param inputs the files to split
-	 */
-	public SplitStep(MulimaService service, Set<DiscFile> inputs) {
-		this(service, inputs, service.getTempDir().newChild().getFile());
-	}
 	
 	/**
 	 * Constructs a step from the parameters.
@@ -56,17 +50,33 @@ public class SplitStep implements Step<Set<TrackFile>> {
 		outputs = new HashSet<TrackFile>();
 		logger.debug("Splitting {} files", inputs.size());
 		for (DiscFile input : inputs) {
+			File discDestDir = new File(destDir, Integer.toString(input.getDiscNum()));
+			discDestDir.mkdirs();
 			logger.debug("Splitting {}", input);
-			SplitterResult result = service.getToolService().getSplitter().split(input, destDir);
-			if (result.isSuccess()) {
-				outputs.addAll(result.getDest());
-				logger.debug("SUCCESS: Split {}", input);
+			if (input.getMeta().getTracks().size() == 1) {
+				Track track = input.getMeta().getTracks().iterator().next();
+				File destFile = new File(discDestDir, String.format("D%02dT%02d.%s", input.getDiscNum(), track.getNum(), AudioFormat.WAVE.getExtension()));
+				input.getFile().renameTo(destFile);
+				TrackFile trackFile = service.getFileService().createTrackFile(destFile);
+				trackFile.setMeta(track);
+				outputs.add(trackFile);
 			} else {
-				logger.error("FAILURE: [{}] Splitting {}", result.getExitVal(), input);
-				logger.error("Output:\n{}", result.getOutput());
-				logger.error("Error:\n{}", result.getError());
-				this.status = Status.FAILURE;
-				return false;
+				SplitterResult result = service.getToolService().getSplitter().split(input, discDestDir);
+				if (result.isSuccess()) {
+					outputs.addAll(result.getDest());
+					
+					for (TrackFile file : result.getDest()) {
+						file.setMeta(input.getMeta().getTrack(file.getTrackNum()));
+					}
+					
+					logger.debug("SUCCESS: Split {}", input);
+				} else {
+					logger.error("FAILURE: [{}] Splitting {}", result.getExitVal(), input);
+					logger.error("Output:\n{}", result.getOutput());
+					logger.error("Error:\n{}", result.getError());
+					this.status = Status.FAILURE;
+					return false;
+				}
 			}
 		}
 		this.status = Status.SUCCESS;

@@ -44,6 +44,7 @@ public enum VorbisTag implements Tag {
 	PERFORMER(GenericTag.PERFORMER),
 	PRODUCER(GenericTag.PRODUCER),
 	ENGINEER(GenericTag.ENGINEER),
+	MIXER(GenericTag.MIXER),
 	CONDUCTOR(GenericTag.CONDUCTOR),
 	ENSEMBLE(GenericTag.ENSEMBLE),
 

@@ -1,6 +1,6 @@
 package org.mulima.api.audio.tool;
 
-import org.mulima.api.audio.AudioFormat;
+import org.mulima.api.file.audio.AudioFormat;
 
 public interface ToolService {
 	Codec getCodec(AudioFormat type);

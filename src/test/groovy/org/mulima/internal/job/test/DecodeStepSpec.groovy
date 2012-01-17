@@ -1,12 +1,12 @@
 package org.mulima.internal.job.test
 
-import org.mulima.api.audio.AudioFormat
 import org.mulima.api.audio.tool.Codec
 import org.mulima.api.audio.tool.CodecResult
 import org.mulima.api.audio.tool.ToolService
 import org.mulima.api.file.FileService
 import org.mulima.api.file.TempDir
 import org.mulima.api.file.audio.AudioFile
+import org.mulima.api.file.audio.AudioFormat;
 import org.mulima.api.service.MulimaService
 import org.mulima.internal.file.audio.DefaultDiscFile
 import org.mulima.internal.job.DecodeStep
@@ -37,7 +37,7 @@ class DecodeStepSpec extends Specification {
 		codec.format >> AudioFormat.MP3
 		def files = [new DefaultDiscFile(new File('test.mp3'), 1), new DefaultDiscFile(new File('test2.mp3'), 1)] as Set
 		when:
-		def success = new DecodeStep(service, files).execute()
+		def success = new DecodeStep(service, files, service.tempDir.newChild().file).execute()
 		then:
 		success
 		interaction {
@@ -59,6 +59,6 @@ class DecodeStepSpec extends Specification {
 		codec.decode(_, _) >> result
 		def files = [new DefaultDiscFile(new File('test.mp3'), 1), new DefaultDiscFile(new File('test2.mp3'), 1), new DefaultDiscFile(new File('test3.mp3'), 1)] as Set
 		expect:
-		!new DecodeStep(service, files).execute()
+		!new DecodeStep(service, files, service.tempDir.newChild().file).execute()
 	}
 }
