@@ -42,6 +42,7 @@ class DefaultReferenceLibrarySpec extends Specification {
 		album.id >> id
 		album.sourceId >> sourceId
 		album.dir >> dir
+		album.compareTo(_) >> { album.is(it) ? 0 : 1 }
 		return album
 	}
 	

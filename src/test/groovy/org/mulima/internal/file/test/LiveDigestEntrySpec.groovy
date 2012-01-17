@@ -17,7 +17,11 @@ class LiveDigestEntrySpec extends Specification {
 		}
 		lastModified = file.lastModified()
 		size = file.length()
-		digest = '43d20799f81b8e5b4a85febdffb07eb2a59f84c6'
+		if (System.properties['line.separator'] == '\n') {
+			digest = '8786b174d5e3a9edd290a7418c800018c9087768'
+		} else {
+			digest = '43d20799f81b8e5b4a85febdffb07eb2a59f84c6'
+		}
 	}
 	
 	def cleanup() {

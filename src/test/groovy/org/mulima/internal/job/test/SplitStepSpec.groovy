@@ -6,6 +6,7 @@ import org.mulima.api.audio.tool.ToolService
 import org.mulima.api.file.FileService
 import org.mulima.api.file.TempDir
 import org.mulima.api.file.audio.AudioFile
+import org.mulima.api.file.audio.DiscFile
 import org.mulima.api.file.audio.TrackFile
 import org.mulima.api.meta.Disc
 import org.mulima.api.meta.Track
@@ -19,10 +20,7 @@ class SplitStepSpec extends Specification {
 	MulimaService service = Mock(MulimaService)
 	
 	def setup() {
-		TempDir temp = Mock(TempDir)
-		TempDir temp2 = Mock(TempDir)
-		service.tempDir >> temp
-		temp.newChild() >> temp2
+		service.tempDir >> new TempDir('mulimaTest')
 		FileService fileService = Mock(FileService)
 		service.fileService >> fileService
 		fileService.createAudioFile(_, _, _) >> Mock(AudioFile)
@@ -37,7 +35,7 @@ class SplitStepSpec extends Specification {
 		toolService.splitter >> splitter
 		def dests = [Mock(TrackFile), Mock(TrackFile), Mock(TrackFile), Mock(TrackFile)] as Set
 		SplitterResult result = new SplitterResult(null, dests, '', 0, '', '')
-		def files = [new DefaultDiscFile(new File('test.wav'), 1), new DefaultDiscFile(new File('test2.wav'), 1)] as Set
+		def files = [mockDisc('test.wav'), mockDisc('test2.wav'), mockDisc('test3.wav')] as Set
 		files.each {
 			it.meta = Mock(Disc)
 			it.meta.tracks >> ([Mock(Track)] as SortedSet)
@@ -63,12 +61,27 @@ class SplitStepSpec extends Specification {
 		SplitterResult success = new SplitterResult(null, dests, '', 0, '', '')
 		SplitterResult failure = new SplitterResult(null, null, '', 1, '', '')
 		splitter.split(_, _) >>> [success, failure]
-		def files = [new DefaultDiscFile(new File('test.wav'), 1), new DefaultDiscFile(new File('test2.wav'), 1), new DefaultDiscFile(new File('test3.wav'), 1)] as Set
+		def files = [mockDisc('test.wav'), mockDisc('test2.wav'), mockDisc('test3.wav')] as Set
 		files.each {
 			it.meta = Mock(Disc)
 			it.meta.tracks >> ([Mock(Track)] as SortedSet)
 		}
 		expect:
 		!new SplitStep(service, files, service.tempDir.newChild().file).execute()
+	}
+	
+	DiscFile mockDisc(String name) {
+		Disc meta = Mock()
+		meta.tracks >> ([mockTrack(), mockTrack()] as SortedSet)
+		DiscFile file = Mock()
+		file.file >> new File(name)
+		file.meta >> meta
+		return file
+	}
+	
+	Track mockTrack() {
+		Track track = Mock()
+		track.compareTo(_) >> { track.is(it) ? 0 : 1 }
+		return track
 	}
 }

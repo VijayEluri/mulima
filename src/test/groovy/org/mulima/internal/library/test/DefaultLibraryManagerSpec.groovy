@@ -100,6 +100,7 @@ class DefaultLibraryManagerSpec extends Specification {
 	def mockAlbum(boolean hasId) {
 		LibraryAlbum album = Mock(LibraryAlbum)
 		album.id >> (hasId ? UUID.randomUUID() : null)
+		album.compareTo(_) >> { album.is(it) ? 0 : 1 }
 		return album
 	}
 }

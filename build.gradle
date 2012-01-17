@@ -79,3 +79,7 @@ jar {
 		attributes 'Implementation-Version':version
 	}
 }
+
+test {
+	systemProperties 'log.level':'DEBUG'
+}

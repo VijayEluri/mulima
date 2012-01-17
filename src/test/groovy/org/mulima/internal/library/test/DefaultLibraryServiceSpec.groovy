@@ -87,13 +87,12 @@ class DefaultLibraryServiceSpec extends Specification {
 		LibraryAlbum album = Mock(LibraryAlbum)
 		Digest digest = Mock(Digest)
 		album.digest >> digest
-		digestService.create(album) >> digest
 		LibraryAlbum source = Mock(LibraryAlbum)
 		destLibs[0].getById(_) >> source
 		Digest sourceDigest = Mock(Digest)
 		source.digest >> sourceDigest
 		album.sourceDigest >> sourceDigest
-		digestService.create(source) >> Mock(Digest)
+		digestService.create(_) >>> [Mock(Digest), digest]
 		expect:
 		!service.isUpToDate(album, true)
 		service.isUpToDate(album, false)
@@ -101,16 +100,15 @@ class DefaultLibraryServiceSpec extends Specification {
 	
 	def 'isUpToDate returns true if album and source are up to date'() {
 		given:
-		LibraryAlbum album = Mock(LibraryAlbum)
-		Digest digest = Mock(Digest)
+		LibraryAlbum album = Mock()
+		Digest digest = Mock()
 		album.digest >> digest
-		digestService.create(album) >> digest
-		LibraryAlbum source = Mock(LibraryAlbum)
+		LibraryAlbum source = Mock()
 		destLibs[0].getById(_) >> source
-		Digest sourceDigest = Mock(Digest)
+		Digest sourceDigest = Mock()
 		source.digest >> sourceDigest
 		album.sourceDigest >> sourceDigest
-		digestService.create(source) >> sourceDigest
+		digestService.create(_) >>> [sourceDigest, digest]
 		expect:
 		service.isUpToDate(album, true)
 		service.isUpToDate(album, false)

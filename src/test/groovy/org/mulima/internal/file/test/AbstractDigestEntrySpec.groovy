@@ -20,7 +20,12 @@ class AbstractDigestEntrySpec extends Specification {
 		}
 		long lastModified = file.lastModified()
 		long size = file.length()
-		String digest = '43d20799f81b8e5b4a85febdffb07eb2a59f84c6'
+		String digest
+		if (System.properties['line.separator'] == '\n') {
+			digest = '8786b174d5e3a9edd290a7418c800018c9087768'
+		} else {
+			digest = '43d20799f81b8e5b4a85febdffb07eb2a59f84c6'
+		}
 		live = new LiveDigestEntry(file)
 		store = new StoredDigestEntry(file.name, lastModified, size, digest)
 		storeM = new StoredDigestEntry(file.name, 0, size, digest)
