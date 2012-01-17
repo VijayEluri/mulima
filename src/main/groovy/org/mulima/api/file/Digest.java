@@ -11,7 +11,7 @@ import java.util.UUID;
  * @since 0.1.0
  */
 public interface Digest {
-	static final String FILE_NAME = ".digest";
+	String FILE_NAME = ".digest";
 	String SOURCE_FILE_NAME = ".source.digest";
 	
 	/**
@@ -22,10 +22,18 @@ public interface Digest {
 	
 	/**
 	 * Gets the digest for a specific file.
-	 * @param file the file to get the hash of
+	 * @param fileName the file to get the hash of
 	 * @return the digest
 	 */
 	String getDigest(String fileName);
+	
+	/**
+	 * Gets the digest entry for a specific
+	 * file.
+	 * @param fileName the file to get the entry for
+	 * @return the digest entry
+	 */
+	DigestEntry getEntry(String fileName);
 	
 	/**
 	 * Gets all digest entries for this digest.
