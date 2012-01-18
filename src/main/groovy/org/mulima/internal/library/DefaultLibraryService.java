@@ -16,7 +16,7 @@ import org.mulima.api.library.LibraryAlbumFactory;
 import org.mulima.api.library.LibraryService;
 import org.mulima.api.library.ReferenceLibrary;
 import org.mulima.api.service.MulimaProperties;
-import org.mulima.exception.FatalMulimaException;
+import org.mulima.exception.UncheckedMulimaException;
 import org.mulima.internal.service.MulimaPropertiesSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -150,7 +150,7 @@ public class DefaultLibraryService extends MulimaPropertiesSupport implements Li
 		}
 		LibraryAlbum source = getAlbumById(sourceDigest.getId());
 		if (source == null) {
-			throw new FatalMulimaException("Source album for " + libAlbum.getId() + " not found: " + sourceDigest.getId());
+			throw new UncheckedMulimaException("Source album for " + libAlbum.getId() + " not found: " + sourceDigest.getId());
 		} else {
 			return isUpToDate(source, sourceDigest);
 		}

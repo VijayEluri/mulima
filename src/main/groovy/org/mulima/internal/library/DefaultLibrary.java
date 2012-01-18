@@ -12,7 +12,7 @@ import org.mulima.api.library.LibraryAlbum;
 import org.mulima.api.library.LibraryAlbumFactory;
 import org.mulima.api.meta.Album;
 import org.mulima.api.meta.GenericTag;
-import org.mulima.exception.FatalMulimaException;
+import org.mulima.exception.UncheckedMulimaException;
 import org.mulima.internal.file.LeafDirFilter;
 import org.mulima.util.FileUtil;
 import org.mulima.util.MetadataUtil;
@@ -131,7 +131,7 @@ public class DefaultLibrary implements Library {
 			album = MetadataUtil.commonValueFlat(meta.getDiscs(), GenericTag.ALBUM);
 		}
 		if (album == null || !meta.isSet(GenericTag.ARTIST)) {
-			throw new FatalMulimaException("Could not determine directory due to missing ALBUM or ARTIST tag.");
+			throw new UncheckedMulimaException("Could not determine directory due to missing ALBUM or ARTIST tag.");
 		}
 		String relPath = StringUtil.makeSafe(meta.getFlat(GenericTag.ARTIST)).trim()
 			+ File.separator + StringUtil.makeSafe(album).trim();
@@ -162,8 +162,8 @@ public class DefaultLibrary implements Library {
 			File dir = determineDir(source.getAlbum());
 			dir.mkdirs();
 			return libAlbumFactory.create(dir, this);
-		} catch (FatalMulimaException e) {
-			throw new FatalMulimaException("Could not determine directory from source album: " + source.getDir(), e);
+		} catch (UncheckedMulimaException e) {
+			throw new UncheckedMulimaException("Could not determine directory from source album: " + source.getDir(), e);
 		}
 	}
 }

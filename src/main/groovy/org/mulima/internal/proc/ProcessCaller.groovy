@@ -20,7 +20,7 @@ package org.mulima.internal.proc
 import java.util.concurrent.Callable
 
 import org.mulima.api.proc.ProcessResult
-import org.mulima.exception.FatalMulimaException
+import org.mulima.exception.UncheckedMulimaException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -64,7 +64,7 @@ class ProcessCaller implements Callable {
 	 */
 	@Override
 	ProcessResult call() {
-		logger.info('Starting: {}', description)
+		logger.debug('Starting: {}', description)
 		logger.debug('Executing command: {}', command)
 		Process proc = new ProcessBuilder(command).start()
 		
@@ -78,7 +78,7 @@ class ProcessCaller implements Callable {
 		StringBuilder error = new StringBuilder()
 		proc.waitForProcessOutput(output, error)
 		int exit = proc.exitValue()
-		logger.info('Finished: {}', description)
+		logger.debug('Finished: {}', description)
 		return new ProcessResult(command, exit, output.toString(), error.toString())
 	}
 }
