@@ -1,13 +1,14 @@
 package org.mulima.main
 
-import org.mulima.api.file.Digest
-import org.mulima.api.file.DigestService
 import org.mulima.api.file.TempDir
 import org.mulima.api.library.Library
 import org.mulima.api.library.LibraryAlbum
 import org.mulima.api.library.LibraryManager
-import org.mulima.api.library.LibraryService
 import org.mulima.api.library.ReferenceLibrary
+import org.mulima.api.meta.Album
+import org.mulima.api.meta.Disc
+import org.mulima.api.meta.GenericTag
+import org.mulima.api.meta.Track
 import org.mulima.api.service.MulimaService
 import org.springframework.context.ApplicationContext
 import org.springframework.context.support.ClassPathXmlApplicationContext
@@ -26,6 +27,7 @@ class Mulima {
 			v longOpt:'verify', 'Verifies all album.xml files.'
 			_ longOpt:'no-prompt', 'Will not prompt user to choose if algorithm is unsure.'
 			_ longOpt:'status', 'Lists the status of each album.'
+			_ longOpt:'fix-meta', 'Fixes common metadata problems.'
 		}
 		
 		def options = cli.parse(args)
@@ -103,6 +105,50 @@ class Mulima {
 							println "Invalid album.xml ${refAlbum.dir}: ${e.message}"
 						}
 					}
+				}
+			}
+		} else if (options.'fix-meta') {
+			refLibs*.all*.each { LibraryAlbum refAlbum ->
+				if (refAlbum.album == null) {
+					return
+				}
+				Album album = refAlbum.album
+				boolean anyFixes = false
+				
+				//look for data tracks (i.e. tracks with no start point)
+				album.discs*.tracks*.retainAll { Track track ->
+					if (track.startPoint == null) {
+						println "Removing data track from ${refAlbum.name}"
+						anyFixes = true
+						return false
+					} else {
+						return true
+					}
+				}
+				
+				//look for any duplicate tracks (i.e. tracks whose names were split across two)
+				album.discs.each { Disc disc ->
+					def cleanTracks = []
+					disc.tracks.each { Track track ->
+						Track otherTrack = cleanTracks.find { it.num == track.num && it.startPoint == track.startPoint }
+						if (otherTrack == null) {
+							cleanTracks << track
+						} else {
+							println "Consolidating tracks on ${refAlbum.name}"
+							assert otherTrack.getAll(GenericTag.TITLE).size() == 1
+							assert track.getAll(GenericTag.TITLE).size() == 1
+							def title = otherTrack.getFirst(GenericTag.TITLE) + track.getFirst(GenericTag.TITLE)
+							otherTrack.remove(GenericTag.TITLE)
+							otherTrack.add(GenericTag.TITLE, title)
+							anyFixes = true
+						}
+					}
+					disc.tracks.removeAll { true }
+					disc.tracks.addAll(cleanTracks)
+				}
+				
+				if (anyFixes) {
+					service.fileService.getComposer(Album).compose(new File(refAlbum.dir, Album.FILE_NAME), album)
 				}
 			}
 		}
