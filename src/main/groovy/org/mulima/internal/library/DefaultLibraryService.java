@@ -168,8 +168,6 @@ public class DefaultLibraryService extends MulimaPropertiesSupport implements Li
 			return false;
 		}
 		Digest current = digestService.create(album);
-		System.out.println("Cached: " + cached);
-		System.out.println("Current: " + current);
 		return cached.equals(current);
 	}
 	
