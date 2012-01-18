@@ -51,12 +51,12 @@ public class AlbumConversionJob implements Job<Boolean> {
 	 */
 	public Boolean execute() {
 		try {
-			LOGGER.info("Beginning conversion of: " + refAlbum.getName());
 			Set<LibraryAlbum> outdated = getOutdatedAlbums();
 			if (outdated.size() == 0) {
 				LOGGER.info("Skipping conversion for " + refAlbum.getName() + ". No albums are out of date.");
 				return true;
 			}
+			LOGGER.info("Beginning conversion of: " + refAlbum.getName());
 			TempDir tempDir = service.getTempDir().newChild();
 			
 			DecodeStep decode = new DecodeStep(service, refAlbum.getAudioFiles(), tempDir.newChild().getFile());
