@@ -25,7 +25,6 @@ import org.mulima.api.meta.Tag;
  * 
  * For more information see {@link http://en.wikipedia.org/wiki/Cue_sheet_(computing)}.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class CueSheetTag {

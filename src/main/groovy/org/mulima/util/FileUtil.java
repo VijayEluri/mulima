@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Helper methods for <code>File</code> operations.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public final class FileUtil {

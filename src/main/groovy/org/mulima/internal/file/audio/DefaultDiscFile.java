@@ -9,7 +9,6 @@ import org.mulima.api.meta.Metadata;
 /**
  * Default implementation of a disc file.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class DefaultDiscFile extends AbstractAudioFile implements DiscFile {

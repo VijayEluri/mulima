@@ -5,7 +5,6 @@ import java.io.File;
 /**
  * Interface describing the operations of a file composer.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  * @param <T> the type of value to compose
  */

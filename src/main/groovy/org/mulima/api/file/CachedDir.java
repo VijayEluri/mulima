@@ -7,8 +7,7 @@ import java.util.Set;
  * Represents a directory containing files
  * whose values should be cached.
  * @author Andrew Oberstar
- * @version 0.1.0
- * @since 0.1.
+ * @since 0.1.0
  * @param <T> the type of the file values
  */
 public interface CachedDir<T> {

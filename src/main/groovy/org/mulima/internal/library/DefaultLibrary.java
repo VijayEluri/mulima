@@ -21,7 +21,6 @@ import org.mulima.util.StringUtil;
 /**
  * Default implementation of a library.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class DefaultLibrary implements Library {

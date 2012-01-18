@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Provides access to a * .tar or .tar.bz2 file containing FreeDb information.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class FreeDbTarDaoImpl implements FreeDbDao {

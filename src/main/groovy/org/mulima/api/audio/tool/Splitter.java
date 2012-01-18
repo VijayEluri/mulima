@@ -26,7 +26,6 @@ import org.mulima.api.file.audio.DiscFile;
  * A splitter specifies operations for splitting an audio file
  * as specified in a cue sheet.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface Splitter {

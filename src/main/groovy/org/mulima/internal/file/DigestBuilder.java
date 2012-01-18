@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
  * Builder for creating digests of the
  * current state of a library album.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class DigestBuilder {

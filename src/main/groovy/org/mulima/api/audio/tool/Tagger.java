@@ -24,7 +24,6 @@ import org.mulima.api.file.audio.AudioFormat;
  * A tagger specifies operations to read and write metadata
  * from an audio file.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface Tagger {

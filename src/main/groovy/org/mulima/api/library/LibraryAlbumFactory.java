@@ -5,7 +5,6 @@ import java.io.File;
 /**
  * Factory class for creating library albums.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface LibraryAlbumFactory {

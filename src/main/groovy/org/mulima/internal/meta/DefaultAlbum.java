@@ -12,7 +12,6 @@ import org.mulima.api.meta.Track;
 /**
  * Default implementation of an album.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class DefaultAlbum extends AbstractMetadata implements Album {

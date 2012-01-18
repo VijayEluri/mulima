@@ -20,7 +20,6 @@ package org.mulima.exception;
 /**
  * Signals a fatal IO exception.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class UncheckedIOException extends RuntimeException {

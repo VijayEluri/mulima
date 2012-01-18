@@ -3,7 +3,6 @@ package org.mulima.api.meta;
 /**
  * An object representing a track.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface Track extends Metadata, Comparable<Track> {

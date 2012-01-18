@@ -23,7 +23,6 @@ import org.mulima.util.MetadataUtil;
 /**
  * Default implementation of a library album.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class DefaultLibraryAlbum implements LibraryAlbum {

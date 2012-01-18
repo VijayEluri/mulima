@@ -7,7 +7,6 @@ import org.mulima.api.meta.Disc;
  * entire disc's worth of music.  This is generally
  * an image of a CD.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface DiscFile extends AudioFile {

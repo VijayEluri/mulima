@@ -8,7 +8,6 @@ import java.util.UUID;
  * A service that provides information
  * about the libraries currently configured.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface LibraryService {

@@ -30,7 +30,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 /**
  * Imports FreeDB information into database from TAR.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class FreeDbImport implements Runnable {

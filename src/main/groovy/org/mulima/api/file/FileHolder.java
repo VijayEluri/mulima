@@ -6,7 +6,6 @@ import java.io.File;
  * Interface describing an object
  * that holds a file.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface FileHolder {

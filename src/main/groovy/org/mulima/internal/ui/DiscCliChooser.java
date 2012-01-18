@@ -29,7 +29,6 @@ import org.mulima.util.MetadataUtil;
 /**
  * Chooser for picking discs from the command line.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class DiscCliChooser implements Chooser<Disc> {

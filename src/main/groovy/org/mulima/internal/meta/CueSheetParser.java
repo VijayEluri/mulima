@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 /**
  * Default parser for cue sheets.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class CueSheetParser implements FileParser<CueSheet> {

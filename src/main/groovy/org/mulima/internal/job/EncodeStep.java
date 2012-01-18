@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 /**
  * A step to encode WAVE files to another format.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class EncodeStep implements Step<Set<AudioFile>> {

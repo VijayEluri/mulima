@@ -22,7 +22,6 @@ package org.mulima.api.meta;
  * tied to a {@link GenericTag}. 
  * 
  * @author Andrew Oberstar
- * @version 0.1.0
  * @see GenericTag
  * @since 0.1.0
  */

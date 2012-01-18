@@ -11,7 +11,6 @@ import org.mulima.api.meta.Album;
  * An object representing a related collection of music.
  * This is often used to group music by target device.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface Library {

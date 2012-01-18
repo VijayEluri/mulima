@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory
  * Default parser and composer implementation for an Album.  Formats into
  * XML.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 class AlbumXmlDao implements FileParser<Album>, FileComposer<Album> {

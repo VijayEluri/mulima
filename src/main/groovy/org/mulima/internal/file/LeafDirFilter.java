@@ -8,7 +8,6 @@ import org.mulima.api.file.audio.AudioFormat;
 /**
  * A filter to select only leaf directories.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class LeafDirFilter implements FileFilter {

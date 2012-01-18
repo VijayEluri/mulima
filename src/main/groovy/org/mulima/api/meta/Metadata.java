@@ -25,7 +25,6 @@ import java.util.Map;
  * Represents an object that holds metadata.  Implementations
  * should support multiple values per tag.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @see Tag
  * @since 0.1.0
  */

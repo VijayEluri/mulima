@@ -6,7 +6,6 @@ import java.util.Set;
  * An object defining operations to take on
  * a set of libraries.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface LibraryManager {

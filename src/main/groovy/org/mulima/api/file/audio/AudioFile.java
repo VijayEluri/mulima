@@ -6,7 +6,6 @@ import org.mulima.api.meta.Metadata;
 /**
  * An object representing an audio file.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface AudioFile extends FileHolder {

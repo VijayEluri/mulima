@@ -12,7 +12,6 @@ import org.mulima.api.file.FileService;
 /**
  * Default implementation of a cached directory.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  * @param <T> the type of the file values
  */

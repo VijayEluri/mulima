@@ -24,7 +24,6 @@ import org.mulima.util.StringUtil
  * access to the exit value as well as the standard out
  * and standard error output.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 class ProcessResult {

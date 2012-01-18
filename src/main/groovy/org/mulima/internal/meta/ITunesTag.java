@@ -23,7 +23,6 @@ import org.mulima.api.meta.Tag;
 /**
  * Set of tags used for iTunes AAC files.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public enum ITunesTag implements Tag {

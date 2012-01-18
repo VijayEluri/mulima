@@ -17,7 +17,6 @@
  */
 package org.mulima.internal.freedb;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -47,7 +46,6 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * Provides access to a JDBC source containing FreeDb information.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class FreeDbJdbcDaoImpl extends NamedParameterJdbcDaoSupport implements FreeDbDao {

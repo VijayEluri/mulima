@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 /**
  * A step to split a disc file into track files.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class SplitStep implements Step<Set<TrackFile>> {

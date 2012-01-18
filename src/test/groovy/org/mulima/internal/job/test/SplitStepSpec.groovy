@@ -20,7 +20,7 @@ class SplitStepSpec extends Specification {
 	MulimaService service = Mock(MulimaService)
 	
 	def setup() {
-		service.tempDir >> new TempDir('mulimaTest')
+		service.tempDir >> new TempDir().newChild('mulimaTest')
 		FileService fileService = Mock(FileService)
 		service.fileService >> fileService
 		fileService.createAudioFile(_, _, _) >> Mock(AudioFile)

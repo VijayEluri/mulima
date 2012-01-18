@@ -25,7 +25,6 @@ import org.mulima.api.meta.Tag;
  * 
  * For more information see their website {@link http://www.freedb.org/}.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public enum FreeDbTag implements Tag {

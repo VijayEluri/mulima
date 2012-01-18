@@ -24,7 +24,6 @@ import org.mulima.api.proc.ProcessResult
  * Represents the result of a tagger operation.  Provides access to the
  * process's exit value, the file and metadata.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 class TaggerResult extends ProcessResult {

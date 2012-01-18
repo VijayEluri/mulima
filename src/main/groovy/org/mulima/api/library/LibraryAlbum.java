@@ -14,7 +14,6 @@ import org.mulima.api.meta.CueSheet;
  * An object representing an album as stored
  * in a library.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface LibraryAlbum extends Comparable<LibraryAlbum> {

@@ -5,7 +5,6 @@ import java.util.SortedSet;
 /**
  * An object that represents a cue sheet for a disc.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface CueSheet extends Metadata, Comparable<CueSheet> {

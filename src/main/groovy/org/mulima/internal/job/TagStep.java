@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 /**
  * A step to write metadata to audio files.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class TagStep implements Step<Void> {

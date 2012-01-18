@@ -25,7 +25,6 @@ import org.mulima.api.file.audio.AudioFormat;
  * A codec specifies operations for encoding and decoding an
  * audio file.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface Codec {

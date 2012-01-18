@@ -35,7 +35,6 @@ import org.springframework.stereotype.Component;
 /**
  * Support for FLAC encoding/decoding.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 @Component

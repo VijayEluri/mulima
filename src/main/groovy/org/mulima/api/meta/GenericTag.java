@@ -24,7 +24,6 @@ import org.mulima.util.StringUtil;
  * all tagging systems. Other <code>Tag</code> implementations
  * will tie their values back to values from this class.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public enum GenericTag implements Tag {

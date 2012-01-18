@@ -6,7 +6,6 @@ import java.util.UUID;
 /**
  * A temporary directory.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class TempDir implements FileHolder {

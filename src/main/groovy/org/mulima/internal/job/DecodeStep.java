@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 /**
  * A step to decode audio files to WAVE format in a directory.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class DecodeStep implements Step<Set<AudioFile>> {

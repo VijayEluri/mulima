@@ -6,7 +6,6 @@ import java.util.concurrent.Callable;
  * An object that will execute an action
  * to perform a task.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  *
  * @param <T> the return type of the step

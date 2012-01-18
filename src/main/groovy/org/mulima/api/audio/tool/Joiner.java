@@ -26,7 +26,6 @@ import org.mulima.api.file.audio.AudioFile;
  * A joiner specifies operations for joining audio files into
  * a single file.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface Joiner {

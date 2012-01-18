@@ -7,7 +7,6 @@ import java.util.UUID;
  * Stores the hashes of a collection of files along
  * with an ID.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface Digest {

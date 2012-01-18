@@ -8,7 +8,6 @@ import org.mulima.api.file.FileParser
  * A DAO that parses and composes digest objects
  * to files.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 class DigestDao implements FileParser<Digest>, FileComposer<Digest> {

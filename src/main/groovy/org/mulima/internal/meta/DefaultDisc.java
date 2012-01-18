@@ -10,7 +10,6 @@ import org.mulima.api.meta.Track;
 /**
  * Default implementation of a disc.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class DefaultDisc extends AbstractMetadata implements Disc {

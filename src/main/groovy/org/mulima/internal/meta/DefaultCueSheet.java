@@ -10,7 +10,6 @@ import org.mulima.api.meta.CueSheet;
 /**
  * Default implementation of a cue sheet.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class DefaultCueSheet extends AbstractMetadata implements CueSheet {

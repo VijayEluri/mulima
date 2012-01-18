@@ -6,7 +6,6 @@ import java.util.SortedSet;
  * An object representing the metadata of an album.  This includes
  * reference to the discs that make up the album.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface Album extends Metadata {

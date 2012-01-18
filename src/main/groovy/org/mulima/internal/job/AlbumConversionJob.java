@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 /**
  * A job to convert albums.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class AlbumConversionJob implements Job<Boolean> {

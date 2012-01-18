@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 /**
  * Default implementation of a library service.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 @Service

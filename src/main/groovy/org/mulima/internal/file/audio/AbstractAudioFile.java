@@ -8,7 +8,6 @@ import org.mulima.api.file.audio.AudioFormat;
 /**
  * A base implementation of an audio file.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public abstract class AbstractAudioFile implements AudioFile {

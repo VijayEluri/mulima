@@ -6,7 +6,6 @@ import org.mulima.api.library.LibraryAlbum;
  * A service that performs digest operations
  * for library albums.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface DigestService {

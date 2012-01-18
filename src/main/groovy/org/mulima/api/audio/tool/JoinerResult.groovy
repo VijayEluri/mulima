@@ -24,7 +24,6 @@ import org.mulima.api.proc.ProcessResult
  * Represents the result of a joiner operation.  Provides access to the
  * process's exit value, the source and destination files.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 class JoinerResult extends ProcessResult {

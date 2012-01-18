@@ -5,7 +5,6 @@ import java.util.SortedSet;
 /**
  * An object representing a disc.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface Disc extends Metadata, Comparable<Disc> {

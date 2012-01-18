@@ -23,7 +23,6 @@ import org.mulima.api.meta.Tag;
 /**
  * Set of tags used for Ogg Vorbis and FLAC files.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public enum VorbisTag implements Tag {

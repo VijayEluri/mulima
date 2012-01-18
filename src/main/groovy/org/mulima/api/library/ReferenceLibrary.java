@@ -6,7 +6,6 @@ import java.util.Set;
  * An object representing a library that contains the
  * reference copies of a collection.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface ReferenceLibrary extends Library {

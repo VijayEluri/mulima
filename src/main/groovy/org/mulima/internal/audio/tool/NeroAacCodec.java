@@ -35,7 +35,6 @@ import org.springframework.stereotype.Component;
 /**
  * Supports Nero AAC encode/decode operations.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 @Component

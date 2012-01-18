@@ -6,7 +6,6 @@ import java.io.File;
  * Represents a file whose parsed value
  * should be cached.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  * @param <T> the type of the file value
  */

@@ -7,7 +7,6 @@ import org.mulima.api.meta.Track;
 /**
  * Default implementation of a track.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class DefaultTrack extends AbstractMetadata implements Track {

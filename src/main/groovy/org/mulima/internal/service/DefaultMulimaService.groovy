@@ -12,8 +12,7 @@ import org.springframework.stereotype.Service
 /**
  * Default implementation of the MulimaService.  This simply
  * provides properties for each service.
- * @author Andy
- * @version 0.1.0
+ * @author Andrew Oberstar
  * @since 0.1.0
  */
 @Service

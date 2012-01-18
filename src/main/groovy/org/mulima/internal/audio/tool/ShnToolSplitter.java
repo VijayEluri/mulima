@@ -46,7 +46,6 @@ import org.springframework.stereotype.Component;
 /**
  * Support for shntool splitting based on a cue sheet.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 @Component

@@ -13,7 +13,6 @@ import org.mulima.api.library.ReferenceLibrary;
 /**
  * Default implementation of a reference library.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public class DefaultReferenceLibrary extends DefaultLibrary implements ReferenceLibrary {

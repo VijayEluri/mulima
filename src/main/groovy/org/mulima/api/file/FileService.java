@@ -12,7 +12,6 @@ import org.mulima.api.file.audio.TrackFile;
  * A service that provides operations that create
  * file objects.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface FileService {

@@ -3,7 +3,6 @@ package org.mulima.api.meta;
 /**
  * Represents a cue point on a disc.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface CuePoint extends Comparable<CuePoint> {

@@ -22,7 +22,6 @@ import java.util.List;
 /**
  * Defines an interface to providing choices to the user.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public interface Chooser<T> {

@@ -23,7 +23,6 @@ import org.mulima.api.meta.Tag;
 /**
  * Set of tags used for files using ID3v2 tags.
  * @author Andrew Oberstar
- * @version 0.1.0
  * @since 0.1.0
  */
 public enum ID3V2Tag implements Tag {
