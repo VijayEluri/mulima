@@ -111,7 +111,8 @@ public class MetaflacTagger extends MulimaPropertiesSupport implements Tagger {
 			VorbisTag tag = VorbisTag.valueOf(generic);
 			if (tag != null) {
 				for (String value : file.getMeta().getAll(tag)) {
-					command.add("--set-tag=" + tag.toString() + "=" + value);
+					String preparedValue = value.replaceAll("\"", "\\\\\"");
+					command.add("--set-tag=" + tag.toString() + "=" + preparedValue + "");
 				}
 			}
 		}

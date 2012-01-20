@@ -87,7 +87,8 @@ public class NeroAacTagger extends MulimaPropertiesSupport implements Tagger {
 			ITunesTag tag = ITunesTag.valueOf(generic);
 			if (tag != null) {
 				for (String value : file.getMeta().getAll(tag)) {
-					command.add("-meta-user:" + tag.toString() + "=" + value);
+					String preparedValue = value.replaceAll("\"", "\\\\\"");
+					command.add("-meta-user:" + tag.toString() + "=" + preparedValue + "");
 				}
 			}
 		}
