@@ -83,3 +83,19 @@ jar {
 test {
 	systemProperties 'log.level':'DEBUG'
 }
+
+startScripts {
+	doLast {
+		
+		def lines = windowsScript.readLines().collect {
+			if (it ==~ /^set DEFAULT_JVM_OPTS=/) {
+				return 'set DEFAULT_JVM_OPTS=-Dmulima.home="%~dp0.." -Dlogback.configurationFile=%~dp0..\\config\\logback.groovy'
+			} else {
+				return it
+			}
+		}
+		windowsScript.withPrintWriter { writer ->
+			lines.each { writer.println it }
+		}
+	}
+}

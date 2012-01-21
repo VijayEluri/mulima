@@ -53,7 +53,7 @@ public class AlbumConversionJob implements Job<Boolean> {
 		try {
 			Set<LibraryAlbum> outdated = getOutdatedAlbums();
 			if (outdated.size() == 0) {
-				LOGGER.info("Skipping conversion for " + refAlbum.getName() + ". No albums are out of date.");
+				LOGGER.debug("Skipping conversion for " + refAlbum.getName() + ". No albums are out of date.");
 				return true;
 			}
 			LOGGER.info("Beginning conversion of: " + refAlbum.getName());
