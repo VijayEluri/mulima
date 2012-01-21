@@ -31,20 +31,19 @@ import org.mulima.api.meta.Tag;
  * objects from various forms of <code>Map</code>s.
  * @see Metadata
  */
-public final class MetadataFactory {
-	private final Map<Class<?>, Class<?>> implementations = new HashMap<Class<?>, Class<?>>();
+final class MetadataFactory {
+	private final Map implementations = [:]
 	
-	@SuppressWarnings("unchecked")
-	public <T> Class<T> getImplementation(Class<T> type) {
-		return (Class<T>) implementations.get(type);
+	Class getImplementation(Class type) {
+		return implementations.get(type)
 	}
 	
-	public <S, T extends S> void registerImplementation(Class<S> type, Class<T> implementation) {
-		implementations.put(type, implementation);
+	void registerImplementation(Class type, Class implementation) {
+		implementations[type] = implementation;
 	}
 	
-	public <T extends Metadata> T newInstance(Class<T> type) throws InstantiationException, IllegalAccessException {
-		return getImplementation(type).newInstance();
+	Metadata newInstance(Class type, Object... args) throws InstantiationException, IllegalAccessException {
+		return getImplementation(type).newInstance(args);
 	}
 	
 	/**
@@ -54,8 +53,8 @@ public final class MetadataFactory {
 	 * @throws IllegalAccessException 
 	 * @throws InstantiationException 
 	 */
-	public <T extends Metadata> T fromTagList(Map<Tag, List<String>> map, Class<T> type) throws InstantiationException, IllegalAccessException {
-		T meta = getImplementation(type).newInstance();
+	Metadata fromTagList(Map map, Class type, Object... args) throws InstantiationException, IllegalAccessException {
+		Metadata meta = getImplementation(type).newInstance(args);
 		for (Entry<Tag, List<String>> entry : map.entrySet()) {
 			Tag tag = entry.getKey();
 			meta.addAll(tag, entry.getValue());
@@ -70,8 +69,8 @@ public final class MetadataFactory {
 	 * @throws IllegalAccessException 
 	 * @throws InstantiationException 
 	 */
-	public <T extends Metadata> T fromStringList(Map<String, List<String>> map, Class<T> type) throws InstantiationException, IllegalAccessException {
-		T meta = getImplementation(type).newInstance();
+	public <T extends Metadata> T fromStringList(Map<String, List<String>> map, Class<T> type, Object... args) throws InstantiationException, IllegalAccessException {
+		T meta = getImplementation(type).newInstance(args);
 		for (Entry<String, List<String>> entry : map.entrySet()) {
 			Tag tag = GenericTag.valueOf(entry.getKey());
 			meta.addAll(tag, entry.getValue());
@@ -86,8 +85,8 @@ public final class MetadataFactory {
 	 * @throws IllegalAccessException 
 	 * @throws InstantiationException 
 	 */
-	public <T extends Metadata> T fromTagString(Map<Tag, String> map, Class<T> type) throws InstantiationException, IllegalAccessException {
-		T meta = getImplementation(type).newInstance();
+	public <T extends Metadata> T fromTagString(Map<Tag, String> map, Class<T> type, Object... args) throws InstantiationException, IllegalAccessException {
+		T meta = getImplementation(type).newInstance(args);
 		for (Entry<Tag, String> entry : map.entrySet()) {
 			Tag tag = entry.getKey();
 			meta.add(tag, entry.getValue());
@@ -102,8 +101,8 @@ public final class MetadataFactory {
 	 * @throws IllegalAccessException 
 	 * @throws InstantiationException 
 	 */
-	public <T extends Metadata> T fromStringString(Map<String, String> map, Class<T> type) throws InstantiationException, IllegalAccessException {
-		T meta = getImplementation(type).newInstance();
+	public <T extends Metadata> T fromStringString(Map<String, String> map, Class<T> type, Object... args) throws InstantiationException, IllegalAccessException {
+		T meta = getImplementation(type).newInstance(args);
 		for (Entry<String, String> entry : map.entrySet()) {
 			Tag tag = GenericTag.valueOf(entry.getKey());
 			meta.add(tag, entry.getValue());

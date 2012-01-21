@@ -53,7 +53,6 @@ public class SplitStep implements Step<Set<TrackFile>> {
 			discDestDir.mkdirs();
 			logger.debug("Splitting {}", input);
 			if (input.getMeta().getTracks().size() == 1) {
-				System.out.println("Only one track");
 				Track track = input.getMeta().getTracks().iterator().next();
 				File destFile = new File(discDestDir, String.format("D%02dT%02d.%s", input.getDiscNum(), track.getNum(), AudioFormat.WAVE.getExtension()));
 				input.getFile().renameTo(destFile);
@@ -61,7 +60,6 @@ public class SplitStep implements Step<Set<TrackFile>> {
 				trackFile.setMeta(track);
 				outputs.add(trackFile);
 			} else {
-				System.out.println("Multiple tracks");
 				SplitterResult result = service.getToolService().getSplitter().split(input, discDestDir);
 				if (result.isSuccess()) {
 					outputs.addAll(result.getDest());

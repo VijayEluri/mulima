@@ -27,7 +27,6 @@ import org.mulima.api.audio.tool.Tagger;
 import org.mulima.api.audio.tool.TaggerResult;
 import org.mulima.api.file.audio.AudioFile;
 import org.mulima.api.file.audio.AudioFormat;
-import org.mulima.api.meta.GenericTag;
 import org.mulima.api.meta.Track;
 import org.mulima.api.proc.ProcessResult;
 import org.mulima.internal.meta.DefaultTrack;
@@ -35,8 +34,6 @@ import org.mulima.internal.meta.ITunesTag;
 import org.mulima.internal.proc.ProcessCaller;
 import org.mulima.internal.service.MulimaPropertiesSupport;
 import org.mulima.util.FileUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 
@@ -48,7 +45,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class NeroAacTagger extends MulimaPropertiesSupport implements Tagger {
 	private static final Pattern REGEX = Pattern.compile("([A-Za-z]+) = (.+)");
-	private final Logger logger = LoggerFactory.getLogger(getClass());
+	//private final Logger logger = LoggerFactory.getLogger(getClass());
 	private String path = "neroAacTag";
 	
 	@Override
@@ -83,17 +80,12 @@ public class NeroAacTagger extends MulimaPropertiesSupport implements Tagger {
 		List<String> command = new ArrayList<String>();
 		command.add(getPath());
 		command.add("\"" + filePath + "\"");
-		for (GenericTag generic : file.getMeta().getMap().keySet()) {
-			ITunesTag tag = ITunesTag.valueOf(generic);
-			if (tag != null) {
-				for (String value : file.getMeta().getAll(tag)) {
-					String preparedValue = value.replaceAll("\"", "\\\\\"");
-					command.add("-meta-user:" + tag.toString() + "=" + preparedValue + "");
-				}
+		for (ITunesTag tag : ITunesTag.values()) {
+			for (String value : file.getMeta().getAll(tag)) {
+				String preparedValue = value.replaceAll("\"", "\\\\\"");
+				command.add("-meta-user:" + tag.toString() + "=" + preparedValue + "");
 			}
 		}
-		
-		logger.info("Starting: setting tags on " + filePath);
 		ProcessResult result = new ProcessCaller(command).call();
 		return new TaggerResult(file, result);
 	}
@@ -110,7 +102,6 @@ public class NeroAacTagger extends MulimaPropertiesSupport implements Tagger {
 		command.add("\"" + filePath + "\"");
 		command.add("-list-meta");
 		
-		logger.info("Starting: reading tags from " + filePath);
 		ProcessResult result = new ProcessCaller("tag of " + FileUtil.getSafeCanonicalPath(file), command).call();
 		
 		Track track = new DefaultTrack();

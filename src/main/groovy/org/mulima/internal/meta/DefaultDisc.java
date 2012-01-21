@@ -3,6 +3,7 @@ package org.mulima.internal.meta;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.mulima.api.meta.Album;
 import org.mulima.api.meta.Disc;
 import org.mulima.api.meta.GenericTag;
 import org.mulima.api.meta.Track;
@@ -14,6 +15,14 @@ import org.mulima.api.meta.Track;
  */
 public class DefaultDisc extends AbstractMetadata implements Disc {
 	private final SortedSet<Track> tracks = new TreeSet<Track>();
+	
+	public DefaultDisc() {
+		super(null);
+	}
+	
+	public DefaultDisc(Album album) {
+		super(album);
+	}
 	
 	/**
 	 * {@inheritDoc}

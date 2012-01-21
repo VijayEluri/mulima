@@ -20,7 +20,7 @@ public class DefaultCueSheet extends AbstractMetadata implements CueSheet {
 	 * Constructs an unnumbered cue sheet.
 	 */
 	public DefaultCueSheet() {
-		super();
+		super(null);
 	}
 	
 	/**
@@ -28,7 +28,7 @@ public class DefaultCueSheet extends AbstractMetadata implements CueSheet {
 	 * @param num the disc number
 	 */
 	public DefaultCueSheet(int num) {
-		super();
+		super(null);
 		this.num = num;
 	}
 	

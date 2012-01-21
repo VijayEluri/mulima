@@ -41,22 +41,22 @@ class AlbumXmlHelper {
 	static Album getExampleAlbum() {
 		def album = factory.fromStringString([ARTIST:'Genesis', ALBUM:'Foxtrot', GENRE:'Progressive Rock', DATE:'1972', CDDB_ID:'520C0506'], Album)
 		def cue = CueSheetHelper.exampleCue
-		def disc = factory.fromStringString([DISC_NUMBER:'1'], Disc)
+		def disc = factory.fromStringString([DISC_NUMBER:'1'], Disc, album)
 		
-		disc.tracks.add(createTrack([TRACK_NUMBER:'1', TITLE:'Watcher of the Skies']))
-		disc.tracks.add(createTrack([TRACK_NUMBER:'2', TITLE:'Time Table']))
-		disc.tracks.add(createTrack([TRACK_NUMBER:'3', TITLE:"Get 'Em Out By Friday"]))
-		disc.tracks.add(createTrack([TRACK_NUMBER:'4', TITLE:'Can-Utility and the Coastliners']))
-		disc.tracks.add(createTrack([TRACK_NUMBER:'5', TITLE:'Horizons']))
-		disc.tracks.add(createTrack([TRACK_NUMBER:'6', TITLE:"Supper's Ready"]))
+		disc.tracks.add(createTrack([TRACK_NUMBER:'1', TITLE:'Watcher of the Skies'], disc))
+		disc.tracks.add(createTrack([TRACK_NUMBER:'2', TITLE:'Time Table'], disc))
+		disc.tracks.add(createTrack([TRACK_NUMBER:'3', TITLE:"Get 'Em Out By Friday"], disc))
+		disc.tracks.add(createTrack([TRACK_NUMBER:'4', TITLE:'Can-Utility and the Coastliners'], disc))
+		disc.tracks.add(createTrack([TRACK_NUMBER:'5', TITLE:'Horizons'], disc))
+		disc.tracks.add(createTrack([TRACK_NUMBER:'6', TITLE:"Supper's Ready"], disc))
 		
 		album.discs.add(disc)
 		
 		return album
 	}
 	
-	static Track createTrack(Map tags) {
-		return factory.fromStringString(tags, Track)
+	static Track createTrack(Map tags, Disc disc) {
+		return factory.fromStringString(tags, Track, disc)
 	}
 	
 	static void writeExampleFile(File exampleFile) {

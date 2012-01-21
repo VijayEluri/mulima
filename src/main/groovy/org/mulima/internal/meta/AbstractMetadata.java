@@ -37,7 +37,20 @@ import org.mulima.api.meta.Tag;
  * @since 0.1.0
  */
 public abstract class AbstractMetadata implements Metadata {
+	private final Metadata parent;
 	private final Map<GenericTag, List<String>> map = new TreeMap<GenericTag, List<String>>();
+	
+	protected AbstractMetadata(Metadata parent) {
+		this.parent = parent;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Metadata getParent() {
+		return parent;
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -47,7 +60,12 @@ public abstract class AbstractMetadata implements Metadata {
 		if (tag == null) {
 			return false;
 		}
-		return map.containsKey(tag.getGeneric());
+		boolean set = map.containsKey(tag.getGeneric());
+		if (!set && parent != null) {
+			return parent.isSet(tag);
+		} else {
+			return set;
+		}
 	}
 	
 	/**
@@ -106,6 +124,8 @@ public abstract class AbstractMetadata implements Metadata {
 		GenericTag generic = tag.getGeneric();
 		if (map.containsKey(generic)) {
 			return Collections.unmodifiableList(map.get(generic));
+		} else if (parent != null) {
+			return parent.getAll(tag);
 		} else {
 			return Collections.unmodifiableList(new ArrayList<String>());
 		}
@@ -122,6 +142,8 @@ public abstract class AbstractMetadata implements Metadata {
 		GenericTag generic = tag.getGeneric();
 		if (map.containsKey(generic) && !map.get(generic).isEmpty()) {
 			return map.get(generic).get(0);
+		} else if (parent != null) {
+			return parent.getFirst(tag);
 		} else {
 			return null;
 		}
@@ -185,13 +207,13 @@ public abstract class AbstractMetadata implements Metadata {
 	 * @param children list of child metadata objects
 	 */
 	protected void tidy(Set<? extends Metadata> children) {
-		for (Tag tag : GenericTag.values()) {
+		for (GenericTag tag : GenericTag.values()) {
 			if (GenericTag.DISC_NUMBER.equals(tag) || GenericTag.TRACK_NUMBER.equals(tag)) {
 				continue;
 			}
 			
 			List<String> values = findCommon(tag, children);
-			if (!isSet(tag) && values != null) {
+			if (!map.containsKey(tag) && values != null) {
 				addAll(tag, values);
 				for (Metadata child : children) {
 					child.remove(tag);
@@ -207,31 +229,16 @@ public abstract class AbstractMetadata implements Metadata {
 	 * @param children list of child metadata objects
 	 * @return the list of common values or {@code null} if any children have a different value
 	 */
-	private List<String> findCommon(Tag tag, Set<? extends Metadata> children) {
+	private List<String> findCommon(GenericTag tag, Set<? extends Metadata> children) {
 		List<String> values = null;
 		for (Metadata child : children) {
+			List<String> childValues = child.getMap().get(tag);
 			if (values == null) {
-				values = child.getAll(tag);
-			} else if (!isMatch(child, tag, values)) {
+				values = childValues;
+			} else if (!values.equals(childValues)) {
 				return null;
 			}
 		}
 		return values;
-	}
-	
-	/**
-	 * Checks if the metadata object has the specified values
-	 * set for the specified tag.
-	 * @param meta the metadata object
-	 * @param tag the tag to match values of
-	 * @param values the values to match against
-	 * @return {@code true} if it matches, {@code false} otherwise
-	 */
-	private boolean isMatch(Metadata meta, Tag tag, List<String> values) {
-		if (meta.isSet(tag)) {
-			return meta.getAll(tag).equals(values);
-		} else {
-			return false;
-		}
 	}
 }

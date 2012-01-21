@@ -32,7 +32,7 @@ class AlbumXmlDao implements FileParser<Album>, FileComposer<Album> {
 			def xml = new XmlParser().parse(file)
 			def album = new DefaultAlbum()
 			parseTags(xml.tag, album)
-			parseDiscs(xml.disc, album.discs)
+			parseDiscs(xml.disc, album)
 			album.tidy()
 			return album
 		} catch (e) {
@@ -57,12 +57,12 @@ class AlbumXmlDao implements FileParser<Album>, FileComposer<Album> {
 	 * @param xml a node list to read from
 	 * @param discs the set to add discs to
 	 */
-	private void parseDiscs(NodeList xml, SortedSet<Disc> discs) {
+	private void parseDiscs(NodeList xml, Album album) {
 		xml.each { discNode ->
-			def disc = new DefaultDisc()
+			def disc = new DefaultDisc(album)
 			parseTags(discNode.tag, disc)
-			parseTracks(discNode.track, disc.tracks)
-			discs.add(disc)
+			parseTracks(discNode.track, disc)
+			album.discs.add(disc)
 		}
 	}
 	
@@ -71,9 +71,9 @@ class AlbumXmlDao implements FileParser<Album>, FileComposer<Album> {
 	 * @param xml a node list to read from
 	 * @param tracks the set to add tracks to
 	 */
-	private void parseTracks(NodeList xml, SortedSet<Track> tracks) {
+	private void parseTracks(NodeList xml, Disc disc) {
 		xml.each { trackNode ->
-			def track = new DefaultTrack()
+			def track = new DefaultTrack(disc)
 			parseTags(trackNode.tag, track)
 			
 			if (trackNode.startPoint) {
@@ -94,7 +94,7 @@ class AlbumXmlDao implements FileParser<Album>, FileComposer<Album> {
 //				)
 //			}
 			
-			tracks.add(track)
+			disc.tracks.add(track)
 		}
 	}
 	

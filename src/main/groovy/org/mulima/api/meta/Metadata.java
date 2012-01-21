@@ -30,6 +30,13 @@ import java.util.Map;
  */
 public interface Metadata {
 	/**
+	 * Gets the parent metadata object.
+	 * @return the parent, or {@code null}
+	 * if there isn't one
+	 */
+	Metadata getParent();
+	
+	/**
 	 * Checks if the given tag is set
 	 * on this metadata.  If the tag is null
 	 * the method will return false.

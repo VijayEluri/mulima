@@ -26,11 +26,4 @@ public interface Album extends Metadata {
 	 * @return the disc or {@code null} if not found
 	 */
 	Disc getDisc(int num);
-	
-	/**
-	 * Flattens all metadata on this album down to
-	 * a list of the component tracks.
-	 * @return a list of tracks with all metadata
-	 */
-	SortedSet<Track> flatten();
 }

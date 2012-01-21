@@ -1,6 +1,7 @@
 package org.mulima.internal.meta;
 
 import org.mulima.api.meta.CuePoint;
+import org.mulima.api.meta.Disc;
 import org.mulima.api.meta.GenericTag;
 import org.mulima.api.meta.Track;
 
@@ -12,6 +13,14 @@ import org.mulima.api.meta.Track;
 public class DefaultTrack extends AbstractMetadata implements Track {
 	private CuePoint startPoint = null;
 	private CuePoint endPoint = null;
+	
+	public DefaultTrack() {
+		super(null);
+	}
+	
+	public DefaultTrack(Disc disc) {
+		super(disc);
+	}
 	
 	/**
 	 * {@inheritDoc}
