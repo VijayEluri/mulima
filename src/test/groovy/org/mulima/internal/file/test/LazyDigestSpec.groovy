@@ -14,7 +14,7 @@ class LazyDigestSpec extends Specification {
 		def entries = [new StoredDigestEntry(fileName1, 0, 0, ''), new StoredDigestEntry(fileName2, 1000, 2000, 'the')] as Set
 		def entries2 = [new StoredDigestEntry(fileName1, 0, 0, ''), new StoredDigestEntry(fileName2, 1000, 2000, 'te')] as Set
 		def entries3 = [new StoredDigestEntry(fileName1, 0, 1000, ''), new StoredDigestEntry(fileName2, 1000, 2000, 'the')] as Set
-		def entries4 = [new StoredDigestEntry(fileName1, 100, 0, 'a'), new StoredDigestEntry(fileName2, 1000, 2000, 'the')] as Set
+		def entries4 = [new StoredDigestEntry(fileName1, 1000, 0, 'a'), new StoredDigestEntry(fileName2, 1000, 2000, 'the')] as Set
 		expect:
 		new LazyDigest(id, entries) == new LazyDigest(id, entries)
 		new LazyDigest(id, entries2) == new LazyDigest(id, entries2)
