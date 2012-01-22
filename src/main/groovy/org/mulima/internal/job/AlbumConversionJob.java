@@ -10,6 +10,7 @@ import org.mulima.api.file.audio.DiscFile;
 import org.mulima.api.job.Job;
 import org.mulima.api.library.LibraryAlbum;
 import org.mulima.api.service.MulimaService;
+import org.mulima.exception.UncheckedIOException;
 import org.mulima.exception.UncheckedMulimaException;
 import org.mulima.util.FileUtil;
 import org.slf4j.Logger;
@@ -100,7 +101,11 @@ public class AlbumConversionJob implements Job<Boolean> {
 				LOGGER.debug("Finished copying artwork to {}", destAlbum.getDir());
 			}
 			
-			FileUtil.deleteDir(tempDir);
+			try {
+				FileUtil.deleteDir(tempDir);
+			} catch (UncheckedIOException e) {
+				LOGGER.warn("Failed to delete temp dir: {}", tempDir);
+			}
 			
 			DigestService digestService = service.getDigestService();
 			for (LibraryAlbum destAlbum : outdated) {
