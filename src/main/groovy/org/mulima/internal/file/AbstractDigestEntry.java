@@ -29,7 +29,8 @@ public abstract class AbstractDigestEntry implements DigestEntry {
 			return false;
 		} else if (o instanceof AbstractDigestEntry) {
 			DigestEntry that = (DigestEntry) o;
-			if (this.getModified() == that.getModified() && this.getSize() == that.getSize()) {
+			long difference = Math.abs(this.getModified() - that.getModified());
+			if (difference < 1000 && this.getSize() == that.getSize()) {
 				return true;
 			} else {
 				LOGGER.trace("Digest entry size or timestamp different for {}.  Checking digest of contents.", getFileName());
