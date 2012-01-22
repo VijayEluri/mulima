@@ -1,8 +1,12 @@
 package org.mulima.internal.file;
 
 import org.mulima.api.file.DigestEntry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDigestEntry implements DigestEntry {
+	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractDigestEntry.class);
+	
 	@Override
 	public boolean equals(Object o) {
 		if (o == null) {
@@ -28,6 +32,7 @@ public abstract class AbstractDigestEntry implements DigestEntry {
 			if (this.getModified() == that.getModified() && this.getSize() == that.getSize()) {
 				return true;
 			} else {
+				LOGGER.trace("Digest entry size or timestamp different for {}.  Checking digest of contents.", getFileName());
 				return this.getDigest().equals(that.getDigest());
 			}
 		} else {
