@@ -1,15 +1,22 @@
 package org.mulima.main
 
+import java.io.File;
+
 import org.mulima.api.file.TempDir
 import org.mulima.api.library.Library
 import org.mulima.api.library.LibraryAlbum
 import org.mulima.api.library.LibraryManager
 import org.mulima.api.library.ReferenceLibrary
 import org.mulima.api.meta.Album
+import org.mulima.api.meta.CuePoint
+import org.mulima.api.meta.CueSheet
 import org.mulima.api.meta.Disc
 import org.mulima.api.meta.GenericTag
 import org.mulima.api.meta.Track
 import org.mulima.api.service.MulimaService
+import org.mulima.internal.meta.DefaultAlbum
+import org.mulima.internal.meta.DefaultDisc
+import org.mulima.internal.meta.DefaultTrack
 import org.springframework.context.ApplicationContext
 import org.springframework.context.support.ClassPathXmlApplicationContext
 import org.springframework.context.support.FileSystemXmlApplicationContext
@@ -28,6 +35,7 @@ class Mulima {
 			_ longOpt:'no-prompt', 'Will not prompt user to choose if algorithm is unsure.'
 			_ longOpt:'status', 'Lists the status of each album.'
 			_ longOpt:'fix-meta', 'Fixes common metadata problems.'
+			_ longOpt:'create-stubs', 'Creates stub album.xml files with cue sheet info for albums without metadata'
 		}
 		
 		def options = cli.parse(args)
@@ -149,6 +157,29 @@ class Mulima {
 				
 				if (anyFixes) {
 					service.fileService.getComposer(Album).compose(new File(refAlbum.dir, Album.FILE_NAME), album)
+				}
+			}
+		} else if (options.'create-stubs') {
+			refLibs.each { ReferenceLibrary refLib ->
+				refLib.new.each { refAlbum ->
+					Album album = new DefaultAlbum()
+					refAlbum.cueSheets.each { CueSheet cue ->
+						Disc disc = new DefaultDisc(album)
+						disc.add(GenericTag.DISC_NUMBER, Integer.toString(cue.getNum()))
+						cue.getMap().each { GenericTag tag, List values ->
+							disc.addAll(tag, values)
+						}
+						cue.cuePoints.each { CuePoint point ->
+							Track track = new DefaultTrack(disc)
+							track.add(GenericTag.TRACK_NUMBER, Integer.toString(point.getTrack()))
+							track.setStartPoint(point)
+							disc.tracks.add(track)
+						}
+						album.discs.add(disc)
+					}
+					
+					album.tidy()
+					service.getFileService().getComposer(Album.class).compose(new File(refAlbum.getDir(), "album.xml"), album)
 				}
 			}
 		}
