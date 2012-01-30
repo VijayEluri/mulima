@@ -24,8 +24,6 @@ tasks.withType(VerificationTask) {
 
 codenarc.configFile = file('config/codenarc/codenarc.groovy')
 
-//convention.plugins.pmd.rulesets 'config/pmd/rulesets.xml'
-
 repositories {
 	mavenCentral()
 	maven { url = 'http://m2repo.spockframework.org/releases' }
