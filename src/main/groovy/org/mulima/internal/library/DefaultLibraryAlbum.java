@@ -19,6 +19,7 @@ import org.mulima.api.meta.GenericTag;
 import org.mulima.exception.UncheckedIOException;
 import org.mulima.util.FileUtil;
 import org.mulima.util.MetadataUtil;
+import org.mulima.util.ObjectUtil;
 
 /**
  * Default implementation of a library album.
@@ -180,8 +181,8 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 		for (File file : getDir().listFiles()) {
 			if (Digest.FILE_NAME.equals(file.getName()) || Digest.SOURCE_FILE_NAME.equals(file.getName())) {
 				continue;
-			} else {
-				file.delete();
+			} else if (!file.delete()) {
+				throw new UncheckedIOException("Could not delete file: " + file);
 			}
 		}
 	}
@@ -191,5 +192,17 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 		String thisName = getName();
 		String oName = o.getName();
 		return thisName.compareToIgnoreCase(oName);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		} else if (obj instanceof DefaultLibraryAlbum) {
+			LibraryAlbum that = (LibraryAlbum) obj;
+			return ObjectUtil.isEqual(this.getId(), that.getId());
+		} else {
+			return false;
+		}
 	}
 }

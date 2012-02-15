@@ -39,7 +39,7 @@ public final class StringUtil {
 	 * @return the Levenshtein distance between the two {@code String}s
 	 */
 	public static int levenshteinDistance(String arg0, String arg1) {
-		if (arg0 == arg1) {
+		if (ObjectUtil.isEqual(arg0, arg1)) {
 			return 0;
 		} else if (arg0 == null) {
 			return arg1.length();

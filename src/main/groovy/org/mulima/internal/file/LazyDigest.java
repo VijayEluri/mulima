@@ -31,4 +31,9 @@ public class LazyDigest extends AbstractDigest implements Digest {
 			return false;
 		}
 	}
+	
+	@Override
+	public int hashCode() {
+		return getId() == null ? 0 : getId().hashCode();
+	}
 }

@@ -3,6 +3,8 @@ package org.mulima.api.file;
 import java.io.File;
 import java.util.UUID;
 
+import org.mulima.exception.UncheckedIOException;
+
 /**
  * A temporary directory.
  * @author Andrew Oberstar
@@ -32,7 +34,9 @@ public class TempDir implements FileHolder {
 	 */
 	public TempDir(File tempDir) {
 		this.dir = tempDir;
-		this.dir.mkdirs();
+		if (!this.dir.exists() && !this.dir.mkdirs()) {
+			throw new UncheckedIOException("Could not create temporary directory: " + tempDir);
+		}
 	}
 	
 	/**

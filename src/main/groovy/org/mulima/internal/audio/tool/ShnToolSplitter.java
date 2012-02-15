@@ -36,6 +36,7 @@ import org.mulima.api.file.audio.DiscFile;
 import org.mulima.api.file.audio.TrackFile;
 import org.mulima.api.meta.Track;
 import org.mulima.api.proc.ProcessResult;
+import org.mulima.exception.UncheckedIOException;
 import org.mulima.internal.proc.ProcessCaller;
 import org.mulima.internal.service.MulimaPropertiesSupport;
 import org.mulima.util.FileUtil;
@@ -143,9 +144,13 @@ public class ShnToolSplitter extends MulimaPropertiesSupport implements Splitter
 			if (matcher.find()) {
 				int num = Integer.parseInt(matcher.group(1)) + offset;
 				if (num == 0) {
-					file.delete();
+					if (!file.delete()) {
+						throw new UncheckedIOException("Could not delete track 0: " + file);
+					}
 				} else {
-					file.renameTo(new File(destDir, String.format("D%02dT%02d.%s", source.getDiscNum(), num, AudioFormat.WAVE.getExtension())));
+					if (!file.renameTo(new File(destDir, String.format("D%02dT%02d.%s", source.getDiscNum(), num, AudioFormat.WAVE.getExtension())))) {
+						throw new UncheckedIOException("Could not rename track: " + file);
+					}
 				}
 			}
 		}

@@ -12,6 +12,7 @@ import org.mulima.api.job.Status;
 import org.mulima.api.job.Step;
 import org.mulima.api.meta.Track;
 import org.mulima.api.service.MulimaService;
+import org.mulima.exception.UncheckedIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,12 +51,16 @@ public class SplitStep implements Step<Set<TrackFile>> {
 		logger.debug("Splitting {} files", inputs.size());
 		for (DiscFile input : inputs) {
 			File discDestDir = new File(destDir, Integer.toString(input.getDiscNum()));
-			discDestDir.mkdirs();
+			if (!discDestDir.exists() && !discDestDir.mkdirs()) {
+				throw new UncheckedIOException("Could not create disc directory: " + discDestDir);
+			}
 			logger.debug("Splitting {}", input);
 			if (input.getMeta().getTracks().size() == 1) {
 				Track track = input.getMeta().getTracks().iterator().next();
 				File destFile = new File(discDestDir, String.format("D%02dT%02d.%s", input.getDiscNum(), track.getNum(), AudioFormat.WAVE.getExtension()));
-				input.getFile().renameTo(destFile);
+				if (!input.getFile().renameTo(destFile)) {
+					throw new UncheckedIOException("Could not move source file: " + input.getFile());
+				}
 				TrackFile trackFile = service.getFileService().createTrackFile(destFile);
 				trackFile.setMeta(track);
 				outputs.add(trackFile);

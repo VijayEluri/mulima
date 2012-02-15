@@ -3,6 +3,7 @@ package org.mulima.api.service;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -11,6 +12,8 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.mulima.exception.UncheckedIOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,6 +31,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class MulimaProperties {	
+	private static final Logger LOGGER = LoggerFactory.getLogger(MulimaProperties.class);
 	private final Properties properties;
 	private final List<String> scope;
 	
@@ -40,12 +44,22 @@ public class MulimaProperties {
 	 * @param file the file to read properties from
 	 */
 	public MulimaProperties(File file) {
+		InputStream stream = null;
 		try {
 			this.properties = new Properties();
-			this.properties.load(new FileInputStream(file));
+			stream = new FileInputStream(file);
+			this.properties.load(stream);
 			this.scope = Collections.emptyList();
 		} catch(IOException e) {
 			throw new UncheckedIOException("Cannot read Mulima properties.", e);
+		} finally {
+			try {
+				if (stream != null) {
+					stream.close();
+				}
+			} catch (IOException e2) {
+				LOGGER.warn("Problem closing properties output stream.", e2);
+			}
 		}
 	}
 	

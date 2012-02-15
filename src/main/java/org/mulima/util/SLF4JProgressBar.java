@@ -76,7 +76,7 @@ public class SLF4JProgressBar implements ProgressBar {
 	public void done() {
 		synchronized(this) {
 			count = total;
+			logger.info(name + ": " + percent + "% complete (" + count + " of " + total + ")");
 		}
-		logger.info(name + ": " + percent + "% complete (" + count + " of " + total + ")");
 	}
 }
