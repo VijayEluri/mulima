@@ -1,11 +1,13 @@
 apply plugin: 'groovy'
 apply plugin: 'application'
+apply plugin: 'eclipse'
+
 apply plugin: 'checkstyle'
 apply plugin: 'codenarc' 
 apply plugin: 'jdepend'
 apply plugin: 'pmd'
 apply plugin: 'findbugs'
-apply plugin: 'eclipse'
+
 apply from: 'emma.gradle'
 
 group = 'org.ajoberstar'
