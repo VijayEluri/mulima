@@ -205,4 +205,9 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 			return false;
 		}
 	}
+	
+	@Override
+	public int hashCode() {
+		return getId() == null ? 0 : getId().hashCode();
+	}
 }
