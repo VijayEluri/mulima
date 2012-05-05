@@ -26,11 +26,7 @@ tasks.withType(VerificationTask) {
 
 codenarc.configFile = file('config/codenarc/codenarc.groovy')
 
-repositories {
-	mavenCentral()
-	maven { url = 'http://m2repo.spockframework.org/releases' }
-	maven { url = 'http://m2repo.spockframework.org/snapshots' }
-}
+repositories { mavenCentral() }
 
 dependencies {
 	compile 'org.slf4j:slf4j-api:1.6.4'
@@ -51,7 +47,7 @@ dependencies {
 	
 	testCompile 'junit:junit:4.10'
 	testCompile 'org.mockito:mockito-core:1.9.0'
-	testCompile 'org.spockframework:spock-core:0.6-groovy-1.8-SNAPSHOT'
+	testCompile 'org.spockframework:spock-core:0.6-groovy-1.8'
 	
 	testRuntime 'cglib:cglib-nodep:2.2.2'	
 }
