@@ -11,7 +11,8 @@ import org.mulima.api.meta.CuePoint;
  * @since 0.1.0
  */
 public class DefaultCuePoint implements CuePoint {
-	private static final Pattern TIME_REGEX = Pattern.compile("^(\\d{2}):(\\d{2}):(\\d{2})$");
+	private static final Pattern FRAMES_REGEX = Pattern.compile("^(\\d+):(\\d{2}):(\\d{2})$");
+	private static final Pattern TIME_REGEX = Pattern.compile("^(\\d+):(\\d{2})\\.(\\d{3})$");
 	
 	private final int track;
 	private final int index;
@@ -36,13 +37,40 @@ public class DefaultCuePoint implements CuePoint {
 			throw new IllegalArgumentException("Index number must be 0 or greater.");
 		}
 		
-		if (verifyTimeFormat(time)) {
-			this.time = time;	
+		if (verifyTimeFormat(time) || verifyFramesFormat(time)) {
+			this.time = time;
 		} else {
-			throw new IllegalArgumentException("Time must match the following format: " + TIME_REGEX.pattern());
+			throw new IllegalArgumentException("Time must match one of the following formats: " + TIME_REGEX.pattern() + " or " + FRAMES_REGEX.pattern());
 		}
 	}
 	
+	/**
+	 * Verifies that the time string matches the expected
+	 * format.
+	 * @param timeStr the string to verify
+	 * @return {@code true} if it is valid, {@code false} otherwise
+	 */
+	private boolean verifyFramesFormat(String timeStr) {
+		Matcher matcher = FRAMES_REGEX.matcher(timeStr);
+		if (matcher.find()) {
+			int minutes = Integer.valueOf(matcher.group(1));
+			if (minutes < 0) {
+				return false;
+			}
+			int seconds = Integer.valueOf(matcher.group(2));
+			if (seconds < 0 || seconds >= 60) {
+				return false;
+			}
+			int frames = Integer.valueOf(matcher.group(3));
+			if (frames < 0 || frames >= 75) {
+				return false;
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	/**
 	 * Verifies that the time string matches the expected
 	 * format.
@@ -60,8 +88,8 @@ public class DefaultCuePoint implements CuePoint {
 			if (seconds < 0 || seconds >= 60) {
 				return false;
 			}
-			int frames = Integer.valueOf(matcher.group(3));
-			if (frames < 0 || frames >= 75) {
+			int parts = Integer.valueOf(matcher.group(3));
+			if (parts < 0) {
 				return false;
 			}
 			return true;

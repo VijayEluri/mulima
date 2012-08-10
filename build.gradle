@@ -9,7 +9,7 @@ apply plugin: 'eclipse'
 apply from: 'emma.gradle'
 
 group = 'org.ajoberstar'
-version = '0.1.1'
+version = '0.1.2-SNAPSHOT'
 
 applicationName = 'mulima'
 mainClassName = 'org.mulima.main.Mulima'

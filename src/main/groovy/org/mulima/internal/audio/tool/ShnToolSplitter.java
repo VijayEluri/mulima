@@ -131,7 +131,7 @@ public class ShnToolSplitter extends MulimaPropertiesSupport implements Splitter
 			if ("00:00:00".equals(time)) {
 				track0 = false;
 			}
-			writer.println(time.replaceAll("(.+):(.+)", "$1.$2"));
+			writer.println(time.replaceAll(":([^:\\.]+)$", ".$1"));
 		}
 		writer.close();
 		
