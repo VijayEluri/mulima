@@ -129,10 +129,10 @@ public class ShnToolSplitter extends MulimaPropertiesSupport implements Splitter
 		PrintWriter writer = new PrintWriter(input);
 		for (Track track : source.getMeta().getTracks()) {
 			String time = track.getStartPoint().getTime();
-			if ("00:00:00".equals(time)) {
+			if ("00:00:00".equals(time) || "00:00.000".equals(time)) {
 				track0 = false;
 			}
-			writer.println(time.replaceAll("(.+):(.+)", "$1.$2"));
+			writer.println(time.replaceAll(":([^:\\.]+)$", ".$1"));
 		}
 		writer.close();
 		
