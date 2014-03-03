@@ -1,4 +1,4 @@
-/*  
+/*
  *  Copyright (C) 2010  Andrew Oberstar.  All rights reserved.
  *  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -49,16 +49,16 @@ public class NeroAacCodec extends MulimaPropertiesSupport implements Codec {
 	public List<String> getScope() {
 		return Arrays.asList("codec", "aac");
 	}
-	
+
 	@Override
 	public AudioFormat getFormat() {
 		return AudioFormat.AAC;
 	}
-	
+
 	public String getEncPath() {
 		return getProperties().getProperty("encPath", encPath);
 	}
-	
+
 	/**
 	 * Sets the path to the encoder executable.
 	 * @param encPath the encoder exe path
@@ -66,7 +66,7 @@ public class NeroAacCodec extends MulimaPropertiesSupport implements Codec {
 	public void setEncPath(String encPath) {
 		this.encPath = encPath;
 	}
-	
+
 	public String getDecPath() {
 		return getProperties().getProperty("decPath", decPath);
 	}
@@ -82,7 +82,7 @@ public class NeroAacCodec extends MulimaPropertiesSupport implements Codec {
 	public String getQuality() {
 		return getProperties().getProperty("quality", quality);
 	}
-	
+
 	/**
 	 * Sets the quality of the encode.
 	 * @param quality the quality (0.0-1.0)
@@ -94,7 +94,7 @@ public class NeroAacCodec extends MulimaPropertiesSupport implements Codec {
 	public String getOpts() {
 		return getProperties().getProperty("opts", opts);
 	}
-	
+
 	/**
 	 * Sets the additional options to use.  These will
 	 * be used in both encodes and decodes.
@@ -111,7 +111,7 @@ public class NeroAacCodec extends MulimaPropertiesSupport implements Codec {
 	public CodecResult encode(AudioFile source, AudioFile dest) {
 		String sourcePath = FileUtil.getSafeCanonicalPath(source);
 		String destPath = FileUtil.getSafeCanonicalPath(dest);
-		
+
 		List<String> command = new ArrayList<String>();
 		command.add(getEncPath());
 		if (!"".equals(getOpts())) {
@@ -120,10 +120,10 @@ public class NeroAacCodec extends MulimaPropertiesSupport implements Codec {
 		command.add("-q");
 		command.add(getQuality());
 		command.add("-if");
-		command.add("\"" + sourcePath + "\"");
+		command.add(sourcePath);
 		command.add("-of");
-		command.add("\"" + destPath + "\"");
-		 
+		command.add(destPath);
+
 		ProcessCaller caller = new ProcessCaller("encoding " + sourcePath, command);
 		return new CodecResult(source, dest, caller.call());
 	}
@@ -135,17 +135,17 @@ public class NeroAacCodec extends MulimaPropertiesSupport implements Codec {
 	public CodecResult decode(AudioFile source, AudioFile dest) {
 		String sourcePath = FileUtil.getSafeCanonicalPath(source);
 		String destPath = FileUtil.getSafeCanonicalPath(dest);
-		
+
 		List<String> command = new ArrayList<String>();
 		command.add(getDecPath());
 		if (!"".equals(getOpts())) {
 			command.add(getOpts());
 		}
 		command.add("-if");
-		command.add("\"" + sourcePath + "\"");
+		command.add(sourcePath);
 		command.add("-of");
-		command.add("\"" + destPath + "\"");
-		 
+		command.add(destPath);
+
 		ProcessCaller caller = new ProcessCaller("decoding " + sourcePath, command);
 		return new CodecResult(source, dest, caller.call());
 	}

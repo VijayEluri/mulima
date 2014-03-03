@@ -1,4 +1,4 @@
-/*  
+/*
  *  Copyright (C) 2011  Andrew Oberstar.  All rights reserved.
  *  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -48,16 +48,16 @@ public class MetaflacTagger extends MulimaPropertiesSupport implements Tagger {
 	//private final Logger logger = LoggerFactory.getLogger(getClass());
 	private String path = "metaflac";
 	private String opts = "";
-	
+
 	public AudioFormat getFormat() {
 		return AudioFormat.FLAC;
 	}
-	
+
 	@Override
 	protected List<String> getScope() {
 		return Arrays.asList("tagger", "flac");
 	}
-	
+
 	/**
 	 * Gets the path to the metaflac executable.
 	 * @return the path to the exe
@@ -65,7 +65,7 @@ public class MetaflacTagger extends MulimaPropertiesSupport implements Tagger {
 	public String getPath() {
 		return getProperties().getProperty("path", path);
 	}
-	
+
 	/**
 	 * Sets the path to the metaflac executable.
 	 * @param path the path to the exe
@@ -73,7 +73,7 @@ public class MetaflacTagger extends MulimaPropertiesSupport implements Tagger {
 	public void setPath(String path) {
 		this.path = path;
 	}
-	
+
 	/**
 	 * Gets the additional options to use.
 	 * @return the options
@@ -81,7 +81,7 @@ public class MetaflacTagger extends MulimaPropertiesSupport implements Tagger {
 	public String getOpts() {
 		return getProperties().getProperty("opts", opts);
 	}
-	
+
 	/**
 	 * Sets additional options for this codec.  These will
 	 * be used on both reads and writes.
@@ -90,14 +90,14 @@ public class MetaflacTagger extends MulimaPropertiesSupport implements Tagger {
 	public void setOpts(String opts) {
 		this.opts = opts;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public TaggerResult write(AudioFile file) {
 		String filePath = FileUtil.getSafeCanonicalPath(file);
-		
+
 		List<String> command = new ArrayList<String>();
 		command.add(getPath());
 		if (!"".equals(getOpts())) {
@@ -110,8 +110,8 @@ public class MetaflacTagger extends MulimaPropertiesSupport implements Tagger {
 				command.add("--set-tag=" + tag.toString() + "=" + preparedValue + "");
 			}
 		}
-		command.add("\"" + filePath + "\"");
-		
+		command.add(filePath);
+
 		ProcessResult result = new ProcessCaller(command).call();
 		return new TaggerResult(file, result);
 	}
@@ -122,7 +122,7 @@ public class MetaflacTagger extends MulimaPropertiesSupport implements Tagger {
 	@Override
 	public TaggerResult read(AudioFile file) {
 		String filePath = FileUtil.getSafeCanonicalPath(file);
-		
+
 		List<String> command = new ArrayList<String>();
 		command.add(getPath());
 		if (!"".equals(getOpts())) {
@@ -130,16 +130,16 @@ public class MetaflacTagger extends MulimaPropertiesSupport implements Tagger {
 		}
 		command.add("--list");
 		command.add("--block-type=VORBIS_COMMENT");
-		command.add("\"" + filePath + "\"");
-		
+		command.add(filePath);
+
 		ProcessResult result = new ProcessCaller("tag of " + FileUtil.getSafeCanonicalPath(file), command).call();
-		
+
 		Track track = new DefaultTrack();
 		for (String line : result.getOutput().split("\n")) {
 			Matcher matcher = REGEX.matcher(line.trim());
 			if (matcher.matches()) {
 				String name = matcher.group(1).toUpperCase();
-				
+
 				VorbisTag tag = VorbisTag.valueOf(name);
 				if (tag != null) {
 					track.add(tag, matcher.group(2));

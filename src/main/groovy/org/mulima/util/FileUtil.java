@@ -1,4 +1,4 @@
-/*  
+/*
  *  Copyright (C) 2011  Andrew Oberstar.  All rights reserved.
  *  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -28,6 +28,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import java.nio.file.*;
+import java.nio.file.attribute.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 import org.mulima.api.file.FileHolder;
 import org.mulima.exception.UncheckedIOException;
 import org.slf4j.Logger;
@@ -40,7 +45,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class FileUtil {
 	private static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);
-	
+
 	/**
 	 * This class should never be instantiated.
 	 * @throws AssertionError always
@@ -59,7 +64,7 @@ public final class FileUtil {
 	public static File changeExtension(FileHolder original, String extension) {
 		return changeExtension(original.getFile(), extension);
 	}
-	
+
 	/**
 	 * Returns a file in the same location, but with a
 	 * different extension than the parameter.
@@ -81,7 +86,7 @@ public final class FileUtil {
 	public static String getBaseName(FileHolder file) {
 		return getBaseName(file.getFile());
 	}
-	
+
 	/**
 	 * Gets the name of the file without the extension.
 	 * @param file the file to get base name of
@@ -92,7 +97,7 @@ public final class FileUtil {
 		int index = name.lastIndexOf('.');
 		return name.substring(0, index);
 	}
-	
+
 	/**
 	 * Gets the canonical path of a file.  If an exception is thrown
 	 * while getting the path, null is returned.
@@ -103,7 +108,7 @@ public final class FileUtil {
 	public static String getSafeCanonicalPath(FileHolder file) {
 		return getSafeCanonicalPath(file.getFile());
 	}
-	
+
 	/**
 	 * Gets the canonical path of a file.  If an exception is thrown
 	 * while getting the path, null is returned.
@@ -119,7 +124,7 @@ public final class FileUtil {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * Returns a list of directories underneath this directory.  This
 	 * <strong>is</strong> recursive.
@@ -130,7 +135,7 @@ public final class FileUtil {
 	public static List<File> listDirsRecursive(FileHolder dir) {
 		return listDirsRecursive(dir.getFile());
 	}
-	
+
 	/**
 	 * Returns a list of directories underneath this directory.  This
 	 * <strong>is</strong> recursive.
@@ -139,9 +144,19 @@ public final class FileUtil {
 	 * @throws IllegalArgumentException if {@code dir} is not a directory
 	 */
 	public static List<File> listDirsRecursive(File dir) {
-		return listDirsRecursive(dir, new ArrayList<File>());
+		// return listDirsRecursive(dir, new ArrayList<File>());
+		LOGGER.trace("Beginning listDirsRecursive for {}", dir);
+
+		DirectoryListFileVisitor visitor = new DirectoryListFileVisitor();
+		try {
+			Files.walkFileTree(dir.toPath(), visitor);
+		} catch(IOException e) {
+			throw new UncheckedIOException(e);
+		}
+		LOGGER.trace("Ending listDirsRecursive for {}", dir);
+		return visitor.getResults();
 	}
-	
+
 	/**
 	 * Helper method for recursion of {@link #listDirsRecursive(File)}.
 	 * @param dir directory to search for child directories
@@ -150,6 +165,7 @@ public final class FileUtil {
 	 * @throws IllegalArgumentException if {@code dir} is not a directory
 	 */
 	private static List<File> listDirsRecursive(File dir, List<File> dirs) {
+		LOGGER.trace("Beginning listDirsRecursive for {}", dir);
 		if (!dir.isDirectory()) {
 			throw new IllegalArgumentException("Must pass a directory in as \"dir\".");
 		}
@@ -159,9 +175,10 @@ public final class FileUtil {
 				listDirsRecursive(child, dirs);
 			}
 		}
+		LOGGER.trace("Ending listDirsRecursive for {}", dir);
 		return dirs;
 	}
-	
+
 	/**
 	 * Deletes a directory and all of its contents.
 	 * @param dir the directory to delete
@@ -169,7 +186,7 @@ public final class FileUtil {
 	public static void deleteDir(FileHolder dir) {
 		deleteDir(dir.getFile());
 	}
-	
+
 	/**
 	 * Deletes a directory and all of its contents.
 	 * @param dir the directory to delete
@@ -187,7 +204,7 @@ public final class FileUtil {
 			throw new UncheckedIOException("Could not delete: " + dir);
 		}
 	}
-	
+
 	/**
 	 * Copies a file to another directory.
 	 * @param source the file to copy
@@ -196,7 +213,7 @@ public final class FileUtil {
 	public static File copy(FileHolder source, File dir) {
 		return copy(source.getFile(), dir);
 	}
-	
+
 	/**
 	 * Copies a file to another directory.
 	 * @param source the file to copy
@@ -222,7 +239,7 @@ public final class FileUtil {
 			throw new UncheckedIOException(e);
 		}
 	}
-	
+
 	/**
 	 * Copies all files in the collection to another
 	 * directory.  Any elements in the collection that
@@ -241,5 +258,22 @@ public final class FileUtil {
 			}
 		}
 		return dests;
+	}
+
+	private static class DirectoryListFileVisitor extends SimpleFileVisitor<Path> {
+		private final BlockingQueue<File> results = new LinkedBlockingQueue<>();
+
+		@Override
+		public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+			LOGGER.trace("Visiting {}", dir);
+			results.add(dir.toFile());
+			return FileVisitResult.CONTINUE;
+		}
+
+		public List<File> getResults() {
+			List<File> copy = new ArrayList<>(results.size());
+			results.drainTo(copy);
+			return copy;
+		}
 	}
 }

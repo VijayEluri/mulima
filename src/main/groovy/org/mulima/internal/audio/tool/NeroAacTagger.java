@@ -1,4 +1,4 @@
-/*  
+/*
  *  Copyright (C) 2011  Andrew Oberstar.  All rights reserved.
  *  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -47,21 +47,21 @@ public class NeroAacTagger extends MulimaPropertiesSupport implements Tagger {
 	private static final Pattern REGEX = Pattern.compile("([A-Za-z]+) = (.+)");
 	//private final Logger logger = LoggerFactory.getLogger(getClass());
 	private String path = "neroAacTag";
-	
+
 	@Override
 	protected List<String> getScope() {
 		return Arrays.asList("tagger", "aac");
 	}
-	
+
 	@Override
 	public AudioFormat getFormat() {
 		return AudioFormat.AAC;
 	}
-	
+
 	public String getPath() {
 		return getProperties().getProperty("path", path);
 	}
-	
+
 	/**
 	 * Sets the path to the executable.
 	 * @param path exe path
@@ -69,14 +69,14 @@ public class NeroAacTagger extends MulimaPropertiesSupport implements Tagger {
 	public void setPath(String path) {
 		this.path = path;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public TaggerResult write(AudioFile file) {
 		String filePath = FileUtil.getSafeCanonicalPath(file);
-		
+
 		List<String> command = new ArrayList<String>();
 		command.add(getPath());
 		command.add("\"" + filePath + "\"");
@@ -96,27 +96,27 @@ public class NeroAacTagger extends MulimaPropertiesSupport implements Tagger {
 	@Override
 	public TaggerResult read(AudioFile file) {
 		String filePath = FileUtil.getSafeCanonicalPath(file);
-		
+
 		List<String> command = new ArrayList<String>();
 		command.add(getPath());
-		command.add("\"" + filePath + "\"");
+		command.add(filePath);
 		command.add("-list-meta");
-		
+
 		ProcessResult result = new ProcessCaller("tag of " + FileUtil.getSafeCanonicalPath(file), command).call();
-		
+
 		Track track = new DefaultTrack();
 		for (String line : result.getOutput().split("\n")) {
 			Matcher matcher = REGEX.matcher(line.trim());
 			if (matcher.matches()) {
 				String name = matcher.group(1).toLowerCase();
-				
+
 				ITunesTag tag = ITunesTag.valueOf(name);
 				if (tag != null) {
 					track.add(tag, matcher.group(2));
 				}
 			}
 		}
-		
+
 		return new TaggerResult(file, result);
 	}
 }

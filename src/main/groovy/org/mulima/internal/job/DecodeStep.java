@@ -26,7 +26,7 @@ public class DecodeStep implements Step<Set<AudioFile>> {
 	private final File destDir;
 	private Status status = Status.NOT_STARTED;
 	private Set<AudioFile> outputs;
-	
+
 	/**
 	 * Constructs a step from the parameters.
 	 * @param service the service to use during execution
@@ -38,7 +38,7 @@ public class DecodeStep implements Step<Set<AudioFile>> {
 		this.inputs = inputs;
 		this.destDir = destDir;
 	}
-	
+
 	/**
 	 * Executes the step.
 	 */
@@ -65,7 +65,7 @@ public class DecodeStep implements Step<Set<AudioFile>> {
 		this.status = Status.SUCCESS;
 		return true;
 	}
-	
+
 	/**
 	 * Executes the step.
 	 * @return the decoded files
@@ -78,14 +78,14 @@ public class DecodeStep implements Step<Set<AudioFile>> {
 			return null;
 		}
 	}
-	
+
 	/**
-	 * {@inheritDoc} 
+	 * {@inheritDoc}
 	 */
 	public Status getStatus() {
 		return status;
 	}
-	
+
 	/**
 	 * Gets the decoded files (now in WAVE format).
 	 * @return the decoded files

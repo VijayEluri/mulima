@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.mulima.api.file.Digest;
 import org.mulima.api.file.DigestService;
 import org.mulima.api.file.audio.AudioFormat;
@@ -28,11 +31,12 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class DefaultLibraryService extends MulimaPropertiesSupport implements LibraryService {
+	private static final Logger logger = LoggerFactory.getLogger(DefaultLibraryService.class);
 	private LibraryAlbumFactory libAlbumFactory;
 	private final DigestService digestService;
 	private Set<ReferenceLibrary> refLibs;
 	private Set<Library> destLibs;
-	
+
 	/**
 	 * Constructs a library service from the parameters.
 	 * @param libAlbumFactory the library album factory to pass to libraries
@@ -45,7 +49,7 @@ public class DefaultLibraryService extends MulimaPropertiesSupport implements Li
 		this.libAlbumFactory = libAlbumFactory;
 		this.digestService = digestService;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -56,7 +60,7 @@ public class DefaultLibraryService extends MulimaPropertiesSupport implements Li
 		}
 		return refLibs;
 	}
-	
+
 	public void setRefLibs(Set<ReferenceLibrary> refLibs) {
 		if (this.refLibs != null) {
 			throw new IllegalStateException("Cannot change refernce libraries after they have been set.");
@@ -74,14 +78,14 @@ public class DefaultLibraryService extends MulimaPropertiesSupport implements Li
 		}
 		return destLibs;
 	}
-	
+
 	public void setDestLibs(Set<Library> destLibs) {
 		if (this.destLibs != null) {
 			throw new IllegalStateException("Cannot change destination libraries after they have been set.");
 		}
 		this.destLibs = Collections.unmodifiableSet(destLibs);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -90,7 +94,7 @@ public class DefaultLibraryService extends MulimaPropertiesSupport implements Li
 		Set<Library> allLibs = new HashSet<Library>();
 		allLibs.addAll(getRefLibs());
 		allLibs.addAll(getDestLibs());
-		
+
 		for (Library lib : allLibs) {
 			File rootDir = lib.getRootDir();
 			File temp = dir;
@@ -112,7 +116,7 @@ public class DefaultLibraryService extends MulimaPropertiesSupport implements Li
 		Set<Library> allLibs = new HashSet<Library>();
 		allLibs.addAll(getRefLibs());
 		allLibs.addAll(getDestLibs());
-		
+
 		for (Library lib : allLibs) {
 			LibraryAlbum album = lib.getById(id);
 			if (album != null) {
@@ -135,7 +139,7 @@ public class DefaultLibraryService extends MulimaPropertiesSupport implements Li
 		}
 		return isUpToDate(libAlbum, digest);
 	}
-	
+
 	/**
 	 * Checks if the source of the specified album
 	 * is up to date.
@@ -155,7 +159,7 @@ public class DefaultLibraryService extends MulimaPropertiesSupport implements Li
 			return isUpToDate(source, sourceDigest);
 		}
 	}
-	
+
 	/**
 	 * Checks if an album is up to date compared to the cached
 	 * digest.
@@ -164,13 +168,14 @@ public class DefaultLibraryService extends MulimaPropertiesSupport implements Li
 	 * @return {@code true} if up to date, {@code false} otherwise
 	 */
 	private boolean isUpToDate(LibraryAlbum album, Digest cached) {
+		logger.trace("Beginning isUpToDate for {} ({})", album, album.getLib());
 		if (cached == null) {
 			return false;
 		}
 		Digest current = digestService.create(album);
 		return cached.equals(current);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private <T extends Library> Set<T> createLibs(Class<T> type, MulimaProperties props) {
 		Set<T> libs = new HashSet<T>();
@@ -180,7 +185,7 @@ public class DefaultLibraryService extends MulimaPropertiesSupport implements Li
 			File dir = new File(namedProps.getProperty("dir"));
 			AudioFormat format = AudioFormat.valueOf(namedProps.getProperty("format"));
 			if (type.isAssignableFrom(ReferenceLibrary.class)) {
-				libs.add((T) new DefaultReferenceLibrary(libAlbumFactory, name, dir, format));	
+				libs.add((T) new DefaultReferenceLibrary(libAlbumFactory, name, dir, format));
 			} else {
 				libs.add((T) new DefaultLibrary(libAlbumFactory, name, dir, format));
 			}

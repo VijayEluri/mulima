@@ -1,4 +1,4 @@
-/*  
+/*
  *  Copyright (C) 2011  Andrew Oberstar.  All rights reserved.
  *  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -57,12 +57,12 @@ public class ShnToolSplitter extends MulimaPropertiesSupport implements Splitter
 	private String path = "shntool";
 	private String opts = "";
 	private boolean overwrite = false;
-	
+
 	@Override
 	protected List<String> getScope() {
 		return Arrays.asList("splitter", "path");
 	}
-	
+
 	/**
 	 * Sets the file service to use.
 	 * @param fileService the file service
@@ -71,11 +71,11 @@ public class ShnToolSplitter extends MulimaPropertiesSupport implements Splitter
 	public void setFileService(FileService fileService) {
 		this.fileService = fileService;
 	}
-	
+
 	public String getPath() {
 		return getProperties().getProperty("path", path);
 	}
-	
+
 	/**
 	 * Sets the path to the executable.
 	 * @param path the exe path
@@ -83,7 +83,7 @@ public class ShnToolSplitter extends MulimaPropertiesSupport implements Splitter
 	public void setPath(String path) {
 		this.path = path;
 	}
-	
+
 	public String getOpts() {
 		return getProperties().getProperty("opts", opts);
 	}
@@ -111,7 +111,7 @@ public class ShnToolSplitter extends MulimaPropertiesSupport implements Splitter
 	public SplitterResult split(DiscFile source, File destDir) {
 		String sourcePath = FileUtil.getSafeCanonicalPath(source);
 		String destPath = FileUtil.getSafeCanonicalPath(destDir);
-		
+
 		List<String> command = new ArrayList<String>();
 		command.add(getPath());
 		command.add("split");
@@ -121,9 +121,9 @@ public class ShnToolSplitter extends MulimaPropertiesSupport implements Splitter
 		command.add("-O");
 		command.add(overwrite ? "always" : "never");
 		command.add("-d");
-		command.add("\"" + destPath + "\"");
-		command.add("\"" + sourcePath + "\"");
-		
+		command.add(destPath);
+		command.add(sourcePath);
+
 		boolean track0 = true;
 		StringWriter input = new StringWriter();
 		PrintWriter writer = new PrintWriter(input);
@@ -135,9 +135,9 @@ public class ShnToolSplitter extends MulimaPropertiesSupport implements Splitter
 			writer.println(time.replaceAll(":([^:\\.]+)$", ".$1"));
 		}
 		writer.close();
-		
+
 		ProcessResult procResult = new ProcessCaller("split of " + FileUtil.getSafeCanonicalPath(source), command, input.toString()).call();
-		
+
 		int offset = track0 ? -1 : 0;
 		for (File file : destDir.listFiles()) {
 			Matcher matcher = SPLIT_FILE_REGEX.matcher(file.getName());
@@ -154,10 +154,10 @@ public class ShnToolSplitter extends MulimaPropertiesSupport implements Splitter
 				}
 			}
 		}
-		
+
 		CachedDir<AudioFile> dest = fileService.createCachedDir(AudioFile.class, destDir);
 		return new SplitterResult(source, dest.getValues(TrackFile.class), procResult);
 	}
-	
-	
+
+
 }

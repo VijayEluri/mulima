@@ -1,0 +1,9 @@
+#!/bin/bash
+#echo 'Creating directory'
+#mkdir -p /mnt/nas2/media3/music/flac2
+#echo 'Copying'
+#cp -r /var/tmp/mulima/ /mnt/nas2/media3/music/flac2
+rsync -rptgov /var/tmp/mulima/ /mnt/nas2/media3/music/flac2
+#rm -r /var/tmp/mulima
+#mkdir /var/tmp/mulima
+

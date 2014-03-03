@@ -1,4 +1,4 @@
-/*  
+/*
  *  Copyright (C) 2010  Andrew Oberstar.  All rights reserved.
  *  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -43,17 +43,17 @@ public class FlacCodec extends MulimaPropertiesSupport implements Codec {
 	private String path = "flac";
 	private String opts = "";
 	private String compressionLevel = "5";
-	
+
 	@Override
 	protected List<String> getScope() {
 		return Arrays.asList("codec", "flac");
 	}
-	
+
 	@Override
 	public AudioFormat getFormat() {
 		return AudioFormat.FLAC;
 	}
-	
+
 	/**
 	 * Gets the path to the FLAC executable.
 	 * @return the path to the exe
@@ -61,7 +61,7 @@ public class FlacCodec extends MulimaPropertiesSupport implements Codec {
 	public String getPath() {
 		return getProperties().getProperty("path", path);
 	}
-	
+
 	/**
 	 * Sets the path to the FLAC executable.
 	 * @param path the path to the exe
@@ -77,7 +77,7 @@ public class FlacCodec extends MulimaPropertiesSupport implements Codec {
 	public String getOpts() {
 		return getProperties().getProperty("opts", opts);
 	}
-	
+
 	/**
 	 * Sets additional options for this codec.  Will be
 	 * used on both encodes and decodes.
@@ -90,7 +90,7 @@ public class FlacCodec extends MulimaPropertiesSupport implements Codec {
 	public String getCompressionLevel() {
 		return getProperties().getProperty("compressionLevel", compressionLevel);
 	}
-	
+
 	/**
 	 * Sets the compression level for encodes.
 	 * @param compressionLevel the compression level (1-8)
@@ -106,7 +106,7 @@ public class FlacCodec extends MulimaPropertiesSupport implements Codec {
 	public CodecResult encode(AudioFile source, AudioFile dest) {
 		String sourcePath = FileUtil.getSafeCanonicalPath(source);
 		String destPath = FileUtil.getSafeCanonicalPath(dest);
-		
+
 		List<String> command = new ArrayList<String>();
 		command.add(getPath());
 		command.add("-f");
@@ -115,9 +115,9 @@ public class FlacCodec extends MulimaPropertiesSupport implements Codec {
 		}
 		command.add("-" + getCompressionLevel());
 		command.add("-o");
-		command.add("\"" + destPath + "\"");
-		command.add("\"" + sourcePath + "\"");
-		
+		command.add(destPath);
+		command.add(sourcePath);
+
 		ProcessCaller caller = new ProcessCaller("encoding " + sourcePath, command);
 		return new CodecResult(source, dest, caller.call());
 	}
@@ -129,7 +129,7 @@ public class FlacCodec extends MulimaPropertiesSupport implements Codec {
 	public CodecResult decode(AudioFile source, AudioFile dest) {
 		String sourcePath = FileUtil.getSafeCanonicalPath(source);
 		String destPath = FileUtil.getSafeCanonicalPath(dest);
-		
+
 		List<String> command = new ArrayList<String>();
 		command.add(getPath());
 		command.add("-f");
@@ -138,9 +138,9 @@ public class FlacCodec extends MulimaPropertiesSupport implements Codec {
 		}
 		command.add("-d");
 		command.add("-o");
-		command.add("\"" + destPath + "\"");
-		command.add("\"" + sourcePath + "\"");
-		 
+		command.add(destPath);
+		command.add(sourcePath);
+
 		ProcessCaller caller = new ProcessCaller("decoding " + sourcePath, command);
 		return new CodecResult(source, dest, caller.call());
 	}

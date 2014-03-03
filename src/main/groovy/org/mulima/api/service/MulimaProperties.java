@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 /**
  * Stores properties used to configure Mulima.  This object
  * can be scoped to a specific set of properties.
- * 
+ *
  * For example:
  * <pre>
  *   MulimaProperties mulima = new MulimaProperties(props, null);
@@ -30,15 +30,15 @@ import org.springframework.stereotype.Component;
  * @since 0.1.0
  */
 @Component
-public class MulimaProperties {	
+public class MulimaProperties {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MulimaProperties.class);
 	private final Properties properties;
 	private final List<String> scope;
-	
+
 	public MulimaProperties() {
 		this(new File(System.getenv("APP_HOME"), "config" + File.separator + "mulima.properties"));
 	}
-	
+
 	/**
 	 * Creates properties read in from the given file.
 	 * @param file the file to read properties from
@@ -62,7 +62,7 @@ public class MulimaProperties {
 			}
 		}
 	}
-	
+
 	/**
 	 * Creates properties from the given properties and scope.
 	 * @param properties the properties to use
@@ -76,7 +76,7 @@ public class MulimaProperties {
 			this.scope = Collections.unmodifiableList(scope);
 		}
 	}
-	
+
 	/**
 	 * Gets a property with the given name from this properties' scope.
 	 * @param property the property to get.
@@ -85,7 +85,7 @@ public class MulimaProperties {
 	public String getProperty(String property) {
 		return properties.getProperty(getName(property));
 	}
-	
+
 	/**
 	 * Gets a property with the given name from this properties' scope.
 	 * If not set, it will return the default value.
@@ -96,7 +96,7 @@ public class MulimaProperties {
 	public String getProperty(String property, String defaultValue) {
 		return properties.getProperty(getName(property), defaultValue);
 	}
-	
+
 	/**
 	 * Checks if a property with the given name exists in this
 	 * properties' scope.
@@ -106,7 +106,7 @@ public class MulimaProperties {
 	public boolean hasProperty(String property) {
 		return properties.containsKey(getName(property));
 	}
-	
+
 	/**
 	 * Gets all property names in this scope.
 	 * @return all property names
@@ -121,7 +121,7 @@ public class MulimaProperties {
 		}
 		return names;
 	}
-	
+
 	/**
 	 * Gets all possible scopes underneath the current one.
 	 * @return all possible scopes
@@ -133,7 +133,7 @@ public class MulimaProperties {
 		}
 		return scopes;
 	}
-	
+
 	/**
 	 * Gets the full name of the given property
 	 * within this properties scope.
@@ -149,7 +149,7 @@ public class MulimaProperties {
 		name.append(property);
 		return name.toString();
 	}
-	
+
 	/**
 	 * Returns a new object scoped another level below
 	 * this.

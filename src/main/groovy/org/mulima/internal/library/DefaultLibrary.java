@@ -6,6 +6,9 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.mulima.api.file.audio.AudioFormat;
 import org.mulima.api.library.Library;
 import org.mulima.api.library.LibraryAlbum;
@@ -25,12 +28,13 @@ import org.mulima.util.StringUtil;
  * @since 0.1.0
  */
 public class DefaultLibrary implements Library {
+	private static final Logger logger = LoggerFactory.getLogger(DefaultLibrary.class);
 	private final LibraryAlbumFactory libAlbumFactory;
 	private final String name;
 	private final File rootDir;
 	private final AudioFormat format;
 	private Set<LibraryAlbum> albums = null;
-	
+
 	/**
 	 * Constructs a library from the parameters.
 	 * @param libAlbumFactory the factory to create library albums
@@ -44,7 +48,7 @@ public class DefaultLibrary implements Library {
 		this.rootDir = rootDir;
 		this.format = format;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -79,7 +83,7 @@ public class DefaultLibrary implements Library {
 		}
 		return albums;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -119,7 +123,7 @@ public class DefaultLibrary implements Library {
 		}
 		return createIfNotFound ? createAlbum(source) : null;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -138,12 +142,13 @@ public class DefaultLibrary implements Library {
 			+ File.separator + StringUtil.makeSafe(album).trim();
 		return new File(getRootDir(), relPath);
 	}
-	
+
 	/**
 	 * Scans all directories under the root directory for
 	 * library albums.
 	 */
 	private void scanAll() {
+		logger.trace("Beginning scanAll for {}", getName());
 		this.albums = new TreeSet<LibraryAlbum>();
 		FileFilter filter = new LeafDirFilter();
 		for (File dir : FileUtil.listDirsRecursive(getRootDir())) {
@@ -151,8 +156,9 @@ public class DefaultLibrary implements Library {
 				albums.add(libAlbumFactory.create(dir, this));
 			}
 		}
+		logger.trace("Ending scanAll for {}", getName());
 	}
-	
+
 	/**
 	 * Creates a new library album from the source.
 	 * @param source the source album
@@ -168,5 +174,10 @@ public class DefaultLibrary implements Library {
 		} catch (UncheckedMulimaException e) {
 			throw new UncheckedMulimaException("Could not determine directory from source album: " + source.getDir(), e);
 		}
+	}
+
+	@Override
+	public String toString() {
+		return getName();
 	}
 }

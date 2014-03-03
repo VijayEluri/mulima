@@ -5,6 +5,9 @@ import java.io.FileFilter;
 import java.util.Set;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.mulima.api.file.CachedDir;
 import org.mulima.api.file.CachedFile;
 import org.mulima.api.file.Digest;
@@ -27,6 +30,7 @@ import org.mulima.util.ObjectUtil;
  * @since 0.1.0
  */
 public class DefaultLibraryAlbum implements LibraryAlbum {
+	private static final Logger logger = LoggerFactory.getLogger(DefaultLibraryAlbum.class);
 	private final FileService fileService;
 	private final Library lib;
 	private File dir;
@@ -36,7 +40,7 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 	private CachedDir<AudioFile> audioFiles;
 	private CachedDir<CueSheet> cueSheets;
 	private CachedDir<ArtworkFile> artwork;
-	
+
 	/**
 	 * Constructs a library album from the parameters.
 	 * @param fileService the service to use when finding files
@@ -44,11 +48,13 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 	 * @param lib the library this album is contained in
 	 */
 	public DefaultLibraryAlbum(FileService fileService, File dir, Library lib) {
+		logger.trace("Beginning LibraryAlbum constructor for: {}", dir);
 		this.fileService = fileService;
 		this.lib = lib;
 		setDir(dir);
+		logger.trace("Ending LibraryAlbum constructor for: {}", dir);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -57,7 +63,7 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 		Digest dig = getDigest();
 		return dig == null ? null : dig.getId();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -66,7 +72,7 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 		Digest dig = getSourceDigest();
 		return dig == null ? null : dig.getId();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -88,7 +94,7 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 	public File getDir() {
 		return dir;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -102,9 +108,9 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 				throw new UncheckedIOException("Failed to rename " + this.dir + " to " + dir);
 			}
 		}
-		
+
 		this.dir = dir;
-		this.album = fileService.createCachedFile(Album.class, new File(dir, "album.xml")); 
+		this.album = fileService.createCachedFile(Album.class, new File(dir, "album.xml"));
 		this.digest = fileService.createCachedFile(Digest.class, new File(dir, Digest.FILE_NAME));
 		this.sourceDigest = fileService.createCachedFile(Digest.class, new File(dir, Digest.SOURCE_FILE_NAME));
 		this.audioFiles = fileService.createCachedDir(AudioFile.class, dir);
@@ -132,7 +138,7 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 	public Album getAlbum() {
 		return album.getValue();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -140,7 +146,7 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 	public Set<AudioFile> getAudioFiles() {
 		return audioFiles.getValues();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -148,7 +154,7 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 	public Set<CueSheet> getCueSheets() {
 		return cueSheets.getValues();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -156,7 +162,7 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 	public Set<ArtworkFile> getArtwork() {
 		return artwork.getValues();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -164,7 +170,7 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 	public Digest getDigest() {
 		return digest.getValue();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -172,7 +178,7 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 	public Digest getSourceDigest() {
 		return sourceDigest.getValue();
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -193,21 +199,30 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
 		String oName = o.getName();
 		return thisName.compareToIgnoreCase(oName);
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null) {
 			return false;
 		} else if (obj instanceof DefaultLibraryAlbum) {
 			LibraryAlbum that = (LibraryAlbum) obj;
-			return ObjectUtil.isEqual(this.getId(), that.getId());
+			if (this.getId() == null && that.getId() == null) {
+				return this == that;
+			} else {
+				return ObjectUtil.isEqual(this.getId(), that.getId());
+			}
 		} else {
 			return false;
 		}
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return getId() == null ? 0 : getId().hashCode();
+		return getId() == null ? System.identityHashCode(this) : getId().hashCode();
+	}
+
+	@Override
+	public String toString() {
+		return getName();
 	}
 }
