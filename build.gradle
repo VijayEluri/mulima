@@ -24,7 +24,7 @@ ajoberstar {
 }
 
 applicationName = 'mulima'
-mainClassName = 'org.mulima.cli.Main'
+mainClassName = 'org.ajoberstar.mulima.cli.Main'
 
 sourceCompatibility = '1.7'
 
