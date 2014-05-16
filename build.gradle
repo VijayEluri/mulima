@@ -1,7 +1,11 @@
 buildscript {
-	repositories { jcenter() }
+	repositories {
+		jcenter()
+		maven { url 'http://dl.bintray.com/ajoberstar/gradle-plugins' }
+		maven { url 'http://dl.bintray.com/ajoberstar/temp-forks' }
+	}
 	dependencies {
-		classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.6.0'
+		classpath 'org.ajoberstar:gradle-ajoberstar:0.2.0-milestone.1'
 	}
 }
 
@@ -9,11 +13,15 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 apply plugin: 'scala'
 apply plugin: 'application'
-apply plugin: 'jacoco'
-apply from: rootProject.file('gradle/license.gradle')
+apply plugin: 'ajoberstar'
 
-group = 'org.ajoberstar'
 version = '0.2.0-SNAPSHOT'
+
+ajoberstar {
+	friendlyName = 'Mulima'
+	description = 'Music Library Manager'
+	copyrightYears = '2010-2014'
+}
 
 applicationName = 'mulima'
 mainClassName = 'org.mulima.cli.Main'
@@ -24,20 +32,20 @@ repositories { jcenter() }
 
 dependencies {
 	// language deps
-	compile 'org.scala-lang:scala-library:2.10.3'
+	compile 'org.scala-lang:scala-library:2.11.0'
 
 	// logging deps
-	compile 'org.slf4j:slf4j-api:1.7.5'
-	runtime 'org.slf4j:jcl-over-slf4j:1.7.5'
-	runtime 'ch.qos.logback:logback-classic:1.0.13'
+	compile 'org.slf4j:slf4j-api:1.7.7'
+	runtime 'org.slf4j:jcl-over-slf4j:1.7.7'
+	runtime 'ch.qos.logback:logback-classic:1.1.2'
 
 	// spring
-	compile 'org.springframework:spring-context:4.0.0.RELEASE'
-	compile 'org.springframework:spring-jdbc:4.0.0.RELEASE'
-	compile 'org.springframework:spring-tx:4.0.0.RELEASE'
+	compile 'org.springframework:spring-context:4.0.4.RELEASE'
+	compile 'org.springframework:spring-jdbc:4.0.4.RELEASE'
+	compile 'org.springframework:spring-tx:4.0.4.RELEASE'
 
 	// testing framework
-	testCompile 'org.scalatest:scalatest_2.10:2.0'
+	testCompile 'org.scalatest:scalatest_2.11:2.1.6'
 }
 
 test {
@@ -56,5 +64,5 @@ applicationDistribution.filesMatching('**/mulima') { details ->
 }
 
 wrapper {
-	gradleVersion = '1.10'
+	gradleVersion = '1.12'
 }
