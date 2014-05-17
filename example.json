@@ -1,0 +1,43 @@
+{
+	"album": "In The Court of the Crimson King",
+	"record.labl": "Inner Knot",
+	"catalog.number": "KCSP01",
+	"date.release": "1969",
+	"artist": "King Crimson",
+	"composer": "Robert Fripp",
+	"disc.number": "1",
+	"genre": "Progressive Rock",
+	"comments": "album",
+	"children": [
+		{
+			"track.number": "1",
+			"title": "21st Century Schizoid Man",
+			"start.point": "00:00:00",
+			"end.point": "05:23:14"
+		},
+		{
+			"track.number": "2",
+			"title": "I Talk to the Wind",
+			"start.point": "00:00:00",
+			"end.point": "05:23:14"
+		},
+		{
+			"track.number": "3",
+			"title": "Epitaph",
+			"start.point": "00:00:00",
+			"end.point": "05:23:14"
+		},
+		{
+			"track.number": "4",
+			"title": "Moonchild",
+			"start.point": "00:00:00",
+			"end.point": "05:23:14"
+		},
+		{
+			"track.number": "5",
+			"title": "The Court of the Crimson King",
+			"start.point": "00:00:00",
+			"end.point": "05:23:14"
+		}
+	]
+}

@@ -46,5 +46,16 @@ class CueTime(
 			Ordering[Tuple3[Int, Int, Rational]].on[CueTime](x => (x.minutes, x.seconds, x.fraction)).compare(this, that)
 		}
 
+		override def equals(other: Any): Boolean = compare(other) == 0
+
+		override def hashCode: Int = {
+			// TODO figure out better hashCode approach
+			var result = 0
+			result = result * 31 + minutes.hashCode
+			result = result * 31 + seconds.hashCode
+			result = result * 31 + fraction.hashCode
+			result
+		}
+
 		override def toString: String = toMillis
 }
