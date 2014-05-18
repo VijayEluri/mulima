@@ -1,0 +1,24 @@
+{
+	"abcde": {
+		"audio": "disc1.flac",
+		"art": "cover.jpg",
+		"cues": {
+			"pre": "00:01:02",
+			"start": "01:02:03",
+			"end": "02:03:04"
+		},
+		"tags": {
+			"album": "In The Court of the Crimson King",
+			"record.label": "Inner Knot",
+			"catalog.number": "KCSP01",
+			"data.release": "1969",
+			"artist": "King Crimson",
+			"composer": "Robert Fripp",
+			"disc.number": "1",
+			"track.number": "1",
+			"title": "21st Century Schizoid Man",
+			"genre": "Progressive Rock",
+			"comments": ["album", "40th anniversary"]
+		}
+	}
+}

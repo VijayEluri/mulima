@@ -7,8 +7,8 @@
 	"composer": "Robert Fripp",
 	"disc.number": "1",
 	"genre": "Progressive Rock",
-	"comments": "album",
-	"children": [
+	"comments": ["album", "40th Anniversary"],
+	"tracks": [
 		{
 			"track.number": "1",
 			"title": "21st Century Schizoid Man",

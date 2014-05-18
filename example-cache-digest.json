@@ -1,0 +1,30 @@
+{
+	"audio": {
+		"disc1.flac": {
+			"modified": 123,
+			"size": 123,
+			"md5": "abcde"
+		}
+	},
+	"art": {
+		"cover.jpg": {
+			"modified": 123,
+			"size": 123,
+			"md5": "abcde"
+		}
+	},
+	"cue": {
+	},
+	"meta": {
+		"metadata.json": {
+			"modified": 123,
+			"size": 123,
+			"md5": "abc"
+		},
+		".cache-metadata.json": {
+			"modified": 123,
+			"size": 123,
+			"md5": "abc"
+		}
+	}
+}
