@@ -51,6 +51,10 @@ dependencies {
 	testCompile 'org.scalatest:scalatest_2.11:2.1.6'
 }
 
+compileScala {
+	scalaCompileOptions.additionalParameters = ['-Xlint']
+}
+
 test {
 	systemProperties 'log.level':'DEBUG'
 }

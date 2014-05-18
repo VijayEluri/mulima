@@ -1,7 +1,7 @@
 package org.ajoberstar.mulima
 package meta
 
-import java.nio.Path
+import java.nio.file.Path
 
 class TrackInfo(
 	val tags: Map[String, Set[String]],

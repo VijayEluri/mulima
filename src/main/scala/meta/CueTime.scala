@@ -15,8 +15,8 @@ object CueTime {
 			}
 		}
 
-		MILLIS_REGEX.findFirstMatchIn(value).map(cueTime(1000)).orElse {
-			FRAME_REGEX.findFirstMatchIn(value).map(cueTime(75))
+		FRAME_REGEX.findFirstMatchIn(value).map(cueTime(75)).orElse {
+			MILLIS_REGEX.findFirstMatchIn(value).map(cueTime(1000))
 		}.getOrElse {
 			new CueTime(0, 0, 0)
 		}
@@ -46,7 +46,10 @@ class CueTime(
 			Ordering[Tuple3[Int, Int, Rational]].on[CueTime](x => (x.minutes, x.seconds, x.fraction)).compare(this, that)
 		}
 
-		override def equals(other: Any): Boolean = compare(other) == 0
+		override def equals(other: Any): Boolean = other match {
+			case that: CueTime => compare(that) == 0
+			case _ => false
+		}
 
 		override def hashCode: Int = {
 			// TODO figure out better hashCode approach
