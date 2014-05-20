@@ -1,5 +1,5 @@
 package org.ajoberstar.mulima
-package meta
+package model
 
 import scala.util.matching.Regex
 import spire.math.Rational
