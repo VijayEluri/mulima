@@ -1,7 +1,7 @@
 package org.ajoberstar.mulima
 package cli
 
-import org.ajoberstar.mulima.meta._
+import org.ajoberstar.mulima.model._
 
 object Main extends App {
 	List(

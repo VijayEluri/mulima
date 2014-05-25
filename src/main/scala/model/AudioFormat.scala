@@ -4,7 +4,7 @@ package model
 import java.nio.file.Path
 
 object AudioFormat {
-	private val extensionsByFormat = Map(
+	private val extensionsByFormat: Map[AudioFormat, Set[String]] = Map(
 		WAVE -> Set("wav", "wave"),
 		FLAC -> Set("flac"),
 		VORBIS -> Set("ogg"),
@@ -21,14 +21,18 @@ object AudioFormat {
 		}
 	}
 
-	def isLossy(format: AudioFormat) = format match {
-		case _: WAVE => false
-		case _: FLAC => false
+	def primaryExtension(format: AudioFormat): String = extensionsByFormat(format).head
+
+	def isLossy(format: AudioFormat): Boolean = format match {
+		case WAVE => false
+		case FLAC => false
 		case _ => true
 	}
 }
 
-sealed trait AudioFormat
+sealed trait AudioFormat {
+	def primaryExtension: String = AudioFormat.primaryExtension(this)
+}
 case object WAVE extends AudioFormat
 case object FLAC extends AudioFormat
 case object VORBIS extends AudioFormat
