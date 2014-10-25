@@ -1,6 +1,9 @@
-bin/
-build/
-.gradle/
-.project
-.classpath
-.settings/
+/target
+/classes
+/checkouts
+pom.xml
+pom.xml.asc
+*.jar
+*.class
+/.lein-*
+/.nrepl-port
