@@ -1,8 +1,6 @@
 package org.ajoberstar.mulima
 package model
 
-import java.nio.file.Path
-
 object AudioFormat {
 	private val extensionsByFormat: Map[AudioFormat, Set[String]] = Map(
 		WAVE -> Set("wav", "wave"),

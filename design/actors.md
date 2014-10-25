@@ -23,12 +23,8 @@
 	- Balancing dispatcher?
 	- Limit to number of processors.
 
-
 # Walkthrough
 
 - Service.walkSourceLibrary(SourceLibrary)
 - Found directory with music files
 - Service.parse
-
-
-
