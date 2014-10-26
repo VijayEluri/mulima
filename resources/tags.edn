@@ -1,0 +1,25 @@
+{:album "Name of this collection of tracks."
+ :album-sort "Alternate form of album to be used for lexicographical sorting"
+ :record-label "The label the album was released under."
+ :catalog-number "Number used by the publisher to identify the release."
+ :data-release "Date the album was originally released."
+
+ :artist "Artist the track is attributed to."
+ :artist-sort "Alternate form of artist to be used for lexicographical sorting."
+ 
+ :performer "Person who performed on the track. Should only be notable performers."
+ :conductor "Person who conducted the ensemble."
+ :ensemble "Name of the group who played the piece."
+ 
+ :composer "Person or group who composed the track."
+ :lyricist "Person or group who wrote the lyrics."
+ :producer "Person who produced the track."
+ 
+ :disc-number "Number of the disc this track was on."
+ :track-number "Number of the track on the disc."
+ :title "Name for the track."
+ :title-sort "Alternate form of title to be used for lexicographical sorting."
+ :genre "Indicator of the type of music represented by the track."
+ 
+ :date-logical "Date the track was recorded or other logical date to identify it."
+ :comments "Description to identify the performance of the piece. (live, studio, b-side)"}

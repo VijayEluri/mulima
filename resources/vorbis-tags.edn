@@ -1,0 +1,24 @@
+{:album "ALBUM"
+ :album-sort "ALBUMSORT"
+ :record-label "LABEL"
+ :catalog-number "CATALOGNUMBER"
+ :date-release "ORIGINALDATE"
+ 
+ :artist "ARTIST"
+ :artist-sort "ARTISTSORT"
+ 
+ :performer "PERFORMER"
+ :conductor "CONDUCTOR"
+ :ensemble "ENSEMBLE"
+ 
+ :composer "COMPOSER"
+ :lyricist "LYRICIST"
+ :producer "PRODUCER"
+ 
+ :disc-number "DISCNUMBER"
+ :track-number "TRACKNUMBER"
+ :title "TITLE"
+ :title-sort "TITLESORT"
+ :genre "GENRE"
+ :date-logical "DATE"
+ :comments "COMMENT"}
