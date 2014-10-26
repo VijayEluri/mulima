@@ -1,0 +1,37 @@
+;; Destination Library
+{:name "Anything"
+ :accepts [:flac :ogg :mp3 :aac :wav :lossy :lossless :any]
+ :default :flac
+ :root-dir "/data/mulima/libs/lossless"}
+
+;; Reference Library
+{:name "Lossless Images"
+ :root-dir "/data/mulima/reflibs/lossless"}
+
+;; Library Album
+{:id "some uuid"
+ :hash "gibberish"
+ :source-id "some uuid or nil if its a ref"
+ :source-hash "gibberish"
+ :dir "/data/mulima/reflibs/lossless/King Crimson/Islands"
+ :artwork ["folder.jpg"]
+ :audio ["disc1.flac" "disc2.flac"]
+ ;; Denormalized metadata
+ :metadata [{:album "Islands"
+             :artist "King Crimson"
+             :disc-number 1
+             :track-number 1
+             :title "Formentera Lady"
+             :genre ["Art Rock" "Progressive Rock" "Rock"]
+             :cues [nil ; 0th index for tracks with pre-gaps
+                    {:audio "disc1.flac" :cue "00:00:00"}
+                    {:audio "disc1.flac" :cue "05:16:13"}]
+            {:album "Islands"
+             :artist "King Crimson"
+             :disc-number 1
+             :track-number 2
+             :title "Sailor's Tale"
+             :genre ["Art Rock" "Progressive Rock" "Rock"]
+             :cues [nil
+                    {:audio "disc1.flac" :cue "05:16:13"}
+                    {:audio "disc1.flac" :cue "12:21:45"}]}]}]}
