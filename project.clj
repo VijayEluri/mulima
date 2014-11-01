@@ -13,4 +13,5 @@
                  ;; io
                  [info.hoetzel/clj-nio2 "0.1.1"]
                  [org.clojure/data.json "0.2.5"]
-                 [org.clojure/data.xml "0.0.8"]])
+                 [org.clojure/data.xml "0.0.8"]]
+  :plugins [[cider/cider-nrepl "0.7.0"]])
