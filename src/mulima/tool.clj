@@ -1,15 +1,15 @@
 (ns mulima.tool)
 
 (defprotocol Splitter
-  (split [this image dest-dir]))
+  (split [opts image dest-dir]))
 
 (defprotocol Joiner
-  (join [this files dest-image]))
+  (join [opts files dest-image]))
 
 (defprotocol Tagger
-  (write-tags [this file])
-  (read-tags [this file]))
+  (write-tags [opts file])
+  (read-tags [opts file]))
 
 (defprotocol Codec
-  (encode [this source dest])
-  (decode [this source dest]))
+  (encode [opts source dest])
+  (decode [opts source dest]))
