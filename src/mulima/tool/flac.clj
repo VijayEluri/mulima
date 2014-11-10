@@ -13,8 +13,7 @@
                "-f" "-o" dest source))
   (decode! [opts source dest]
     (tool/cmd! (:path opts)
-               (str "-" (:compression-level opts))
-               "-f" "-o" dest source)))
+               "-d" "-f" "-o" dest source)))
 
 (defrecord MetaflacOpts
   [path
