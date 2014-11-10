@@ -4,11 +4,13 @@
  :genre ["Art Rock" "Progressive Rock" "Rock"]
  :children [{:track-number 1
              :title "Formentera Lady"
+             :source "disc1.flac"
              :cues [nil
-                    {:audio "disc1.flac" :cue "00:00:00"}
-                    {:audio "disc1.flac" :cue "05:16:13"}]}
+                    "00:00:00"
+                    "05:16:13"]}
             {:track-number 2
              :title "Sailor's Tale"
+             :source "disc1.flac"
              :cues [nil
-                    {:audio "disc1.flac" :cue "05:16:13"}
-                    {:audio "disc1.flac" :cue "12:21:45"}]}]}
+                    "05:16:13"
+                    "12:21:45"]}]}

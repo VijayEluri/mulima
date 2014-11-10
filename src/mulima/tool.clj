@@ -5,10 +5,10 @@
             [clojure.set :refer [map-invert]]))
 
 (defprotocol Splitter
-  (split! [opts image dest-dir]))
+  (split! [opts tracks source dest-dir]))
 
 (defprotocol Joiner
-  (join! [opts files dest-image]))
+  (join! [opts files dest]))
 
 (defprotocol Tagger
   (write-tags! [opts file tags])
