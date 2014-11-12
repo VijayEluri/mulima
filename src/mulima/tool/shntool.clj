@@ -15,12 +15,17 @@
 (defn cue-points
   [opts cues]
   (->> cues
-       (mapcat #((juxt (partial cue-start opts) last) %))
+       (mapcat (juxt (partial cue-start opts) last))
+       (remove #{"00:00:00"})
        (into (sorted-set))))
 
 (defn- cue-input
   [cues]
   (map #(string/replace % #"(?<=:\d\d):" ".") cues))
+
+(defn- track-end
+  [tracks]
+  (group-by #(last (:cues %)) tracks))
 
 (extend-type ShntoolOpts
   tool/Splitter
