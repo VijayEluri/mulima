@@ -1,5 +1,6 @@
 (ns mulima.tool.shntool
   (:require [mulima.tool :as tool]
+            [clojure.java.io :as io]
             [clojure.string :as string]))
 
 (defrecord ShntoolOpts
@@ -9,25 +10,50 @@
 
 (defn- cue-start
   [opts cues]
-  (or (and (:pregaps opts) (nth cues 0))
-      (nth cues 1)))
+  (nth cues (if (:pregaps opts) 0 1)))
 
 (defn cue-points
-  [opts cues]
-  (->> cues
+  [opts tracks]
+  (->> tracks
+       (map :cues)
        (mapcat (juxt (partial cue-start opts) last))
        (remove #{"00:00:00"})
        (into (sorted-set))))
 
 (defn- cue-input
   [cues]
-  (map #(string/replace % #"(?<=:\d\d):" ".") cues))
+  (->> cues
+       (map #(string/replace % #"(?<=:\d\d):" "."))
+       (string/join "\n")))
 
-(defn- track-end
+(defn- tracks-by-cue-end
   [tracks]
-  (group-by #(last (:cues %)) tracks))
+  (group-by (comp last :cues) tracks))
+
+(defn- files-to-tracks
+  [files tracks]
+  nil)
+
+(defn file-to-index
+  [file]
+  (->> (io/file file)
+       (.getName)
+       (re-matches #"split-track(\d+)\.wav")
+       (last)
+       (read-string)))
+
+(defn dir-to-indices
+  [dest-dir]
+  (->> (io/file dest-dir)
+       (.listFiles)
+       (group-by file-to-index)))
 
 (extend-type ShntoolOpts
   tool/Splitter
   (split! [opts tracks source dest-dir]
-    nil))
+    (let [cues (cue-points opts tracks)
+          in (cue-input cues)
+          oarg (if (:overwrite opts) "always" "never")]
+      (io/make-parents dest-dir)
+      (tool/cmd! (:path opts) in ["split" "-O" oarg "-d" dest-dir source])
+      nil)))

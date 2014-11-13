@@ -19,16 +19,18 @@
   (decode! [opts source dest]))
 
 (defn cmd!
-  [path & args]
-  (let [out (java.io.StringWriter.)
-        err (java.io.StringWriter.)]
-    (try
-      (sh/run-command path args {:out out :err err})
-      (catch Exception e
-        (do (println out)
-            (println err)
-            (throw e))))
-    (str out)))
+  ([path args]
+   (apply path "" args))
+  ([path in args]
+   (let [out (java.io.StringWriter.)
+         err (java.io.StringWriter.)]
+     (try
+       (sh/run-command path args {:in in :out out :err err})
+       (catch Exception e
+         (do (println (str out))
+             (println (str err))
+             (throw e))))
+     (str out))))
 
 (defn tag-bimap
   [path]
