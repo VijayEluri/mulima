@@ -28,25 +28,24 @@
 
 (defn- tracks-by-cue-end
   [tracks]
-  (group-by (comp last :cues) tracks))
+  (->> tracks
+       (map (fn [t] [((comp last :cues) t) t]))
+       (into {})))
 
-(defn- files-to-tracks
+(defn cues-to-files
+  [cues dest-dir]
+  (let [files (-> (io/file dest-dir)
+                  (.listFiles)
+                  (sort))]
+    (zipmap cues files)))
+
+(defn files-to-tracks
   [files tracks]
-  nil)
-
-(defn file-to-index
-  [file]
-  (->> (io/file file)
-       (.getName)
-       (re-matches #"split-track(\d+)\.wav")
-       (last)
-       (read-string)))
-
-(defn dir-to-indices
-  [dest-dir]
-  (->> (io/file dest-dir)
-       (.listFiles)
-       (group-by file-to-index)))
+  (println files)
+  (println tracks)
+  (->> (merge-with vector files tracks)
+       (vals)
+       (into {})))
 
 (extend-type ShntoolOpts
   tool/Splitter
@@ -56,4 +55,6 @@
           oarg (if (:overwrite opts) "always" "never")]
       (io/make-parents dest-dir)
       (tool/cmd! (:path opts) in ["split" "-O" oarg "-d" dest-dir source])
-      nil)))
+      (let [fmap (cues-to-files cues dest-dir)
+            tmap (tracks-by-cue-end tracks)]
+        (files-to-tracks fmap tmap)))))
