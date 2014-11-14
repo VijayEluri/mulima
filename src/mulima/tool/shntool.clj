@@ -39,9 +39,9 @@
                   (sort))]
     (zipmap cues files)))
 
-(defn files-to-tracks
-  [files tracks]
-  (->> (merge-with vector files tracks)
+(defn tracks-to-files
+  [tracks files]
+  (->> (merge-with vector tracks files)
        (vals)
        (filter vector?)
        (into {})))
@@ -56,4 +56,4 @@
       (tool/cmd! (:path opts) in ["split" "-O" oarg "-d" dest-dir source])
       (let [fmap (cues-to-files cues dest-dir)
             tmap (tracks-by-cue-end tracks)]
-        (files-to-tracks fmap tmap)))))
+        (tracks-to-files tmap fmap)))))
