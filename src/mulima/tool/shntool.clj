@@ -12,7 +12,7 @@
   [opts cues]
   (nth cues (if (:pregaps opts) 0 1)))
 
-(defn cue-points
+(defn- cue-points
   [opts tracks]
   (->> tracks
        (map :cues)
@@ -32,14 +32,14 @@
        (map (fn [t] [((comp last :cues) t) t]))
        (into {})))
 
-(defn cues-to-files
+(defn- cues-to-files
   [cues dest-dir]
   (let [files (-> (io/file dest-dir)
                   (.listFiles)
                   (sort))]
     (zipmap cues files)))
 
-(defn tracks-to-files
+(defn- tracks-to-files
   [tracks files]
   (->> (merge-with vector tracks files)
        (vals)
