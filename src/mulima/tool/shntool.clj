@@ -41,10 +41,9 @@
 
 (defn files-to-tracks
   [files tracks]
-  (println files)
-  (println tracks)
   (->> (merge-with vector files tracks)
        (vals)
+       (filter vector?)
        (into {})))
 
 (extend-type ShntoolOpts
