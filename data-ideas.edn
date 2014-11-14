@@ -14,8 +14,9 @@
  :source-id "some uuid or nil if its a ref"
  :source-hash "gibberish"
  :dir "/data/mulima/reflibs/lossless/King Crimson/Islands"
+ :codec :flac
+ :format :images
  :artwork ["folder.jpg"]
- :audio ["disc1.flac" "disc2.flac"]
  ;; Denormalized metadata
  :metadata [{:album "Islands"
              :artist "King Crimson"
@@ -23,15 +24,17 @@
              :track-number 1
              :title "Formentera Lady"
              :genre ["Art Rock" "Progressive Rock" "Rock"]
+             :source "disc1.flac"
              :cues [nil ; 0th index for tracks with pre-gaps
-                    {:audio "disc1.flac" :cue "00:00:00"}
-                    {:audio "disc1.flac" :cue "05:16:13"}]
+                    "00:00:00"
+                    "05:16:13"]
             {:album "Islands"
              :artist "King Crimson"
              :disc-number 1
              :track-number 2
              :title "Sailor's Tale"
              :genre ["Art Rock" "Progressive Rock" "Rock"]
+             :source "disc1.flac"
              :cues [nil
-                    {:audio "disc1.flac" :cue "05:16:13"}
-                    {:audio "disc1.flac" :cue "12:21:45"}]}]}]}
+                    "05:16:13"
+                    "12:21:45"]}]}]}
