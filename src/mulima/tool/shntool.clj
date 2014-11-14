@@ -5,7 +5,6 @@
 
 (defrecord ShntoolOpts
   [path
-   overwrite
    pregaps])
 
 (defn- cue-start
@@ -50,10 +49,9 @@
   tool/Splitter
   (split! [opts tracks source dest-dir]
     (let [cues (cue-points opts tracks)
-          in (cue-input cues)
-          oarg (if (:overwrite opts) "always" "never")]
+          in (cue-input cues)]
       (io/make-parents dest-dir)
-      (tool/cmd! (:path opts) in ["split" "-O" oarg "-d" dest-dir source])
+      (tool/cmd! (:path opts) in ["split" "-O" "always" "-d" dest-dir source])
       (let [fmap (cues-to-files cues dest-dir)
             tmap (tracks-by-cue-end tracks)]
         (tracks-to-files tmap fmap)))))
