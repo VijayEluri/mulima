@@ -1,7 +1,7 @@
 (ns mulima.job
   (:require [mulima.tool :as tool]))
 
-(defmulti ^:private to-files (fn [album] (:format album)))
+(defmulti ^:private to-files :format)
 
 (defmethod to-files :tracks [album]
   (->> (:metadata album)

@@ -34,8 +34,7 @@
 
 (defn tag-bimap
   [path]
-  (with-open [rdr (-> (io/reader path)
-                      (java.io.PushbackReader.))]
+  (with-open [rdr (-> path io/reader java.io.PushbackReader.)]
     (let [tags (edn/read rdr)
           itags (map-invert tags)]
       (merge tags itags))))
