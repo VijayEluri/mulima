@@ -11,7 +11,7 @@
 (defmethod to-files :images [album]
   (->> (:metadata album)
        (group-by :source)
-       (mapcat (fn [[s ts]] (tool/cmd! nil ts s nil)))
+       (mapcat (fn [[s ts]] (tool/split! nil ts s nil)))
        (into {})))
 
 (defn convert!
