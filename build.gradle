@@ -24,7 +24,7 @@ dependencies {
 	runtime 'mysql:mysql-connector-java:5.1.18'
 	runtime 'commons-cli:commons-cli:1.2'
 
-	groovy 'org.codehaus.groovy:groovy-all:1.8.5'
+	compile 'org.codehaus.groovy:groovy-all:1.8.5'
 
 	testCompile 'junit:junit:4.10'
 	testCompile 'org.mockito:mockito-core:1.9.0'
@@ -45,26 +45,9 @@ test {
 }
 
 task deploy(type: Sync) {
-	with applicationDistribution
-	from('/usr/local/opt/mulima/mulima-0.1.2-SNAPSHOT-old') {
+	with distributions.main.contents
+	from('/usr/local/opt/mulima') {
 		include 'config/*'
-		include 'bin/mulima'
 	}
-	into '/usr/local/opt/mulima/mulima-0.1.2-SNAPSHOT'
-}
-
-startScripts {
-	doLast {
-
-		def lines = windowsScript.readLines().collect {
-			if (it ==~ /^set DEFAULT_JVM_OPTS=/) {
-				return 'set DEFAULT_JVM_OPTS=-Dmulima.home="%~dp0.." -Dlogback.configurationFile=%~dp0..\\config\\logback.groovy'
-			} else {
-				return it
-			}
-		}
-		windowsScript.withPrintWriter { writer ->
-			lines.each { writer.println it }
-		}
-	}
+	into '/usr/local/opt/mulima'
 }
