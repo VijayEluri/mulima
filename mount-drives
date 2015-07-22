@@ -1,0 +1,5 @@
+#!/bin/bash
+sudo mount -t ntfs-3g -o uid=1000,gid=1000,dmask=002,fmask=113 LABEL=win-d /mnt/d
+sudo mount -t ntfs-3g -o uid=1000,gid=1000,dmask=002,fmask=113 LABEL=win-f /mnt/f
+sudo mount nas3.lan.oberstar.me:/volume4/media4 /mnt/nas3/media4
+sudo mount nas2.lan.oberstar.me:/volume3/media3 /mnt/nas2/media3
