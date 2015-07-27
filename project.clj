@@ -16,4 +16,5 @@
                  [org.clojure/data.json "0.2.6"]
                  [org.clojure/data.xml "0.0.8"]]
   :plugins [[cider/cider-nrepl "0.7.0"]
-            [lein-ancient "0.6.7"]])
+            [lein-ancient "0.6.7"]]
+  :profiles {:dev {:dependencies [[org.clojure/test.check "0.7.0"]]}})

@@ -3,8 +3,23 @@
   java.util.stream.BaseStream."
   (:require [clojure.core.protocols :refer [CollReduce coll-reduce]]
             [mulima.function :as fun])
-  (:import (java.util.stream BaseStream StreamSupport)
-           (java.util Spliterator)))
+  (:import (java.util.stream BaseStream StreamSupport Stream)
+           (java.util Spliterator Spliterator$OfDouble Spliterator$OfLong Spliterator$OfInt Spliterators$AbstractSpliterator)))
+
+(defprotocol Streamable
+  (to-stream [spliterator]))
+
+(extend-protocol Streamable
+  nil
+  (to-stream [_] (Stream/empty))
+  Spliterator
+  (to-stream [spliterator] (StreamSupport/stream spliterator false))
+  Spliterator$OfInt
+  (to-stream [spliterator] (StreamSupport/intStream spliterator false))
+  Spliterator$OfLong
+  (to-stream [spliterator] (StreamSupport/longStream spliterator false))
+  Spliterator$OfDouble
+  (to-stream [spliterator] (StreamSupport/doubleStream spliterator false)))
 
 (defn- ^Spliterator early-spliterator
   "Wrap a Spliterator such that it will short-curcuit
@@ -14,7 +29,7 @@
     (characteristics [_]
       (-> spliterator
           .characteristics
-          (bit-and-not Spliterator/SIZED)))
+          (bit-and-not Spliterator/SIZED Spliterator/SORTED)))
     (estimateSize [_]
       (if-not (realized? done)
         (.estimateSize spliterator)
@@ -31,7 +46,7 @@
   (-> stream
       .spliterator
       (early-spliterator done)
-      (StreamSupport/stream false)))
+      to-stream))
 
 (defn- accumulator
   "Creates an accumulator function for use
