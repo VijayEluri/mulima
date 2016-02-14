@@ -1,3 +1,23 @@
 #!/bin/bash
-rsync -rtv /mnt/f/Music/ /mnt/nas3/media4/music/
-rsync -rtv /mnt/d/flac-converted/ /mnt/nas2/media3/music/flac2/
+#rsync -rtv /mnt/f/Music/ /mnt/nas3/media4/music/
+#rsync -rtv /mnt/d/flac-converted/ /mnt/nas2/media3/music/flac2/
+
+echo "Enter NAS password: "
+read RSYNC_PASSWORD
+export RSYNC_PASSWORD
+
+rsync \
+    --verbose \
+    --recursive \
+    --delete \
+    --times \
+    --filter="protect **/@eaDir**" \
+    /mnt/f/Music/ admin@nas3.lan.oberstar.me::media4/music/
+
+rsync \
+    --verbose \
+    --recursive \
+    --delete \
+    --times \
+    --filter="protect **/@eaDir**" \
+    /mnt/d/flac-converted/ admin@nas2.lan.oberstar.me::media3/music/flac2/
