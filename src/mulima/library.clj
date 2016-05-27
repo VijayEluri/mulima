@@ -1,4 +1,5 @@
-(ns mulima.library)
+(ns mulima.library
+  (:refer-clojure :exclude [update]))
 
 (defprotocol LibraryScanner
   (lookup-all [lib])
