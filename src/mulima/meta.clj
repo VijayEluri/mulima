@@ -76,6 +76,18 @@
   [data]
   nil)
 
+(defn- denormalize-inner
+  [data]
+  (let [children (:children data)
+        tags (dissoc data :children)
+        xf (comp (map #(merge tags %))
+                 (mapcat denormalize))]
+    (if (nil? children)
+      [tags]
+      (eduction xf children))))
+
 (defn denormalize
   [data]
-  nil)
+  (->> data
+       denormalize-inner
+       (into [])))
