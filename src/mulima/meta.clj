@@ -4,19 +4,8 @@
             [clojure.data.json :as json]
             [clojure.edn :as edn]
             [clojure.data.xml :as xml]
-            [clojure.spec :as s]))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Validation
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn cuepoint? [value] true)
-
-(s/def ::cues (s/cat :pregap cuepoint? :start cuepoint? :end cuepoint?))
-(s/def ::tags map?)
-(s/def ::children (s/* ::metadata))
-(s/def ::metadata (s/keys :opt [::cues ::children ::tags]))
-
-#_(s/explain ::metadata {::tags {:album "yo" :track-number 1} ::cues ["01" "02" "03"] ::children []})
+            [clojure.spec :as s]
+            [ike.cljj.file :as file]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; XML parsing
@@ -57,25 +46,21 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic Parsing
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn- suffix
+(defn- file-name
   [path-str]
-  (-> path-str
-      (io/file)
-      (.getName)
-      (string/split #"\.")
-      (last)))
+  (-> path-str file/path .getFileName str))
 
-(defmulti parse* suffix)
+(defmulti parse* file-name)
 
-(defmethod parse* "xml" [path-str]
+(defmethod parse* "album.xml" [path-str]
   (let [contents (-> path-str slurp xml/parse-str)]
     (parse-xml-element contents)))
 
-(defmethod parse* "json" [path-str]
+(defmethod parse* "metadata.json" [path-str]
   (with-open [rdr (io/reader path-str)]
     (json/read rdr)))
 
-(defmethod parse* "edn" [path-str]
+(defmethod parse* "metadata.edn" [path-str]
   (with-open [is (io/input-stream path-str)]
     (edn/read is)))
 
@@ -109,3 +94,41 @@
   (->> data
        denormalize*
        (into [])))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Specs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defn- cuepoint-frames? [value]
+  (if-let [groups (re-matches #"(\d)+:(\d{2}):(\d{2})" value)]
+    (let [[_ minutes seconds frames] (map edn/read-string (rest groups))]
+      (and (< 0 minutes)
+           (<= 0 seconds 59)
+           (<= 0 frames 74)))))
+
+(defn- cuepoint-time? [value]
+  (if-let [groups (re-matches #"(\d)+:(\d{2}).(\d{3})" value)]
+    (let [[_ minutes seconds millis] (map edn/read-string (rest groups))]
+      (and (< 0 minutes)
+           (<= 0 seconds 59)
+           (<= 0 millis 999)))))
+
+(defn cuepoint? [value]
+  (let [pred (some-fn cuepoint-frames? cuepoint-time?)]
+    (boolean (pred value))))
+
+(s/def ::cues (s/cat :pregap cuepoint? :start cuepoint? :end cuepoint?))
+(s/def ::tags map?)
+(s/def ::children (s/* ::metadata))
+(s/def ::metadata (s/keys :opt [::cues ::children ::tags]))
+
+(s/fdef parse
+  :args (s/cat :path-str string?)
+  :ret ::metadata)
+
+(s/fdef normalize
+  :args (s/cat :data ::metadata)
+  :ret ::metadata)
+
+(s/fdef denormalize
+  :args (s/cat :data ::metadata)
+  :ret ::metadata)
