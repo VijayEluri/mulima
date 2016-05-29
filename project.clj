@@ -16,7 +16,6 @@
 
                  ;; io
                  [me.raynes/conch "0.8.0"]
-                 [org.clojure/data.json "0.2.6"]
                  [org.clojure/data.xml "0.0.8"]]
   :plugins [[cider/cider-nrepl "0.12.0"]
             [lein-ancient "0.6.10"]]

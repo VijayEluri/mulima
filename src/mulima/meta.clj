@@ -1,14 +1,13 @@
 (ns mulima.meta
   (:require [clojure.string :as string]
             [clojure.java.io :as io]
-            [clojure.data.json :as json]
             [clojure.edn :as edn]
             [clojure.data.xml :as xml]
             [clojure.spec :as s]
             [ike.cljj.file :as file]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; XML parsing
+;; album.xml parsing
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmulti parse-xml-element :tag)
 
@@ -55,10 +54,6 @@
 (defmethod parse* "album.xml" [path-str]
   (let [contents (-> path-str slurp xml/parse-str)]
     (parse-xml-element contents)))
-
-(defmethod parse* "metadata.json" [path-str]
-  (with-open [rdr (io/reader path-str)]
-    (json/read rdr)))
 
 (defmethod parse* "metadata.edn" [path-str]
   (with-open [is (io/input-stream path-str)]
@@ -117,9 +112,10 @@
     (boolean (pred value))))
 
 (s/def ::cues (s/cat :pregap cuepoint? :start cuepoint? :end cuepoint?))
+(s/def ::source string?)
 (s/def ::tags map?)
 (s/def ::children (s/* ::metadata))
-(s/def ::metadata (s/keys :opt [::cues ::children ::tags]))
+(s/def ::metadata (s/keys :opt [::cues ::source ::children ::tags]))
 
 (s/fdef parse
   :args (s/cat :path-str string?)
