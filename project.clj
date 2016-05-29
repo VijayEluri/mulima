@@ -12,6 +12,7 @@
 
                  ;; util
                  [ike/ike.cljj "0.2.2"]
+                 [com.rpl/specter "0.10.0"]
 
                  ;; io
                  [me.raynes/conch "0.8.0"]
