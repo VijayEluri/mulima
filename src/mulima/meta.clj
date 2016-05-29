@@ -94,16 +94,16 @@
 ;; Specs
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn- cuepoint-frames? [value]
-  (if-let [groups (re-matches #"(\d)+:(\d{2}):(\d{2})" value)]
-    (let [[_ minutes seconds frames] (map edn/read-string (rest groups))]
-      (and (< 0 minutes)
+  (if-let [groups (re-matches #"(\d+):(\d{2}):(\d{2})" value)]
+    (let [[minutes seconds frames] (map edn/read-string (rest groups))]
+      (and (<= 0 minutes)
            (<= 0 seconds 59)
            (<= 0 frames 74)))))
 
 (defn- cuepoint-time? [value]
-  (if-let [groups (re-matches #"(\d)+:(\d{2}).(\d{3})" value)]
-    (let [[_ minutes seconds millis] (map edn/read-string (rest groups))]
-      (and (< 0 minutes)
+  (if-let [groups (re-matches #"(\d+):(\d{2}).(\d{3})" value)]
+    (let [[minutes seconds millis] (map edn/read-string (rest groups))]
+      (and (<= 0 minutes)
            (<= 0 seconds 59)
            (<= 0 millis 999)))))
 
