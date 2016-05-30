@@ -12,69 +12,65 @@
     <track>
       <tag name="trackNumber" value="2" />
       <tag name="title" value="Dodo" />
-      <startPoint time="00:00:00" />
+      <startPoint time="00:01:00" />
     </track>
     <track>
       <tag name="trackNumber" value="3" />
       <tag name="title" value="Abacab" />
-      <startPoint time="00:00:00" />
+      <startPoint time="00:02:00" />
     </track>
     <track>
       <tag name="trackNumber" value="4" />
       <tag name="title" value="Behind The Lines" />
-      <startPoint time="00:00:00" />
+      <startPoint time="00:03:00" />
     </track>
     <track>
       <tag name="trackNumber" value="5" />
       <tag name="title" value="Duchess" />
-      <startPoint time="00:00:00" />
+      <startPoint time="00:04:00" />
     </track>
     <track>
       <tag name="trackNumber" value="6" />
       <tag name="title" value="Me &amp; Sarah Jane" />
-      <startPoint time="00:00:00" />
+      <startPoint time="00:05:00" />
     </track>
     <track>
       <tag name="trackNumber" value="7" />
       <tag name="title" value="Follow You, Follow Me" />
-      <startPoint time="00:00:00" />
+      <startPoint time="00:06:00" />
     </track>
   </disc>
   <disc>
-    <track>
-      <tag name="trackNumber" value="7" />
-      <tag name="title" value="Follow You, Follow Me" />
-      <startPoint time="00:00:00" />
-    </track>
+    <tag name="discNumber" value="2" />
     <track>
       <tag name="trackNumber" value="1" />
       <tag name="title" value="Misunderstanding" />
-      <startPoint time="00:00:00" />
+      <startPoint time="00:08:00" />
     </track>
     <track>
       <tag name="trackNumber" value="2" />
       <tag name="title" value="In The Cage (Medley - The Cinema Show - Slipperman)" />
-      <startPoint time="00:00:00" />
+      <startPoint time="00:09:00" />
     </track>
     <track>
       <tag name="trackNumber" value="3" />
       <tag name="title" value="Afterglow" />
-      <startPoint time="00:00:00" />
+      <startPoint time="00:10:00" />
     </track>
     <track>
       <tag name="trackNumber" value="4" />
       <tag name="title" value="One For The Vine" />
-      <startPoint time="00:00:00" />
+      <startPoint time="00:11:00" />
     </track>
     <track>
       <tag name="trackNumber" value="5" />
       <tag name="title" value="The Fountain Of Salmacis" />
-      <startPoint time="00:00:00" />
+      <startPoint time="00:12:00" />
     </track>
     <track>
       <tag name="trackNumber" value="6" />
       <tag name="title" value="It/Watcher Of The Skies" />
-      <startPoint time="00:00:00" />
+      <startPoint time="00:13:00" />
     </track>
   </disc>
 </album>
