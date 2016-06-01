@@ -1,22 +1,26 @@
 (ns mulima.meta.generic
-  (:require [clojure.java.io :as io]
-            [ike.cljj.file :as file]))
-
+  (:require [clojure.java.io :as io]))
+  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic Parsing/Emitting
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn- file-name
-  [path-str]
-  (-> path-str file/path .getFileName str))
+  [path]
+  (str (.getFileName path)))
 
-(defmulti parse* file-name)
+(defmulti parse*
+  "Parses the given Path as metadata. Dispatches on the file name."
+  file-name)
 
-(defmulti emit* (fn [path-str _] (file-name path-str)))
+(defmulti emit*
+  "Emits the given data to the Path provided. Dispatches on the file name."
+  (fn [path _] (file-name path)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Utilities
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn normalize
+  "..."
   [data]
   nil)
 
@@ -32,5 +36,8 @@
     [data]))
 
 (defn denormalize
+  "Denormalizes a metadata with possible nesting (e.g. populated
+  :mulima.meta/children). Returns a vector of metadata representing each leaf
+  (i.e. track) with the tags of their previous parents included."
   [data]
   (into [] (denormalize* data)))

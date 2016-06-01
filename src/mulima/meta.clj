@@ -3,58 +3,53 @@
             [mulima.meta.album-xml]
             [mulima.meta.metadata-edn]
             [clojure.edn :as edn]
-            [clojure.spec :as s]))
+            [clojure.spec :as s]
+            [ike.cljj.file :as file]))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic Parsing
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn parse
+  "Parses the given path as metadata."
   [path-str]
-  (let [parsed (meta/parse* path-str)]
+  (let [parsed (meta/parse* (file/as-path path-str))]
     (if (s/valid? ::metadata parsed)
       parsed
       (s/explain ::metadata parsed))))
 
-(defn parse
-  [path-str]
-  (meta/parse* path-str))
-
 (defn emit
+  "Emits the given data to the provided path."
   [path-str data]
-  nil)
+  (meta/emit* (file/as-path path-str) data))
 
 #_(parse "C:\\Users\\andre\\projects\\mulima\\album.xml")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Utilities
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-#_(def normalize meta/normalize)
-
-#_(def denormalize meta/denormalize)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Specs
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn- cuepoint-frames? [value]
+(defn- cuepoint-frames?
+  "Validates whether the value matches the frame format (mm:ss:ff)."
+  [value]
   (if-let [groups (re-matches #"(\d+):(\d{2}):(\d{2})" value)]
     (let [[minutes seconds frames] (map edn/read-string (rest groups))]
       (and (<= 0 minutes)
            (<= 0 seconds 59)
            (<= 0 frames 74)))))
 
-(defn- cuepoint-time? [value]
+(defn- cuepoint-time?
+  "Validates whether the value matches the millis format (mm:ss.SSS)"
+  [value]
   (if-let [groups (re-matches #"(\d+):(\d{2}).(\d{3})" value)]
     (let [[minutes seconds millis] (map edn/read-string (rest groups))]
       (and (<= 0 minutes)
            (<= 0 seconds 59)
            (<= 0 millis 999)))))
 
-(defn cuepoint? [value]
+(defn cuepoint?
+  "Validates whether the value matches either the frame or millis format."
+  [value]
   (let [pred (some-fn cuepoint-frames? cuepoint-time?)]
     (boolean (pred value))))
-
-;; TODO remove this
-(defn cuepoint? [value] true)
 
 (s/def ::cues (s/cat :pregap cuepoint? :start cuepoint? :end cuepoint?))
 (s/def ::source string?)

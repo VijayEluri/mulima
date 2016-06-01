@@ -1,8 +1,12 @@
 (ns mulima.meta.metadata-edn
   (:require [mulima.meta.generic :as meta]
             [clojure.java.io :as io]
-            [clojure.edn :as edn]))
+            [clojure.edn :as edn])
+  (:import (java.nio.file Files OpenOption)))
 
-(defmethod meta/parse* "metadata.edn" [path-str]
-  (with-open [is (io/input-stream path-str)]
-    (edn/read is)))
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; High-level parsing
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defmethod meta/parse* "metadata.edn" [path]
+  (with-open [stream (Files/newInputStream path (into-array OpenOption []))]
+    (edn/read stream)))
