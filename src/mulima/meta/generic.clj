@@ -1,6 +1,7 @@
 (ns mulima.meta.generic
-  (:require [clojure.java.io :as io]))
-  
+  (:require [clojure.java.io :as io]
+            [clojure.spec :as s]))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic Parsing/Emitting
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -41,3 +42,14 @@
   (i.e. track) with the tags of their previous parents included."
   [data]
   (into [] (denormalize* data)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Specs
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(s/fdef normalize)
+:args (s/cat :data (s/+ :mulima.meta/metadata))
+:ret :mulima.meta/metadata
+
+(s/fdef denormalize
+  :args (s/cat :data :mulima.meta/metadata)
+  :ret (s/+ :mulima.meta/metadata))

@@ -63,12 +63,3 @@
 
 (s/fdef emit
   :args (s/cat :path-str string? :data ::metadata))
-
-(comment
-  (s/fdef normalize)
-  :args (s/cat :data ::metadata)
-  :ret ::metadata
-
-  (s/fdef denormalize
-    :args (s/cat :data ::metadata)
-    :ret ::metadata))
