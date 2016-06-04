@@ -13,9 +13,9 @@
   "Parses the given path as metadata."
   [path-str]
   (let [parsed (meta/parse* (file/as-path path-str))]
-    (if (s/valid? ::metadata parsed)
+    (if (s/valid? (s/+ ::metadata) parsed)
       parsed
-      (s/explain ::metadata parsed))))
+      (s/explain (s/+ ::metadata) parsed))))
 
 (defn emit
   "Emits the given data to the provided path."
@@ -30,26 +30,28 @@
 (defn- cuepoint-frames?
   "Validates whether the value matches the frame format (mm:ss:ff)."
   [value]
-  (if-let [groups (re-matches #"(\d+):(\d{2}):(\d{2})" value)]
-    (let [[minutes seconds frames] (map edn/read-string (rest groups))]
-      (and (<= 0 minutes)
-           (<= 0 seconds 59)
-           (<= 0 frames 74)))))
+  (if value
+    (if-let [groups (re-matches #"(\d+):(\d{2}):(\d{2})" value)]
+      (let [[minutes seconds frames] (map #(Integer/parseInt %) (rest groups))]
+        (and (<= 0 minutes)
+             (<= 0 seconds 59)
+             (<= 0 frames 74))))))
 
 (defn- cuepoint-time?
   "Validates whether the value matches the millis format (mm:ss.SSS)"
   [value]
-  (if-let [groups (re-matches #"(\d+):(\d{2}).(\d{3})" value)]
-    (let [[minutes seconds millis] (map edn/read-string (rest groups))]
-      (and (<= 0 minutes)
-           (<= 0 seconds 59)
-           (<= 0 millis 999)))))
+  (if value
+    (if-let [groups (re-matches #"(\d+):(\d{2}).(\d{3})" value)]
+      (let [[minutes seconds millis] (map #(Integer/parseInt %) (rest groups))]
+        (and (<= 0 minutes)
+             (<= 0 seconds 59)
+             (<= 0 millis 999))))))
 
 (defn cuepoint?
   "Validates whether the value matches either the frame or millis format."
   [value]
   (let [pred (some-fn cuepoint-frames? cuepoint-time?)]
-    (boolean (pred value))))
+    (or (nil? value) (-> value pred boolean))))
 
 (s/def ::cues (s/cat :pregap cuepoint? :start cuepoint? :end cuepoint?))
 (s/def ::source string?)
