@@ -12,10 +12,13 @@
 (defn parse
   "Parses the given path as metadata."
   [path-str]
-  (let [parsed (meta/parse* (file/as-path path-str))]
-    (if (s/valid? (s/+ ::metadata) parsed)
-      parsed
-      (s/explain (s/+ ::metadata) parsed))))
+  (try
+    (let [parsed (meta/parse* (file/as-path path-str))]
+      (if (s/valid? (s/+ ::metadata) parsed)
+        parsed
+        (s/explain (s/+ ::metadata) parsed)))
+    (catch Exception e
+      (throw (ex-info (str "Failed to parse " path-str) {} e)))))
 
 (defn emit
   "Emits the given data to the provided path."

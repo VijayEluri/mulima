@@ -45,3 +45,6 @@
 #_(doseq [file (find-missing-artwork "F:\\Music\\flac-rips2")] (println file))
 #_(meta/parse "F:\\Music\\flac-rips2\\Adele\\19\\album.xml")
 #_(println *e)
+
+#_(doseq [file (find-incomplete-meta "/mnt/f/Music/flac-rips2")] (println file))
+#_(doseq [file (find-missing-artwork "/mnt/f/Music/flac-rips2")] (println file))
