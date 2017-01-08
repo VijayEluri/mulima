@@ -1,20 +1,18 @@
 /*
-*  Copyright (C) 2011  Andrew Oberstar.  All rights reserved.
-*  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
-*
-*  This program is free software: you can redistribute it and/or modify
-*  it under the terms of the GNU General Public License as published by
-*  the Free Software Foundation, either version 3 of the License, or
-*  (at your option) any later version.
-*
-*  This program is distributed in the hope that it will be useful,
-*  but WITHOUT ANY WARRANTY; without even the implied warranty of
-*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-*  GNU General Public License for more details.
-*
-*  You should have received a copy of the GNU General Public License
-*  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * Copyright 2010-2017 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.mulima.internal.meta.test
 
 import org.junit.After
@@ -24,27 +22,27 @@ import org.mulima.api.meta.CueSheet
 import org.mulima.internal.meta.CueSheetParser
 
 class CueSheetParserTest {
-	private CueSheet exampleCue
-	private File exampleFile
-	private File tempFile
-	
-	@Before
-	void prepareCues() {
-		exampleCue = CueSheetHelper.exampleCue
-		exampleFile = File.createTempFile('example', '.cue')
-		tempFile = File.createTempFile('temp', '.cue')
-		CueSheetHelper.writeExampleFile(exampleFile)
-	}
+  private CueSheet exampleCue
+  private File exampleFile
+  private File tempFile
 
-	@Test
-	void parse() {
-		def cue = new CueSheetParser().parse(exampleFile)
-		assert exampleCue == cue
-	}
-	
-	@After 
-	void cleanup() {
-		exampleFile.deleteOnExit()
-		tempFile.deleteOnExit()
-	}
+  @Before
+  void prepareCues() {
+    exampleCue = CueSheetHelper.exampleCue
+    exampleFile = File.createTempFile('example', '.cue')
+    tempFile = File.createTempFile('temp', '.cue')
+    CueSheetHelper.writeExampleFile(exampleFile)
+  }
+
+  @Test
+  void parse() {
+    def cue = new CueSheetParser().parse(exampleFile)
+    assert exampleCue == cue
+  }
+
+  @After
+  void cleanup() {
+    exampleFile.deleteOnExit()
+    tempFile.deleteOnExit()
+  }
 }

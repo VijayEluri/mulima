@@ -1,3 +1,18 @@
+/*
+ * Copyright 2010-2017 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.mulima.internal.library;
 
 import java.io.File;
@@ -32,144 +47,151 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
 /**
  * Default implementation of a library manager.
+ *
  * @author Andrew Oberstar
  * @since 0.1.0
  */
 @Service
 public class DefaultLibraryManager implements LibraryManager {
-	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLibraryManager.class);
-	private final MulimaService service;
-	private final AlbumConversionService conversionService;
-	private final FreeDbDao freeDbDao;
-	
-	/**
-	 * Constructs a library manager from the parameters.
-	 * @param libraryService the service to use when interacting with the libraries
-	 * @param conversionService the service to convert albums between formats
-	 */
-	@Autowired
-	public DefaultLibraryManager(MulimaService service, AlbumConversionService conversionService, FreeDbDao freeDbDao) {
-		this.service = service;
-		this.conversionService = conversionService;
-		this.freeDbDao = freeDbDao;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void processNew(boolean prompt) {
-		for (ReferenceLibrary refLib : service.getLibraryService().getRefLibs()) {
-			for (LibraryAlbum refAlbum : refLib.getNew()) {
-				Album album = refAlbum.getAlbum();
-				if (album == null) {
-					album = new DefaultAlbum();
-					for (CueSheet cue : refAlbum.getCueSheets()) {
-						LOGGER.debug("Searching for: Cue: DiscId: " + cue.getFlat(GenericTag.CDDB_ID)
-								+ "\tArtist: " + cue.getFlat(GenericTag.ARTIST) 
-								+ "\tAlbum: " + cue.getFlat(GenericTag.ALBUM));
-						
-						List<String> cddbIds = cue.getAll(GenericTag.CDDB_ID);
-						List<Disc> candidates = freeDbDao.getDiscsById(cddbIds);
-	
-						int min = Integer.MAX_VALUE;
-						Disc choice = null;
-						for (Disc cand : candidates) {
-							int dist = MetadataUtil.discDistance(cue, cand);
-							if (dist < min) {
-								min = dist;
-								choice = cand;
-							}
-						}
-						
-						if (!candidates.isEmpty() && min > 10) {
-							if (prompt) {
-								Chooser<Disc> chooser = new DiscCliChooser(cue);
-								choice = chooser.choose(candidates);
-							} else {
-								choice = null;
-							}
-						}
-						
-						if (choice == null) {
-							LOGGER.warn("Disc not found: Artist: "
-								+ cue.getFlat(GenericTag.ARTIST) + "\tAlbum: "
-								+ cue.getFlat(GenericTag.ALBUM));
-						} else {
-							LOGGER.debug("Disc found: Artist: " + cue.getFlat(GenericTag.ARTIST)
-								+ "\tAlbum: " + cue.getFlat(GenericTag.ALBUM));
-							choice.add(GenericTag.DISC_NUMBER, Integer.toString(cue.getNum()));
-							for (Track track : choice.getTracks()) {
-								CuePoint startPoint = null;
-								for (CuePoint point : cue.getCuePoints()) {
-									if (point.getTrack() == track.getNum()) {
-										startPoint = point;
-									}
-								}
-								track.setStartPoint(startPoint);
-							}
-							album.getDiscs().add(choice);
-						}
-					}
-				}
-				if (album.getDiscs().size() == refAlbum.getCueSheets().size()) {
-					service.getFileService().getComposer(Album.class).compose(new File(refAlbum.getDir(), "album.xml"), album);
-					service.getDigestService().write(refAlbum, null);
-				}
-			}
-		}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void updateAll() {
-		update(service.getLibraryService().getDestLibs());
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void update(Library lib) {
-		if (!service.getLibraryService().getDestLibs().contains(lib)) {
-			throw new IllegalArgumentException("Cannot update a library that doesn't belong to this manager.");
-		}
-		Set<Library> libs = new HashSet<Library>();
-		libs.add(lib);
-		update(libs);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void update(Set<Library> libs) {
-		try {
-			Collection<Future<Boolean>> futures = new ArrayList<Future<Boolean>>();
-			for (ReferenceLibrary refLib : service.getLibraryService().getRefLibs()) {
-				for (LibraryAlbum refAlbum : refLib.getAll()) {
-					if (refAlbum.getId() == null) {
-						LOGGER.debug("Skipping {}.  It has no ID.", refAlbum.getName());
-						continue;
-					}
-					Set<LibraryAlbum> destAlbums = new HashSet<LibraryAlbum>();
-					for (Library destLib : libs) {
-						destAlbums.add(destLib.getSourcedFrom(refAlbum));
-					}
-					futures.add(conversionService.submit(refAlbum, destAlbums));	
-				}
-			}		
-			new FutureHandler().handle("Conversion", futures);
-		} catch (InterruptedException e) {
-			conversionService.shutdownNow();
-			Thread.currentThread().interrupt();
-		} finally {
-			conversionService.shutdown(5, TimeUnit.SECONDS);
-		}
-	}
+  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLibraryManager.class);
+  private final MulimaService service;
+  private final AlbumConversionService conversionService;
+  private final FreeDbDao freeDbDao;
+
+  /**
+   * Constructs a library manager from the parameters.
+   *
+   * @param libraryService the service to use when interacting with the libraries
+   * @param conversionService the service to convert albums between formats
+   */
+  @Autowired
+  public DefaultLibraryManager(
+      MulimaService service, AlbumConversionService conversionService, FreeDbDao freeDbDao) {
+    this.service = service;
+    this.conversionService = conversionService;
+    this.freeDbDao = freeDbDao;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public void processNew(boolean prompt) {
+    for (ReferenceLibrary refLib : service.getLibraryService().getRefLibs()) {
+      for (LibraryAlbum refAlbum : refLib.getNew()) {
+        Album album = refAlbum.getAlbum();
+        if (album == null) {
+          album = new DefaultAlbum();
+          for (CueSheet cue : refAlbum.getCueSheets()) {
+            LOGGER.debug(
+                "Searching for: Cue: DiscId: "
+                    + cue.getFlat(GenericTag.CDDB_ID)
+                    + "\tArtist: "
+                    + cue.getFlat(GenericTag.ARTIST)
+                    + "\tAlbum: "
+                    + cue.getFlat(GenericTag.ALBUM));
+
+            List<String> cddbIds = cue.getAll(GenericTag.CDDB_ID);
+            List<Disc> candidates = freeDbDao.getDiscsById(cddbIds);
+
+            int min = Integer.MAX_VALUE;
+            Disc choice = null;
+            for (Disc cand : candidates) {
+              int dist = MetadataUtil.discDistance(cue, cand);
+              if (dist < min) {
+                min = dist;
+                choice = cand;
+              }
+            }
+
+            if (!candidates.isEmpty() && min > 10) {
+              if (prompt) {
+                Chooser<Disc> chooser = new DiscCliChooser(cue);
+                choice = chooser.choose(candidates);
+              } else {
+                choice = null;
+              }
+            }
+
+            if (choice == null) {
+              LOGGER.warn(
+                  "Disc not found: Artist: "
+                      + cue.getFlat(GenericTag.ARTIST)
+                      + "\tAlbum: "
+                      + cue.getFlat(GenericTag.ALBUM));
+            } else {
+              LOGGER.debug(
+                  "Disc found: Artist: "
+                      + cue.getFlat(GenericTag.ARTIST)
+                      + "\tAlbum: "
+                      + cue.getFlat(GenericTag.ALBUM));
+              choice.add(GenericTag.DISC_NUMBER, Integer.toString(cue.getNum()));
+              for (Track track : choice.getTracks()) {
+                CuePoint startPoint = null;
+                for (CuePoint point : cue.getCuePoints()) {
+                  if (point.getTrack() == track.getNum()) {
+                    startPoint = point;
+                  }
+                }
+                track.setStartPoint(startPoint);
+              }
+              album.getDiscs().add(choice);
+            }
+          }
+        }
+        if (album.getDiscs().size() == refAlbum.getCueSheets().size()) {
+          service
+              .getFileService()
+              .getComposer(Album.class)
+              .compose(new File(refAlbum.getDir(), "album.xml"), album);
+          service.getDigestService().write(refAlbum, null);
+        }
+      }
+    }
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public void updateAll() {
+    update(service.getLibraryService().getDestLibs());
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public void update(Library lib) {
+    if (!service.getLibraryService().getDestLibs().contains(lib)) {
+      throw new IllegalArgumentException(
+          "Cannot update a library that doesn't belong to this manager.");
+    }
+    Set<Library> libs = new HashSet<Library>();
+    libs.add(lib);
+    update(libs);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public void update(Set<Library> libs) {
+    try {
+      Collection<Future<Boolean>> futures = new ArrayList<Future<Boolean>>();
+      for (ReferenceLibrary refLib : service.getLibraryService().getRefLibs()) {
+        for (LibraryAlbum refAlbum : refLib.getAll()) {
+          if (refAlbum.getId() == null) {
+            LOGGER.debug("Skipping {}.  It has no ID.", refAlbum.getName());
+            continue;
+          }
+          Set<LibraryAlbum> destAlbums = new HashSet<LibraryAlbum>();
+          for (Library destLib : libs) {
+            destAlbums.add(destLib.getSourcedFrom(refAlbum));
+          }
+          futures.add(conversionService.submit(refAlbum, destAlbums));
+        }
+      }
+      new FutureHandler().handle("Conversion", futures);
+    } catch (InterruptedException e) {
+      conversionService.shutdownNow();
+      Thread.currentThread().interrupt();
+    } finally {
+      conversionService.shutdown(5, TimeUnit.SECONDS);
+    }
+  }
 }

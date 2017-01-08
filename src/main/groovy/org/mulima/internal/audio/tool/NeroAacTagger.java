@@ -1,19 +1,17 @@
 /*
- *  Copyright (C) 2011  Andrew Oberstar.  All rights reserved.
- *  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+ * Copyright 2010-2017 the original author or authors.
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.mulima.internal.audio.tool;
 
@@ -36,87 +34,85 @@ import org.mulima.internal.service.MulimaPropertiesSupport;
 import org.mulima.util.FileUtil;
 import org.springframework.stereotype.Component;
 
-
 /**
  * Support for Nero AAC read/write tag operations.
+ *
  * @author Andrew Oberstar
  * @since 0.1.0
  */
 @Component
 public class NeroAacTagger extends MulimaPropertiesSupport implements Tagger {
-	private static final Pattern REGEX = Pattern.compile("([A-Za-z]+) = (.+)");
-	//private final Logger logger = LoggerFactory.getLogger(getClass());
-	private String path = "neroAacTag";
+  private static final Pattern REGEX = Pattern.compile("([A-Za-z]+) = (.+)");
+  //private final Logger logger = LoggerFactory.getLogger(getClass());
+  private String path = "neroAacTag";
 
-	@Override
-	protected List<String> getScope() {
-		return Arrays.asList("tagger", "aac");
-	}
+  @Override
+  protected List<String> getScope() {
+    return Arrays.asList("tagger", "aac");
+  }
 
-	@Override
-	public AudioFormat getFormat() {
-		return AudioFormat.AAC;
-	}
+  @Override
+  public AudioFormat getFormat() {
+    return AudioFormat.AAC;
+  }
 
-	public String getPath() {
-		return getProperties().getProperty("path", path);
-	}
+  public String getPath() {
+    return getProperties().getProperty("path", path);
+  }
 
-	/**
-	 * Sets the path to the executable.
-	 * @param path exe path
-	 */
-	public void setPath(String path) {
-		this.path = path;
-	}
+  /**
+   * Sets the path to the executable.
+   *
+   * @param path exe path
+   */
+  public void setPath(String path) {
+    this.path = path;
+  }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public TaggerResult write(AudioFile file) {
-		String filePath = FileUtil.getSafeCanonicalPath(file);
+  /** {@inheritDoc} */
+  @Override
+  public TaggerResult write(AudioFile file) {
+    String filePath = FileUtil.getSafeCanonicalPath(file);
 
-		List<String> command = new ArrayList<String>();
-		command.add(getPath());
-		command.add(filePath);
-		for (ITunesTag tag : ITunesTag.values()) {
-			for (String value : file.getMeta().getAll(tag)) {
-				String preparedValue = value.replaceAll("\"", "\\\\\"");
-				command.add("-meta-user:" + tag.toString() + "=" + preparedValue);
-			}
-		}
-		ProcessResult result = new ProcessCaller(command).call();
-		return new TaggerResult(file, result);
-	}
+    List<String> command = new ArrayList<String>();
+    command.add(getPath());
+    command.add(filePath);
+    for (ITunesTag tag : ITunesTag.values()) {
+      for (String value : file.getMeta().getAll(tag)) {
+        String preparedValue = value.replaceAll("\"", "\\\\\"");
+        command.add("-meta-user:" + tag.toString() + "=" + preparedValue);
+      }
+    }
+    ProcessResult result = new ProcessCaller(command).call();
+    return new TaggerResult(file, result);
+  }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public TaggerResult read(AudioFile file) {
-		String filePath = FileUtil.getSafeCanonicalPath(file);
+  /** {@inheritDoc} */
+  @Override
+  public TaggerResult read(AudioFile file) {
+    String filePath = FileUtil.getSafeCanonicalPath(file);
 
-		List<String> command = new ArrayList<String>();
-		command.add(getPath());
-		command.add(filePath);
-		command.add("-list-meta");
+    List<String> command = new ArrayList<String>();
+    command.add(getPath());
+    command.add(filePath);
+    command.add("-list-meta");
 
-		ProcessResult result = new ProcessCaller("tag of " + FileUtil.getSafeCanonicalPath(file), command).call();
+    ProcessResult result =
+        new ProcessCaller("tag of " + FileUtil.getSafeCanonicalPath(file), command).call();
 
-		Track track = new DefaultTrack();
-		for (String line : result.getOutput().split("\n")) {
-			Matcher matcher = REGEX.matcher(line.trim());
-			if (matcher.matches()) {
-				String name = matcher.group(1).toLowerCase();
+    Track track = new DefaultTrack();
+    for (String line : result.getOutput().split("\n")) {
+      Matcher matcher = REGEX.matcher(line.trim());
+      if (matcher.matches()) {
+        String name = matcher.group(1).toLowerCase();
 
-				ITunesTag tag = ITunesTag.valueOf(name);
-				if (tag != null) {
-					track.add(tag, matcher.group(2));
-				}
-			}
-		}
+        ITunesTag tag = ITunesTag.valueOf(name);
+        if (tag != null) {
+          track.add(tag, matcher.group(2));
+        }
+      }
+    }
 
-		return new TaggerResult(file, result);
-	}
+    return new TaggerResult(file, result);
+  }
 }

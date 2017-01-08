@@ -16,24 +16,24 @@ repositories {
 }
 
 dependencies {
-	compile 'org.slf4j:slf4j-api:1.7.22'
-	compile 'org.springframework:spring-context:4.3.5.RELEASE'
-	compile 'org.springframework:spring-jdbc:4.3.5.RELEASE'
-	compile 'org.springframework:spring-tx:4.3.5.RELEASE'
-	compile 'org.apache.commons:commons-compress:1.13'
-	compile 'commons-codec:commons-codec:1.10'
+  compile 'org.slf4j:slf4j-api:1.7.22'
+  compile 'org.springframework:spring-context:4.3.5.RELEASE'
+  compile 'org.springframework:spring-jdbc:4.3.5.RELEASE'
+  compile 'org.springframework:spring-tx:4.3.5.RELEASE'
+  compile 'org.apache.commons:commons-compress:1.13'
+  compile 'commons-codec:commons-codec:1.10'
 
-	runtime 'org.slf4j:jcl-over-slf4j:1.7.22'
-	runtime 'ch.qos.logback:logback-classic:1.1.8'
-	runtime 'mysql:mysql-connector-java:6.0.5'
+  runtime 'org.slf4j:jcl-over-slf4j:1.7.22'
+  runtime 'ch.qos.logback:logback-classic:1.1.8'
+  runtime 'mysql:mysql-connector-java:6.0.5'
 
-	compile 'org.codehaus.groovy:groovy-all:2.4.7'
+  compile 'org.codehaus.groovy:groovy-all:2.4.7'
   compile 'commons-cli:commons-cli:1.3.1'
 
-	testCompile 'junit:junit:4.12'
-	testCompile 'org.mockito:mockito-core:2.5.5'
-	testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
-	testRuntime 'cglib:cglib:3.2.4'
+  testCompile 'junit:junit:4.12'
+  testCompile 'org.mockito:mockito-core:2.5.5'
+  testCompile 'org.spockframework:spock-core:1.0-groovy-2.4'
+  testRuntime 'cglib:cglib:3.2.4'
 }
 
 model {
@@ -45,5 +45,5 @@ model {
 }
 
 test {
-	systemProperties 'log.level':'DEBUG'
+  systemProperties 'log.level':'DEBUG'
 }

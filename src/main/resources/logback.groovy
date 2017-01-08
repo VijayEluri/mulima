@@ -4,9 +4,9 @@ import ch.qos.logback.core.FileAppender
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder
 
 appender('CONSOLE', ConsoleAppender) {
-	encoder(PatternLayoutEncoder) {
-		pattern = '%-5level %msg%n'
-	}
+  encoder(PatternLayoutEncoder) {
+    pattern = '%-5level %msg%n'
+  }
 }
 
 root(Level.valueOf(System.properties['log.level'] ?: 'INFO'), ['CONSOLE'])

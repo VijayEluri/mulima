@@ -1,4 +1,4 @@
-/*  
+/*
  *  Copyright (C) 2011  Andrew Oberstar.  All rights reserved.
  *  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -16,7 +16,5 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * Interfaces of metadata classes.
- */
+/** Interfaces of metadata classes. */
 package org.mulima.api.meta;

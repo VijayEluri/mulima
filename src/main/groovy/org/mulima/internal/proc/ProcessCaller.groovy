@@ -1,19 +1,17 @@
-/*  
- *  Copyright (C) 2011  Andrew Oberstar.  All rights reserved.
- *  DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+/*
+ * Copyright 2010-2017 the original author or authors.
  *
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.mulima.internal.proc
 
@@ -31,54 +29,54 @@ import org.slf4j.LoggerFactory
  * @since 0.1.0
  */
 class ProcessCaller implements Callable {
-	private static final Logger logger = LoggerFactory.getLogger(ProcessCaller)
-	private final String description
-	private final List command
-	private final String input;
-	
-	/**
-	 * Constructs a process caller with the specified operating system program and arguments.
-	 * @param command the list containing the program and its arguments.
-	 * @param input the input to this process (optional)
-	 */
-	ProcessCaller(List command, String input = null) {
-		this(null, command, input)
-	}
-	
-	/**
-	* Constructs a process caller with the specified operating system program and arguments.
-	* @param description a description of the process to be executed
-	* @param command the list containing the program and its arguments.
-	* @param input the input to this process (optional)
-	*/
+  private static final Logger logger = LoggerFactory.getLogger(ProcessCaller)
+  private final String description
+  private final List command
+  private final String input;
+
+  /**
+   * Constructs a process caller with the specified operating system program and arguments.
+   * @param command the list containing the program and its arguments.
+   * @param input the input to this process (optional)
+   */
+  ProcessCaller(List command, String input = null) {
+    this(null, command, input)
+  }
+
+  /**
+  * Constructs a process caller with the specified operating system program and arguments.
+  * @param description a description of the process to be executed
+  * @param command the list containing the program and its arguments.
+  * @param input the input to this process (optional)
+  */
    ProcessCaller(String description, List command, String input = null) {
-	   this.description = description
-	   this.command = command
-	   this.input = input
+     this.description = description
+     this.command = command
+     this.input = input
    }
-   
-	/**
-	 * Starts a process using the command specified in the constructor.
-	 * @return a process result holding the output of the process.
-	 * @throws FatalMulimaException if there is a problem with the process
-	 */
-	@Override
-	ProcessResult call() {
-		logger.debug('Starting: {}', description)
-		logger.debug('Executing command: {}', command)
-		Process proc = new ProcessBuilder(command).start()
-		
-		if (input) {
-			proc.outputStream.withWriter { writer ->
-				writer.write(input)
-			}
-		}
-			
-		StringBuilder output = new StringBuilder()
-		StringBuilder error = new StringBuilder()
-		proc.waitForProcessOutput(output, error)
-		int exit = proc.exitValue()
-		logger.debug('Finished: {}', description)
-		return new ProcessResult(command, exit, output.toString(), error.toString())
-	}
+
+  /**
+   * Starts a process using the command specified in the constructor.
+   * @return a process result holding the output of the process.
+   * @throws FatalMulimaException if there is a problem with the process
+   */
+  @Override
+  ProcessResult call() {
+    logger.debug('Starting: {}', description)
+    logger.debug('Executing command: {}', command)
+    Process proc = new ProcessBuilder(command).start()
+
+    if (input) {
+      proc.outputStream.withWriter { writer ->
+        writer.write(input)
+      }
+    }
+
+    StringBuilder output = new StringBuilder()
+    StringBuilder error = new StringBuilder()
+    proc.waitForProcessOutput(output, error)
+    int exit = proc.exitValue()
+    logger.debug('Finished: {}', description)
+    return new ProcessResult(command, exit, output.toString(), error.toString())
+  }
 }
