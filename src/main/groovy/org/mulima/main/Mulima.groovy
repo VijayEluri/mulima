@@ -170,6 +170,9 @@ class Mulima {
             Disc disc = new DefaultDisc(album)
             disc.add(GenericTag.DISC_NUMBER, Integer.toString(cue.getNum()))
             cue.getMap().each { GenericTag tag, List values ->
+              if (tag == GenericTag.FILE) {
+                return
+              }
               disc.addAll(tag, values)
             }
             cue.cuePoints.each { CuePoint point ->
