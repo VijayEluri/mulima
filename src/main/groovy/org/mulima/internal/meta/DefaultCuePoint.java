@@ -142,7 +142,7 @@ public class DefaultCuePoint implements CuePoint {
   public int compareTo(CuePoint other) {
     if (track == other.getTrack()) {
       if (index == other.getIndex()) {
-        if (time == other.getTime()) {
+        if (time.equals(other.getTime())) {
           return 0;
         } else {
           return time.compareTo(other.getTime());

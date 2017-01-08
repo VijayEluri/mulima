@@ -131,7 +131,7 @@ public class DefaultLibrary implements Library {
   /** {@inheritDoc} */
   @Override
   public File determineDir(Album meta) {
-    String album = null;
+    String album;
     if (meta.isSet(GenericTag.ALBUM)) {
       album = meta.getFlat(GenericTag.ALBUM);
     } else {

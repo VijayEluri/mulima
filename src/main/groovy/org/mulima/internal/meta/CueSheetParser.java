@@ -51,33 +51,31 @@ public class CueSheetParser implements FileParser<CueSheet> {
     int num = matcher.find() ? Integer.valueOf(matcher.group(1)) : 1;
     CueSheet cue = new DefaultCueSheet(num);
 
-    Scanner fin;
-    try {
-      fin = new Scanner(file);
+    try (Scanner fin = new Scanner(file)) {
+      int currentTrack = -1;
+      while (fin.hasNext()) {
+        String line = fin.nextLine().trim();
+        matcher = LINE_REGEX.matcher(line);
+        if (!matcher.find()) {
+          logger.debug("Invalid line: " + line);
+        }
+
+        String name = matcher.group(1).trim().replaceAll(" ", "_");
+        String value = matcher.group(2).trim();
+
+        if ("TRACK".equals(name)) {
+          currentTrack = Integer.valueOf(value.split(" ")[0]);
+        } else if (currentTrack < 0) {
+          handleCueTag(cue, name, value);
+        } else if ("INDEX".equals(name)) {
+          handleIndex(cue, currentTrack, value);
+        }
+      }
+
+      return cue;
     } catch (FileNotFoundException e) {
       throw new UncheckedIOException(e);
     }
-    int currentTrack = -1;
-    while (fin.hasNext()) {
-      String line = fin.nextLine().trim();
-      matcher = LINE_REGEX.matcher(line);
-      if (!matcher.find()) {
-        logger.debug("Invalid line: " + line);
-      }
-
-      String name = matcher.group(1).trim().replaceAll(" ", "_");
-      String value = matcher.group(2).trim();
-
-      if ("TRACK".equals(name)) {
-        currentTrack = Integer.valueOf(value.split(" ")[0]);
-      } else if (currentTrack < 0) {
-        handleCueTag(cue, name, value);
-      } else if ("INDEX".equals(name)) {
-        handleIndex(cue, currentTrack, value);
-      }
-    }
-
-    return cue;
   }
 
   /**

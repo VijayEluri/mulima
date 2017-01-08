@@ -40,8 +40,6 @@ public class FutureHandler {
             future.get();
           } catch (ExecutionException e) {
             LOGGER.error("{} failed.", description, e);
-          } catch (InterruptedException e) {
-            LOGGER.error("{} interrupted.", description, e);
           }
           complete.add(future);
         } else {

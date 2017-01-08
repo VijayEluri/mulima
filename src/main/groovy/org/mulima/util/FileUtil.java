@@ -220,20 +220,10 @@ public final class FileUtil {
    * @param dir the directory to copy to
    */
   public static File copy(File source, File dir) {
-    try {
-      File dest = new File(dir, source.getName());
-      FileChannel sourceChannel = new FileInputStream(source).getChannel();
-      FileChannel destChannel = new FileOutputStream(dest).getChannel();
-      try {
-        sourceChannel.transferTo(0, sourceChannel.size(), destChannel);
-      } finally {
-        if (sourceChannel != null) {
-          sourceChannel.close();
-        }
-        if (destChannel != null) {
-          destChannel.close();
-        }
-      }
+    File dest = new File(dir, source.getName());
+    try (FileChannel sourceChannel = new FileInputStream(source).getChannel();
+        FileChannel destChannel = new FileOutputStream(dest).getChannel()) {
+      sourceChannel.transferTo(0, sourceChannel.size(), destChannel);
       return dest;
     } catch (IOException e) {
       throw new UncheckedIOException(e);
