@@ -146,15 +146,7 @@ public final class FileUtil {
 	public static List<File> listDirsRecursive(File dir) {
 		// return listDirsRecursive(dir, new ArrayList<File>());
 		LOGGER.trace("Beginning listDirsRecursive for {}", dir);
-
-		DirectoryListFileVisitor visitor = new DirectoryListFileVisitor();
-		try {
-			Files.walkFileTree(dir.toPath(), visitor);
-		} catch(IOException e) {
-			throw new UncheckedIOException(e);
-		}
-		LOGGER.trace("Ending listDirsRecursive for {}", dir);
-		return visitor.getResults();
+    return listDirsRecursive(dir, new ArrayList<>());
 	}
 
 	/**
@@ -169,6 +161,9 @@ public final class FileUtil {
 		if (!dir.isDirectory()) {
 			throw new IllegalArgumentException("Must pass a directory in as \"dir\".");
 		}
+
+
+
 		dirs.add(dir);
 		for (File child : dir.listFiles()) {
 			if (child.isDirectory()) {
@@ -258,22 +253,5 @@ public final class FileUtil {
 			}
 		}
 		return dests;
-	}
-
-	private static class DirectoryListFileVisitor extends SimpleFileVisitor<Path> {
-		private final BlockingQueue<File> results = new LinkedBlockingQueue<>();
-
-		@Override
-		public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-			LOGGER.trace("Visiting {}", dir);
-			results.add(dir.toFile());
-			return FileVisitResult.CONTINUE;
-		}
-
-		public List<File> getResults() {
-			List<File> copy = new ArrayList<>(results.size());
-			results.drainTo(copy);
-			return copy;
-		}
 	}
 }
