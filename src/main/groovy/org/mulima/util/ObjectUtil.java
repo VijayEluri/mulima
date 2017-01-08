@@ -28,7 +28,9 @@ public class ObjectUtil {
    * @param obj1 the first object
    * @param obj2 the second object
    * @return {@code true} if the two objects are equal
+   * @deprecated use java.util.Objects#equals
    */
+  @Deprecated
   public static boolean isEqual(Object obj1, Object obj2) {
     if (obj1 == null) {
       return obj2 == null;

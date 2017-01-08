@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.mulima.api.freedb.FreeDbDao;
 import org.mulima.api.job.AlbumConversionService;
 import org.mulima.api.library.Library;
 import org.mulima.api.library.LibraryAlbum;
@@ -39,8 +38,6 @@ import org.mulima.api.meta.Track;
 import org.mulima.api.service.MulimaService;
 import org.mulima.internal.meta.DefaultAlbum;
 import org.mulima.internal.proc.FutureHandler;
-import org.mulima.internal.ui.Chooser;
-import org.mulima.internal.ui.DiscCliChooser;
 import org.mulima.util.MetadataUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +55,6 @@ public class DefaultLibraryManager implements LibraryManager {
   private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLibraryManager.class);
   private final MulimaService service;
   private final AlbumConversionService conversionService;
-  private final FreeDbDao freeDbDao;
 
   /**
    * Constructs a library manager from the parameters.
@@ -67,87 +63,9 @@ public class DefaultLibraryManager implements LibraryManager {
    * @param conversionService the service to convert albums between formats
    */
   @Autowired
-  public DefaultLibraryManager(
-      MulimaService service, AlbumConversionService conversionService, FreeDbDao freeDbDao) {
+  public DefaultLibraryManager(MulimaService service, AlbumConversionService conversionService) {
     this.service = service;
     this.conversionService = conversionService;
-    this.freeDbDao = freeDbDao;
-  }
-
-  /** {@inheritDoc} */
-  @Override
-  public void processNew(boolean prompt) {
-    for (ReferenceLibrary refLib : service.getLibraryService().getRefLibs()) {
-      for (LibraryAlbum refAlbum : refLib.getNew()) {
-        Album album = refAlbum.getAlbum();
-        if (album == null) {
-          album = new DefaultAlbum();
-          for (CueSheet cue : refAlbum.getCueSheets()) {
-            LOGGER.debug(
-                "Searching for: Cue: DiscId: "
-                    + cue.getFlat(GenericTag.CDDB_ID)
-                    + "\tArtist: "
-                    + cue.getFlat(GenericTag.ARTIST)
-                    + "\tAlbum: "
-                    + cue.getFlat(GenericTag.ALBUM));
-
-            List<String> cddbIds = cue.getAll(GenericTag.CDDB_ID);
-            List<Disc> candidates = freeDbDao.getDiscsById(cddbIds);
-
-            int min = Integer.MAX_VALUE;
-            Disc choice = null;
-            for (Disc cand : candidates) {
-              int dist = MetadataUtil.discDistance(cue, cand);
-              if (dist < min) {
-                min = dist;
-                choice = cand;
-              }
-            }
-
-            if (!candidates.isEmpty() && min > 10) {
-              if (prompt) {
-                Chooser<Disc> chooser = new DiscCliChooser(cue);
-                choice = chooser.choose(candidates);
-              } else {
-                choice = null;
-              }
-            }
-
-            if (choice == null) {
-              LOGGER.warn(
-                  "Disc not found: Artist: "
-                      + cue.getFlat(GenericTag.ARTIST)
-                      + "\tAlbum: "
-                      + cue.getFlat(GenericTag.ALBUM));
-            } else {
-              LOGGER.debug(
-                  "Disc found: Artist: "
-                      + cue.getFlat(GenericTag.ARTIST)
-                      + "\tAlbum: "
-                      + cue.getFlat(GenericTag.ALBUM));
-              choice.add(GenericTag.DISC_NUMBER, Integer.toString(cue.getNum()));
-              for (Track track : choice.getTracks()) {
-                CuePoint startPoint = null;
-                for (CuePoint point : cue.getCuePoints()) {
-                  if (point.getTrack() == track.getNum()) {
-                    startPoint = point;
-                  }
-                }
-                track.setStartPoint(startPoint);
-              }
-              album.getDiscs().add(choice);
-            }
-          }
-        }
-        if (album.getDiscs().size() == refAlbum.getCueSheets().size()) {
-          service
-              .getFileService()
-              .getComposer(Album.class)
-              .compose(new File(refAlbum.getDir(), "album.xml"), album);
-          service.getDigestService().write(refAlbum, null);
-        }
-      }
-    }
   }
 
   /** {@inheritDoc} */

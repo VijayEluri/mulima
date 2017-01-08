@@ -1,2 +1,0 @@
-#!/bin/bash
-rsync -rtv --delete /mnt/d/aac-converted /mnt/auto/music

@@ -43,11 +43,9 @@ class Mulima {
       h longOpt:'help', 'Prints this help message'
       l longOpt:'list', 'Lists the libraries currently configured.'
       s longOpt:'stats', 'Gives stats on the number of albums in each library.'
-      p longOpt:'process', 'Process new albums to generate album.xml files. (affects all ref libs)'
       u longOpt:'update', 'Updates albums in your destination libraries. (implies --process)'
       f longOpt:'force', 'Forces the update on all albums, including up to date. (only used with --update)'
       v longOpt:'verify', 'Verifies all album.xml files.'
-      _ longOpt:'no-prompt', 'Will not prompt user to choose if algorithm is unsure.'
       _ longOpt:'status', 'Lists the status of each album.'
       _ longOpt:'fix-meta', 'Fixes common metadata problems.'
       _ longOpt:'create-stubs', 'Creates stub album.xml files with cue sheet info for albums without metadata'
@@ -59,14 +57,7 @@ class Mulima {
       return
     }
 
-    def configFile = System.properties['mulima.configurationFile']
-    ApplicationContext context
-    if (configFile == null) {
-      context = new ClassPathXmlApplicationContext('spring-context.xml')
-    } else {
-      context = new FileSystemXmlApplicationContext(configFile)
-    }
-
+    ApplicationContext context = new ClassPathXmlApplicationContext('spring-context.xml')
     MulimaService service = context.getBean(MulimaService.class)
     service.tempDir = new TempDir().newChild('mulima')
 
@@ -111,10 +102,7 @@ class Mulima {
           println '\t' + formatAlbum(album, upToDate)
         }
       }
-    } else if (options.p) {
-      manager.processNew(!options.'no-prompt')
     } else if (options.u) {
-      manager.processNew(!options.'no-prompt')
       manager.update(destLibs)
     } else if (options.v) {
       refLibs*.all*.each { LibraryAlbum refAlbum ->

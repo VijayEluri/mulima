@@ -17,7 +17,6 @@ package org.mulima.internal.library.test
 
 import java.util.concurrent.Future;
 
-import org.mulima.api.freedb.FreeDbDao
 import org.mulima.api.job.AlbumConversionService
 import org.mulima.api.library.Library
 import org.mulima.api.library.LibraryAlbum
@@ -32,7 +31,6 @@ import spock.lang.Specification
 class DefaultLibraryManagerSpec extends Specification {
   LibraryManager manager
   AlbumConversionService conversionService
-  FreeDbDao freeDb
   List refLibs
   List destLibs
   Map libToRefToDest
@@ -69,8 +67,7 @@ class DefaultLibraryManagerSpec extends Specification {
     libService.refLibs >> refLibs
     libService.destLibs >> destLibs
     conversionService = Mock()
-    freeDb = Mock()
-    manager = new DefaultLibraryManager(service, conversionService, freeDb)
+    manager = new DefaultLibraryManager(service, conversionService)
   }
 
   def 'update only converts one library'() {
