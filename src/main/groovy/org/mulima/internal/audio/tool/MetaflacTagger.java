@@ -109,7 +109,7 @@ public class MetaflacTagger extends MulimaPropertiesSupport implements Tagger {
         command.add("--set-tag=" + tag.toString() + "=" + preparedValue + "");
       }
     }
-    command.add(filePath);
+    command.add("\"" + filePath + "\"");
 
     ProcessResult result = new ProcessCaller(command).call();
     return new TaggerResult(file, result);

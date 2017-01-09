@@ -121,8 +121,8 @@ public class ShnToolSplitter extends MulimaPropertiesSupport implements Splitter
     command.add("-O");
     command.add(overwrite ? "always" : "never");
     command.add("-d");
-    command.add(destPath);
-    command.add(sourcePath);
+    command.add("\"" + destPath + "\"");
+    command.add("\"" + sourcePath + "\"");
 
     boolean track0 = true;
     StringWriter input = new StringWriter();

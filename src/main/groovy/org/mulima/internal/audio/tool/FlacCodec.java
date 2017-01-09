@@ -114,8 +114,8 @@ public class FlacCodec extends MulimaPropertiesSupport implements Codec {
     }
     command.add("-" + getCompressionLevel());
     command.add("-o");
-    command.add(destPath);
-    command.add(sourcePath);
+    command.add("\"" + destPath + "\"");
+    command.add("\"" + sourcePath + "\"");
 
     ProcessCaller caller = new ProcessCaller("encoding " + sourcePath, command);
     return new CodecResult(source, dest, caller.call());

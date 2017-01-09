@@ -76,7 +76,7 @@ public class NeroAacTagger extends MulimaPropertiesSupport implements Tagger {
 
     List<String> command = new ArrayList<String>();
     command.add(getPath());
-    command.add(filePath);
+    command.add("\"" + filePath + "\"");
     for (ITunesTag tag : ITunesTag.values()) {
       for (String value : file.getMeta().getAll(tag)) {
         String preparedValue = value.replaceAll("\"", "\\\\\"");

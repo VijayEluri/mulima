@@ -118,9 +118,9 @@ public class NeroAacCodec extends MulimaPropertiesSupport implements Codec {
     command.add("-q");
     command.add(getQuality());
     command.add("-if");
-    command.add(sourcePath);
+    command.add("\"" + sourcePath + "\"");
     command.add("-of");
-    command.add(destPath);
+    command.add("\"" + destPath + "\"");
 
     ProcessCaller caller = new ProcessCaller("encoding " + sourcePath, command);
     return new CodecResult(source, dest, caller.call());
