@@ -1,9 +1,14 @@
 (ns mulima.meta.album-xml
-  (:require [mulima.meta.generic :refer [parse* denormalize]]
+  (:require [mulima.meta.generic :refer [emit* parse* denormalize normalize]]
             [clojure.java.io :as io]
             [clojure.data.xml :as xml]
-            [clojure.edn :as edn])
+            [clojure.edn :as edn]
+            [clojure.set :as set]
+            [ike.cljj.file :as file])
   (:import (java.nio.file Files OpenOption)))
+
+(def generic->album (edn/read-string (slurp (io/resource "album-xml-tags.edn"))))
+(def album->generic (set/map-invert generic->album))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Parsing tag values
@@ -13,8 +18,8 @@
   parsing different tags to different types."
   (fn [name _] name))
 
-(defmethod parse-value :discNumber [_ value] (edn/read-string value))
-(defmethod parse-value :trackNumber [_ value] (edn/read-string value))
+(defmethod parse-value :disc-number [_ value] (edn/read-string value))
+(defmethod parse-value :track-number [_ value] (edn/read-string value))
 (defmethod parse-value :default [_ value] value)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -43,7 +48,7 @@
 
 (defmethod parse-xml-element :tag [element]
   (let [{:keys [name value]} (:attrs element)
-        name (keyword name)
+        name (album->generic name)
         value (parse-value name value)]
     [name value]))
 
@@ -72,8 +77,8 @@
   is disc number, second is track number, and third is the cuepoint indicating
   the start of the track."
   [track]
-  [(get-in track [:mulima.meta/tags :discNumber])
-   (get-in track [:mulima.meta/tags :trackNumber])
+  [(get-in track [:mulima.meta/tags :disc-number])
+   (get-in track [:mulima.meta/tags :track-number])
    (get-in track [:mulima.meta/cues 1])])
 
 (defn- into-nested-map
@@ -96,16 +101,35 @@
   (into-nested-map (map start-point) data))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; High-level parsing
+;; High-level functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defmethod parse* "album.xml" [path]
-  (let [stream (Files/newInputStream path (into-array OpenOption []))
-        contents (-> stream slurp xml/parse-str)
+(defmethod parse* "xml" [path]
+  (let [contents (-> path file/read-bytes String. xml/parse-str)
         data (-> contents parse-xml-element denormalize)
         points (start-points data)
         end-point (fn [track]
-                    (let [dnum (get-in track [:mulima.meta/tags :discNumber])
-                          tnum (get-in track [:mulima.meta/tags :trackNumber])
+                    (let [dnum (get-in track [:mulima.meta/tags :disc-number])
+                          tnum (get-in track [:mulima.meta/tags :track-number])
                           epoint (get-in points [dnum (inc tnum)])]
                       (assoc-in track [:mulima.meta/cues 2] epoint)))]
     (into [] (map end-point) data)))
+
+(defmethod emit* "xml" [path meta]
+  (let [meta (normalize meta)
+        tracks (group-by :discNumber (:mulima.meta/children meta))
+        tag-elem (fn [[k v]] (xml/element :tag {:name (generic->album k) :value v}))
+        cue-elem (fn [cues] (xml/element :startPoint {:track 1 :index 1 :time (get cues 1)}))
+        track-elem (fn [track]
+                     (let [children (conj (->> track
+                                               :mulima.meta/tags
+                                               (remove (fn [[k v]] (= k :disc-number)))
+                                               (map tag-elem))
+                                          (cue-elem (:mulima.meta/cues track)))]
+                        (apply xml/element :track {} children)))
+        disk-elem (fn [[num tracks]]
+                    (let [children (conj (map track-elem tracks)
+                                         (xml/element :tag {:name "discNumber" :value (or num 1)}))]
+                      (apply xml/element :disc {} children)))
+        children (concat (map tag-elem (:mulima.meta/tags meta)) (map disk-elem tracks))
+        elems (apply xml/element :album {} children)]
+    (file/write-bytes path (.getBytes (xml/indent-str elems)))))

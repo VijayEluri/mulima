@@ -41,10 +41,20 @@
                  (map str))]
     (into [] xf children)))
 
-#_(doseq [file (find-incomplete-meta "F:\\Music\\flac-rips2")] (println file))
-#_(doseq [file (find-missing-artwork "F:\\Music\\flac-rips2")] (println file))
-#_(meta/parse "F:\\Music\\flac-rips2\\Adele\\19\\album.xml")
+#_(doseq [file (find-incomplete-meta "C:\\Users\\andre\\Music\\originals")]
+    (let [siblings (file/walk (.getParent (file/as-path file)))
+          xf (comp (filter #(-> % .getFileName str (str/split #"\.") last (= "cue")))
+                   (map meta/parse)
+                   (mapcat identity))
+          cue-data (into [] xf siblings)]
+      (meta/emit file cue-data)))
+#_(doseq [file (find-missing-artwork "C:\\Users\\andre\\Music\\originals")] (println file))
+#_(meta/parse "C:\\Users\\andre\\Music\\originals\\Prince\\Prince\\album.xml")
+#_(let [parsed (meta/parse "C:\\Users\\andre\\Music\\originals\\Prince\\Prince\\album.xml")
+        emitted (do
+                  (meta/emit "C:\\Temp\\album.xml" parsed)
+                  (meta/parse "C:\\Temp\\album.xml"))]
+    (println parsed)
+    (println emitted)
+    (= parsed emitted))
 #_(println *e)
-
-#_(doseq [file (find-incomplete-meta "/mnt/f/Music/flac-rips2")] (println file))
-#_(doseq [file (find-missing-artwork "/mnt/f/Music/flac-rips2")] (println file))

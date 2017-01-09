@@ -22,4 +22,6 @@
  :genre "Indicator of the type of music represented by the track."
 
  :date-logical "Date the track was recorded or other logical date to identify it."
- :comments "Description to identify the performance of the piece. (live, studio, b-side)"}
+ :comments "Description to identify the performance of the piece. (live, studio, b-side)"
+
+ :cddb-id "ID within the CDDB system"}

@@ -1,0 +1,8 @@
+{:album "TITLE"
+ :date-release "REM DATE"
+ :artist "PERFORMER"
+ :composer "REM COMPOSER"
+ :track-number "TRACK"
+ :title "TITLE"
+ :genre "REM GENRE"
+ :cddb-id "REM DISCID"}

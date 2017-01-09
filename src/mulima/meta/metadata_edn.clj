@@ -7,6 +7,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; High-level parsing
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defmethod meta/parse* "metadata.edn" [path]
+(defmethod meta/parse* "edn" [path]
   (with-open [stream (Files/newInputStream path (into-array OpenOption []))]
     (edn/read stream)))
