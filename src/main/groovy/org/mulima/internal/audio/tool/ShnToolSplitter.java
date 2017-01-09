@@ -58,7 +58,7 @@ public class ShnToolSplitter extends MulimaPropertiesSupport implements Splitter
 
   @Override
   protected List<String> getScope() {
-    return Arrays.asList("splitter", "path");
+    return Arrays.asList("splitter", "shntool");
   }
 
   /**
