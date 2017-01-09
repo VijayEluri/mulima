@@ -24,6 +24,9 @@ import java.util.Set;
  * @since 0.1.0
  */
 public interface LibraryManager {
+  /** Process new albums. */
+  void processNew();
+
   /** Updates all albums in all libraries. */
   void updateAll();
 

@@ -103,6 +103,7 @@ class Mulima {
         }
       }
     } else if (options.u) {
+      manager.processNew()
       manager.update(destLibs)
     } else if (options.v) {
       refLibs*.all*.each { LibraryAlbum refAlbum ->

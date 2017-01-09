@@ -70,6 +70,14 @@ public class DefaultLibraryManager implements LibraryManager {
 
   /** {@inheritDoc} */
   @Override
+  public void processNew() {
+      service.getLibraryService().getRefLibs().stream()
+        .flatMap(refLib -> refLib.getNew().stream())
+        .forEach(refAlbum -> service.getDigestService().write(refAlbum, null));
+  }
+
+  /** {@inheritDoc} */
+  @Override
   public void updateAll() {
     update(service.getLibraryService().getDestLibs());
   }
