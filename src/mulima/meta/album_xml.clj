@@ -2,6 +2,7 @@
   (:require [mulima.meta.generic :refer [emit* parse* denormalize normalize]]
             [clojure.java.io :as io]
             [clojure.data.xml :as xml]
+            [clojure.string :as str]
             [clojure.edn :as edn]
             [clojure.set :as set]
             [ike.cljj.file :as file])
