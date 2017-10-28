@@ -1,6 +1,6 @@
 (ns mulima.meta.generic
   (:require [clojure.java.io :as io]
-            [clojure.spec :as s]
+            [clojure.spec.alpha :as s]
             [clojure.set :as set]
             [clojure.string :refer [split]]))
 

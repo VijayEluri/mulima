@@ -16,14 +16,13 @@
                ["-d" "-f" "-o" dest source])))
 
 (defrecord MetaflacOpts
-  [path
-   tag-props])
+  [path])
 
 (def ^:private tag-pattern #"(?m)^\s*comment\[[0-9]+\]:\s+(\w+)=(.*)\s*$")
 
 (defn- reverse-tags
   [opts tags]
-  (let [tag-defs (tool/tag-bimap (:tag-props opts))]
+  (let [tag-defs (tool/tag-bimap "vorbis-tags.edn")]
     (map (fn [[t v]] [(get tag-defs t) v]) tags)))
 
 (extend-type MetaflacOpts

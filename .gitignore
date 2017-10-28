@@ -10,3 +10,4 @@ pom.xml.asc
 *.swp
 *.iml
 /.idea
+mulima-config.edn

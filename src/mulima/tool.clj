@@ -20,7 +20,7 @@
 
 (defn cmd!
   ([path args]
-   (apply path "" args))
+   (cmd! path "" args))
   ([path in args]
    (let [out (java.io.StringWriter.)
          err (java.io.StringWriter.)]
@@ -34,7 +34,7 @@
 
 (defn tag-bimap
   [path]
-  (with-open [rdr (-> path io/reader java.io.PushbackReader.)]
-    (let [tags (edn/read rdr)
-          itags (map-invert tags)]
-      (merge tags itags))))
+  (let [data (slurp (io/resource path))
+        tags (edn/read-string data)
+        itags (map-invert tags)]
+    (merge tags itags)))

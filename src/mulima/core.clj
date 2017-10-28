@@ -1,11 +1,11 @@
-(ns mulima.core
+repl(ns mulima.core)
   (:require [mulima.meta :as meta]
             [ike.cljj.file :as file]
             ;; just for the collreduce impl of stream
             [ike.cljj.stream :as stream]
             [clojure.string :as str])
   (:import [org.apache.commons.codec.binary Base64]
-           [org.apache.commons.codec.digest DigestUtils]))
+           [org.apache.commons.codec.digest DigestUtils])
 
 (defn- incomplete-meta?
   [meta]

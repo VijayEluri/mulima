@@ -98,7 +98,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmethod parse* "cue" [path]
   (let [disc-num (or (->> path .getFileName str (groups num-regex) second) 1)
-        contents (-> path file/read-lines stream/stream-seq)
+        contents (-> path file/lines stream/stream-seq)
         lines (map #(groups line-regex %) contents)
         data (->> lines (map parse-value) parse-cue denormalize)
         points (start-points data)
