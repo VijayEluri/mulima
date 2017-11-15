@@ -7,9 +7,6 @@
 (defprotocol Splitter
   (split! [opts tracks source dest-dir]))
 
-(defprotocol Joiner
-  (join! [opts files dest]))
-
 (defprotocol Tagger
   (write-tags! [opts file tags])
   (read-tags! [opts file]))

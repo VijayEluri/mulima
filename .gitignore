@@ -1,13 +1,21 @@
-/target
-/classes
-/checkouts
-pom.xml
-pom.xml.asc
-*.jar
-*.class
-/.lein-*
-/.nrepl-port
-*.swp
+# Gradle
+.gradle
+build
+
+# IntelliJ
 *.iml
-/.idea
-mulima-config.edn
+*.iws
+*.ipr
+.idea
+
+# Eclipse
+.settings
+.project
+.classpath
+bin
+
+# Sublime
+*.sublime-workspace
+
+# Other
+*~

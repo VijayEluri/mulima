@@ -2,10 +2,7 @@
   (:require [mulima.tool :as tool]))
 
 (defrecord FlacOpts
-  [path
-   compression-level])
-
-(extend-type FlacOpts
+  [path compression-level]
   tool/Codec
   (encode! [opts source dest]
     (tool/cmd! (:path opts)
@@ -15,9 +12,6 @@
     (tool/cmd! (:path opts)
                ["-d" "-f" "-o" dest source])))
 
-(defrecord MetaflacOpts
-  [path])
-
 (def ^:private tag-pattern #"(?m)^\s*comment\[[0-9]+\]:\s+(\w+)=(.*)\s*$")
 
 (defn- reverse-tags
@@ -25,7 +19,8 @@
   (let [tag-defs (tool/tag-bimap "vorbis-tags.edn")]
     (map (fn [[t v]] [(get tag-defs t) v]) tags)))
 
-(extend-type MetaflacOpts
+(defrecord MetaflacOpts
+  [path]
   tool/Tagger
   (write-tags! [opts file tags]
     (let [reversed (reverse-tags opts tags)
