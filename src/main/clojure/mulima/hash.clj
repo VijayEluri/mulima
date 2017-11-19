@@ -5,4 +5,5 @@
 
 (defn sha1 [path]
   (with-open [is (io/input-stream path)]
-    (DigestUtils/sha1Hex is)))
+    ; (DigestUtils/sha1Hex is)
+    (DigestUtils/sha256Hex is)))

@@ -49,7 +49,7 @@
           cue-data (into [] xf siblings)]
       (meta/emit file cue-data)))
 #_(doseq [file (find-missing-artwork "C:\\Users\\andre\\Music\\originals")] (println file))
-#_(meta/parse "C:\\Users\\andre\\Music\\originals\\Prince\\Prince\\album.xml")
+#_(meta/parse "D:\\originals\\flac-rips\\Prince\\Prince\\album.xml")
 #_(let [parsed (meta/parse "C:\\Users\\andre\\Music\\originals\\Prince\\Prince\\album.xml")
         emitted (do
                   (meta/emit "C:\\Temp\\album.xml" parsed)
