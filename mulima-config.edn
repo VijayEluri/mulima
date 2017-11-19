@@ -1,2 +1,0 @@
-{:library {:dirs ["D:\\converted\\flac\\Phil Collins"]}
- :tools {:metaflac {:path "C:\\opt\\flac\\metaflac.exe"}}}
