@@ -21,7 +21,7 @@ dependencies {
   // loggin
   compile 'org.clojure:tools.logging:0.4.0'
   compile 'org.slf4j:slf4j-api:1.7.25'
-  compile 'org.slf4j:slf4j-simple:1.7.25'
+  compile 'ch.qos.logback:logback-classic:1.2.3'
 
   // utils
   compile 'org.ajoberstar:ike.cljj:0.3.0'

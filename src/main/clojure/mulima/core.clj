@@ -2,24 +2,33 @@
   (:require [com.stuartsierra.component :as component]
             [clojure.java.io :as io]
             [clojure.string :as string]
-            [datomic.api :as d]))
+            [datomic.api :as datomic]))
 
-(defn connect [port name]
-  (let [uri (str "datomic:free://localhost:" port "/name")]
-    (d/create-database uri)
-    (d/connect uri)))
+(defrecord Database [uri connection]
+  component/Lifecycle
+  (start [db]
+    (println "Starting DB")
+    (datomic/create-database (:uri db))
+    (assoc db :connection (datomic/connect (:uri db))))
+  (stop [db]
+    (println "Stopping DB")
+    (datomic/release (:connection db))))
+
+(defn new-database [uri]
+  (map->Database {:uri uri}))
 
 (def metadata-schema [{:db/ident :file/path
                        :db/valueType :db.type/string
                        :db/cardinality :db.cardinality/one
+                       :db/unique :db.unique/identity
                        :db/doc "Path to a file"}
 
-                      {:db/ident :file/tag
-                        :db/valueType :db.type/string
+                      {:db/ident :file/size
+                        :db/valueType :db.type/long
                         :db/cardinality :db.cardinality/one
-                        :db/doc "A tag name"}
+                        :db/doc "Size of the file"}
 
-                      {:db/ident :file/value
-                       :db/valueType :db.type/string
-                       :db/cardinality :db.cardinality/many
-                       :db/doc "A tag value"}])
+                      {:db/ident :file/modified
+                       :db/valueType :db.type/instant
+                       :db/cardinality :db.cardinality/one
+                       :db/doc "Time the file was last modified"}])
