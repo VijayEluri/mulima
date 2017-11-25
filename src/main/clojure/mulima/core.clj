@@ -1,27 +1,19 @@
 (ns mulima.core
   (:require [com.stuartsierra.component :as component]
+            [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.string :as string]
             [datomic.api :as datomic]
             [ike.cljj.file :as file])
   (:import [java.nio.file Files LinkOption]
-           [java.util Date]))
+           [java.util Date]
+           [java.io PushbackReader]))
 
-(def metadata-schema [{:db/ident :file/path
-                       :db/valueType :db.type/string
-                       :db/cardinality :db.cardinality/one
-                       :db/unique :db.unique/identity
-                       :db/doc "Path to a file"}
-
-                      {:db/ident :file/size
-                        :db/valueType :db.type/long
-                        :db/cardinality :db.cardinality/one
-                        :db/doc "Size of the file"}
-
-                      {:db/ident :file/modified
-                       :db/valueType :db.type/instant
-                       :db/cardinality :db.cardinality/one
-                       :db/doc "Time the file was last modified"}])
+(def schema (with-open [reader (-> "schema.edn"
+                                   io/resource
+                                   io/reader
+                                   PushbackReader.)]
+              (edn/read reader)))
 
 (defrecord Database [uri connection]
   component/Lifecycle
@@ -29,7 +21,7 @@
     (println "Starting DB")
     (datomic/create-database (:uri db))
     (let [conn (datomic/connect (:uri db))]
-      (datomic/transact conn metadata-schema)
+      (datomic/transact conn schema)
       (assoc db :connection conn)))
   (stop [db]
     (println "Stopping DB")
