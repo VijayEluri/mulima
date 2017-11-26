@@ -1,15 +1,15 @@
-[{:db/ident :file/path
+[{:db/ident :mulima.file/path
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one
   :db/unique :db.unique/identity
   :db/doc "Path to a file"}
 
- {:db/ident :file/size
+ {:db/ident :mulima.file/size
   :db/valueType :db.type/long
   :db/cardinality :db.cardinality/one
   :db/doc "Size of the file"}
 
- {:db/ident :file/modified
+ {:db/ident :mulima.file/modified
   :db/valueType :db.type/instant
   :db/cardinality :db.cardinality/one
   :db/doc "Time the file was last modified"}
@@ -19,7 +19,7 @@
   :db/cardinality :db.cardinality/one
   :db/doc "Name of this collection of tracks"}
 
- {:db.ident :mulima.tag/album-sort
+ {:db/ident :mulima.tag/album-sort
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/one
   :db/doc "Alternate form of album to be used for lexicographic sorting"}
@@ -39,6 +39,11 @@
   :db/cardinality :db.cardinality/one
   :db/doc "Date the album was originally released"}
 
+ {:db/ident :mulima.tag/date-logical
+  :db/valueType :db.type/instant
+  :db/cardinality :db.cardinality/one
+  :db/doc "Date the track was recorded or other logical date"}
+
  {:db/ident :mulima.tag/artist
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/many
@@ -48,6 +53,16 @@
   :db/valueType :db.type/string
   :db/cardinality :db.cardinality/many
   :db/doc "Alternate form of artist to be used for lexicographic sorting"}
+
+ {:db/ident :mulima.tag/composer
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/many
+  :db/doc "Person or group who composed the track"}
+
+ {:db/ident :mulima.tag/composer-sort
+  :db/valueType :db.type/string
+  :db/cardinality :db.cardinality/many
+  :db/doc "Alternate form of composer to be used for lexicographic sorting"}
 
  {:db/ident :mulima.tag/disc-number
   :db/valueType :db.type/long
