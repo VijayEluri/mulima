@@ -3,7 +3,7 @@
             [clojure.test :refer [deftest is]]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
-            [clojure.spec :as s]))
+            [clojure.spec.alpha :as s]))
 
 (deftest valid-cuepoints
   (is (cuepoint? "00:00:00"))

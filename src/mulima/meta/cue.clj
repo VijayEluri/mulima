@@ -97,8 +97,8 @@
 ;; High-level functions
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defmethod parse* "cue" [path]
-  (let [disc-num (or (->> path .getFileName str (groups num-regex) second) 1)
-        contents (-> path file/read-lines stream/stream-seq)
+  (let [disc-num (or (some->> path .getFileName str (groups num-regex) second) 1)
+        contents (-> path file/read-lines)
         lines (map #(groups line-regex %) contents)
         data (->> lines (map parse-value) parse-cue denormalize)
         points (start-points data)
@@ -106,5 +106,7 @@
                     (let [dnum (get-in track [:mulima.meta/tags :disc-number])
                           tnum (get-in track [:mulima.meta/tags :track-number])
                           epoint (get-in points [dnum (inc tnum)])]
-                      (assoc-in track [:mulima.meta/cues 2] epoint)))]
+                      (-> track
+                          (assoc-in [:mulima.meta/cues 2] epoint)
+                          (assoc-in [:mulima.meta/tags :disc-number] disc-num))))]
     (into [] (map end-point) data)))

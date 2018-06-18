@@ -117,7 +117,7 @@
 
 (defmethod emit* "xml" [path meta]
   (let [meta (normalize meta)
-        tracks (group-by :discNumber (:mulima.meta/children meta))
+        tracks (group-by (comp :disc-number :mulima.meta/tags) (:mulima.meta/children meta))
         tag-elem (fn [[k v]] (xml/element :tag {:name (generic->album k) :value v}))
         cue-elem (fn [cues] (xml/element :startPoint {:track 1 :index 1 :time (get cues 1)}))
         track-elem (fn [track]
@@ -128,7 +128,9 @@
                                           (cue-elem (:mulima.meta/cues track)))]
                         (apply xml/element :track {} children)))
         disk-elem (fn [[num tracks]]
-                    (let [children (conj (map track-elem tracks)
+                    (let [dtracks (normalize tracks)
+                          children (conj (concat (map tag-elem (:mulima.meta/tags dtracks))
+                                                 (map track-elem (:mulima.meta/children dtracks)))
                                          (xml/element :tag {:name "discNumber" :value (or num 1)}))]
                       (apply xml/element :disc {} children)))
         children (concat (map tag-elem (:mulima.meta/tags meta)) (map disk-elem tracks))
