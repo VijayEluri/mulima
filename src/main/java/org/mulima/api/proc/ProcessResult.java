@@ -32,7 +32,7 @@ public class ProcessResult {
   private final String error;
 
   public ProcessResult(List<String> command, int exitVal, String output, String error) {
-    this(StringUtil.join(command, " "), exitVal, output, error);
+    this(String.join(" ", command), exitVal, output, error);
   }
 
   public ProcessResult(String command, int exitVal, String output, String error) {

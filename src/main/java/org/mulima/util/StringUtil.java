@@ -1,6 +1,7 @@
 package org.mulima.util;
 
 import java.util.List;
+import java.util.Objects;
 
 /** Contains helper methods for <code>String</code> operations. */
 public final class StringUtil {
@@ -22,7 +23,7 @@ public final class StringUtil {
    * @return the Levenshtein distance between the two {@code String}s
    */
   public static int levenshteinDistance(String arg0, String arg1) {
-    if (ObjectUtil.isEqual(arg0, arg1)) {
+    if (Objects.equals(arg0, arg1)) {
       return 0;
     } else if (arg0 == null) {
       return arg1.length();
@@ -67,44 +68,6 @@ public final class StringUtil {
     }
 
     return dist[arg0.length()][arg1.length()];
-  }
-
-  /**
-   * Joins a {@code String[]} using {@code glue} to separate the elements of the array.
-   *
-   * @param strings an array of {@code String}s to be joined together
-   * @param glue the {@code String} to use in between elements of the array
-   * @return a {@code String} of the combined contents of the array.
-   */
-  public static String join(String[] strings, String glue) {
-    StringBuilder builder = new StringBuilder();
-
-    for (int i = 0; i < strings.length; i++) {
-      builder.append(strings[i]);
-      if (i != strings.length - 1) {
-        builder.append(glue);
-      }
-    }
-    return builder.toString();
-  }
-
-  /**
-   * Joins a {@code List<String>} using {@code glue} to separate the elements of the array.
-   *
-   * @param strings an array of {@code String}s to be joined together
-   * @param glue the {@code String} to use in between elements of the array
-   * @return a {@code String} of the combined contents of the array.
-   */
-  public static String join(List<String> strings, String glue) {
-    StringBuilder builder = new StringBuilder();
-
-    for (int i = 0; i < strings.size(); i++) {
-      builder.append(strings.get(i));
-      if (i != strings.size() - 1) {
-        builder.append(glue);
-      }
-    }
-    return builder.toString();
   }
 
   /**

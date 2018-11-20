@@ -2,7 +2,7 @@ package org.mulima.internal.library;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.UncheckedIOException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,7 +20,6 @@ import org.mulima.api.meta.GenericTag;
 import org.mulima.exception.UncheckedMulimaException;
 import org.mulima.util.FileUtil;
 import org.mulima.util.MetadataUtil;
-import org.mulima.util.ObjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -193,7 +192,7 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
       if (this.getId() == null && that.getId() == null) {
         return this == that;
       } else {
-        return ObjectUtil.isEqual(this.getId(), that.getId());
+        return Objects.equals(this.getId(), that.getId());
       }
     } else {
       return false;
