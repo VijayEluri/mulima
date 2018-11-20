@@ -20,12 +20,16 @@ reckon {
 repositories { mavenCentral() }
 
 dependencies {
+  // logging
+  implementation 'org.apache.logging.log4j:log4j-api:latest.release'
+  runtimeOnly 'org.apache.logging.log4j:log4j-core:latest.release'
+  runtimeOnly 'org.apache.logging.log4j:log4j-jcl:latest.release'
+
   implementation 'org.slf4j:slf4j-api:latest.release'
+  runtimeOnly 'org.apache.logging.log4j:log4j-slf4j-impl:latest.release'
+
   implementation 'org.springframework:spring-context:latest.release'
   implementation 'commons-codec:commons-codec:latest.release'
-
-  runtimeOnly 'org.slf4j:jcl-over-slf4j:latest.release'
-  runtimeOnly 'ch.qos.logback:logback-classic:latest.release'
 
   implementation 'commons-cli:commons-cli:latest.release'
 

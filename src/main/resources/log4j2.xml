@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+  <Appenders>
+    <Console name="Console">
+      <PatternLayout pattern="%date{ISO8601} %level %logger{-2} - %message %NDC %MDC" />
+    </Console>
+  </Appenders>
+  <Loggers>
+    <AsyncRoot level="WARN">
+      <AppenderRef ref="Console">
+    </AsyncRoot>
+    <AsyncLogger name="org.mulima" level="INFO" />
+  </Loggers>
+</Configuration>
