@@ -2,6 +2,7 @@ package org.mulima.internal.library;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.UncheckedIOException;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,7 +17,7 @@ import org.mulima.api.library.LibraryAlbum;
 import org.mulima.api.meta.Album;
 import org.mulima.api.meta.CueSheet;
 import org.mulima.api.meta.GenericTag;
-import org.mulima.exception.UncheckedIOException;
+import org.mulima.exception.UncheckedMulimaException;
 import org.mulima.util.FileUtil;
 import org.mulima.util.MetadataUtil;
 import org.mulima.util.ObjectUtil;
@@ -98,7 +99,7 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
         return;
       }
       if (!this.dir.renameTo(dir)) {
-        throw new UncheckedIOException("Failed to rename " + this.dir + " to " + dir);
+        throw new UncheckedMulimaException("Failed to rename " + this.dir + " to " + dir);
       }
     }
 
@@ -171,7 +172,7 @@ public class DefaultLibraryAlbum implements LibraryAlbum {
           || Digest.SOURCE_FILE_NAME.equals(file.getName())) {
         continue;
       } else if (!file.delete()) {
-        throw new UncheckedIOException("Could not delete file: " + file);
+        throw new UncheckedMulimaException("Could not delete file: " + file);
       }
     }
   }

@@ -4,9 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.channels.FileChannel;
-import java.nio.file.*;
-import java.nio.file.attribute.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -14,7 +13,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.mulima.api.file.FileHolder;
-import org.mulima.exception.UncheckedIOException;
+import org.mulima.exception.UncheckedMulimaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -177,11 +176,11 @@ public final class FileUtil {
         deleteDir(file);
       }
       if (file.exists() && !file.delete()) {
-        throw new UncheckedIOException("Could not delete: " + file);
+        throw new UncheckedMulimaException("Could not delete: " + file);
       }
     }
     if (dir.exists() && !dir.delete()) {
-      throw new UncheckedIOException("Could not delete: " + dir);
+      throw new UncheckedMulimaException("Could not delete: " + dir);
     }
   }
 

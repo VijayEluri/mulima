@@ -12,7 +12,6 @@ import org.mulima.api.library.LibraryAlbum;
 import org.mulima.api.library.LibraryAlbumFactory;
 import org.mulima.api.meta.Album;
 import org.mulima.api.meta.GenericTag;
-import org.mulima.exception.UncheckedIOException;
 import org.mulima.exception.UncheckedMulimaException;
 import org.mulima.internal.file.LeafDirFilter;
 import org.mulima.util.FileUtil;
@@ -155,7 +154,7 @@ public class DefaultLibrary implements Library {
     try {
       File dir = determineDir(source.getAlbum());
       if (!dir.exists() && !dir.mkdirs()) {
-        throw new UncheckedIOException("Could not create album directory: " + dir);
+        throw new UncheckedMulimaException("Could not create album directory: " + dir);
       }
       return libAlbumFactory.create(dir, this);
     } catch (UncheckedMulimaException e) {

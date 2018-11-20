@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 import org.mulima.api.file.FileParser;
 import org.mulima.api.meta.CueSheet;
-import org.mulima.exception.UncheckedIOException;
+import org.mulima.exception.UncheckedMulimaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +59,7 @@ public class CueSheetParser implements FileParser<CueSheet> {
 
       return cue;
     } catch (FileNotFoundException e) {
-      throw new UncheckedIOException(e);
+      throw new UncheckedMulimaException(e);
     }
   }
 
