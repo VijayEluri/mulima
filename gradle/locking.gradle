@@ -6,9 +6,7 @@ allprojects {
     }
 
     task lock {
-      doFirst {
-        assert gradle.startParameter.writeDependencyLocks
-      }
+      doFirst { assert gradle.startParameter.writeDependencyLocks }
       doLast {
         sourceSets.all { sourceSet ->
           configurations[sourceSet.compileClasspathConfigurationName].resolve()
