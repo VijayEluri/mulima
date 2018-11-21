@@ -21,19 +21,27 @@ repositories {
 }
 
 dependencies {
-  implementation 'org.clojure:clojure:1.10.0-beta8'
-  implementation 'org.clojure:core.async:0.3.443'
-  implementation 'org.clojure:tools.logging:0.4.0'
-  implementation 'org.ajoberstar:ike.cljj:0.3.0'
-  implementation 'com.rpl:specter:1.0.2'
-  implementation 'commons-codec:commons-codec:1.10'
-  implementation 'me.raynes:conch:0.8.0'
-  implementation 'org.clojure:data.xml:0.0.8'
+  // clojure
+  implementation('org.clojure:clojure:1.10.0-beta8')
 
-  testImplementation 'junit:junit:4.12'
-  testImplementation 'org.clojure:test.check:0.9.0'
+  implementation 'org.clojure:core.async:latest.release'
 
-  devCompile 'org.clojure:tools.namespace:0.3.0-alpha4'
+  // util
+  implementation 'org.clojure:tools.logging:latest.release'
+  implementation 'org.ajoberstar:ike.cljj:latest.release'
+  implementation 'com.rpl:specter:latest.release'
+
+  // io
+  implementation 'commons-codec:commons-codec:latest.release'
+  implementation 'me.raynes:conch:latest.release'
+  implementation 'org.clojure:data.xml:latest.release'
+
+  // testing
+  testImplementation 'junit:junit:latest.release'
+  testImplementation 'org.clojure:test.check:latest.release'
+
+  // dev
+  devImplementation 'org.clojure:tools.namespace:latest.release'
 }
 
 clojure {
