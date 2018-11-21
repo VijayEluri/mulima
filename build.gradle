@@ -1,0 +1,60 @@
+plugins {
+  id 'gradle-clojure.clojure' version '0.4.0'
+  id 'application'
+  id 'org.ajoberstar.grgit' version '3.0.0'
+  id 'org.ajoberstar.reckon' version '0.9.0'
+}
+
+group = 'org.ajoberstar'
+
+reckon {
+  normal = scopeFromProp()
+  preRelease = snapshotFromProp()
+}
+
+repositories {
+  jcenter()
+  maven {
+    name = 'Clojars'
+    url = 'https://repo.clojars.org/'
+  }
+}
+
+dependencies {
+  implementation 'org.clojure:clojure:1.10.0-beta8'
+  implementation 'org.clojure:core.async:0.3.443'
+  implementation 'org.clojure:tools.logging:0.4.0'
+  implementation 'org.ajoberstar:ike.cljj:0.3.0'
+  implementation 'com.rpl:specter:1.0.2'
+  implementation 'commons-codec:commons-codec:1.10'
+  implementation 'me.raynes:conch:0.8.0'
+  implementation 'org.clojure:data.xml:0.0.8'
+
+  testImplementation 'junit:junit:4.12'
+  testImplementation 'org.clojure:test.check:0.9.0'
+
+  devCompile 'org.clojure:tools.namespace:0.3.0-alpha4'
+}
+
+clojure {
+  builds {
+    main {
+      aotAll()
+    }
+  }
+}
+
+sourceSets.all { sourceSet ->
+  configurations[sourceSet.compileClasspathConfigurationName].resolutionStrategy.activateDependencyLocking()
+  configurations[sourceSet.runtimeClasspathConfigurationName].resolutionStrategy.activateDependencyLocking()
+}
+
+task lock {
+  doFirst { assert gradle.startParameter.writeDependencyLocks }
+  doLast {
+    sourceSets.all { sourceSet ->
+      configurations[sourceSet.compileClasspathConfigurationName].resolve()
+      configurations[sourceSet.runtimeClasspathConfigurationName].resolve()
+    }
+  }
+}

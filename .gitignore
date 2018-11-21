@@ -1,12 +1,9 @@
-/target
-/classes
-/checkouts
-pom.xml
-pom.xml.asc
-*.jar
-*.class
-/.lein-*
-/.nrepl-port
-*.swp
-*.iml
-/.idea
+# Gradle
+/.gradle
+/build
+
+# Eclipse
+/bin
+/.settings
+/.project
+/.classpath
