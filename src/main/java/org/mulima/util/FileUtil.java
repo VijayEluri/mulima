@@ -12,10 +12,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mulima.api.file.FileHolder;
 import org.mulima.exception.UncheckedMulimaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Helper methods for <code>File</code> operations.
@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * @since 0.1.0
  */
 public final class FileUtil {
-  private static final Logger LOGGER = LoggerFactory.getLogger(FileUtil.class);
+  private static final Logger logger = LogManager.getLogger(FileUtil.class);
 
   /**
    * This class should never be instantiated.
@@ -103,7 +103,7 @@ public final class FileUtil {
     try {
       return file.getCanonicalPath();
     } catch (IOException e) {
-      LOGGER.warn("Problem getting canonical path: {}", file.getAbsolutePath());
+      logger.warn("Problem getting canonical path: {}", file.getAbsolutePath());
       return null;
     }
   }
@@ -128,7 +128,7 @@ public final class FileUtil {
    */
   public static List<File> listDirsRecursive(File dir) {
     // return listDirsRecursive(dir, new ArrayList<File>());
-    LOGGER.trace("Beginning listDirsRecursive for {}", dir);
+    logger.trace("Beginning listDirsRecursive for {}", dir);
     return listDirsRecursive(dir, new ArrayList<>());
   }
 
@@ -141,7 +141,7 @@ public final class FileUtil {
    * @throws IllegalArgumentException if {@code dir} is not a directory
    */
   private static List<File> listDirsRecursive(File dir, List<File> dirs) {
-    LOGGER.trace("Beginning listDirsRecursive for {}", dir);
+    logger.trace("Beginning listDirsRecursive for {}", dir);
     if (!dir.isDirectory()) {
       throw new IllegalArgumentException("Must pass a directory in as \"dir\".");
     }
@@ -152,7 +152,7 @@ public final class FileUtil {
         listDirsRecursive(child, dirs);
       }
     }
-    LOGGER.trace("Ending listDirsRecursive for {}", dir);
+    logger.trace("Ending listDirsRecursive for {}", dir);
     return dirs;
   }
 

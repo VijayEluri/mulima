@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mulima.api.job.AlbumConversionService;
 import org.mulima.api.library.Library;
 import org.mulima.api.library.LibraryAlbum;
@@ -14,8 +16,6 @@ import org.mulima.api.library.LibraryManager;
 import org.mulima.api.library.ReferenceLibrary;
 import org.mulima.api.service.MulimaService;
 import org.mulima.internal.proc.FutureHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class DefaultLibraryManager implements LibraryManager {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultLibraryManager.class);
+  private static final Logger logger = LogManager.getLogger(DefaultLibraryManager.class);
   private final MulimaService service;
   private final AlbumConversionService conversionService;
 
@@ -77,7 +77,7 @@ public class DefaultLibraryManager implements LibraryManager {
       for (ReferenceLibrary refLib : service.getLibraryService().getRefLibs()) {
         for (LibraryAlbum refAlbum : refLib.getAll()) {
           if (refAlbum.getId() == null) {
-            LOGGER.debug("Skipping {}.  It has no ID.", refAlbum.getName());
+            logger.debug("Skipping {}.  It has no ID.", refAlbum.getName());
             continue;
           }
           Set<LibraryAlbum> destAlbums = new HashSet<LibraryAlbum>();

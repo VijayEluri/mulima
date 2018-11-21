@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 /**
@@ -34,7 +34,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class MulimaProperties {
-  private static final Logger LOGGER = LoggerFactory.getLogger(MulimaProperties.class);
+  private static final Logger logger = LogManager.getLogger(MulimaProperties.class);
   private final Properties properties;
   private final List<String> scope;
 
@@ -62,7 +62,7 @@ public class MulimaProperties {
           stream.close();
         }
       } catch (IOException e2) {
-        LOGGER.warn("Problem closing properties output stream.", e2);
+        logger.warn("Problem closing properties output stream.", e2);
       }
     }
   }

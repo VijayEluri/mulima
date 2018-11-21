@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ShnToolSplitter extends MulimaPropertiesSupport implements Splitter {
   private static final Pattern SPLIT_FILE_REGEX = Pattern.compile("^split-track(\\d+)\\.");
-  // private final Logger logger = LoggerFactory.getLogger(getClass());
+  // private final Logger logger = LogManager.getLogger(getClass());
   private FileService fileService = null;
   private String path = "shntool";
   private String opts = "";

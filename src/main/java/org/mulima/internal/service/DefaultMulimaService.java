@@ -10,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Default implementation of the MulimaService.  This simply
- * provides properties for each service.
+ * Default implementation of the MulimaService. This simply provides properties for each service.
+ * 
  * @author Andrew Oberstar
  * @since 0.1.0
  */

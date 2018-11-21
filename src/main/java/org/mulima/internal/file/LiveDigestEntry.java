@@ -7,12 +7,12 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mulima.api.file.DigestEntry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LiveDigestEntry extends AbstractDigestEntry implements DigestEntry {
-  private static final Logger logger = LoggerFactory.getLogger(LiveDigestEntry.class);
+  private static final Logger logger = LogManager.getLogger(LiveDigestEntry.class);
   private final File file;
   private String digest;
 

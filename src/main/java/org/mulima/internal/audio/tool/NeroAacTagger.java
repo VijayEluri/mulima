@@ -28,7 +28,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class NeroAacTagger extends MulimaPropertiesSupport implements Tagger {
   private static final Pattern REGEX = Pattern.compile("([A-Za-z]+) = (.+)");
-  // private final Logger logger = LoggerFactory.getLogger(getClass());
+  // private final Logger logger = LogManager.getLogger(getClass());
   private String path = "neroAacTag";
 
   @Override

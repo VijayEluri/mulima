@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mulima.api.file.CachedDir;
 import org.mulima.api.file.CachedFile;
 import org.mulima.api.file.Digest;
@@ -27,8 +29,6 @@ import org.mulima.internal.file.audio.DefaultTrackFile;
 import org.mulima.internal.meta.AlbumXmlDao;
 import org.mulima.internal.meta.CueSheetParser;
 import org.mulima.util.FileUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -39,7 +39,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class DefaultFileService implements FileService {
-  private static final Logger LOGGER = LoggerFactory.getLogger(DefaultFileService.class);
+  private static final Logger logger = LogManager.getLogger(DefaultFileService.class);
   private static final Pattern[] DISC_REGEX = {
       Pattern.compile("^D(\\d++)(?!T\\d+)"),
       Pattern.compile("\\((\\d+)\\)\\..*?$"),
@@ -288,7 +288,7 @@ public class DefaultFileService implements FileService {
       try {
         return createAudioFile(file);
       } catch (IllegalArgumentException e) {
-        LOGGER.debug("Invalid file: {}", e.getMessage());
+        logger.debug("Invalid file: {}", e.getMessage());
         return null;
       }
     }

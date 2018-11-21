@@ -1,13 +1,15 @@
 package org.mulima.api.audio.tool;
 
+import java.util.Set;
+
 import org.mulima.api.file.audio.DiscFile;
 import org.mulima.api.file.audio.TrackFile;
 import org.mulima.api.proc.ProcessResult;
-import java.util.Set;
 
 /**
- * Represents the result of a splitter operation.  Provides access to the
- * process's exit value, the source and destination files.
+ * Represents the result of a splitter operation. Provides access to the process's exit value, the
+ * source and destination files.
+ * 
  * @author Andrew Oberstar
  * @since 0.1.0
  */
@@ -24,6 +26,7 @@ public class SplitterResult extends ProcessResult {
 
   /**
    * Constructs a splitter result from a process result.
+   * 
    * @param source the source of the split operation
    * @param dest the destination files of the split operation
    * @param result the result of the split process
@@ -34,6 +37,7 @@ public class SplitterResult extends ProcessResult {
 
   /**
    * Constructs a splitter result from the parameters.
+   * 
    * @param source the source of the split operation
    * @param dest the destination files of the split operation
    * @param command the command executed

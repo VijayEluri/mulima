@@ -6,6 +6,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mulima.api.file.audio.AudioFormat;
 import org.mulima.api.library.Library;
 import org.mulima.api.library.LibraryAlbum;
@@ -17,8 +19,6 @@ import org.mulima.internal.file.LeafDirFilter;
 import org.mulima.util.FileUtil;
 import org.mulima.util.MetadataUtil;
 import org.mulima.util.StringUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation of a library.
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * @since 0.1.0
  */
 public class DefaultLibrary implements Library {
-  private static final Logger logger = LoggerFactory.getLogger(DefaultLibrary.class);
+  private static final Logger logger = LogManager.getLogger(DefaultLibrary.class);
   private final LibraryAlbumFactory libAlbumFactory;
   private final String name;
   private final File rootDir;

@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class NeroAacCodec extends MulimaPropertiesSupport implements Codec {
-  // private final Logger logger = LoggerFactory.getLogger(getClass());
+  // private final Logger logger = LogManager.getLogger(getClass());
   private String encPath = "neroAacEnc";
   private String decPath = "neroAacDec";
   private String quality = "0.5";

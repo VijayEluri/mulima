@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class FlacCodec extends MulimaPropertiesSupport implements Codec {
-  // private final Logger logger = LoggerFactory.getLogger(getClass());
+  // private final Logger logger = LogManager.getLogger(getClass());
   private String path = "flac";
   private String opts = "";
   private String compressionLevel = "5";

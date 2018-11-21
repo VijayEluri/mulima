@@ -2,13 +2,13 @@ package org.mulima.internal.job;
 
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mulima.api.audio.tool.TaggerResult;
 import org.mulima.api.file.audio.AudioFile;
 import org.mulima.api.job.Status;
 import org.mulima.api.job.Step;
 import org.mulima.api.service.MulimaService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A step to write metadata to audio files.
@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * @since 0.1.0
  */
 public class TagStep implements Step<Void> {
-  private static final Logger logger = LoggerFactory.getLogger(TagStep.class);
+  private static final Logger logger = LogManager.getLogger(TagStep.class);
   private final MulimaService service;
   private final Set<AudioFile> inputs;
   private Status status = Status.NOT_STARTED;

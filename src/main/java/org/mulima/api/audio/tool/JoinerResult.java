@@ -1,12 +1,14 @@
 package org.mulima.api.audio.tool;
 
-import org.mulima.api.file.audio.AudioFile;
-import org.mulima.api.proc.ProcessResult;
 import java.util.List;
 
+import org.mulima.api.file.audio.AudioFile;
+import org.mulima.api.proc.ProcessResult;
+
 /**
- * Represents the result of a joiner operation.  Provides access to the
- * process's exit value, the source and destination files.
+ * Represents the result of a joiner operation. Provides access to the process's exit value, the
+ * source and destination files.
+ * 
  * @author Andrew Oberstar
  * @since 0.1.0
  */
@@ -23,6 +25,7 @@ public class JoinerResult extends ProcessResult {
 
   /**
    * Constructs a joiner result from a process result.
+   * 
    * @param source the source files of the join operation
    * @param dest the destination of the join operation
    * @param result the result of the join process
@@ -33,6 +36,7 @@ public class JoinerResult extends ProcessResult {
 
   /**
    * Constructs a joiner result from the parameters.
+   * 
    * @param source the source files of the join operation
    * @param dest the destination of the join operation
    * @param command the command executed

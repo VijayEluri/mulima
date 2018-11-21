@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mulima.api.file.Digest;
 import org.mulima.api.file.DigestService;
 import org.mulima.api.file.audio.AudioFormat;
@@ -18,8 +20,6 @@ import org.mulima.api.library.ReferenceLibrary;
 import org.mulima.api.service.MulimaProperties;
 import org.mulima.exception.UncheckedMulimaException;
 import org.mulima.internal.service.MulimaPropertiesSupport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +31,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class DefaultLibraryService extends MulimaPropertiesSupport implements LibraryService {
-  private static final Logger logger = LoggerFactory.getLogger(DefaultLibraryService.class);
+  private static final Logger logger = LogManager.getLogger(DefaultLibraryService.class);
   private LibraryAlbumFactory libAlbumFactory;
   private final DigestService digestService;
   private Set<ReferenceLibrary> refLibs;

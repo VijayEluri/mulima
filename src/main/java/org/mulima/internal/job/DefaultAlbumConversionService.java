@@ -7,11 +7,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mulima.api.job.AlbumConversionService;
 import org.mulima.api.library.LibraryAlbum;
 import org.mulima.api.service.MulimaService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class DefaultAlbumConversionService implements AlbumConversionService {
-  private final Logger LOGGER = LoggerFactory.getLogger(DefaultAlbumConversionService.class);
+  private final Logger logger = LogManager.getLogger(DefaultAlbumConversionService.class);
   private final MulimaService service;
   private final ExecutorService executor;
 
@@ -41,7 +41,7 @@ public class DefaultAlbumConversionService implements AlbumConversionService {
   /** {@inheritDoc} */
   @Override
   public Future<Boolean> submit(LibraryAlbum source, Set<LibraryAlbum> dests) {
-    LOGGER.debug("Submitting conversion for: " + source.getName());
+    logger.debug("Submitting conversion for: " + source.getName());
     return executor.submit(new AlbumConversionJob(service, source, dests));
   }
 
@@ -70,7 +70,7 @@ public class DefaultAlbumConversionService implements AlbumConversionService {
   public List<Runnable> shutdownNow() {
     List<Runnable> tasks = executor.shutdownNow();
     if (!executor.isTerminated()) {
-      LOGGER.warn("Conversion service did not terminate.");
+      logger.warn("Conversion service did not terminate.");
     }
     return tasks;
   }

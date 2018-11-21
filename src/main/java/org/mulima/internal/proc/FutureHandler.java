@@ -5,11 +5,11 @@ import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class FutureHandler {
-  private static final Logger LOGGER = LoggerFactory.getLogger(FutureHandler.class);
+  private static final Logger logger = LogManager.getLogger(FutureHandler.class);
 
   public <T> void handle(String description, Iterable<Future<T>> futures)
       throws InterruptedException {
@@ -24,7 +24,7 @@ public class FutureHandler {
           try {
             future.get();
           } catch (ExecutionException e) {
-            LOGGER.error("{} failed.", description, e);
+            logger.error("{} failed.", description, e);
           }
           complete.add(future);
         } else {

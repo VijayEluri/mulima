@@ -17,8 +17,8 @@ import org.mulima.api.file.FileComposer;
 import org.mulima.api.file.FileParser;
 
 /**
- * A DAO that parses and composes digest objects
- * to files.
+ * A DAO that parses and composes digest objects to files.
+ * 
  * @author Andrew Oberstar
  * @since 0.1.0
  */
@@ -27,9 +27,9 @@ public class DigestDao implements FileParser<Digest>, FileComposer<Digest> {
 
   /**
    * Parses the specified digest file.
+   * 
    * @param file the file to parse
-   * @return a digest representing the
-   * file contents
+   * @return a digest representing the file contents
    */
   public Digest parse(File file) {
     Properties props = new Properties();
@@ -53,6 +53,7 @@ public class DigestDao implements FileParser<Digest>, FileComposer<Digest> {
 
   /**
    * Composes a digest object to a file.
+   * 
    * @param file the file to compose to
    * @param digest the digest to compose
    */

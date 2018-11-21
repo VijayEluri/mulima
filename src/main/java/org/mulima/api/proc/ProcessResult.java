@@ -1,12 +1,12 @@
 package org.mulima.api.proc;
 
-import org.mulima.util.StringUtil;
 import java.util.List;
 
+
 /**
- * Represents the result of a Process execution.  Provides
- * access to the exit value as well as the standard out
- * and standard error output.
+ * Represents the result of a Process execution. Provides access to the exit value as well as the
+ * standard out and standard error output.
+ * 
  * @author Andrew Oberstar
  * @since 0.1.0
  */
@@ -59,8 +59,7 @@ public class ProcessResult {
   }
 
   /**
-   * @return true if the process was successful (exit value
-   * of 0), false otherwise
+   * @return true if the process was successful (exit value of 0), false otherwise
    */
   public boolean isSuccess() {
     return exitVal == 0;

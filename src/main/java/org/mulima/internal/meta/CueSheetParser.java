@@ -6,11 +6,11 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mulima.api.file.FileParser;
 import org.mulima.api.meta.CueSheet;
 import org.mulima.exception.UncheckedMulimaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Default parser for cue sheets.
@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * @since 0.1.0
  */
 public class CueSheetParser implements FileParser<CueSheet> {
-  private static final Logger logger = LoggerFactory.getLogger(CueSheetParser.class);
+  private static final Logger logger = LogManager.getLogger(CueSheetParser.class);
   private static final Pattern NUM_REGEX = Pattern.compile(".*\\(([0-9])\\)\\.cue");
   private static final Pattern LINE_REGEX =
       Pattern.compile("^((?:REM )?[A-Z0-9]+) [\"']?([^\"']*)[\"']?.*$");

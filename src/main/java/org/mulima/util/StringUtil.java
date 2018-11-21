@@ -1,6 +1,5 @@
 package org.mulima.util;
 
-import java.util.List;
 import java.util.Objects;
 
 /** Contains helper methods for <code>String</code> operations. */

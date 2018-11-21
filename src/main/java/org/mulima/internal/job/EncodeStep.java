@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mulima.api.audio.tool.Codec;
 import org.mulima.api.audio.tool.CodecResult;
 import org.mulima.api.file.audio.AudioFile;
@@ -11,8 +13,6 @@ import org.mulima.api.file.audio.AudioFormat;
 import org.mulima.api.job.Status;
 import org.mulima.api.job.Step;
 import org.mulima.api.service.MulimaService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A step to encode WAVE files to another format.
@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * @since 0.1.0
  */
 public class EncodeStep implements Step<Set<AudioFile>> {
-  private static final Logger logger = LoggerFactory.getLogger(EncodeStep.class);
+  private static final Logger logger = LogManager.getLogger(EncodeStep.class);
   private final MulimaService service;
   private final AudioFormat format;
   private final Set<AudioFile> inputs;

@@ -26,9 +26,6 @@ dependencies {
   runtimeOnly 'org.apache.logging.log4j:log4j-core:latest.release'
   runtimeOnly 'org.apache.logging.log4j:log4j-jcl:latest.release'
 
-  implementation 'org.slf4j:slf4j-api:latest.release'
-  runtimeOnly 'org.apache.logging.log4j:log4j-slf4j-impl:latest.release'
-
   implementation 'org.springframework:spring-context:latest.release'
   implementation 'commons-codec:commons-codec:latest.release'
 

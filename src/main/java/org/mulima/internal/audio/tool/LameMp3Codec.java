@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class LameMp3Codec extends MulimaPropertiesSupport implements Codec {
-  // private final Logger logger = LoggerFactory.getLogger(getClass());
+  // private final Logger logger = LogManager.getLogger(getClass());
   private String encPath = "lame";
   private String bitrate = "320";
 

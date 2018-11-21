@@ -4,8 +4,9 @@ import org.mulima.api.file.audio.AudioFile;
 import org.mulima.api.proc.ProcessResult;
 
 /**
- * Represents the result of a codec operation.  Provides access to the
- * process's exit value, the source and destination files.
+ * Represents the result of a codec operation. Provides access to the process's exit value, the
+ * source and destination files.
+ * 
  * @author Andrew Oberstar
  * @since 0.1.0
  */
@@ -22,6 +23,7 @@ public class CodecResult extends ProcessResult {
 
   /**
    * Constructs a codec result from a process result.
+   * 
    * @param source the source of the codec operation
    * @param dest the destination of the codec operation
    * @param result the result of the codec process
@@ -32,6 +34,7 @@ public class CodecResult extends ProcessResult {
 
   /**
    * Constructs a codec result from the parameters.
+   * 
    * @param source the source of the codec operation
    * @param dest the destination of the codec operation
    * @param command the command executed

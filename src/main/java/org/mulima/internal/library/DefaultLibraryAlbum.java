@@ -6,6 +6,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mulima.api.file.CachedDir;
 import org.mulima.api.file.CachedFile;
 import org.mulima.api.file.Digest;
@@ -20,8 +22,6 @@ import org.mulima.api.meta.GenericTag;
 import org.mulima.exception.UncheckedMulimaException;
 import org.mulima.util.FileUtil;
 import org.mulima.util.MetadataUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation of a library album.
@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * @since 0.1.0
  */
 public class DefaultLibraryAlbum implements LibraryAlbum {
-  private static final Logger logger = LoggerFactory.getLogger(DefaultLibraryAlbum.class);
+  private static final Logger logger = LogManager.getLogger(DefaultLibraryAlbum.class);
   private final FileService fileService;
   private final Library lib;
   private File dir;

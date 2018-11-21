@@ -5,11 +5,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.mulima.api.file.Digest;
 import org.mulima.api.file.DigestEntry;
 import org.mulima.api.library.LibraryAlbum;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Builder for creating digests of the current state of a library album.
@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * @since 0.1.0
  */
 public class DigestBuilder {
-  private static final Logger logger = LoggerFactory.getLogger(DigestBuilder.class);
+  private static final Logger logger = LogManager.getLogger(DigestBuilder.class);
   private final LibraryAlbum libAlbum;
 
   /**
