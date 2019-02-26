@@ -7,3 +7,6 @@
 /.project
 /.classpath
 /.settings/
+
+# Idea
+/.idea/
