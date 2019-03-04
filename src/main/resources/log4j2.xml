@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+  <Appenders>
+    <Console name="Console">
+      <PatternLayout pattern="%date{ISO8601} %logger [%level] %message %NDS %MDC%n" />
+    </Console>
+  </Appenders>
+  <Loggers>
+    <Root level="WARN">
+      <AppenderRef ref="Console"/>
+    </Root>
+    <Logger name="mulima" level="INFO" />
+  </Loggers>
+</Configuration>
