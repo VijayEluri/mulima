@@ -31,6 +31,10 @@ public class DefaultMulimaService implements MulimaService {
     return tempDir;
   }
 
+  public void setTempDir(TempDir tempDir) {
+    this.tempDir = tempDir;
+  }
+
   public LibraryService getLibraryService() {
     return libraryService;
   }

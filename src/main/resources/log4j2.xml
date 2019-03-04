@@ -7,7 +7,7 @@
   </Appenders>
   <Loggers>
     <AsyncRoot level="WARN">
-      <AppenderRef ref="Console">
+      <AppenderRef ref="Console" />
     </AsyncRoot>
     <AsyncLogger name="org.mulima" level="INFO" />
   </Loggers>
