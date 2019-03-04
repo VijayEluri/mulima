@@ -23,27 +23,28 @@ repositories {
 
 dependencies {
   // core
-  compile 'org.clojure:clojure:latest.release'
-  compile 'org.clojure:spec.alpha:latest.release'
-  compile 'org.clojure:core.async:latest.release'
-  compile 'com.stuartsierra:component:latest.release'
+  implementation 'org.clojure:clojure:latest.release'
+  implementation 'org.clojure:spec.alpha:latest.release'
+  implementation 'org.clojure:core.async:latest.release'
+  implementation 'com.stuartsierra:component:latest.release'
 
-  // loggin
-  compile 'org.clojure:tools.logging:latest.release'
-  compile 'org.slf4j:slf4j-api:latest.release'
-  compile 'ch.qos.logback:logback-classic:latest.release'
+  // logging
+  implementation 'org.clojure:tools.logging:latest.release'
+  implementation 'org.slf4j:slf4j-api:latest.release'
+  implementation 'ch.qos.logback:logback-classic:latest.release'
 
   // utils
-  compile 'org.ajoberstar:ike.cljj:latest.release'
-  compile 'me.raynes:conch:latest.release'
+  implementation 'org.ajoberstar:ike.cljj:latest.release'
+  implementation 'me.raynes:conch:latest.release'
+  implementation 'org.clojure:data.xml:latest.release'
 
   // data
-  compile 'com.datomic:datomic-free:latest.release'
+  implementation 'com.datomic:datomic-free:latest.release'
 
   // test
-  testCompile 'junit:junit:latest.release'
+  testImplementation 'junit:junit:latest.release'
 
   // repl
-  devCompile 'org.clojure:tools.namespace:latest.release'
-  devCompile 'com.stuartsierra:component.repl:latest.release'
+  devImplementation 'org.clojure:tools.namespace:latest.release'
+  devImplementation 'com.stuartsierra:component.repl:latest.release'
 }
