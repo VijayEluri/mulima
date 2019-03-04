@@ -29,17 +29,16 @@ dependencies {
   implementation 'com.stuartsierra:component:latest.release'
 
   // logging
-  implementation 'org.clojure:tools.logging:latest.release'
-  implementation 'org.slf4j:slf4j-api:latest.release'
-  implementation 'ch.qos.logback:logback-classic:latest.release'
+  implementation 'org.apache.logging.log4j:log4j-api:latest.release'
+  runtimeOnly 'org.apache.logging.log4j:log4j-core:latest.release'
+  runtimeOnly 'com.lmax:disruptor:latest.release'
+  runtimeOnly 'com.fasterxml.jackson.core:jackson-databind:latest.release'
 
   // utils
   implementation 'org.ajoberstar:ike.cljj:latest.release'
   implementation 'me.raynes:conch:latest.release'
   implementation 'org.clojure:data.xml:latest.release'
-
-  // data
-  implementation 'com.datomic:datomic-free:latest.release'
+  implementation 'org.clojure:data.json:latest.release'
 
   // test
   testImplementation 'junit:junit:latest.release'
