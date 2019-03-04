@@ -2,6 +2,7 @@
 # Manual edits can break the build and are not advised.
 # This file is expected to be part of source control.
 cglib:cglib:3.2.10
+com.lmax:disruptor:3.4.2
 commons-cli:commons-cli:1.4
 commons-codec:commons-codec:1.12
 commons-logging:commons-logging:1.2
