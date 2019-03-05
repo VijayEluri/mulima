@@ -3,7 +3,6 @@ package org.mulima.service;
 import org.mulima.audio.tool.ToolService;
 import org.mulima.file.DigestService;
 import org.mulima.file.FileService;
-import org.mulima.file.TempDir;
 import org.mulima.library.LibraryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class MulimaService {
-  private TempDir tempDir = null;
   @Autowired
   private LibraryService libraryService = null;
   @Autowired
@@ -25,14 +23,6 @@ public class MulimaService {
   private DigestService digestService = null;
   @Autowired
   private ToolService toolService = null;
-
-  public TempDir getTempDir() {
-    return tempDir;
-  }
-
-  public void setTempDir(TempDir tempDir) {
-    this.tempDir = tempDir;
-  }
 
   public LibraryService getLibraryService() {
     return libraryService;

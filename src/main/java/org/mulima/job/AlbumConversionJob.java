@@ -1,6 +1,7 @@
 package org.mulima.job;
 
 import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,7 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mulima.exception.UncheckedMulimaException;
 import org.mulima.file.DigestService;
-import org.mulima.file.TempDir;
 import org.mulima.file.audio.AudioFile;
 import org.mulima.file.audio.DiscFile;
 import org.mulima.library.LibraryAlbum;
@@ -57,10 +57,10 @@ public class AlbumConversionJob implements java.util.concurrent.Callable<Boolean
         return true;
       }
       logger.info("Beginning conversion of: " + refAlbum.getName());
-      TempDir tempDir = service.getTempDir().newChild();
+      var tempDir = Files.createTempDirectory("mulima");
 
       DecodeStep decode =
-          new DecodeStep(service, refAlbum.getAudioFiles(), tempDir.newChild().getFile());
+          new DecodeStep(service, refAlbum.getAudioFiles(), Files.createTempFile(tempDir, "audio", ".decoded").toFile());
       if (!decode.execute()) {
         logger.error("Failed to decode: " + refAlbum.getName());
         return false;
@@ -74,7 +74,7 @@ public class AlbumConversionJob implements java.util.concurrent.Callable<Boolean
           tempFiles.add(temp);
         }
       }
-      SplitStep split = new SplitStep(service, discFiles, tempDir.newChild().getFile());
+      SplitStep split = new SplitStep(service, discFiles, Files.createTempFile(tempDir, "audio", ".split").toFile());
       if (!split.execute()) {
         logger.error("Failed to split: " + refAlbum.getName());
         return false;
@@ -103,7 +103,7 @@ public class AlbumConversionJob implements java.util.concurrent.Callable<Boolean
       }
 
       try {
-        FileUtil.deleteDir(tempDir);
+        FileUtil.deleteDir(tempDir.toFile());
       } catch (UncheckedIOException e) {
         logger.warn("Failed to delete temp dir: {}", tempDir);
       }

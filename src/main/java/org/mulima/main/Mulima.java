@@ -8,7 +8,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.mulima.file.TempDir;
 import org.mulima.library.LibraryManager;
 import org.mulima.library.ReferenceLibrary;
 import org.mulima.service.MulimaService;
@@ -42,7 +41,6 @@ public class Mulima {
 
       ApplicationContext context = new AnnotationConfigApplicationContext(SpringConfig.class);
       var service = context.getBean(MulimaService.class);
-      service.setTempDir(new TempDir().newChild("mulima"));
 
       var manager = context.getBean(LibraryManager.class);
 
