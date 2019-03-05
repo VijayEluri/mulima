@@ -3,7 +3,6 @@ package org.mulima.meta;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -16,7 +15,7 @@ import java.util.TreeMap;
  */
 public abstract class AbstractMetadata implements Metadata {
   private final Metadata parent;
-  private final Map<GenericTag, List<String>> map = new TreeMap<GenericTag, List<String>>();
+  private final Map<GenericTag, List<String>> map = new TreeMap<>();
 
   protected AbstractMetadata(Metadata parent) {
     this.parent = parent;
@@ -34,7 +33,7 @@ public abstract class AbstractMetadata implements Metadata {
     if (tag == null) {
       return false;
     }
-    boolean set = map.containsKey(tag.getGeneric());
+    var set = map.containsKey(tag.getGeneric());
     if (!set && parent != null) {
       return parent.isSet(tag);
     } else {
@@ -49,9 +48,9 @@ public abstract class AbstractMetadata implements Metadata {
       return;
     }
 
-    GenericTag generic = tag.getGeneric();
+    var generic = tag.getGeneric();
     if (!map.containsKey(generic)) {
-      map.put(generic, new ArrayList<String>());
+      map.put(generic, new ArrayList<>());
     }
 
     map.get(generic).add(value.trim());
@@ -64,13 +63,13 @@ public abstract class AbstractMetadata implements Metadata {
       return;
     }
 
-    GenericTag generic = tag.getGeneric();
+    var generic = tag.getGeneric();
     if (!map.containsKey(generic)) {
-      map.put(generic, new ArrayList<String>());
+      map.put(generic, new ArrayList<>());
     }
 
-    List<String> tagValues = map.get(generic);
-    for (String value : values) {
+    var tagValues = map.get(generic);
+    for (var value : values) {
       tagValues.add(value.trim());
     }
   }
@@ -85,15 +84,15 @@ public abstract class AbstractMetadata implements Metadata {
   @Override
   public List<String> getAll(Tag tag) {
     if (tag == null) {
-      return Collections.unmodifiableList(new ArrayList<String>());
+      return Collections.unmodifiableList(new ArrayList<>());
     }
-    GenericTag generic = tag.getGeneric();
+    var generic = tag.getGeneric();
     if (map.containsKey(generic)) {
       return Collections.unmodifiableList(map.get(generic));
     } else if (parent != null) {
       return parent.getAll(tag);
     } else {
-      return Collections.unmodifiableList(new ArrayList<String>());
+      return Collections.unmodifiableList(new ArrayList<>());
     }
   }
 
@@ -103,7 +102,7 @@ public abstract class AbstractMetadata implements Metadata {
     if (tag == null) {
       return null;
     }
-    GenericTag generic = tag.getGeneric();
+    var generic = tag.getGeneric();
     if (map.containsKey(generic) && !map.get(generic).isEmpty()) {
       return map.get(generic).get(0);
     } else if (parent != null) {
@@ -120,9 +119,9 @@ public abstract class AbstractMetadata implements Metadata {
       return null;
     }
 
-    List<String> values = getAll(tag);
-    StringBuilder builder = new StringBuilder();
-    ListIterator<String> iterator = values.listIterator();
+    var values = getAll(tag);
+    var builder = new StringBuilder();
+    var iterator = values.listIterator();
     builder.append(iterator.next());
     while (iterator.hasNext()) {
       if (iterator.nextIndex() == values.size() - 1) {
@@ -147,7 +146,7 @@ public abstract class AbstractMetadata implements Metadata {
     if (tag == null) {
       return;
     }
-    GenericTag generic = tag.getGeneric();
+    var generic = tag.getGeneric();
     map.remove(generic);
   }
 
@@ -164,12 +163,12 @@ public abstract class AbstractMetadata implements Metadata {
    * @param children list of child metadata objects
    */
   protected void tidy(Set<? extends Metadata> children) {
-    for (GenericTag tag : GenericTag.values()) {
+    for (var tag : GenericTag.values()) {
       if (GenericTag.DISC_NUMBER.equals(tag) || GenericTag.TRACK_NUMBER.equals(tag)) {
         continue;
       }
 
-      List<String> values = findCommon(tag, children);
+      var values = findCommon(tag, children);
       if (!map.containsKey(tag) && values != null) {
         addAll(tag, values);
         for (Metadata child : children) {
@@ -190,7 +189,7 @@ public abstract class AbstractMetadata implements Metadata {
   private List<String> findCommon(GenericTag tag, Set<? extends Metadata> children) {
     List<String> values = null;
     for (Metadata child : children) {
-      List<String> childValues = child.getMap().get(tag);
+      var childValues = child.getMap().get(tag);
       if (values == null) {
         values = childValues;
       } else if (!values.equals(childValues)) {

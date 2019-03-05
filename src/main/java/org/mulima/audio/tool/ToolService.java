@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ToolService {
-  private final Map<AudioFormat, Codec> codecs = new HashMap<AudioFormat, Codec>();
-  private final Map<AudioFormat, Tagger> taggers = new HashMap<AudioFormat, Tagger>();
+  private final Map<AudioFormat, Codec> codecs = new HashMap<>();
+  private final Map<AudioFormat, Tagger> taggers = new HashMap<>();
   private Splitter splitter = null;
   private Joiner joiner = null;
 
@@ -19,14 +19,10 @@ public class ToolService {
     return codecs.get(type);
   }
 
-  public void registerCodec(Codec codec) {
-    codecs.put(codec.getFormat(), codec);
-  }
-
   @Autowired(required = false)
   public void setCodecs(Collection<Codec> codecs) {
-    for (Codec codec : codecs) {
-      registerCodec(codec);
+    for (var codec : codecs) {
+      this.codecs.put(codec.getFormat(), codec);
     }
   }
 
@@ -34,14 +30,10 @@ public class ToolService {
     return taggers.get(type);
   }
 
-  public void registerTagger(Tagger tagger) {
-    taggers.put(tagger.getFormat(), tagger);
-  }
-
   @Autowired(required = false)
   public void setTaggers(Collection<Tagger> taggers) {
-    for (Tagger tagger : taggers) {
-      registerTagger(tagger);
+    for (var tagger : taggers) {
+      this.taggers.put(tagger.getFormat(), tagger);
     }
   }
 
@@ -49,25 +41,17 @@ public class ToolService {
     return splitter;
   }
 
-  public void registerSplitter(Splitter splitter) {
-    this.splitter = splitter;
-  }
-
   @Autowired(required = false)
   public void setSplitter(Splitter splitter) {
-    registerSplitter(splitter);
+    this.splitter = splitter;
   }
 
   public Joiner getJoiner() {
     return joiner;
   }
 
-  public void registerJoiner(Joiner joiner) {
-    this.joiner = joiner;
-  }
-
   @Autowired(required = false)
   public void setJoiner(Joiner joiner) {
-    registerJoiner(joiner);
+    this.joiner = joiner;
   }
 }

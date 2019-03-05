@@ -8,7 +8,7 @@ public class StoredDigestEntry extends AbstractDigestEntry implements DigestEntr
 
   public StoredDigestEntry(String fileName, String notation) {
     this.fileName = fileName;
-    String[] parts = notation.split(",", 3);
+    var parts = notation.split(",", 3);
     if (parts.length < 3) {
       throw new IllegalArgumentException("Invalid digest entry notation: " + notation);
     }

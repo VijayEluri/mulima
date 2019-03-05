@@ -61,7 +61,7 @@ public class LibraryManager {
       throw new IllegalArgumentException(
           "Cannot update a library that doesn't belong to this manager.");
     }
-    Set<Library> libs = new HashSet<Library>();
+    Set<Library> libs = new HashSet<>();
     libs.add(lib);
     update(libs);
   }
@@ -73,15 +73,15 @@ public class LibraryManager {
    */
   public void update(Set<Library> libs) {
     try {
-      Collection<Future<Boolean>> futures = new ArrayList<Future<Boolean>>();
-      for (ReferenceLibrary refLib : service.getLibraryService().getRefLibs()) {
-        for (LibraryAlbum refAlbum : refLib.getAll()) {
+      Collection<Future<Boolean>> futures = new ArrayList<>();
+      for (var refLib : service.getLibraryService().getRefLibs()) {
+        for (var refAlbum : refLib.getAll()) {
           if (refAlbum.getId() == null) {
             logger.debug("Skipping {}.  It has no ID.", refAlbum.getName());
             continue;
           }
-          Set<LibraryAlbum> destAlbums = new HashSet<LibraryAlbum>();
-          for (Library destLib : libs) {
+          Set<LibraryAlbum> destAlbums = new HashSet<>();
+          for (var destLib : libs) {
             destAlbums.add(destLib.getSourcedFrom(refAlbum));
           }
           futures.add(conversionService.submit(refAlbum, destAlbums));

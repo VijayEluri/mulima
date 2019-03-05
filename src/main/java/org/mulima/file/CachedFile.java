@@ -41,12 +41,11 @@ public class CachedFile<T> {
    * @return the value
    */
   public T getValue() {
-    long lastModified = file.lastModified();
+    var lastModified = file.lastModified();
     if (lastModified == lastRefreshed) {
       return cached;
     } else {
-      T value = parser.parse(file);
-      cached = value;
+      cached = parser.parse(file);
       lastRefreshed = lastModified;
       return cached;
     }

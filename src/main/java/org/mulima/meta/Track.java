@@ -104,7 +104,7 @@ public class Track extends AbstractMetadata implements Metadata, Comparable<Trac
     if (obj == null) {
       return false;
     } else if (obj instanceof Track) {
-      Track that = (Track) obj;
+      var that = (Track) obj;
       return this.getMap().equals(that.getMap())
           && ((this.getStartPoint() == null && that.getStartPoint() == null)
               || (this.getStartPoint().equals(that.getStartPoint())))
@@ -118,7 +118,7 @@ public class Track extends AbstractMetadata implements Metadata, Comparable<Trac
   /** {@inheritDoc} */
   @Override
   public int hashCode() {
-    int result = 23;
+    var result = 23;
     result = result * 31 + getMap().hashCode();
     result = result * 31 + getStartPoint().hashCode();
     result = result * 31 + getEndPoint().hashCode();
@@ -128,7 +128,7 @@ public class Track extends AbstractMetadata implements Metadata, Comparable<Trac
   /** {@inheritDoc} */
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
     builder.append("[tags:");
     builder.append(getMap());
     builder.append(", start:");

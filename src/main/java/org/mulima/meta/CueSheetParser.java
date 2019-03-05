@@ -3,7 +3,6 @@ package org.mulima.meta;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.LogManager;
@@ -31,21 +30,21 @@ public class CueSheetParser implements FileParser<CueSheet> {
    */
   @Override
   public CueSheet parse(File file) {
-    Matcher matcher = NUM_REGEX.matcher(file.getName());
-    int num = matcher.find() ? Integer.valueOf(matcher.group(1)) : 1;
-    CueSheet cue = new CueSheet(num);
+    var matcher = NUM_REGEX.matcher(file.getName());
+    var num = matcher.find() ? Integer.valueOf(matcher.group(1)) : 1;
+    var cue = new CueSheet(num);
 
-    try (Scanner fin = new Scanner(file)) {
-      int currentTrack = -1;
+    try (var fin = new Scanner(file)) {
+      var currentTrack = -1;
       while (fin.hasNext()) {
-        String line = fin.nextLine().trim();
+        var line = fin.nextLine().trim();
         matcher = LINE_REGEX.matcher(line);
         if (!matcher.find()) {
           logger.debug("Invalid line: " + line);
         }
 
-        String name = matcher.group(1).trim().replaceAll(" ", "_");
-        String value = matcher.group(2).trim();
+        var name = matcher.group(1).trim().replaceAll(" ", "_");
+        var value = matcher.group(2).trim();
 
         if ("TRACK".equals(name)) {
           currentTrack = Integer.valueOf(value.split(" ")[0]);
@@ -71,7 +70,7 @@ public class CueSheetParser implements FileParser<CueSheet> {
    */
   private void handleCueTag(CueSheet cue, String name, String value) {
     try {
-      CueSheetTag.Cue tag = CueSheetTag.Cue.valueOf(name);
+      var tag = CueSheetTag.Cue.valueOf(name);
       cue.add(tag, value);
     } catch (IllegalArgumentException e) {
       logger.debug(e.getMessage(), e);
@@ -86,9 +85,9 @@ public class CueSheetParser implements FileParser<CueSheet> {
    * @param value the value of the index
    */
   private void handleIndex(CueSheet cue, int currentTrack, String value) {
-    String[] values = value.split(" ");
+    var values = value.split(" ");
     int index = Integer.valueOf(values[0]);
-    String time = values[1];
+    var time = values[1];
     cue.getAllCuePoints().add(new CuePoint(currentTrack, index, time));
   }
 }

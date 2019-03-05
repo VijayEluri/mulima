@@ -3,7 +3,6 @@ package org.mulima.audio.tool;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.mulima.file.audio.AudioFile;
@@ -11,7 +10,6 @@ import org.mulima.file.audio.AudioFormat;
 import org.mulima.meta.Track;
 import org.mulima.meta.VorbisTag;
 import org.mulima.proc.ProcessCaller;
-import org.mulima.proc.ProcessResult;
 import org.mulima.service.MulimaPropertiesSupport;
 import org.mulima.util.FileUtil;
 import org.springframework.stereotype.Component;
@@ -77,32 +75,32 @@ public class MetaflacTagger extends MulimaPropertiesSupport implements Tagger {
   /** {@inheritDoc} */
   @Override
   public TaggerResult write(AudioFile file) {
-    String filePath = FileUtil.getSafeCanonicalPath(file);
+    var filePath = FileUtil.getSafeCanonicalPath(file);
 
-    List<String> command = new ArrayList<String>();
+    List<String> command = new ArrayList<>();
     command.add(getPath());
     if (!"".equals(getOpts())) {
       command.add(getOpts());
     }
     command.add("--remove-all-tags");
-    for (VorbisTag tag : VorbisTag.values()) {
-      for (String value : file.getMeta().getAll(tag)) {
-        String preparedValue = value.replaceAll("\"", "\\\\\"");
+    for (var tag : VorbisTag.values()) {
+      for (var value : file.getMeta().getAll(tag)) {
+        var preparedValue = value.replaceAll("\"", "\\\\\"");
         command.add("--set-tag=" + tag.toString() + "=" + preparedValue + "");
       }
     }
     command.add("\"" + filePath + "\"");
 
-    ProcessResult result = new ProcessCaller(command).call();
+    var result = new ProcessCaller(command).call();
     return new TaggerResult(file, result);
   }
 
   /** {@inheritDoc} */
   @Override
   public TaggerResult read(AudioFile file) {
-    String filePath = FileUtil.getSafeCanonicalPath(file);
+    var filePath = FileUtil.getSafeCanonicalPath(file);
 
-    List<String> command = new ArrayList<String>();
+    List<String> command = new ArrayList<>();
     command.add(getPath());
     if (!"".equals(getOpts())) {
       command.add(getOpts());
@@ -111,19 +109,17 @@ public class MetaflacTagger extends MulimaPropertiesSupport implements Tagger {
     command.add("--block-type=VORBIS_COMMENT");
     command.add(filePath);
 
-    ProcessResult result =
+    var result =
         new ProcessCaller("tag of " + FileUtil.getSafeCanonicalPath(file), command).call();
 
-    Track track = new Track();
-    for (String line : result.getOutput().split("\n")) {
-      Matcher matcher = REGEX.matcher(line.trim());
+    var track = new Track();
+    for (var line : result.getOutput().split("\n")) {
+      var matcher = REGEX.matcher(line.trim());
       if (matcher.matches()) {
-        String name = matcher.group(1).toUpperCase();
+        var name = matcher.group(1).toUpperCase();
 
-        VorbisTag tag = VorbisTag.valueOf(name);
-        if (tag != null) {
-          track.add(tag, matcher.group(2));
-        }
+        var tag = VorbisTag.valueOf(name);
+        track.add(tag, matcher.group(2));
       }
     }
 

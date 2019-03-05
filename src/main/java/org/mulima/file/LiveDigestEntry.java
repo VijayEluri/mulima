@@ -40,7 +40,7 @@ public class LiveDigestEntry extends AbstractDigestEntry implements DigestEntry 
       InputStream is = null;
       try {
         is = new FileInputStream(file);
-        digest = DigestUtils.shaHex(is);
+        digest = DigestUtils.sha1Hex(is);
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       } finally {

@@ -33,8 +33,8 @@ public class ReferenceLibrary extends Library {
    * @return the new albums
    */
   public Set<LibraryAlbum> getNew() {
-    Set<LibraryAlbum> newAlbums = new HashSet<LibraryAlbum>();
-    for (LibraryAlbum libAlbum : getAll()) {
+    Set<LibraryAlbum> newAlbums = new HashSet<>();
+    for (var libAlbum : getAll()) {
       if (libAlbum.getId() == null) {
         newAlbums.add(libAlbum);
       }

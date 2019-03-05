@@ -1,6 +1,5 @@
 package org.mulima.meta;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -55,7 +54,7 @@ public class CuePoint implements Comparable<CuePoint> {
    * @return {@code true} if it is valid, {@code false} otherwise
    */
   private boolean verifyFramesFormat(String timeStr) {
-    Matcher matcher = FRAMES_REGEX.matcher(timeStr);
+    var matcher = FRAMES_REGEX.matcher(timeStr);
     if (matcher.find()) {
       int minutes = Integer.valueOf(matcher.group(1));
       if (minutes < 0) {
@@ -66,10 +65,7 @@ public class CuePoint implements Comparable<CuePoint> {
         return false;
       }
       int frames = Integer.valueOf(matcher.group(3));
-      if (frames < 0 || frames >= 75) {
-        return false;
-      }
-      return true;
+      return frames >= 0 && frames < 75;
     } else {
       return false;
     }
@@ -82,7 +78,7 @@ public class CuePoint implements Comparable<CuePoint> {
    * @return {@code true} if it is valid, {@code false} otherwise
    */
   private boolean verifyTimeFormat(String timeStr) {
-    Matcher matcher = TIME_REGEX.matcher(timeStr);
+    var matcher = TIME_REGEX.matcher(timeStr);
     if (matcher.find()) {
       int minutes = Integer.valueOf(matcher.group(1));
       if (minutes < 0) {
@@ -93,10 +89,7 @@ public class CuePoint implements Comparable<CuePoint> {
         return false;
       }
       int parts = Integer.valueOf(matcher.group(3));
-      if (parts < 0) {
-        return false;
-      }
-      return true;
+      return parts >= 0;
     } else {
       return false;
     }
@@ -153,7 +146,7 @@ public class CuePoint implements Comparable<CuePoint> {
     if (obj == null) {
       return false;
     } else if (obj instanceof CuePoint) {
-      CuePoint that = (CuePoint) obj;
+      var that = (CuePoint) obj;
       return this.getTrack() == that.getTrack()
           && this.getIndex() == that.getIndex()
           && this.getTime().equals(that.getTime());
@@ -165,7 +158,7 @@ public class CuePoint implements Comparable<CuePoint> {
   /** {@inheritDoc} */
   @Override
   public int hashCode() {
-    int result = 23;
+    var result = 23;
     result = result * 31 + getTrack();
     result = result * 31 + getIndex();
     result = result * 31 + getTime().hashCode();
@@ -175,7 +168,7 @@ public class CuePoint implements Comparable<CuePoint> {
   /** {@inheritDoc} */
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
     builder.append("[track:");
     builder.append(getTrack());
     builder.append(", index:");

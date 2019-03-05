@@ -92,13 +92,13 @@ public class LibraryService extends MulimaPropertiesSupport {
    * @return the library that {@code dir} belongs to or {@code null} if one can't be found
    */
   public Library getLibFor(File dir) {
-    Set<Library> allLibs = new HashSet<Library>();
+    Set<Library> allLibs = new HashSet<>();
     allLibs.addAll(getRefLibs());
     allLibs.addAll(getDestLibs());
 
-    for (Library lib : allLibs) {
-      File rootDir = lib.getRootDir();
-      File temp = dir;
+    for (var lib : allLibs) {
+      var rootDir = lib.getRootDir();
+      var temp = dir;
       while (temp.getParentFile() != null) {
         temp = temp.getParentFile();
         if (temp.equals(rootDir)) {
@@ -116,12 +116,12 @@ public class LibraryService extends MulimaPropertiesSupport {
    * @return the album, or {@code null} if one can't be found
    */
   public LibraryAlbum getAlbumById(UUID id) {
-    Set<Library> allLibs = new HashSet<Library>();
+    Set<Library> allLibs = new HashSet<>();
     allLibs.addAll(getRefLibs());
     allLibs.addAll(getDestLibs());
 
-    for (Library lib : allLibs) {
-      LibraryAlbum album = lib.getById(id);
+    for (var lib : allLibs) {
+      var album = lib.getById(id);
       if (album != null) {
         return album;
       }
@@ -138,7 +138,7 @@ public class LibraryService extends MulimaPropertiesSupport {
    * @return {@code true} if the album is up to date, {@code false} otherwise
    */
   public boolean isUpToDate(LibraryAlbum libAlbum, boolean checkSource) {
-    Digest digest = libAlbum.getDigest();
+    var digest = libAlbum.getDigest();
     if (digest == null) {
       return false;
     } else if (checkSource && !isSourceUpToDate(libAlbum)) {
@@ -154,11 +154,11 @@ public class LibraryService extends MulimaPropertiesSupport {
    * @return {@code true} if the source is up to date, {@code false} otherwise
    */
   private boolean isSourceUpToDate(LibraryAlbum libAlbum) {
-    Digest sourceDigest = libAlbum.getSourceDigest();
+    var sourceDigest = libAlbum.getSourceDigest();
     if (sourceDigest == null) {
       return true;
     }
-    LibraryAlbum source = getAlbumById(sourceDigest.getId());
+    var source = getAlbumById(sourceDigest.getId());
     if (source == null) {
       throw new UncheckedMulimaException(
           "Source album for " + libAlbum.getId() + " not found: " + sourceDigest.getId());
@@ -179,18 +179,18 @@ public class LibraryService extends MulimaPropertiesSupport {
     if (cached == null) {
       return false;
     }
-    Digest current = digestService.create(album);
+    var current = digestService.create(album);
     return cached.equals(current);
   }
 
   @SuppressWarnings("unchecked")
   private <T> Set<T> createLibs(Class<T> type, MulimaProperties props) {
-    Set<T> libs = new HashSet<T>();
-    Set<String> names = props.getSubScopes();
-    for (String name : names) {
-      MulimaProperties namedProps = props.withScope(name);
-      File dir = new File(namedProps.getProperty("dir"));
-      AudioFormat format = AudioFormat.valueOf(namedProps.getProperty("format"));
+    Set<T> libs = new HashSet<>();
+    var names = props.getSubScopes();
+    for (var name : names) {
+      var namedProps = props.withScope(name);
+      var dir = new File(namedProps.getProperty("dir"));
+      var format = AudioFormat.valueOf(namedProps.getProperty("format"));
       if (type.isAssignableFrom(ReferenceLibrary.class)) {
         libs.add((T) new ReferenceLibrary(libAlbumFactory, name, dir, format));
       } else {

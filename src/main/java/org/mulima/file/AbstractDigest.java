@@ -20,13 +20,13 @@ public abstract class AbstractDigest implements Digest {
 
   @Override
   public String getDigest(String fileName) {
-    DigestEntry entry = getEntry(fileName);
+    var entry = getEntry(fileName);
     return entry == null ? null : entry.getDigest();
   }
 
   @Override
   public DigestEntry getEntry(String fileName) {
-    for (DigestEntry entry : entries) {
+    for (var entry : entries) {
       if (entry.getFileName().equals(fileName)) {
         return entry;
       }

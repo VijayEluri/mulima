@@ -30,8 +30,8 @@ public final class MetadataUtil {
    * @return Levenshtein distance between the two
    */
   public static int tagDistance(Metadata orig, Metadata cand, Tag tag) {
-    String origTag = orig.getFlat(tag);
-    String candTag = cand.getFlat(tag);
+    var origTag = orig.getFlat(tag);
+    var candTag = cand.getFlat(tag);
     // if (origTag.length() < candTag.length()) {
     // candTag = candTag.substring(0, origTag.length());
     // }
@@ -61,7 +61,7 @@ public final class MetadataUtil {
     String value = null;
     for (Metadata meta : metas) {
       if (meta.isSet(tag)) {
-        String temp = meta.getFlat(tag);
+        var temp = meta.getFlat(tag);
         value = value == null ? temp : StringUtil.commonString(value, temp);
       }
     }

@@ -97,7 +97,7 @@ public class Library {
     if (id == null) {
       return null;
     }
-    for (LibraryAlbum album : getAll()) {
+    for (var album : getAll()) {
       if (id.equals(album.getId())) {
         return album;
       }
@@ -130,7 +130,7 @@ public class Library {
     if (source == null) {
       throw new IllegalArgumentException("Source must not be null.");
     }
-    for (LibraryAlbum album : getAll()) {
+    for (var album : getAll()) {
       if (source.getId().equals(album.getSourceId())) {
         return album;
       }
@@ -156,7 +156,7 @@ public class Library {
       throw new UncheckedMulimaException(
           "Could not determine directory due to missing ALBUM or ARTIST tag.");
     }
-    String relPath =
+    var relPath =
         StringUtil.makeSafe(meta.getFlat(GenericTag.ARTIST)).trim()
             + File.separator
             + StringUtil.makeSafe(album).trim();
@@ -166,9 +166,9 @@ public class Library {
   /** Scans all directories under the root directory for library albums. */
   private void scanAll() {
     logger.trace("Beginning scanAll for {}", getName());
-    this.albums = new TreeSet<LibraryAlbum>();
+    this.albums = new TreeSet<>();
     FileFilter filter = new LeafDirFilter();
-    for (File dir : FileUtil.listDirsRecursive(getRootDir())) {
+    for (var dir : FileUtil.listDirsRecursive(getRootDir())) {
       if (filter.accept(dir)) {
         albums.add(libAlbumFactory.create(dir, this));
       }
@@ -184,7 +184,7 @@ public class Library {
    */
   private LibraryAlbum createAlbum(LibraryAlbum source) {
     try {
-      File dir = determineDir(source.getAlbum());
+      var dir = determineDir(source.getAlbum());
       if (!dir.exists() && !dir.mkdirs()) {
         throw new UncheckedMulimaException("Could not create album directory: " + dir);
       }

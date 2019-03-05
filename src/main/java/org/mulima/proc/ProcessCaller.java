@@ -76,19 +76,19 @@ public class ProcessCaller implements Callable<ProcessResult> {
     try {
       logger.debug("Starting: {}", description);
       logger.debug("Executing command: {}", command);
-      Process proc = new ProcessBuilder(command).start();
+      var proc = new ProcessBuilder(command).start();
 
       if (input != null && !input.isBlank()) {
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()))) {
+        try (var writer = new BufferedWriter(new OutputStreamWriter(proc.getOutputStream()))) {
           writer.write(input);
         }
       }
 
-      StringBuilder output = new StringBuilder();
-      StringBuilder error = new StringBuilder();
+      var output = new StringBuilder();
+      var error = new StringBuilder();
       // FIXME this is busted
       // proc.waitForProcessOutput(output, error);
-      int exit = proc.exitValue();
+      var exit = proc.exitValue();
       logger.debug("Finished: {}", description);
       return new ProcessResult(command, exit, output.toString(), error.toString());
     } catch (IOException e) {

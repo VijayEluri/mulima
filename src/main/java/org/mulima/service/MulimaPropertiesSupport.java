@@ -14,7 +14,7 @@ public abstract class MulimaPropertiesSupport {
   @Autowired
   public void setProperties(MulimaProperties properties) {
     this.properties = properties;
-    for (String level : getScope()) {
+    for (var level : getScope()) {
       this.properties = this.properties.withScope(level);
     }
   }

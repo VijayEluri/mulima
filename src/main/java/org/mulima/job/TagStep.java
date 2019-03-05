@@ -4,7 +4,6 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.mulima.audio.tool.TaggerResult;
 import org.mulima.file.audio.AudioFile;
 import org.mulima.service.MulimaService;
 
@@ -36,9 +35,9 @@ public class TagStep implements Step<Void> {
   public boolean execute() {
     this.status = Status.IN_PROGRESS;
     logger.debug("Tagging {} files", inputs.size());
-    for (AudioFile input : inputs) {
+    for (var input : inputs) {
       logger.debug("Tagging {}", input);
-      TaggerResult result = service.getToolService().getTagger(input.getFormat()).write(input);
+      var result = service.getToolService().getTagger(input.getFormat()).write(input);
       if (result.isSuccess()) {
         logger.debug("SUCCESS: Tagged {}", input);
       } else {

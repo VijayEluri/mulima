@@ -7,5 +7,5 @@ package org.mulima.job;
  * @since 0.1.0
  */
 public enum Status {
-  NOT_STARTED, IN_PROGRESS, SUCCESS, FAILURE;
+  NOT_STARTED, IN_PROGRESS, SUCCESS, FAILURE
 }

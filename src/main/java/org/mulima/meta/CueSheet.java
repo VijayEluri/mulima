@@ -12,7 +12,7 @@ import java.util.TreeSet;
  */
 public class CueSheet extends AbstractMetadata implements Metadata, Comparable<CueSheet> {
   private int num;
-  private final SortedSet<CuePoint> cuePoints = new TreeSet<CuePoint>();
+  private final SortedSet<CuePoint> cuePoints = new TreeSet<>();
 
   /** Constructs an unnumbered cue sheet. */
   public CueSheet() {
@@ -44,8 +44,8 @@ public class CueSheet extends AbstractMetadata implements Metadata, Comparable<C
    * @return all index 1 points
    */
   public SortedSet<CuePoint> getCuePoints() {
-    SortedSet<CuePoint> points = new TreeSet<CuePoint>();
-    for (CuePoint point : getAllCuePoints()) {
+    SortedSet<CuePoint> points = new TreeSet<>();
+    for (var point : getAllCuePoints()) {
       if (point.getIndex() == 1) {
         points.add(point);
       }
@@ -86,7 +86,7 @@ public class CueSheet extends AbstractMetadata implements Metadata, Comparable<C
     if (obj == null) {
       return false;
     } else if (obj instanceof CueSheet) {
-      CueSheet that = (CueSheet) obj;
+      var that = (CueSheet) obj;
       return this.getNum() == that.getNum()
           && this.getMap().equals(that.getMap())
           && this.getAllCuePoints().equals(that.getAllCuePoints());
@@ -98,7 +98,7 @@ public class CueSheet extends AbstractMetadata implements Metadata, Comparable<C
   /** {@inheritDoc} */
   @Override
   public int hashCode() {
-    int result = 23;
+    var result = 23;
     result = result * 31 + getNum();
     result = result * 31 + getMap().hashCode();
     result = result * 31 + getAllCuePoints().hashCode();
@@ -108,7 +108,7 @@ public class CueSheet extends AbstractMetadata implements Metadata, Comparable<C
   /** {@inheritDoc} */
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
     builder.append("[num:");
     builder.append(getNum());
     builder.append(", tags:");

@@ -11,7 +11,7 @@ public abstract class AbstractDigestEntry implements DigestEntry {
     if (o == null) {
       return false;
     } else if (o instanceof AbstractDigestEntry) {
-      DigestEntry that = (DigestEntry) o;
+      var that = (DigestEntry) o;
       return this.getDigest().equals(that.getDigest());
     } else {
       return false;
@@ -27,8 +27,8 @@ public abstract class AbstractDigestEntry implements DigestEntry {
     if (o == null) {
       return false;
     } else if (o instanceof AbstractDigestEntry) {
-      DigestEntry that = (DigestEntry) o;
-      long difference = Math.abs(this.getModified() - that.getModified());
+      var that = (DigestEntry) o;
+      var difference = Math.abs(this.getModified() - that.getModified());
       if (difference < 1000 && this.getSize() == that.getSize()) {
         return true;
       } else {
@@ -44,7 +44,7 @@ public abstract class AbstractDigestEntry implements DigestEntry {
 
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
     builder.append(getModified());
     builder.append(",");
     builder.append(getSize());

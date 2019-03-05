@@ -10,7 +10,7 @@ import java.util.TreeSet;
  * @since 0.1.0
  */
 public class Disc extends AbstractMetadata implements Metadata, Comparable<Disc> {
-  private final SortedSet<Track> tracks = new TreeSet<Track>();
+  private final SortedSet<Track> tracks = new TreeSet<>();
 
   public Disc() {
     super(null);
@@ -45,7 +45,7 @@ public class Disc extends AbstractMetadata implements Metadata, Comparable<Disc>
    * @return the track or {@code null} if it could not be found
    */
   public Track getTrack(int num) {
-    for (Track track : tracks) {
+    for (var track : tracks) {
       if (track.getNum() == num) {
         return track;
       }
@@ -77,7 +77,7 @@ public class Disc extends AbstractMetadata implements Metadata, Comparable<Disc>
     if (obj == null) {
       return false;
     } else if (obj instanceof Disc) {
-      Disc that = (Disc) obj;
+      var that = (Disc) obj;
       return this.getMap().equals(that.getMap()) && this.getTracks().equals(that.getTracks());
     } else {
       return false;
@@ -87,7 +87,7 @@ public class Disc extends AbstractMetadata implements Metadata, Comparable<Disc>
   /** {@inheritDoc} */
   @Override
   public int hashCode() {
-    int result = 23;
+    var result = 23;
     result = result * 31 + getMap().hashCode();
     result = result * 31 + getTracks().hashCode();
     return result;
@@ -96,7 +96,7 @@ public class Disc extends AbstractMetadata implements Metadata, Comparable<Disc>
   /** {@inheritDoc} */
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
     builder.append("[tags:");
     builder.append(getMap());
     builder.append(", tracks:");

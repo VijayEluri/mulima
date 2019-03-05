@@ -29,25 +29,25 @@ public final class StringUtil {
     } else if (arg1 == null) {
       return arg0.length();
     }
-    int[][] dist = new int[arg0.length() + 1][arg1.length() + 1];
+    var dist = new int[arg0.length() + 1][arg1.length() + 1];
 
-    for (int i = 0; i < dist.length; i++) {
+    for (var i = 0; i < dist.length; i++) {
       dist[i] = new int[arg1.length() + 1];
       dist[i][0] = i;
     }
 
-    for (int j = 0; j < dist[0].length; j++) {
+    for (var j = 0; j < dist[0].length; j++) {
       dist[0][j] = j;
     }
 
-    for (int j = 1; j < dist[0].length; j++) {
-      for (int i = 1; i < dist.length; i++) {
+    for (var j = 1; j < dist[0].length; j++) {
+      for (var i = 1; i < dist.length; i++) {
         if (arg0.charAt(i - 1) == arg1.charAt(j - 1)) {
           dist[i][j] = dist[i - 1][j - 1];
         } else {
-          int deletion = dist[i - 1][j] + 1;
-          int insertion = dist[i][j - 1] + 1;
-          int substitution = dist[i - 1][j - 1] + 1;
+          var deletion = dist[i - 1][j] + 1;
+          var insertion = dist[i][j - 1] + 1;
+          var substitution = dist[i - 1][j - 1] + 1;
 
           if (deletion < insertion) {
             if (deletion < substitution) {
@@ -89,7 +89,7 @@ public final class StringUtil {
    * @return the {@code String} with offending characters replaced with underscores
    */
   public static String makeSafe(String arg0) {
-    String woIllegals = arg0.trim().replaceAll("[\\\\/:\\*\\?\"<>\\|]+", "_");
+    var woIllegals = arg0.trim().replaceAll("[\\\\/:\\*\\?\"<>\\|]+", "_");
     return woIllegals.replaceAll("^\\.+|\\.+$", "");
   }
 
@@ -101,10 +101,10 @@ public final class StringUtil {
    * @return the camel case version of {@code value}
    */
   public static String toCamelCase(String value) {
-    StringBuilder builder = new StringBuilder();
-    boolean underscorePrev = false;
+    var builder = new StringBuilder();
+    var underscorePrev = false;
 
-    for (char ch : value.toCharArray()) {
+    for (var ch : value.toCharArray()) {
       if (ch == '_') {
         underscorePrev = true;
       } else {
@@ -123,11 +123,11 @@ public final class StringUtil {
    * @return the uppercase version of {@code value}
    */
   public static String fromCamelCase(String value) {
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
 
-    for (char ch : value.toCharArray()) {
+    for (var ch : value.toCharArray()) {
       if (Character.isUpperCase(ch)) {
-        builder.append("_" + ch);
+        builder.append("_").append(ch);
       } else {
         builder.append(Character.toUpperCase(ch));
       }
@@ -143,7 +143,7 @@ public final class StringUtil {
    * @return a substring (beginning at index 0) that is common to both strings
    */
   public static String commonString(String arg0, String arg1) {
-    for (int i = 0; i < arg0.length(); i++) {
+    for (var i = 0; i < arg0.length(); i++) {
       if (arg0.charAt(i) != arg1.charAt(i)) {
         return arg0.substring(0, i);
       }

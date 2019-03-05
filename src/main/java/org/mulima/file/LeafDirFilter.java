@@ -21,8 +21,8 @@ public class LeafDirFilter implements FileFilter {
   @Override
   public boolean accept(File file) {
     if (file.isDirectory()) {
-      boolean anyAudioFiles = false;
-      for (File child : file.listFiles()) {
+      var anyAudioFiles = false;
+      for (var child : file.listFiles()) {
         if (child.isDirectory()) {
           return false;
         } else if (!anyAudioFiles && AudioFormat.isAudioFile(child)) {

@@ -6,8 +6,6 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.mulima.audio.tool.Codec;
-import org.mulima.audio.tool.CodecResult;
 import org.mulima.file.audio.AudioFile;
 import org.mulima.file.audio.AudioFormat;
 import org.mulima.service.MulimaService;
@@ -42,13 +40,13 @@ public class DecodeStep implements Step<Set<AudioFile>> {
   /** Executes the step. */
   public boolean execute() {
     this.status = Status.IN_PROGRESS;
-    outputs = new HashSet<AudioFile>();
+    outputs = new HashSet<>();
     logger.debug("Decoding {} files", inputs.size());
-    for (AudioFile input : inputs) {
+    for (var input : inputs) {
       logger.debug("Decoding {}", input);
-      AudioFile output = service.getFileService().createAudioFile(input, destDir, AudioFormat.WAVE);
-      Codec codec = service.getToolService().getCodec(input.getFormat());
-      CodecResult result = codec.decode(input, output);
+      var output = service.getFileService().createAudioFile(input, destDir, AudioFormat.WAVE);
+      var codec = service.getToolService().getCodec(input.getFormat());
+      var result = codec.decode(input, output);
       if (result.isSuccess()) {
         outputs.add(result.getDest());
         logger.debug("SUCCESS: Decoded {}", input);

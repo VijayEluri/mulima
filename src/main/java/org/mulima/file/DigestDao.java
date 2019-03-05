@@ -1,9 +1,7 @@
 package org.mulima.file;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.util.HashSet;
@@ -27,14 +25,14 @@ public class DigestDao implements FileParser<Digest>, FileComposer<Digest> {
    * @return a digest representing the file contents
    */
   public Digest parse(File file) {
-    Properties props = new Properties();
-    try (InputStream stream = Files.newInputStream(file.toPath())) {
+    var props = new Properties();
+    try (var stream = Files.newInputStream(file.toPath())) {
       props.load(stream);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
 
-    UUID id = UUID.fromString(props.get(ID_KEY).toString());
+    var id = UUID.fromString(props.get(ID_KEY).toString());
     Set<DigestEntry> entries = new HashSet<>();
     props.forEach((key, value) -> {
       if (ID_KEY == key) {
@@ -59,12 +57,12 @@ public class DigestDao implements FileParser<Digest>, FileComposer<Digest> {
       throw new IllegalArgumentException("Digest ID cannot be null.");
     }
 
-    Properties props = new Properties();
+    var props = new Properties();
     props.put(ID_KEY, digest.getId().toString());
     digest.getEntries().forEach(entry -> {
       props.put(entry.getFileName(), entry.toString());
     });
-    try (BufferedWriter writer = Files.newBufferedWriter(file.toPath())) {
+    try (var writer = Files.newBufferedWriter(file.toPath())) {
       props.store(writer, null);
     } catch (IOException e) {
       throw new UncheckedIOException(e);

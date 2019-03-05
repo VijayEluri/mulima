@@ -20,7 +20,7 @@ public enum ID3V2Tag implements Tag {
    *
    * @param tag the generic tag this maps to
    */
-  private ID3V2Tag(GenericTag tag) {
+  ID3V2Tag(GenericTag tag) {
     this.tag = tag;
   }
 
@@ -44,7 +44,7 @@ public enum ID3V2Tag implements Tag {
    * @return the ID3v2 tag that corresponds to <code>generic</code>.
    */
   public static ID3V2Tag valueOf(GenericTag generic) {
-    for (ID3V2Tag tag : ID3V2Tag.values()) {
+    for (var tag : ID3V2Tag.values()) {
       if (generic.equals(tag.getGeneric())) {
         return tag;
       }

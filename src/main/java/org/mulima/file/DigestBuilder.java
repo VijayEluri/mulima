@@ -1,6 +1,5 @@
 package org.mulima.file;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -38,15 +37,15 @@ public class DigestBuilder {
     if (!libAlbum.getDir().exists()) {
       throw new IllegalArgumentException("Album directory does not exists: " + libAlbum.getDir());
     }
-    Set<DigestEntry> entries = new HashSet<DigestEntry>();
-    for (File file : libAlbum.getDir().listFiles()) {
+    Set<DigestEntry> entries = new HashSet<>();
+    for (var file : libAlbum.getDir().listFiles()) {
       if (Digest.FILE_NAME.equals(file.getName())
           || Digest.SOURCE_FILE_NAME.equals(file.getName())) {
         continue;
       }
       entries.add(new LiveDigestEntry(file));
     }
-    UUID id = libAlbum.getId() == null ? UUID.randomUUID() : libAlbum.getId();
+    var id = libAlbum.getId() == null ? UUID.randomUUID() : libAlbum.getId();
     return new LazyDigest(id, entries);
   }
 }

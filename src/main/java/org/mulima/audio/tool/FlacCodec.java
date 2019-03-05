@@ -86,10 +86,10 @@ public class FlacCodec extends MulimaPropertiesSupport implements Codec {
   /** {@inheritDoc} */
   @Override
   public CodecResult encode(AudioFile source, AudioFile dest) {
-    String sourcePath = FileUtil.getSafeCanonicalPath(source);
-    String destPath = FileUtil.getSafeCanonicalPath(dest);
+    var sourcePath = FileUtil.getSafeCanonicalPath(source);
+    var destPath = FileUtil.getSafeCanonicalPath(dest);
 
-    List<String> command = new ArrayList<String>();
+    List<String> command = new ArrayList<>();
     command.add(getPath());
     command.add("-f");
     if (!"".equals(getOpts())) {
@@ -100,17 +100,17 @@ public class FlacCodec extends MulimaPropertiesSupport implements Codec {
     command.add("\"" + destPath + "\"");
     command.add("\"" + sourcePath + "\"");
 
-    ProcessCaller caller = new ProcessCaller("encoding " + sourcePath, command);
+    var caller = new ProcessCaller("encoding " + sourcePath, command);
     return new CodecResult(source, dest, caller.call());
   }
 
   /** {@inheritDoc} */
   @Override
   public CodecResult decode(AudioFile source, AudioFile dest) {
-    String sourcePath = FileUtil.getSafeCanonicalPath(source);
-    String destPath = FileUtil.getSafeCanonicalPath(dest);
+    var sourcePath = FileUtil.getSafeCanonicalPath(source);
+    var destPath = FileUtil.getSafeCanonicalPath(dest);
 
-    List<String> command = new ArrayList<String>();
+    List<String> command = new ArrayList<>();
     command.add(getPath());
     command.add("-f");
     if (!"".equals(getOpts())) {
@@ -121,7 +121,7 @@ public class FlacCodec extends MulimaPropertiesSupport implements Codec {
     command.add(destPath);
     command.add(sourcePath);
 
-    ProcessCaller caller = new ProcessCaller("decoding " + sourcePath, command);
+    var caller = new ProcessCaller("decoding " + sourcePath, command);
     return new CodecResult(source, dest, caller.call());
   }
 }

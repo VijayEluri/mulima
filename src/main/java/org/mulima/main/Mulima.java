@@ -57,7 +57,7 @@ public class Mulima {
         refLibs.forEach(lib -> {
           System.out.println(String.format("%s (%s) - %s", lib.getName(), lib.getFormat(), lib.getRootDir()));
         });
-        System.out.println("");
+        System.out.println();
         System.out.println("Destination Libraries:");
         System.out.println("--------------------");
         destLibs.forEach(lib -> {
@@ -78,7 +78,7 @@ public class Mulima {
       } else if (cmd.hasOption("status")) {
         Stream.concat(refLibs.stream(), destLibs.stream()).forEach(lib -> {
           System.out.println(String.format("%s (%s) - %s", lib.getName(), lib.getFormat(), lib.getRootDir()));
-          lib.getAll().stream().forEach(album -> {
+          lib.getAll().forEach(album -> {
             var upToDate = service.getLibraryService().isUpToDate(album, true);
             if (album.getId() == null) {
               System.out.println(String.format("  %b - %s (New)", upToDate, album.getDir()));

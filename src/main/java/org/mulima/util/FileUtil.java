@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -54,8 +53,8 @@ public final class FileUtil {
    * @return a new file with specified extension
    */
   public static File changeExtension(File original, String extension) {
-    String ext = extension.charAt(0) == '.' ? extension : "." + extension;
-    String path = original.getPath().replaceAll("\\.[^\\.]+$", ext);
+    var ext = extension.charAt(0) == '.' ? extension : "." + extension;
+    var path = original.getPath().replaceAll("\\.[^\\.]+$", ext);
     return new File(path);
   }
 
@@ -76,8 +75,8 @@ public final class FileUtil {
    * @return the name without the extension of file
    */
   public static String getBaseName(File file) {
-    String name = file.getName();
-    int index = name.lastIndexOf('.');
+    var name = file.getName();
+    var index = name.lastIndexOf('.');
     return name.substring(0, index);
   }
 
@@ -147,7 +146,7 @@ public final class FileUtil {
     }
 
     dirs.add(dir);
-    for (File child : dir.listFiles()) {
+    for (var child : dir.listFiles()) {
       if (child.isDirectory()) {
         listDirsRecursive(child, dirs);
       }
@@ -171,7 +170,7 @@ public final class FileUtil {
    * @param dir the directory to delete
    */
   public static void deleteDir(File dir) {
-    for (File file : dir.listFiles()) {
+    for (var file : dir.listFiles()) {
       if (file.isDirectory()) {
         deleteDir(file);
       }
@@ -201,9 +200,9 @@ public final class FileUtil {
    * @param dir the directory to copy to
    */
   public static File copy(File source, File dir) {
-    File dest = new File(dir, source.getName());
-    try (FileChannel sourceChannel = new FileInputStream(source).getChannel();
-        FileChannel destChannel = new FileOutputStream(dest).getChannel()) {
+    var dest = new File(dir, source.getName());
+    try (var sourceChannel = new FileInputStream(source).getChannel();
+        var destChannel = new FileOutputStream(dest).getChannel()) {
       sourceChannel.transferTo(0, sourceChannel.size(), destChannel);
       return dest;
     } catch (IOException e) {
@@ -219,7 +218,7 @@ public final class FileUtil {
    * @param dir the directory to copy them to
    */
   public static Set<File> copyAll(Collection<?> files, File dir) {
-    Set<File> dests = new HashSet<File>();
+    Set<File> dests = new HashSet<>();
     for (Object object : files) {
       if (object instanceof File) {
         dests.add(copy((File) object, dir));

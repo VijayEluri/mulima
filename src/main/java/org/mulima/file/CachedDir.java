@@ -61,12 +61,12 @@ public class CachedDir<T> {
    * @return all cached files
    */
   public Set<CachedFile<T>> getCachedFiles() {
-    long lastModified = dir.lastModified();
+    var lastModified = dir.lastModified();
     if (lastRefreshed == lastModified) {
       return cached;
     } else {
-      Set<CachedFile<T>> files = new HashSet<CachedFile<T>>();
-      for (File file : dir.listFiles(filter)) {
+      Set<CachedFile<T>> files = new HashSet<>();
+      for (var file : dir.listFiles(filter)) {
         files.add(service.createCachedFile(type, file));
       }
       this.cached = files;
@@ -81,8 +81,8 @@ public class CachedDir<T> {
    * @return all files
    */
   public Set<File> getFiles() {
-    Set<File> files = new HashSet<File>();
-    for (CachedFile<T> file : getCachedFiles()) {
+    Set<File> files = new HashSet<>();
+    for (var file : getCachedFiles()) {
       files.add(file.getFile());
     }
     return files;
@@ -94,9 +94,9 @@ public class CachedDir<T> {
    * @return all values
    */
   public Set<T> getValues() {
-    Set<T> values = new HashSet<T>();
-    for (CachedFile<T> file : getCachedFiles()) {
-      T value = file.getValue();
+    Set<T> values = new HashSet<>();
+    for (var file : getCachedFiles()) {
+      var value = file.getValue();
       if (value != null) {
         values.add(value);
       }
@@ -111,9 +111,9 @@ public class CachedDir<T> {
    * @return all values that are instances of the specified type
    */
   public <S extends T> Set<S> getValues(Class<S> type) {
-    Set<S> values = new HashSet<S>();
-    for (CachedFile<T> file : getCachedFiles()) {
-      T value = file.getValue();
+    Set<S> values = new HashSet<>();
+    for (var file : getCachedFiles()) {
+      var value = file.getValue();
       if (type.isInstance(value)) {
         values.add(type.cast(value));
       }

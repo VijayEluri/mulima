@@ -78,7 +78,7 @@ public class AlbumConversionService {
    * @return runnables that were still executing
    */
   public List<Runnable> shutdownNow() {
-    List<Runnable> tasks = executor.shutdownNow();
+    var tasks = executor.shutdownNow();
     if (!executor.isTerminated()) {
       logger.warn("Conversion service did not terminate.");
     }

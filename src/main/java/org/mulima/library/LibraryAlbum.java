@@ -1,7 +1,6 @@
 package org.mulima.library;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -60,7 +59,7 @@ public class LibraryAlbum implements Comparable<LibraryAlbum> {
    * @return the ID
    */
   public UUID getId() {
-    Digest dig = getDigest();
+    var dig = getDigest();
     return dig == null ? null : dig.getId();
   }
 
@@ -70,7 +69,7 @@ public class LibraryAlbum implements Comparable<LibraryAlbum> {
    * @return the source ID
    */
   public UUID getSourceId() {
-    Digest dig = getSourceDigest();
+    var dig = getSourceDigest();
     return dig == null ? null : dig.getId();
   }
 
@@ -83,7 +82,7 @@ public class LibraryAlbum implements Comparable<LibraryAlbum> {
     if (getAlbum() == null) {
       return FileUtil.getSafeCanonicalPath(getDir());
     } else {
-      String album =
+      var album =
           getAlbum().isSet(GenericTag.ALBUM)
               ? getAlbum().getFlat(GenericTag.ALBUM)
               : MetadataUtil.commonValueFlat(getAlbum().getDiscs(), GenericTag.ALBUM);
@@ -126,12 +125,7 @@ public class LibraryAlbum implements Comparable<LibraryAlbum> {
         fileService.createCachedDir(
             CueSheet.class,
             dir,
-            new FileFilter() {
-              @Override
-              public boolean accept(File pathname) {
-                return pathname.getName().endsWith(".cue");
-              }
-            });
+            pathname -> pathname.getName().endsWith(".cue"));
     this.artwork = fileService.createCachedDir(ArtworkFile.class, dir);
   }
 
@@ -200,10 +194,9 @@ public class LibraryAlbum implements Comparable<LibraryAlbum> {
 
   /** Cleans up all files (except digest files), generally in preparation for a new conversion. */
   public void cleanDir() {
-    for (File file : getDir().listFiles()) {
+    for (var file : getDir().listFiles()) {
       if (Digest.FILE_NAME.equals(file.getName())
           || Digest.SOURCE_FILE_NAME.equals(file.getName())) {
-        continue;
       } else if (!file.delete()) {
         throw new UncheckedMulimaException("Could not delete file: " + file);
       }
@@ -212,8 +205,8 @@ public class LibraryAlbum implements Comparable<LibraryAlbum> {
 
   @Override
   public int compareTo(LibraryAlbum o) {
-    String thisName = getName();
-    String oName = o.getName();
+    var thisName = getName();
+    var oName = o.getName();
     return thisName.compareToIgnoreCase(oName);
   }
 
@@ -222,7 +215,7 @@ public class LibraryAlbum implements Comparable<LibraryAlbum> {
     if (obj == null) {
       return false;
     } else if (obj instanceof LibraryAlbum) {
-      LibraryAlbum that = (LibraryAlbum) obj;
+      var that = (LibraryAlbum) obj;
       if (this.getId() == null && that.getId() == null) {
         return this == that;
       } else {

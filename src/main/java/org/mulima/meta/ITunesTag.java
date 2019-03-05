@@ -20,7 +20,7 @@ public enum ITunesTag implements Tag {
    *
    * @param tag the generic tag this maps to
    */
-  private ITunesTag(GenericTag tag) {
+  ITunesTag(GenericTag tag) {
     this.tag = tag;
   }
 
@@ -44,7 +44,7 @@ public enum ITunesTag implements Tag {
    * @return the iTunes tag that corresponds to <code>generic</code>.
    */
   public static ITunesTag valueOf(GenericTag generic) {
-    for (ITunesTag tag : ITunesTag.values()) {
+    for (var tag : ITunesTag.values()) {
       if (generic.equals(tag.getGeneric())) {
         return tag;
       }

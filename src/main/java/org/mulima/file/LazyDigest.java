@@ -13,12 +13,12 @@ public class LazyDigest extends AbstractDigest implements Digest {
     if (o == null) {
       return false;
     } else if (o instanceof LazyDigest) {
-      Digest that = (Digest) o;
+      var that = (Digest) o;
       if (!this.getId().equals(that.getId())) {
         return false;
       }
-      for (DigestEntry thisEntry : this.getEntries()) {
-        DigestEntry thatEntry = that.getEntry(thisEntry.getFileName());
+      for (var thisEntry : this.getEntries()) {
+        var thatEntry = that.getEntry(thisEntry.getFileName());
         if (!thisEntry.lazyEquals(thatEntry)) {
           return false;
         }

@@ -44,7 +44,7 @@ public enum GenericTag implements Tag {
    * @return the <code>GenericTag</code> with the specified name
    */
   public static GenericTag valueOfCamelCase(String arg0) {
-    String name = StringUtil.fromCamelCase(arg0);
+    var name = StringUtil.fromCamelCase(arg0);
     return GenericTag.valueOf(name);
   }
 }

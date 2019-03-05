@@ -15,7 +15,7 @@ public enum ArtworkFormat {
    *
    * @param ext the extension
    */
-  private ArtworkFormat(String ext, boolean lossless) {
+  ArtworkFormat(String ext, boolean lossless) {
     this.ext = ext;
     this.lossless = lossless;
   }
@@ -40,7 +40,7 @@ public enum ArtworkFormat {
    * @return <code>true</code> if of the same type, <code>false</code> otherwise
    */
   public boolean isFormatOf(File file) {
-    String extension = StringUtils.getFilenameExtension(file.getAbsolutePath());
+    var extension = StringUtils.getFilenameExtension(file.getAbsolutePath());
     return this.getExtension().equals(extension);
   }
 
@@ -51,8 +51,8 @@ public enum ArtworkFormat {
    * @return the type of the file
    */
   public static ArtworkFormat valueOf(File file) {
-    String extension = StringUtils.getFilenameExtension(file.getAbsolutePath());
-    for (ArtworkFormat type : ArtworkFormat.values()) {
+    var extension = StringUtils.getFilenameExtension(file.getAbsolutePath());
+    for (var type : ArtworkFormat.values()) {
       if (type.getExtension().equals(extension)) {
         return type;
       }

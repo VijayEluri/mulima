@@ -6,12 +6,10 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.mulima.audio.tool.SplitterResult;
 import org.mulima.exception.UncheckedMulimaException;
 import org.mulima.file.audio.AudioFormat;
 import org.mulima.file.audio.DiscFile;
 import org.mulima.file.audio.TrackFile;
-import org.mulima.meta.Track;
 import org.mulima.service.MulimaService;
 
 /**
@@ -45,17 +43,17 @@ public class SplitStep implements Step<Set<TrackFile>> {
   @Override
   public boolean execute() {
     this.status = Status.IN_PROGRESS;
-    outputs = new HashSet<TrackFile>();
+    outputs = new HashSet<>();
     logger.debug("Splitting {} files", inputs.size());
-    for (DiscFile input : inputs) {
-      File discDestDir = new File(destDir, Integer.toString(input.getDiscNum()));
+    for (var input : inputs) {
+      var discDestDir = new File(destDir, Integer.toString(input.getDiscNum()));
       if (!discDestDir.exists() && !discDestDir.mkdirs()) {
         throw new UncheckedMulimaException("Could not create disc directory: " + discDestDir);
       }
       logger.debug("Splitting {}", input);
       if (input.getMeta().getTracks().size() == 1) {
-        Track track = input.getMeta().getTracks().iterator().next();
-        File destFile =
+        var track = input.getMeta().getTracks().iterator().next();
+        var destFile =
             new File(
                 discDestDir,
                 String.format(
@@ -64,15 +62,15 @@ public class SplitStep implements Step<Set<TrackFile>> {
         if (!input.getFile().renameTo(destFile)) {
           throw new UncheckedMulimaException("Could not move source file: " + input.getFile());
         }
-        TrackFile trackFile = service.getFileService().createTrackFile(destFile);
+        var trackFile = service.getFileService().createTrackFile(destFile);
         trackFile.setMeta(track);
         outputs.add(trackFile);
       } else {
-        SplitterResult result = service.getToolService().getSplitter().split(input, discDestDir);
+        var result = service.getToolService().getSplitter().split(input, discDestDir);
         if (result.isSuccess()) {
           outputs.addAll(result.getDest());
 
-          for (TrackFile file : result.getDest()) {
+          for (var file : result.getDest()) {
             file.setMeta(input.getMeta().getTrack(file.getTrackNum()));
           }
 

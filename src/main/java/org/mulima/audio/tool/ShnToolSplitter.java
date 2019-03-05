@@ -6,19 +6,15 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.mulima.exception.UncheckedMulimaException;
-import org.mulima.file.CachedDir;
 import org.mulima.file.FileService;
 import org.mulima.file.audio.AudioFile;
 import org.mulima.file.audio.AudioFormat;
 import org.mulima.file.audio.DiscFile;
 import org.mulima.file.audio.TrackFile;
-import org.mulima.meta.Track;
 import org.mulima.proc.ProcessCaller;
-import org.mulima.proc.ProcessResult;
 import org.mulima.service.MulimaPropertiesSupport;
 import org.mulima.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,10 +88,10 @@ public class ShnToolSplitter extends MulimaPropertiesSupport implements Splitter
   /** {@inheritDoc} */
   @Override
   public SplitterResult split(DiscFile source, File destDir) {
-    String sourcePath = FileUtil.getSafeCanonicalPath(source);
-    String destPath = FileUtil.getSafeCanonicalPath(destDir);
+    var sourcePath = FileUtil.getSafeCanonicalPath(source);
+    var destPath = FileUtil.getSafeCanonicalPath(destDir);
 
-    List<String> command = new ArrayList<String>();
+    List<String> command = new ArrayList<>();
     command.add(getPath());
     command.add("split");
     if (!"".equals(getOpts())) {
@@ -107,11 +103,11 @@ public class ShnToolSplitter extends MulimaPropertiesSupport implements Splitter
     command.add("\"" + destPath + "\"");
     command.add("\"" + sourcePath + "\"");
 
-    boolean track0 = true;
-    StringWriter input = new StringWriter();
-    PrintWriter writer = new PrintWriter(input);
-    for (Track track : source.getMeta().getTracks()) {
-      String time = track.getStartPoint().getTime();
+    var track0 = true;
+    var input = new StringWriter();
+    var writer = new PrintWriter(input);
+    for (var track : source.getMeta().getTracks()) {
+      var time = track.getStartPoint().getTime();
       if ("00:00:00".equals(time) || "00:00.000".equals(time)) {
         track0 = false;
       }
@@ -119,16 +115,16 @@ public class ShnToolSplitter extends MulimaPropertiesSupport implements Splitter
     }
     writer.close();
 
-    ProcessResult procResult =
+    var procResult =
         new ProcessCaller(
             "split of " + FileUtil.getSafeCanonicalPath(source), command, input.toString())
                 .call();
 
-    int offset = track0 ? -1 : 0;
-    for (File file : destDir.listFiles()) {
-      Matcher matcher = SPLIT_FILE_REGEX.matcher(file.getName());
+    var offset = track0 ? -1 : 0;
+    for (var file : destDir.listFiles()) {
+      var matcher = SPLIT_FILE_REGEX.matcher(file.getName());
       if (matcher.find()) {
-        int num = Integer.parseInt(matcher.group(1)) + offset;
+        var num = Integer.parseInt(matcher.group(1)) + offset;
         if (num == 0) {
           if (!file.delete()) {
             throw new UncheckedMulimaException("Could not delete track 0: " + file);
@@ -146,7 +142,7 @@ public class ShnToolSplitter extends MulimaPropertiesSupport implements Splitter
       }
     }
 
-    CachedDir<AudioFile> dest = fileService.createCachedDir(AudioFile.class, destDir);
+    var dest = fileService.createCachedDir(AudioFile.class, destDir);
     return new SplitterResult(source, dest.getValues(TrackFile.class), procResult);
   }
 }

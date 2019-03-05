@@ -120,9 +120,9 @@ public class MulimaProperties {
    * @return all property names
    */
   public Set<String> getPropertyNames() {
-    Set<String> names = new HashSet<String>();
-    String scope = getName("");
-    for (String property : properties.stringPropertyNames()) {
+    Set<String> names = new HashSet<>();
+    var scope = getName("");
+    for (var property : properties.stringPropertyNames()) {
       if (property.startsWith(scope)) {
         names.add(property.substring(scope.length()));
       }
@@ -136,8 +136,8 @@ public class MulimaProperties {
    * @return all possible scopes
    */
   public Set<String> getSubScopes() {
-    Set<String> scopes = new HashSet<String>();
-    for (String property : getPropertyNames()) {
+    Set<String> scopes = new HashSet<>();
+    for (var property : getPropertyNames()) {
       scopes.add(property.split("\\.")[0]);
     }
     return scopes;
@@ -150,8 +150,8 @@ public class MulimaProperties {
    * @return the full name of the property
    */
   private String getName(String property) {
-    StringBuilder name = new StringBuilder();
-    for (String level : scope) {
+    var name = new StringBuilder();
+    for (var level : scope) {
       name.append(level);
       name.append(".");
     }
@@ -166,7 +166,7 @@ public class MulimaProperties {
    * @return a new properties object with the given level added to the scope
    */
   public MulimaProperties withScope(String level) {
-    List<String> newScope = new ArrayList<String>(scope);
+    List<String> newScope = new ArrayList<>(scope);
     newScope.add(level);
     return new MulimaProperties(properties, newScope);
   }

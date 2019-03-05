@@ -15,7 +15,7 @@ public enum AudioFormat {
    *
    * @param ext the extension
    */
-  private AudioFormat(String ext, boolean lossless) {
+  AudioFormat(String ext, boolean lossless) {
     this.ext = ext;
     this.lossless = lossless;
   }
@@ -40,7 +40,7 @@ public enum AudioFormat {
    * @return <code>true</code> if of the same type, <code>false</code> otherwise
    */
   public boolean isFormatOf(File file) {
-    String extension = StringUtils.getFilenameExtension(file.getAbsolutePath());
+    var extension = StringUtils.getFilenameExtension(file.getAbsolutePath());
     return this.getExtension().equals(extension);
   }
 
@@ -51,8 +51,8 @@ public enum AudioFormat {
    * @return the type of the file
    */
   public static AudioFormat valueOf(File file) {
-    String extension = StringUtils.getFilenameExtension(file.getAbsolutePath());
-    for (AudioFormat type : AudioFormat.values()) {
+    var extension = StringUtils.getFilenameExtension(file.getAbsolutePath());
+    for (var type : AudioFormat.values()) {
       if (type.getExtension().equals(extension)) {
         return type;
       }

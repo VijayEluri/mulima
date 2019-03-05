@@ -8,7 +8,6 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.mulima.exception.UncheckedMulimaException;
-import org.mulima.file.DigestService;
 import org.mulima.file.audio.AudioFile;
 import org.mulima.file.audio.DiscFile;
 import org.mulima.library.LibraryAlbum;
@@ -43,14 +42,14 @@ public class AlbumConversionJob implements java.util.concurrent.Callable<Boolean
 
   /** Executes the job. */
   @Override
-  public Boolean call() throws Exception {
+  public Boolean call() {
     return execute();
   }
 
   /** Executes the job. */
   public Boolean execute() {
     try {
-      Set<LibraryAlbum> outdated = getOutdatedAlbums();
+      var outdated = getOutdatedAlbums();
       if (outdated.size() == 0) {
         logger.debug(
             "Skipping conversion for " + refAlbum.getName() + ". No albums are out of date.");
@@ -59,39 +58,39 @@ public class AlbumConversionJob implements java.util.concurrent.Callable<Boolean
       logger.info("Beginning conversion of: " + refAlbum.getName());
       var tempDir = Files.createTempDirectory("mulima");
 
-      DecodeStep decode =
+      var decode =
           new DecodeStep(service, refAlbum.getAudioFiles(), Files.createTempFile(tempDir, "audio", ".decoded").toFile());
       if (!decode.execute()) {
         logger.error("Failed to decode: " + refAlbum.getName());
         return false;
       }
-      Set<AudioFile> tempFiles = new HashSet<AudioFile>();
-      Set<DiscFile> discFiles = new HashSet<DiscFile>();
-      for (AudioFile temp : decode.getOutputs()) {
+      Set<AudioFile> tempFiles = new HashSet<>();
+      Set<DiscFile> discFiles = new HashSet<>();
+      for (var temp : decode.getOutputs()) {
         if (temp instanceof DiscFile) {
           discFiles.add((DiscFile) temp);
         } else {
           tempFiles.add(temp);
         }
       }
-      SplitStep split = new SplitStep(service, discFiles, Files.createTempFile(tempDir, "audio", ".split").toFile());
+      var split = new SplitStep(service, discFiles, Files.createTempFile(tempDir, "audio", ".split").toFile());
       if (!split.execute()) {
         logger.error("Failed to split: " + refAlbum.getName());
         return false;
       }
       tempFiles.addAll(split.getOutputs());
 
-      for (LibraryAlbum destAlbum : outdated) {
+      for (var destAlbum : outdated) {
         destAlbum.setDir(destAlbum.getLib().determineDir(refAlbum.getAlbum()));
         destAlbum.cleanDir();
-        EncodeStep encode =
+        var encode =
             new EncodeStep(service, destAlbum.getLib().getFormat(), tempFiles, destAlbum.getDir());
         if (!encode.execute()) {
           logger.error("Failed to encode: " + refAlbum.getName());
           return false;
         }
 
-        TagStep tag = new TagStep(service, encode.getOutputs());
+        var tag = new TagStep(service, encode.getOutputs());
         if (!tag.execute()) {
           logger.error("Failed to tag: " + refAlbum.getName());
           return false;
@@ -108,8 +107,8 @@ public class AlbumConversionJob implements java.util.concurrent.Callable<Boolean
         logger.warn("Failed to delete temp dir: {}", tempDir);
       }
 
-      DigestService digestService = service.getDigestService();
-      for (LibraryAlbum destAlbum : outdated) {
+      var digestService = service.getDigestService();
+      for (var destAlbum : outdated) {
         digestService.write(destAlbum, refAlbum);
       }
       digestService.write(refAlbum, null);
@@ -127,8 +126,8 @@ public class AlbumConversionJob implements java.util.concurrent.Callable<Boolean
    * @return the set of outdated albums
    */
   private Set<LibraryAlbum> getOutdatedAlbums() {
-    Set<LibraryAlbum> tempAlbums = new HashSet<LibraryAlbum>();
-    for (LibraryAlbum destAlbum : destAlbums) {
+    Set<LibraryAlbum> tempAlbums = new HashSet<>();
+    for (var destAlbum : destAlbums) {
       if (!service.getLibraryService().isUpToDate(destAlbum, true)) {
         tempAlbums.add(destAlbum);
         logger.debug("Album is out of date: {}", destAlbum.getDir());

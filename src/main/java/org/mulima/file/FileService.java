@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.LogManager;
@@ -37,10 +36,10 @@ public class FileService {
       Pattern.compile("^(?!D\\d{1," + (Integer.MAX_VALUE - 4) + "}T\\d)")
   };
   private static final Pattern[] TRACK_REGEX = {Pattern.compile("^D(\\d+)T(\\d+)")};
-  private final Map<Class<?>, FileParser<?>> parsers = new HashMap<Class<?>, FileParser<?>>();
-  private final Map<Class<?>, FileComposer<?>> composers = new HashMap<Class<?>, FileComposer<?>>();
+  private final Map<Class<?>, FileParser<?>> parsers = new HashMap<>();
+  private final Map<Class<?>, FileComposer<?>> composers = new HashMap<>();
   private final Map<Class<?>, Map<File, CachedFile<?>>> filesCache =
-      new HashMap<Class<?>, Map<File, CachedFile<?>>>();
+      new HashMap<>();
 
   /** Creates a new file service. */
   public FileService() {
@@ -107,7 +106,7 @@ public class FileService {
     if (filesCache.containsKey(type)) {
       tempCache = filesCache.get(type);
     } else {
-      tempCache = new HashMap<File, CachedFile<?>>();
+      tempCache = new HashMap<>();
       filesCache.put(type, tempCache);
     }
 
@@ -115,7 +114,7 @@ public class FileService {
     if (tempCache.containsKey(file)) {
       cachedFile = (CachedFile<T>) tempCache.get(file);
     } else {
-      cachedFile = new CachedFile<T>(getParser(type), file);
+      cachedFile = new CachedFile<>(getParser(type), file);
       tempCache.put(file, cachedFile);
     }
     return cachedFile;
@@ -129,7 +128,7 @@ public class FileService {
    * @return the cached directory
    */
   public <T> CachedDir<T> createCachedDir(Class<T> type, File dir) {
-    return new CachedDir<T>(this, type, dir);
+    return new CachedDir<>(this, type, dir);
   }
 
   /**
@@ -141,7 +140,7 @@ public class FileService {
    * @return the cached directory
    */
   public <T> CachedDir<T> createCachedDir(Class<T> type, File dir, FileFilter filter) {
-    return new CachedDir<T>(this, type, dir, filter);
+    return new CachedDir<>(this, type, dir, filter);
   }
 
   /**
@@ -155,11 +154,11 @@ public class FileService {
       throw new IllegalArgumentException(
           "File (" + file.getName() + ") is not a supported audio file.");
     }
-    for (Pattern pattern : DISC_REGEX) {
-      Matcher matcher = pattern.matcher(file.getName());
+    for (var pattern : DISC_REGEX) {
+      var matcher = pattern.matcher(file.getName());
       if (matcher.find()) {
-        int discNum = matcher.groupCount() == 0 ? 1 : Integer.valueOf(matcher.group(1));
-        Album album =
+        var discNum = matcher.groupCount() == 0 ? 1 : Integer.valueOf(matcher.group(1));
+        var album =
             createCachedFile(Album.class, new File(file.getParentFile(), Album.FILE_NAME))
                 .getValue();
         if (album == null) {
@@ -181,7 +180,7 @@ public class FileService {
    * @return the disc file
    */
   public DiscFile createDiscFile(DiscFile source, File newDir, AudioFormat newFormat) {
-    File newFile = createFile(source, newDir, newFormat);
+    var newFile = createFile(source, newDir, newFormat);
     if (source.getMeta() == null) {
       return new DiscFile(newFile, source.getDiscNum());
     } else {
@@ -200,12 +199,12 @@ public class FileService {
       throw new IllegalArgumentException(
           "File (" + file.getName() + ") is not a supported audio file.");
     }
-    for (Pattern pattern : TRACK_REGEX) {
-      Matcher matcher = pattern.matcher(file.getName());
+    for (var pattern : TRACK_REGEX) {
+      var matcher = pattern.matcher(file.getName());
       if (matcher.find()) {
         int discNum = Integer.valueOf(matcher.group(1));
         int trackNum = Integer.valueOf(matcher.group(2));
-        Album album =
+        var album =
             createCachedFile(Album.class, new File(file.getParentFile(), Album.FILE_NAME))
                 .getValue();
         if (album == null) {
@@ -227,7 +226,7 @@ public class FileService {
    * @return the track file
    */
   public TrackFile createTrackFile(TrackFile source, File newDir, AudioFormat newFormat) {
-    File newFile = createFile(source, newDir, newFormat);
+    var newFile = createFile(source, newDir, newFormat);
     if (source.getMeta() == null) {
       return new TrackFile(newFile, source.getDiscNum(), source.getTrackNum());
     } else {
@@ -283,12 +282,12 @@ public class FileService {
    * @return the new file
    */
   private File createFile(AudioFile source, File newDir, AudioFormat newFormat) {
-    String baseName = FileUtil.getBaseName(source.getFile());
+    var baseName = FileUtil.getBaseName(source.getFile());
     return new File(newDir, baseName + "." + newFormat.getExtension());
   }
 
   private boolean isAudioFile(File file) {
-    for (AudioFormat format : AudioFormat.values()) {
+    for (var format : AudioFormat.values()) {
       if (format.isFormatOf(file)) {
         return true;
       }
@@ -297,13 +296,13 @@ public class FileService {
   }
 
   private String messageForNoMatch(String fileName, Pattern[]... patternArrays) {
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
     builder.append("File name (");
     builder.append(fileName);
     builder.append(") must match pattern: ");
-    boolean first = true;
-    for (Pattern[] patterns : patternArrays) {
-      for (Pattern pattern : patterns) {
+    var first = true;
+    for (var patterns : patternArrays) {
+      for (var pattern : patterns) {
         if (!first) {
           builder.append(" or ");
         }
@@ -346,7 +345,7 @@ public class FileService {
     }
 
     private boolean isArtworkFile(File file) {
-      for (ArtworkFormat format : ArtworkFormat.values()) {
+      for (var format : ArtworkFormat.values()) {
         if (format.isFormatOf(file)) {
           return true;
         }

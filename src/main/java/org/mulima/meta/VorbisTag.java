@@ -20,7 +20,7 @@ public enum VorbisTag implements Tag {
    *
    * @param tag the generic tag this maps to
    */
-  private VorbisTag(GenericTag tag) {
+  VorbisTag(GenericTag tag) {
     this.tag = tag;
   }
 
@@ -44,7 +44,7 @@ public enum VorbisTag implements Tag {
    * @return the Vorbis tag that corresponds to <code>generic</code>.
    */
   public static VorbisTag valueOf(GenericTag generic) {
-    for (VorbisTag tag : VorbisTag.values()) {
+    for (var tag : VorbisTag.values()) {
       if (generic.equals(tag.getGeneric())) {
         return tag;
       }

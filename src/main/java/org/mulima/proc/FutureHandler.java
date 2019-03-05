@@ -13,13 +13,12 @@ public class FutureHandler {
 
   public <T> void handle(String description, Iterable<Future<T>> futures)
       throws InterruptedException {
-    Collection<Future<?>> complete = new ArrayList<Future<?>>();
-    boolean anyRunning = true;
+    Collection<Future<?>> complete = new ArrayList<>();
+    var anyRunning = true;
     while (anyRunning) {
       anyRunning = false;
       for (Future<?> future : futures) {
         if (complete.contains(future)) {
-          continue;
         } else if (future.isDone()) {
           try {
             future.get();

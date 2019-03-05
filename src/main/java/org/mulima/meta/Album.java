@@ -12,7 +12,7 @@ import java.util.TreeSet;
 public class Album extends AbstractMetadata implements Metadata {
   /** The standard name for an album file. */
   public static final String FILE_NAME = "album.xml";
-  private final SortedSet<Disc> discs = new TreeSet<Disc>();
+  private final SortedSet<Disc> discs = new TreeSet<>();
 
   public Album() {
     super(null);
@@ -34,7 +34,7 @@ public class Album extends AbstractMetadata implements Metadata {
    * @return the disc or {@code null} if not found
    */
   public Disc getDisc(int num) {
-    for (Disc disc : discs) {
+    for (var disc : discs) {
       if (disc.getNum() == num) {
         return disc;
       }
@@ -54,7 +54,7 @@ public class Album extends AbstractMetadata implements Metadata {
     if (obj == null) {
       return false;
     } else if (obj instanceof Album) {
-      Album that = (Album) obj;
+      var that = (Album) obj;
       return this.getMap().equals(that.getMap()) && this.getDiscs().equals(that.getDiscs());
     } else {
       return false;
@@ -64,7 +64,7 @@ public class Album extends AbstractMetadata implements Metadata {
   /** {@inheritDoc} */
   @Override
   public int hashCode() {
-    int result = 23;
+    var result = 23;
     result = result * 31 + getMap().hashCode();
     result = result * 31 + getDiscs().hashCode();
     return result;
@@ -73,7 +73,7 @@ public class Album extends AbstractMetadata implements Metadata {
   /** {@inheritDoc} */
   @Override
   public String toString() {
-    StringBuilder builder = new StringBuilder();
+    var builder = new StringBuilder();
     builder.append("[tags:");
     builder.append(getMap());
     builder.append(", discs:");
