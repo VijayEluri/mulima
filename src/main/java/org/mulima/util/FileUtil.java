@@ -14,8 +14,8 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.mulima.api.file.FileHolder;
 import org.mulima.exception.UncheckedMulimaException;
+import org.mulima.file.FileHolder;
 
 /**
  * Helper methods for <code>File</code> operations.

@@ -1,8 +1,8 @@
 package org.mulima.util;
 
-import org.mulima.api.meta.GenericTag;
-import org.mulima.api.meta.Metadata;
-import org.mulima.api.meta.Tag;
+import org.mulima.meta.GenericTag;
+import org.mulima.meta.Metadata;
+import org.mulima.meta.Tag;
 
 /**
  * Helper methods for Metadata operations.

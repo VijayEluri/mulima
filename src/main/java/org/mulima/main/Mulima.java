@@ -3,17 +3,15 @@ package org.mulima.main;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.swing.*;
-
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.mulima.api.file.TempDir;
-import org.mulima.api.library.LibraryManager;
-import org.mulima.api.library.ReferenceLibrary;
-import org.mulima.internal.service.DefaultMulimaService;
+import org.mulima.file.TempDir;
+import org.mulima.library.LibraryManager;
+import org.mulima.library.ReferenceLibrary;
+import org.mulima.service.MulimaService;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
@@ -43,7 +41,7 @@ public class Mulima {
       }
 
       ApplicationContext context = new AnnotationConfigApplicationContext(SpringConfig.class);
-      var service = context.getBean(DefaultMulimaService.class);
+      var service = context.getBean(MulimaService.class);
       service.setTempDir(new TempDir().newChild("mulima"));
 
       var manager = context.getBean(LibraryManager.class);
@@ -168,9 +166,9 @@ public class Mulima {
 
         // refLibs.each { ReferenceLibrary refLib ->
         // refLib.new.each { refAlbum ->
-        // Album album = new DefaultAlbum()
+        // Album album = new Album()
         // refAlbum.cueSheets.each { CueSheet cue ->
-        // Disc disc = new DefaultDisc(album)
+        // Disc disc = new Disc(album)
         // disc.add(GenericTag.DISC_NUMBER, Integer.toString(cue.getNum()))
         // cue.getMap().each { GenericTag tag, List values ->
         // if (tag == GenericTag.FILE) {
@@ -179,7 +177,7 @@ public class Mulima {
         // disc.addAll(tag, values)
         // }
         // cue.cuePoints.each { CuePoint point ->
-        // Track track = new DefaultTrack(disc)
+        // Track track = new Track(disc)
         // track.add(GenericTag.TRACK_NUMBER, Integer.toString(point.getTrack()))
         // track.setStartPoint(point)
         // disc.tracks.add(track)
