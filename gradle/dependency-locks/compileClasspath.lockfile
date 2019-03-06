@@ -3,6 +3,7 @@
 # This file is expected to be part of source control.
 commons-cli:commons-cli:1.4
 commons-codec:commons-codec:1.12
+org.apache.commons:commons-lang3:3.8.1
 org.apache.logging.log4j:log4j-api:2.11.2
 org.springframework:spring-aop:5.1.5.RELEASE
 org.springframework:spring-beans:5.1.5.RELEASE

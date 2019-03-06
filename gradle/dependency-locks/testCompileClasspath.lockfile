@@ -6,6 +6,7 @@ commons-codec:commons-codec:1.12
 junit:junit:4.13-beta-2
 net.bytebuddy:byte-buddy-agent:1.9.7
 net.bytebuddy:byte-buddy:1.9.7
+org.apache.commons:commons-lang3:3.8.1
 org.apache.logging.log4j:log4j-api:2.11.2
 org.codehaus.groovy:groovy-json:2.5.4
 org.codehaus.groovy:groovy-macro:2.5.4

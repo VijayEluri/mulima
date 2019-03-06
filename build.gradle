@@ -27,10 +27,15 @@ dependencies {
   runtimeOnly 'org.apache.logging.log4j:log4j-jcl:latest.release'
   runtimeOnly 'com.lmax:disruptor:latest.release'
 
+  // spring
   implementation 'org.springframework:spring-context:latest.release'
-  implementation 'commons-codec:commons-codec:latest.release'
 
+  // cli
   implementation 'commons-cli:commons-cli:latest.release'
+
+  // util
+  implementation 'org.apache.commons:commons-lang3:latest.release'
+  implementation 'commons-codec:commons-codec:latest.release'
 
   testImplementation 'junit:junit:latest.release'
   testImplementation 'org.mockito:mockito-core:latest.release'
@@ -49,3 +54,5 @@ spotless {
     greclipse().configFile(project.rootProject.file('gradle/eclipse-java-formatter.xml'))
   }
 }
+
+jar.version = null
