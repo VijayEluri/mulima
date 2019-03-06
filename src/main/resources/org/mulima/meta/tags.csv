@@ -32,11 +32,9 @@ tracknumber,TRCK,TRCK,TRACKNUMBER,trackNumber,TRACK
 totaltracks,TRCK,TRCK,TRACKTOTAL,,
 discnumber,TPOS,TPOS,DISCNUMBER,discNumber,DISC
 totaldiscs,TPOS,TPOS,DISCTOTAL,,
-comment:description,COMM:description,COMM:description,COMMENT,,
 genre,TCON,TCON,GENRE,genre,REM GENRE
 bpm,TBPM,TBPM,BPM,,
 mood,,TMOO,MOOD,,
-lyrics:description,USLT:description,USLT:description,LYRICS,,
 catalognumber,TXXX:CATALOGNUMBER,TXXX:CATALOGNUMBER,CATALOGNUMBER,catalogNumber,
 releasetype,TXXX:MusicBrainz Album Type,TXXX:MusicBrainz Album Type,RELEASETYPE,,
 language,TLAN,TLAN,LANGUAGE,,
