@@ -2,7 +2,7 @@
 <Configuration>
   <Appenders>
     <Console name="Console">
-      <PatternLayout pattern="%date{ISO8601} %level %logger{-2} - %message %NDC %MDC" />
+      <PatternLayout pattern="%date{ISO8601} %level %logger{-2} - %message %NDC %MDC%n" />
     </Console>
   </Appenders>
   <Loggers>
