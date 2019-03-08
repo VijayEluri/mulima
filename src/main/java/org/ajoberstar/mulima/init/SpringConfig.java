@@ -4,6 +4,7 @@ import org.ajoberstar.mulima.meta.AlbumXmlParser;
 import org.ajoberstar.mulima.meta.CueSheetParser;
 import org.ajoberstar.mulima.meta.MetaflacTagger;
 import org.ajoberstar.mulima.meta.NeroAacTagger;
+import org.ajoberstar.mulima.meta.OpusInfoParser;
 import org.ajoberstar.mulima.service.MusicBrainzService;
 import org.ajoberstar.mulima.util.HttpClients;
 import org.springframework.context.annotation.Bean;
@@ -35,6 +36,11 @@ public class SpringConfig {
     @Bean
     public MetaflacTagger metaflac(ExecutorService commandsExecutor) {
         return new MetaflacTagger("C:\\Users\\andre\\bin\\metaflac.exe", commandsExecutor);
+    }
+
+    @Bean
+    public OpusInfoParser opusinfo(ExecutorService commandsExecutor) {
+        return new OpusInfoParser("C:\\Users\\andre\\bin\\opusinfo.exe", commandsExecutor);
     }
 
     @Bean
