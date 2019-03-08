@@ -1,11 +1,11 @@
-package org.mulima.future.service;
+package org.ajoberstar.mulima.service;
 
+import org.ajoberstar.mulima.meta.Metadata;
+import org.ajoberstar.mulima.meta.MetadataParser;
+import org.ajoberstar.mulima.meta.MetadataWriter;
+import org.ajoberstar.mulima.util.AsyncCollectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.mulima.future.meta.Metadata;
-import org.mulima.future.meta.MetadataParser;
-import org.mulima.future.meta.MetadataWriter;
-import org.mulima.future.util.AsyncCollectors;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;

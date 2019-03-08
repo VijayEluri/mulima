@@ -3,7 +3,7 @@ package org.mulima.audio.tool;
 import java.util.List;
 
 import org.mulima.file.audio.AudioFile;
-import org.mulima.future.service.ProcessResult;
+import org.ajoberstar.mulima.service.ProcessResult;
 
 /**
  * Represents the result of a joiner operation. Provides access to the process's exit value, the

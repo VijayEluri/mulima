@@ -1,20 +1,14 @@
-package org.mulima.future.meta;
+package org.ajoberstar.mulima.meta;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.mulima.future.util.XmlDocuments;
+import org.ajoberstar.mulima.util.XmlDocuments;
 import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public final class AlbumXmlParser implements MetadataParser {

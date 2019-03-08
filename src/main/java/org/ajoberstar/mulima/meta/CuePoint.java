@@ -1,4 +1,4 @@
-package org.mulima.future.meta;
+package org.ajoberstar.mulima.meta;
 
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;

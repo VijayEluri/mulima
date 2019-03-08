@@ -4,7 +4,7 @@ import java.util.Set;
 
 import org.mulima.file.audio.DiscFile;
 import org.mulima.file.audio.TrackFile;
-import org.mulima.future.service.ProcessResult;
+import org.ajoberstar.mulima.service.ProcessResult;
 
 /**
  * Represents the result of a splitter operation. Provides access to the process's exit value, the

@@ -1,13 +1,12 @@
-package org.mulima.future.service;
+package org.ajoberstar.mulima.service;
 
+import org.ajoberstar.mulima.meta.Metadata;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.mulima.future.meta.Metadata;
 
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 public final class LibraryService {
     private static final Logger logger = LogManager.getLogger(LibraryService.class);

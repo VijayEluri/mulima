@@ -1,4 +1,4 @@
-package org.mulima.future.meta;
+package org.ajoberstar.mulima.meta;
 
 import java.nio.file.Path;
 import java.util.concurrent.CompletionStage;

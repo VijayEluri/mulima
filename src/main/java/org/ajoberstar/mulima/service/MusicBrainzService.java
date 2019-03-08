@@ -1,14 +1,13 @@
-package org.mulima.future.service;
+package org.ajoberstar.mulima.service;
 
+import org.ajoberstar.mulima.util.AsyncCollectors;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.mulima.future.meta.CuePoint;
-import org.mulima.future.meta.Metadata;
-import org.mulima.future.util.HttpClients;
-import org.mulima.future.util.AsyncCollectors;
-import org.mulima.future.util.XmlDocuments;
+import org.ajoberstar.mulima.meta.CuePoint;
+import org.ajoberstar.mulima.meta.Metadata;
+import org.ajoberstar.mulima.util.XmlDocuments;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -31,16 +30,12 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.mulima.future.util.XmlDocuments.getText;
+import static org.ajoberstar.mulima.util.XmlDocuments.getText;
 
 public final class MusicBrainzService {
     private static final Logger logger = LogManager.getLogger(MusicBrainzService.class);
 
     private final HttpClient http;
-
-    public MusicBrainzService() {
-        this.http = HttpClients.rateLimited(1_000);
-    }
 
     public MusicBrainzService(HttpClient http) {
         this.http = http;

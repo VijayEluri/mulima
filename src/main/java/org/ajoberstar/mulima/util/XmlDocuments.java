@@ -1,4 +1,4 @@
-package org.mulima.future.util;
+package org.ajoberstar.mulima.util;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;

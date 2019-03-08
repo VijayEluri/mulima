@@ -1,4 +1,4 @@
-package org.mulima.future.util;
+package org.ajoberstar.mulima.util;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

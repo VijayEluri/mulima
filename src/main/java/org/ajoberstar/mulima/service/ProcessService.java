@@ -1,4 +1,4 @@
-package org.mulima.future.service;
+package org.ajoberstar.mulima.service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

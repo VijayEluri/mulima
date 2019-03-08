@@ -1,29 +1,19 @@
-package org.mulima.future.meta;
+package org.ajoberstar.mulima.meta;
 
-import org.mulima.audio.tool.TaggerResult;
-import org.mulima.file.audio.AudioFile;
-import org.mulima.file.audio.AudioFormat;
-import org.mulima.future.service.ProcessResult;
-import org.mulima.future.service.ProcessService;
-import org.mulima.meta.Track;
-import org.mulima.meta.VorbisTag;
-import org.mulima.proc.ProcessCaller;
-import org.mulima.util.FileUtil;
+import org.ajoberstar.mulima.service.ProcessResult;
+import org.ajoberstar.mulima.service.ProcessService;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class MetaflacTagger implements MetadataParser, MetadataWriter {
+public final class MetaflacTagger implements MetadataParser, MetadataWriter {
   private static final Pattern REGEX = Pattern.compile("comment\\[[0-9]+\\]: ([A-Za-z]+)=(.+)");
-  // private final Logger logger = LogManager.getLogger(getClass());
 
   private final String path;
   private final ExecutorService executor;
@@ -58,7 +48,7 @@ public class MetaflacTagger implements MetadataParser, MetadataWriter {
                       .map(REGEX::matcher)
                       .filter(Matcher::matches)
                       .forEach(matcher -> {
-                        var name = matcher.group(1).toUpperCase();
+                        var name = matcher.group(1);
                         var value = matcher.group(2);
                         builder.addTag(name, value);
                       });
@@ -73,7 +63,7 @@ public class MetaflacTagger implements MetadataParser, MetadataWriter {
       command.add(path);
       command.add("--remove-all-tags");
 
-      Metadata translated = meta.translate("vorbis");
+      var translated = meta.translate("vorbis");
       translated.getTags().entrySet().stream()
               .flatMap(entry -> {
                 var tag = entry.getKey();

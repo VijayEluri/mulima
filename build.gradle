@@ -10,7 +10,7 @@ apply from: 'gradle/locking.gradle'
 
 group = 'org.ajoberstar'
 
-mainClassName = 'org.mulima.main.Mulima'
+mainClassName = 'org.ajoberstar.mulima.Main'
 sourceCompatibility = 11
 
 reckon {
