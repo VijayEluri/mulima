@@ -1,10 +1,11 @@
 package org.mulima.future.service;
 
 import java.nio.file.Path;
+import java.util.concurrent.CompletionStage;
 
 public final class AcoustIdService {
 
-    public String calculateAcoustId(Path file) {
+    public CompletionStage<String> calculateAcoustId(Path file) {
         // TODO implement
         return null;
     }

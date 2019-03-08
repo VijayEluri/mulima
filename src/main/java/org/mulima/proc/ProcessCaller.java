@@ -9,6 +9,7 @@ import java.util.concurrent.Callable;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mulima.future.service.ProcessResult;
 
 /**
  * Executes a <code>Process</code>. This is an alternative to {@link ProcessBuilder#start()} and

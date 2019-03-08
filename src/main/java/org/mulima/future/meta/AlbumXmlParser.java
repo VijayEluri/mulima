@@ -11,11 +11,20 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public final class AlbumXmlParser implements MetadataParser {
   private static final Logger logger = LogManager.getLogger(AlbumXmlParser.class);
+
+  private final ExecutorService executor;
+
+  public AlbumXmlParser(ExecutorService executor) {
+    this.executor = executor;
+  }
 
   @Override
   public boolean accepts(Path file) {
@@ -23,17 +32,19 @@ public final class AlbumXmlParser implements MetadataParser {
   }
 
   @Override
-  public Metadata parse(Path file) {
-    var doc = XmlDocuments.parse(file);
-    // TODO better exception
-    var album = XmlDocuments.getChildren(doc, "album").findAny().orElseThrow(() -> new RuntimeException("Invalid album.xml. No root <album> element."));
+  public CompletionStage<Metadata> parse(Path file) {
+    return CompletableFuture.supplyAsync(() -> {
+      var doc = XmlDocuments.parse(file);
+      // TODO better exception
+      var album = XmlDocuments.getChildren(doc, "album").findAny().orElseThrow(() -> new RuntimeException("Invalid album.xml. No root <album> element."));
 
-    var metadata = Metadata.builder("album-xml");
-    metadata.setFile(file);
+      var metadata = Metadata.builder("album-xml");
+      metadata.setFile(file);
 
-    parseTags(XmlDocuments.getChildren(album, "tag"), metadata);
-    parseDiscs(XmlDocuments.getChildren(album, "disc"), metadata);
-    return metadata.build();
+      parseTags(XmlDocuments.getChildren(album, "tag"), metadata);
+      parseDiscs(XmlDocuments.getChildren(album, "disc"), metadata);
+      return metadata.build();
+    }, executor);
   }
 
   private void parseDiscs(Stream<Node> nodes, Metadata.Builder album) {

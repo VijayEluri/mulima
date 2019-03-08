@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
 
 public final class CueSheetParser implements MetadataParser {
@@ -15,50 +18,58 @@ public final class CueSheetParser implements MetadataParser {
   private static final Pattern LINE_REGEX =
       Pattern.compile("^((?:REM )?[A-Z0-9]+) [\"']?([^\"']*)[\"']?.*$");
 
+  private final ExecutorService executor;
+
+  public CueSheetParser(ExecutorService executor) {
+    this.executor = executor;
+  }
+
   @Override
   public boolean accepts(Path file) {
     return file.getFileName().toString().endsWith(".cue");
   }
 
   @Override
-  public Metadata parse(Path file) {
-    try {
-      var rootBuilder = Metadata.builder("cuesheet");
-      rootBuilder.setFile(file);
-      rootBuilder.addTag("DISC", parseDiscNumber(file));
+  public CompletionStage<Metadata> parse(Path file) {
+    return CompletableFuture.supplyAsync(() -> {
+      try {
+        var rootBuilder = Metadata.builder("cuesheet");
+        rootBuilder.setFile(file);
+        rootBuilder.addTag("DISC", parseDiscNumber(file));
 
-      Metadata.Builder trackBuilder = null;
+        Metadata.Builder trackBuilder = null;
 
-      for (var line : Files.readAllLines(file)) {
-        var matcher = LINE_REGEX.matcher(line.trim());
-        if (!matcher.find()) {
-          logger.warn("Invalid cue sheet line in {}: {}", file, line);
-          continue;
+        for (var line : Files.readAllLines(file)) {
+          var matcher = LINE_REGEX.matcher(line.trim());
+          if (!matcher.find()) {
+            logger.warn("Invalid cue sheet line in {}: {}", file, line);
+            continue;
+          }
+
+          var name = matcher.group(1).trim();
+          var value = matcher.group(2).trim();
+
+          if ("TRACK".equals(name)) {
+            trackBuilder = rootBuilder.newChild();
+            var currentTrack = Integer.parseInt(value.split(" ")[0]);
+            trackBuilder.addTag(name, Integer.toString(currentTrack));
+          } else if ("INDEX".equals(name)) {
+            var values = value.split(" ");
+            int index = Integer.valueOf(values[0]);
+            var time = values[1];
+            trackBuilder.addCue(new CuePoint(index, time));
+          } else if (trackBuilder == null) {
+            rootBuilder.addTag(name, value);
+          } else {
+            trackBuilder.addTag(name, value);
+          }
         }
 
-        var name = matcher.group(1).trim();
-        var value = matcher.group(2).trim();
-
-        if ("TRACK".equals(name)) {
-          trackBuilder = rootBuilder.newChild();
-          var currentTrack = Integer.parseInt(value.split(" ")[0]);
-          trackBuilder.addTag(name, Integer.toString(currentTrack));
-        } else if ("INDEX".equals(name)) {
-          var values = value.split(" ");
-          int index = Integer.valueOf(values[0]);
-          var time = values[1];
-          trackBuilder.addCue(new CuePoint(index, time));
-        } else if (trackBuilder == null) {
-          rootBuilder.addTag(name, value);
-        } else {
-          trackBuilder.addTag(name, value);
-        }
+        return rootBuilder.build();
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
       }
-
-      return rootBuilder.build();
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+    }, executor);
   }
 
   private String parseDiscNumber(Path file) {

@@ -3,7 +3,7 @@ package org.mulima.future.meta;
 import java.nio.file.Path;
 import java.util.concurrent.CompletionStage;
 
-public interface MetadataParser {
+public interface MetadataWriter {
     boolean accepts(Path file);
-    CompletionStage<Metadata> parse(Path file);
+    CompletionStage<Void> write(Metadata meta, Path file);
 }

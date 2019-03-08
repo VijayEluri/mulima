@@ -1,4 +1,4 @@
-package org.mulima.proc;
+package org.mulima.future.service;
 
 import java.util.List;
 
@@ -63,5 +63,14 @@ public class ProcessResult {
    */
   public boolean isSuccess() {
     return exitVal == 0;
+  }
+
+  public ProcessResult assertSuccess() {
+    if (isSuccess()) {
+      return this;
+    } else {
+      // TODO better
+      throw new IllegalStateException("Process failed.");
+    }
   }
 }

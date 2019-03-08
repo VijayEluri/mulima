@@ -1,7 +1,7 @@
 package org.mulima.audio.tool;
 
 import org.mulima.file.audio.AudioFile;
-import org.mulima.proc.ProcessResult;
+import org.mulima.future.service.ProcessResult;
 
 /**
  * Represents the result of a tagger operation. Provides access to the process's exit value, the

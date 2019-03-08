@@ -7,6 +7,11 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -35,6 +40,26 @@ public final class XmlDocuments {
            var builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
            return builder.parse(stream);
         } catch (ParserConfigurationException | SAXException | IOException e) {
+            // TODO better
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void write(Document doc, Path file) {
+        try {
+            var tFactory = TransformerFactory.newInstance();
+            var transformer = tFactory.newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+
+            var source = new DOMSource(doc);
+            try (var stream = Files.newOutputStream(file)) {
+                var result = new StreamResult(stream);
+                transformer.transform(source, result);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        } catch (TransformerException e) {
             // TODO better
             throw new RuntimeException(e);
         }
