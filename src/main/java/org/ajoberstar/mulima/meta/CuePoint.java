@@ -1,12 +1,12 @@
 package org.ajoberstar.mulima.meta;
 
+import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
-import java.util.regex.Pattern;
 
 public final class CuePoint implements Comparable<CuePoint> {
   private static final Pattern FRAMES_REGEX = Pattern.compile("^(\\d+):(\\d{2}):(\\d{2})$");

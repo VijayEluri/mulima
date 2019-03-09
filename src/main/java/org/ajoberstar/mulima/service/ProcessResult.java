@@ -1,6 +1,5 @@
 package org.ajoberstar.mulima.service;
 
-import java.io.StringWriter;
 import java.util.List;
 
 
@@ -71,14 +70,13 @@ public class ProcessResult {
       return this;
     } else {
       var lines = List.of(
-              String.format("Process Failed (%d): %s", exitVal, command.replaceAll("%", "%%")),
-              "Output:",
-              "-------",
-              output,
-              "Error:",
-              "------",
-              error
-      );
+          String.format("Process Failed (%d): %s", exitVal, command.replaceAll("%", "%%")),
+          "Output:",
+          "-------",
+          output,
+          "Error:",
+          "------",
+          error);
 
       throw new IllegalStateException(String.join(System.lineSeparator(), lines));
     }

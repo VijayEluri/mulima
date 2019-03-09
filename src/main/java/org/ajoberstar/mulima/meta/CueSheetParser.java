@@ -1,8 +1,5 @@
 package org.ajoberstar.mulima.meta;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -12,6 +9,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public final class CueSheetParser implements MetadataParser {
   private static final Logger logger = LogManager.getLogger(CueSheetParser.class);
@@ -78,10 +78,10 @@ public final class CueSheetParser implements MetadataParser {
   private String parseDiscNumber(Path file) {
     var matcher = NUM_REGEX.matcher(file.getFileName().toString());
     return matcher.results()
-            .map(result -> result.group(1))
-            .map(Integer::parseInt)
-            .map(Object::toString)
-            .findFirst()
-            .orElse("1");
+        .map(result -> result.group(1))
+        .map(Integer::parseInt)
+        .map(Object::toString)
+        .findFirst()
+        .orElse("1");
   }
 }

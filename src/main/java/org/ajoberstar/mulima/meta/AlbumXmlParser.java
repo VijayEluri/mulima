@@ -1,15 +1,15 @@
 package org.ajoberstar.mulima.meta;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.ajoberstar.mulima.util.XmlDocuments;
-import org.w3c.dom.Node;
-
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
+
+import org.ajoberstar.mulima.util.XmlDocuments;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.w3c.dom.Node;
 
 public final class AlbumXmlParser implements MetadataParser {
   private static final Logger logger = LogManager.getLogger(AlbumXmlParser.class);

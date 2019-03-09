@@ -1,5 +1,9 @@
 package org.ajoberstar.mulima.init;
 
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
+
 import org.ajoberstar.mulima.audio.FlacCodec;
 import org.ajoberstar.mulima.audio.OpusEncoder;
 import org.ajoberstar.mulima.meta.AlbumXmlParser;
@@ -16,63 +20,58 @@ import org.ajoberstar.mulima.util.HttpClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.beans.BeanProperty;
-import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
-
 @Configuration
 public class SpringConfig {
-    @Bean
-    public ProcessService process() {
-        var procs = Runtime.getRuntime().availableProcessors();
-        var threads = Math.max(procs - 1, 1);
-        var executor = Executors.newFixedThreadPool(threads);
-        return new ProcessService(executor);
-    }
+  @Bean
+  public ProcessService process() {
+    var procs = Runtime.getRuntime().availableProcessors();
+    var threads = Math.max(procs - 1, 1);
+    var executor = Executors.newFixedThreadPool(threads);
+    return new ProcessService(executor);
+  }
 
-    @Bean
-    public AlbumXmlParser albumXml() {
-        return new AlbumXmlParser(ForkJoinPool.commonPool());
-    }
+  @Bean
+  public AlbumXmlParser albumXml() {
+    return new AlbumXmlParser(ForkJoinPool.commonPool());
+  }
 
-    @Bean
-    public CueSheetParser cueSheet() {
-        return new CueSheetParser(ForkJoinPool.commonPool());
-    }
+  @Bean
+  public CueSheetParser cueSheet() {
+    return new CueSheetParser(ForkJoinPool.commonPool());
+  }
 
-    @Bean
-    public ArtworkParser artwork() {
-        return new ArtworkParser();
-    }
+  @Bean
+  public ArtworkParser artwork() {
+    return new ArtworkParser();
+  }
 
-    @Bean
-    public MetadataService metadata(List<MetadataParser> parsers, List<MetadataWriter> writers) {
-        return new MetadataService(parsers, writers);
-    }
+  @Bean
+  public MetadataService metadata(List<MetadataParser> parsers, List<MetadataWriter> writers) {
+    return new MetadataService(parsers, writers);
+  }
 
-    @Bean
-    public MetaflacTagger metaflac(ProcessService process) {
-        return new MetaflacTagger("C:\\Users\\andre\\bin\\metaflac.exe", process);
-    }
+  @Bean
+  public MetaflacTagger metaflac(ProcessService process) {
+    return new MetaflacTagger("C:\\Users\\andre\\bin\\metaflac.exe", process);
+  }
 
-    @Bean
-    public FlacCodec flac(ProcessService process) {
-        return new FlacCodec("C:\\Users\\andre\\bin\\flac.exe", 8, "C:\\Users\\andre\\bin\\shntool.exe", process);
-    }
+  @Bean
+  public FlacCodec flac(ProcessService process) {
+    return new FlacCodec("C:\\Users\\andre\\bin\\flac.exe", 8, "C:\\Users\\andre\\bin\\shntool.exe", process);
+  }
 
-    @Bean
-    public OpusInfoParser opusinfo(ProcessService process) {
-        return new OpusInfoParser("C:\\Users\\andre\\bin\\opusinfo.exe", process);
-    }
+  @Bean
+  public OpusInfoParser opusinfo(ProcessService process) {
+    return new OpusInfoParser("C:\\Users\\andre\\bin\\opusinfo.exe", process);
+  }
 
-    @Bean
-    public OpusEncoder opusenc(ProcessService process) {
-        return new OpusEncoder("C:\\Users\\andre\\bin\\opusenc.exe", 128, process);
-    }
+  @Bean
+  public OpusEncoder opusenc(ProcessService process) {
+    return new OpusEncoder("C:\\Users\\andre\\bin\\opusenc.exe", 128, process);
+  }
 
-    @Bean
-    public MusicBrainzService musicbrainz(ProcessService process) {
-        return new MusicBrainzService(HttpClients.rateLimited(1_000), process);
-    }
+  @Bean
+  public MusicBrainzService musicbrainz(ProcessService process) {
+    return new MusicBrainzService(HttpClients.rateLimited(1_000), process);
+  }
 }
