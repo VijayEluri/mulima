@@ -35,7 +35,7 @@ public final class OpusInfoParser implements MetadataParser {
               command.add(path);
               command.add(file.toString());
               return command;
-            }).thenComposeAsync(ProcessService::execute)
+            }).thenComposeAsync(ProcessService::execute, executor)
             .thenApplyAsync(ProcessResult::assertSuccess)
             .thenApplyAsync(result -> {
               var builder = Metadata.builder("vorbis");
@@ -53,6 +53,6 @@ public final class OpusInfoParser implements MetadataParser {
                         builder.addTag(name, value);
                       });
               return builder.build();
-            }, executor);
+            });
   }
 }

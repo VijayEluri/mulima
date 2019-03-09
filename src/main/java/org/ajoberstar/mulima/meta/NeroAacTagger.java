@@ -36,7 +36,7 @@ public final class NeroAacTagger implements MetadataParser, MetadataWriter {
       command.add(file.toString());
       command.add("-list-meta");
       return command;
-    }).thenComposeAsync(ProcessService::execute)
+    }).thenComposeAsync(ProcessService::execute, executor)
             .thenApplyAsync(ProcessResult::assertSuccess)
             .thenApplyAsync(result -> {
               var builder = Metadata.builder("id3v24");
@@ -52,7 +52,7 @@ public final class NeroAacTagger implements MetadataParser, MetadataWriter {
                         builder.addTag(name, value);
                       });
               return builder.build();
-            }, executor);
+            });
   }
 
   @Override
@@ -71,6 +71,7 @@ public final class NeroAacTagger implements MetadataParser, MetadataWriter {
                         .map(value -> String.format("-meta-user:%s=%s", tag, value));
               }).forEach(command::add);
       return command;
-    }).thenComposeAsync(ProcessService::execute).thenAccept(ProcessResult::assertSuccess);
+    }).thenComposeAsync(ProcessService::execute, executor)
+            .thenAccept(ProcessResult::assertSuccess);
   }
 }

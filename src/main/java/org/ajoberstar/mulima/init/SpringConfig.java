@@ -1,5 +1,7 @@
 package org.ajoberstar.mulima.init;
 
+import org.ajoberstar.mulima.audio.FlacCodec;
+import org.ajoberstar.mulima.audio.OpusEncoder;
 import org.ajoberstar.mulima.meta.AlbumXmlParser;
 import org.ajoberstar.mulima.meta.CueSheetParser;
 import org.ajoberstar.mulima.meta.MetaflacTagger;
@@ -39,8 +41,18 @@ public class SpringConfig {
     }
 
     @Bean
+    public FlacCodec flac(ExecutorService commandsExecutor) {
+        return new FlacCodec("C:\\Users\\andre\\bin\\flac.exe", 8, commandsExecutor);
+    }
+
+    @Bean
     public OpusInfoParser opusinfo(ExecutorService commandsExecutor) {
         return new OpusInfoParser("C:\\Users\\andre\\bin\\opusinfo.exe", commandsExecutor);
+    }
+
+    @Bean
+    public OpusEncoder opusenc(ExecutorService commandsExecutor) {
+        return new OpusEncoder("C:\\Users\\andre\\bin\\opusenc.exe", 128, commandsExecutor);
     }
 
     @Bean

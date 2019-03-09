@@ -37,7 +37,7 @@ public final class MetaflacTagger implements MetadataParser, MetadataWriter {
               command.add("--block-type=VORBIS_COMMENT");
               command.add(file.toString());
               return command;
-            }).thenComposeAsync(ProcessService::execute)
+            }).thenComposeAsync(ProcessService::execute, executor)
             .thenApplyAsync(ProcessResult::assertSuccess)
             .thenApplyAsync(result -> {
               var builder = Metadata.builder("vorbis");
@@ -53,7 +53,7 @@ public final class MetaflacTagger implements MetadataParser, MetadataWriter {
                         builder.addTag(name, value);
                       });
               return builder.build();
-            }, executor);
+            });
   }
 
   @Override
@@ -74,6 +74,7 @@ public final class MetaflacTagger implements MetadataParser, MetadataWriter {
 
       command.add(file.toString());
       return command;
-    }).thenComposeAsync(ProcessService::execute).thenAccept(ProcessResult::assertSuccess);
+    }).thenComposeAsync(ProcessService::execute, executor)
+            .thenAccept(ProcessResult::assertSuccess);
   }
 }
