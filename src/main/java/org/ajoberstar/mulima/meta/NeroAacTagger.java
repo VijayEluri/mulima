@@ -16,11 +16,11 @@ public final class NeroAacTagger implements MetadataParser, MetadataWriter {
   private static final Pattern REGEX = Pattern.compile("([A-Za-z]+) = (.+)");
 
   private final String path;
-  private final ExecutorService executor;
+  private final ProcessService process;
 
-  public NeroAacTagger(String path, ExecutorService executor) {
+  public NeroAacTagger(String path, ProcessService process) {
     this.path = path;
-    this.executor = executor;
+    this.process = process;
   }
 
   @Override
@@ -30,13 +30,11 @@ public final class NeroAacTagger implements MetadataParser, MetadataWriter {
 
   @Override
   public CompletionStage<Metadata> parse(Path file) {
-    return CompletableFuture.supplyAsync(() -> {
       List<String> command = new ArrayList<>();
       command.add(path);
       command.add(file.toString());
       command.add("-list-meta");
-      return command;
-    }).thenComposeAsync(ProcessService::execute, executor)
+    return process.execute(command)
             .thenApplyAsync(ProcessResult::assertSuccess)
             .thenApplyAsync(result -> {
               var builder = Metadata.builder("id3v24");
@@ -57,7 +55,6 @@ public final class NeroAacTagger implements MetadataParser, MetadataWriter {
 
   @Override
   public CompletionStage<Void> write(Metadata meta, Path file) {
-    return CompletableFuture.supplyAsync(() -> {
       List<String> command = new ArrayList<>();
       command.add(path);
       command.add(file.toString());
@@ -65,13 +62,12 @@ public final class NeroAacTagger implements MetadataParser, MetadataWriter {
       var translated = meta.translate("id3v24");
       translated.getTags().entrySet().stream()
               .flatMap(entry -> {
-                var tag = entry.getKey();
-                return entry.getValue().stream()
-//                      .map(value -> value.replaceAll("\"", "\\\\\""))
-                        .map(value -> String.format("-meta-user:%s=%s", tag, value));
+                  var tag = entry.getKey();
+                  return entry.getValue().stream()
+                          .map(value -> String.format("-meta-user:%s=%s", tag, value));
               }).forEach(command::add);
-      return command;
-    }).thenComposeAsync(ProcessService::execute, executor)
+
+    return process.execute(command)
             .thenAccept(ProcessResult::assertSuccess);
   }
 }

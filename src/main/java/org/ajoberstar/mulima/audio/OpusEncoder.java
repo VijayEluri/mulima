@@ -12,12 +12,12 @@ import java.util.concurrent.ExecutorService;
 public class OpusEncoder implements AudioEncoder {
     private final String path;
     private final int bitrate;
-    private final ExecutorService executor;
+    private final ProcessService process;
 
-    public OpusEncoder(String path, int bitrate, ExecutorService executor) {
+    public OpusEncoder(String path, int bitrate, ProcessService process) {
         this.path = path;
         this.bitrate = bitrate;
-        this.executor = executor;
+        this.process = process;
     }
 
     @Override
@@ -29,15 +29,14 @@ public class OpusEncoder implements AudioEncoder {
 
     @Override
     public CompletionStage<Void> encode(Path source, Path destination) {
-        return CompletableFuture.supplyAsync(() -> {
-            var command = new ArrayList<String>();
-            command.add(path);
-            command.add("--bitrate");
-            command.add(Integer.toString(bitrate));
-            command.add(source.toString());
-            command.add(destination.toString());
-            return command;
-        }).thenComposeAsync(ProcessService::execute, executor)
+        var command = new ArrayList<String>();
+        command.add(path);
+        command.add("--bitrate");
+        command.add(Integer.toString(bitrate));
+        command.add(source.toString());
+        command.add(destination.toString());
+
+        return process.execute(command)
                 .thenAccept(ProcessResult::assertSuccess);
     }
 }

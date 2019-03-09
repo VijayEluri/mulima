@@ -16,11 +16,11 @@ public final class MetaflacTagger implements MetadataParser, MetadataWriter {
   private static final Pattern REGEX = Pattern.compile("comment\\[[0-9]+\\]: ([A-Za-z]+)=(.+)");
 
   private final String path;
-  private final ExecutorService executor;
+  private final ProcessService process;
 
-  public MetaflacTagger(String path, ExecutorService executor) {
+  public MetaflacTagger(String path, ProcessService process) {
     this.path = path;
-    this.executor = executor;
+    this.process = process;
   }
 
   @Override
@@ -30,14 +30,13 @@ public final class MetaflacTagger implements MetadataParser, MetadataWriter {
 
   @Override
   public CompletionStage<Metadata> parse(Path file) {
-    return CompletableFuture.supplyAsync(() -> {
-              List<String> command = new ArrayList<>();
-              command.add(path);
-              command.add("--list");
-              command.add("--block-type=VORBIS_COMMENT");
-              command.add(file.toString());
-              return command;
-            }).thenComposeAsync(ProcessService::execute, executor)
+      List<String> command = new ArrayList<>();
+      command.add(path);
+      command.add("--list");
+      command.add("--block-type=VORBIS_COMMENT");
+      command.add(file.toString());
+
+    return process.execute(command)
             .thenApplyAsync(ProcessResult::assertSuccess)
             .thenApplyAsync(result -> {
               var builder = Metadata.builder("vorbis");
@@ -58,23 +57,19 @@ public final class MetaflacTagger implements MetadataParser, MetadataWriter {
 
   @Override
   public CompletionStage<Void> write(Metadata meta, Path file) {
-    return CompletableFuture.supplyAsync(() -> {
       List<String> command = new ArrayList<>();
       command.add(path);
       command.add("--remove-all-tags");
-
       var translated = meta.translate("vorbis");
       translated.getTags().entrySet().stream()
               .flatMap(entry -> {
-                var tag = entry.getKey();
-                return entry.getValue().stream()
-//                      .map(value -> value.replaceAll("\"", "\\\\\""))
-                        .map(value -> String.format("--set-tag=%s=%s", tag, value));
+                  var tag = entry.getKey();
+                  return entry.getValue().stream()
+                          .map(value -> String.format("--set-tag=%s=%s", tag, value));
               }).forEach(command::add);
-
       command.add(file.toString());
-      return command;
-    }).thenComposeAsync(ProcessService::execute, executor)
+
+    return process.execute(command)
             .thenAccept(ProcessResult::assertSuccess);
   }
 }

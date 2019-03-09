@@ -36,9 +36,11 @@ public final class MusicBrainzService {
     private static final Logger logger = LogManager.getLogger(MusicBrainzService.class);
 
     private final HttpClient http;
+    private final ProcessService process;
 
-    public MusicBrainzService(HttpClient http) {
+    public MusicBrainzService(HttpClient http, ProcessService process) {
         this.http = http;
+        this.process = process;
     }
 
     public CompletionStage<String> calculateDiscId(Metadata cuesheet, Path flacFile) {
@@ -58,10 +60,14 @@ public final class MusicBrainzService {
                 .max(Comparator.naturalOrder())
                 .orElse(-1);
 
-        var sampleRateStage = ProcessService.executeForOutput("C:\\Users\\andre\\bin\\metaflac.exe", "--show-sample-rate", flacFile.toString())
+        var sampleRateStage = process.execute("C:\\Users\\andre\\bin\\metaflac.exe", "--show-sample-rate", flacFile.toString())
+                .thenApply(ProcessResult::assertSuccess)
+                .thenApply(ProcessResult::getOutput)
                 .thenApply(String::trim)
                 .thenApply(Long::parseLong);
-        var sampleTotalStage = ProcessService.executeForOutput("C:\\Users\\andre\\bin\\metaflac.exe", "--show-total-samples", flacFile.toString())
+        var sampleTotalStage = process.execute("C:\\Users\\andre\\bin\\metaflac.exe", "--show-total-samples", flacFile.toString())
+                .thenApply(ProcessResult::assertSuccess)
+                .thenApply(ProcessResult::getOutput)
                 .thenApply(String::trim)
                 .thenApply(Long::parseLong);
 

@@ -8,6 +8,7 @@ import org.ajoberstar.mulima.meta.MetaflacTagger;
 import org.ajoberstar.mulima.meta.NeroAacTagger;
 import org.ajoberstar.mulima.meta.OpusInfoParser;
 import org.ajoberstar.mulima.service.MusicBrainzService;
+import org.ajoberstar.mulima.service.ProcessService;
 import org.ajoberstar.mulima.util.HttpClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,10 +20,11 @@ import java.util.concurrent.ForkJoinPool;
 @Configuration
 public class SpringConfig {
     @Bean
-    public ExecutorService commandsExecutor() {
+    public ProcessService process() {
         var procs = Runtime.getRuntime().availableProcessors();
         var threads = Math.max(procs - 1, 1);
-        return Executors.newFixedThreadPool(threads);
+        var executor = Executors.newFixedThreadPool(threads);
+        return new ProcessService(executor);
     }
 
     @Bean
@@ -36,32 +38,27 @@ public class SpringConfig {
     }
 
     @Bean
-    public MetaflacTagger metaflac(ExecutorService commandsExecutor) {
-        return new MetaflacTagger("C:\\Users\\andre\\bin\\metaflac.exe", commandsExecutor);
+    public MetaflacTagger metaflac(ProcessService process) {
+        return new MetaflacTagger("C:\\Users\\andre\\bin\\metaflac.exe", process);
     }
 
     @Bean
-    public FlacCodec flac(ExecutorService commandsExecutor) {
-        return new FlacCodec("C:\\Users\\andre\\bin\\flac.exe", 8, commandsExecutor);
+    public FlacCodec flac(ProcessService process) {
+        return new FlacCodec("C:\\Users\\andre\\bin\\flac.exe", 8, "C:\\Users\\andre\\bin\\shntool.exe", process);
     }
 
     @Bean
-    public OpusInfoParser opusinfo(ExecutorService commandsExecutor) {
-        return new OpusInfoParser("C:\\Users\\andre\\bin\\opusinfo.exe", commandsExecutor);
+    public OpusInfoParser opusinfo(ProcessService process) {
+        return new OpusInfoParser("C:\\Users\\andre\\bin\\opusinfo.exe", process);
     }
 
     @Bean
-    public OpusEncoder opusenc(ExecutorService commandsExecutor) {
-        return new OpusEncoder("C:\\Users\\andre\\bin\\opusenc.exe", 128, commandsExecutor);
+    public OpusEncoder opusenc(ProcessService process) {
+        return new OpusEncoder("C:\\Users\\andre\\bin\\opusenc.exe", 128, process);
     }
 
     @Bean
-    public NeroAacTagger neroaactag(ExecutorService commandsExecutor) {
-        return new NeroAacTagger("C:\\Users\\andre\\bin\neroaactag.exe", commandsExecutor);
-    }
-
-    @Bean
-    public MusicBrainzService musicbrainz() {
-        return new MusicBrainzService(HttpClients.rateLimited(1_000));
+    public MusicBrainzService musicbrainz(ProcessService process) {
+        return new MusicBrainzService(HttpClients.rateLimited(1_000), process);
     }
 }

@@ -1,5 +1,6 @@
 package org.ajoberstar.mulima.service;
 
+import java.io.StringWriter;
 import java.util.List;
 
 
@@ -69,8 +70,17 @@ public class ProcessResult {
     if (isSuccess()) {
       return this;
     } else {
-      // TODO better
-      throw new IllegalStateException("Process failed.");
+      var lines = List.of(
+              String.format("Process Failed (%d): %s", exitVal, command.replaceAll("%", "%%")),
+              "Output:",
+              "-------",
+              output,
+              "Error:",
+              "------",
+              error
+      );
+
+      throw new IllegalStateException(String.join(System.lineSeparator(), lines));
     }
   }
 }

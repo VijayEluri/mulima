@@ -16,11 +16,11 @@ public final class OpusInfoParser implements MetadataParser {
   private static final Pattern REGEX = Pattern.compile("([A-Za-z]+)=(.+)");
 
   private final String path;
-  private final ExecutorService executor;
+  private final ProcessService process;
 
-  public OpusInfoParser(String path, ExecutorService executor) {
+  public OpusInfoParser(String path, ProcessService process) {
     this.path = path;
-    this.executor = executor;
+    this.process = process;
   }
 
   @Override
@@ -30,12 +30,10 @@ public final class OpusInfoParser implements MetadataParser {
 
   @Override
   public CompletionStage<Metadata> parse(Path file) {
-    return CompletableFuture.supplyAsync(() -> {
-              List<String> command = new ArrayList<>();
-              command.add(path);
-              command.add(file.toString());
-              return command;
-            }).thenComposeAsync(ProcessService::execute, executor)
+      List<String> command = new ArrayList<>();
+      command.add(path);
+      command.add(file.toString());
+    return process.execute(command)
             .thenApplyAsync(ProcessResult::assertSuccess)
             .thenApplyAsync(result -> {
               var builder = Metadata.builder("vorbis");
