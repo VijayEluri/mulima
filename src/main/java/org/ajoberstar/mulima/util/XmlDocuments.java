@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
@@ -38,6 +39,8 @@ public final class XmlDocuments {
 
   public static Document parse(InputStream stream) {
     try {
+      var factory = DocumentBuilderFactory.newInstance();
+      factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
       var builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
       return builder.parse(stream);
     } catch (ParserConfigurationException | SAXException | IOException e) {
@@ -49,6 +52,7 @@ public final class XmlDocuments {
   public static void write(Document doc, Path file) {
     try {
       var tFactory = TransformerFactory.newInstance();
+      tFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
       var transformer = tFactory.newTransformer();
       transformer.setOutputProperty(OutputKeys.INDENT, "yes");
       transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");

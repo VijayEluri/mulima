@@ -139,8 +139,8 @@ public class FlacCodec implements AudioEncoder, AudioDecoder, AudioSplitter {
   }
 
   private List<Metadata> parseSplitDir(Path directory) {
-    try {
-      return Files.list(directory).flatMap(file -> {
+    try (var stream = Files.list(directory)) {
+      return stream.flatMap(file -> {
         var matcher = FILE_PATTERN.matcher(file.getFileName().toString());
         if (matcher.matches()) {
           var disc = matcher.group("disc");
