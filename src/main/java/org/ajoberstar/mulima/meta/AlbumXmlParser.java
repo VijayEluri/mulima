@@ -33,7 +33,7 @@ public final class AlbumXmlParser implements MetadataParser {
       var album = XmlDocuments.getChildren(doc, "album").findAny().orElseThrow(() -> new RuntimeException("Invalid album.xml. No root <album> element."));
 
       var metadata = Metadata.builder("album-xml");
-      metadata.setFile(file);
+      metadata.setSourceFile(file);
 
       parseTags(XmlDocuments.getChildren(album, "tag"), metadata);
       parseDiscs(XmlDocuments.getChildren(album, "disc"), metadata);

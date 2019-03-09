@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 public final class CuePoint implements Comparable<CuePoint> {
   private static final Pattern FRAMES_REGEX = Pattern.compile("^(\\d+):(\\d{2}):(\\d{2})$");
+  private static final Pattern MILLIS_REGEX = Pattern.compile("^(\\d+):(\\d{2})\\.(\\d{3})$");
 
   private final int index;
   private final String time;
@@ -26,13 +27,18 @@ public final class CuePoint implements Comparable<CuePoint> {
     }
 
     this.time = time;
-    var matcher = FRAMES_REGEX.matcher(time);
-    if (matcher.find()) {
-      this.minutes = Integer.valueOf(matcher.group(1));
-      this.seconds = Integer.valueOf(matcher.group(2));
-      this.frames = Integer.valueOf(matcher.group(3));
+    var framesMatcher = FRAMES_REGEX.matcher(time);
+    var millisMatcher = MILLIS_REGEX.matcher(time);
+    if (framesMatcher.find()) {
+      this.minutes = Integer.valueOf(framesMatcher.group(1));
+      this.seconds = Integer.valueOf(framesMatcher.group(2));
+      this.frames = Integer.valueOf(framesMatcher.group(3));
+    } else if (millisMatcher.find()) {
+      this.minutes = Integer.valueOf(millisMatcher.group(1));
+      this.seconds = Integer.valueOf(millisMatcher.group(2));
+      this.frames = Integer.valueOf(millisMatcher.group(3)) / 75;
     } else {
-      throw new IllegalArgumentException("Time must match " + FRAMES_REGEX.pattern());
+      throw new IllegalArgumentException("Time must match " + FRAMES_REGEX.pattern() + " or " + MILLIS_REGEX + ": " + time);
     }
   }
 

@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
@@ -34,12 +35,12 @@ public final class CueSheetParser implements MetadataParser {
     return CompletableFuture.supplyAsync(() -> {
       try {
         var rootBuilder = Metadata.builder("cuesheet");
-        rootBuilder.setFile(file);
+        rootBuilder.setSourceFile(file);
         rootBuilder.addTag("DISC", parseDiscNumber(file));
 
         Metadata.Builder trackBuilder = null;
 
-        for (var line : Files.readAllLines(file)) {
+        for (var line : Files.readAllLines(file, StandardCharsets.UTF_8)) {
           var matcher = LINE_REGEX.matcher(line.trim());
           if (!matcher.find()) {
             logger.warn("Invalid cue sheet line in {}: {}", file, line);
@@ -49,7 +50,9 @@ public final class CueSheetParser implements MetadataParser {
           var name = matcher.group(1).trim();
           var value = matcher.group(2).trim();
 
-          if ("TRACK".equals(name)) {
+          if ("FILE".equals(name)) {
+            rootBuilder.setAudioFile(file.resolveSibling(value));
+          } else if ("TRACK".equals(name)) {
             trackBuilder = rootBuilder.newChild();
             var currentTrack = Integer.parseInt(value.split(" ")[0]);
             trackBuilder.addTag(name, Integer.toString(currentTrack));

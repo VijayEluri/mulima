@@ -48,21 +48,33 @@ public final class Metadata {
     }
 
     private final String dialect;
-    private final Path file;
+    private final Path sourceFile;
+    private final Path artworkFile;
+    private final Path audioFile;
     private final Map<String, List<String>> tags;
     private final List<CuePoint> cues;
     private final List<Metadata> children;
 
-    private Metadata(String dialect, Path file, Map<String, List<String>> tags, List<CuePoint> cues, List<Metadata> children) {
+    private Metadata(String dialect, Path sourceFile, Path artworkFile, Path audioFile, Map<String, List<String>> tags, List<CuePoint> cues, List<Metadata> children) {
         this.dialect = dialect;
-        this.file = file;
+        this.sourceFile = sourceFile;
+        this.artworkFile = artworkFile;
+        this.audioFile = audioFile;
         this.tags = Collections.unmodifiableMap(tags);
         this.cues = Collections.unmodifiableList(cues);
         this.children = Collections.unmodifiableList(children);
     }
 
-    public Optional<Path> getFile() {
-        return Optional.ofNullable(file);
+    public Optional<Path> getSourceFile() {
+        return Optional.ofNullable(sourceFile);
+    }
+
+    public Optional<Path> getArtworkFile() {
+        return Optional.ofNullable(artworkFile);
+    }
+
+    public Optional<Path> getAudioFile() {
+        return Optional.ofNullable(audioFile);
     }
 
     public Map<String, List<String>> getTags() {
@@ -78,18 +90,23 @@ public final class Metadata {
     }
 
     public List<Metadata> denormalize() {
-        return denormalize(Collections.emptyMap())
+        return denormalize(Metadata.builder(null).build())
                 .collect(Collectors.toList());
     }
 
-    private Stream<Metadata> denormalize(Map<String, List<String>> parentTags) {
-        var dTags = new HashMap<String, List<String>>(parentTags);
+    private Stream<Metadata> denormalize(Metadata parent) {
+        var dSource = getSourceFile().or(parent::getSourceFile).orElse(null);
+        var dArtwork = getArtworkFile().or(parent::getArtworkFile).orElse(null);
+        var dAudio = getAudioFile().or(parent::getAudioFile).orElse(null);
+        var dTags = new HashMap<String, List<String>>(parent.getTags());
         dTags.putAll(tags);
+
+        var metadata = new Metadata(dialect, dSource, dArtwork, dAudio, dTags, cues, children);
         if (children.isEmpty()) {
-            return Stream.of(new Metadata(dialect, null, dTags, cues, children));
+            return Stream.of(metadata);
         } else {
             return children.stream()
-                    .flatMap(child -> child.denormalize(dTags));
+                    .flatMap(child -> child.denormalize(metadata));
         }
     }
 
@@ -108,7 +125,7 @@ public final class Metadata {
                 .map(child -> child.translate(toDialect))
                 .collect(Collectors.toList());
 
-        return new Metadata(toDialect, file, translatedTags, cues, translatedChildren);
+        return new Metadata(toDialect, sourceFile, artworkFile, audioFile, translatedTags, cues, translatedChildren);
     }
 
     @Override
@@ -140,7 +157,9 @@ public final class Metadata {
 
     public static class Builder {
         private String dialect;
-        private Path file = null;
+        private Path sourceFile = null;
+        private Path artworkFile = null;
+        private Path audioFile = null;
         private Map<String, List<String>> tags = new HashMap<>();
         private List<CuePoint> cues = new ArrayList<>();
         private List<Builder> children = new ArrayList<>();
@@ -149,12 +168,30 @@ public final class Metadata {
             this.dialect = dialect;
         }
 
-        public Optional<Path> getFile() {
-            return Optional.ofNullable(file);
+        public Optional<Path> getSourceFile() {
+            return Optional.ofNullable(sourceFile);
         }
 
-        public Builder setFile(Path file) {
-            this.file = file;
+        public Builder setSourceFile(Path sourceFile) {
+            this.sourceFile = sourceFile;
+            return this;
+        }
+
+        public Optional<Path> getArtworkFile() {
+            return Optional.ofNullable(artworkFile);
+        }
+
+        public Builder setArtworkFile(Path artworkFile) {
+            this.artworkFile = artworkFile;
+            return this;
+        }
+
+        public Optional<Path> getAudioFile() {
+            return Optional.ofNullable(audioFile);
+        }
+
+        public Builder setAudioFile(Path audioFile) {
+            this.audioFile = audioFile;
             return this;
         }
 
@@ -185,7 +222,9 @@ public final class Metadata {
 
         public Builder newChild() {
             Builder builder = new Builder(dialect);
-            builder.setFile(file);
+            builder.setSourceFile(sourceFile);
+            builder.setArtworkFile(artworkFile);
+            builder.setAudioFile(audioFile);
             children.add(builder);
             return builder;
         }
@@ -194,7 +233,7 @@ public final class Metadata {
             var builtChildren = children.stream()
                     .map(Builder::build)
                     .collect(Collectors.toList());
-            return new Metadata(dialect, file, tags, cues, builtChildren);
+            return new Metadata(dialect, sourceFile, artworkFile, audioFile, tags, cues, builtChildren);
         }
     }
 }

@@ -1,6 +1,6 @@
-# This is a Gradle generated file for dependency locking.
+# This is a Gradle generated sourceFile for dependency locking.
 # Manual edits can break the build and are not advised.
-# This file is expected to be part of source control.
+# This sourceFile is expected to be part of source control.
 com.lmax:disruptor:3.4.2
 commons-cli:commons-cli:1.4
 commons-codec:commons-codec:1.12

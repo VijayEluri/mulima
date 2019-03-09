@@ -3,17 +3,21 @@ package org.ajoberstar.mulima.init;
 import org.ajoberstar.mulima.audio.FlacCodec;
 import org.ajoberstar.mulima.audio.OpusEncoder;
 import org.ajoberstar.mulima.meta.AlbumXmlParser;
+import org.ajoberstar.mulima.meta.ArtworkParser;
 import org.ajoberstar.mulima.meta.CueSheetParser;
+import org.ajoberstar.mulima.meta.MetadataParser;
+import org.ajoberstar.mulima.meta.MetadataWriter;
 import org.ajoberstar.mulima.meta.MetaflacTagger;
-import org.ajoberstar.mulima.meta.NeroAacTagger;
 import org.ajoberstar.mulima.meta.OpusInfoParser;
+import org.ajoberstar.mulima.service.MetadataService;
 import org.ajoberstar.mulima.service.MusicBrainzService;
 import org.ajoberstar.mulima.service.ProcessService;
 import org.ajoberstar.mulima.util.HttpClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.concurrent.ExecutorService;
+import java.beans.BeanProperty;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 
@@ -35,6 +39,16 @@ public class SpringConfig {
     @Bean
     public CueSheetParser cueSheet() {
         return new CueSheetParser(ForkJoinPool.commonPool());
+    }
+
+    @Bean
+    public ArtworkParser artwork() {
+        return new ArtworkParser();
+    }
+
+    @Bean
+    public MetadataService metadata(List<MetadataParser> parsers, List<MetadataWriter> writers) {
+        return new MetadataService(parsers, writers);
     }
 
     @Bean

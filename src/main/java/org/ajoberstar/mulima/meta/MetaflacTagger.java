@@ -6,9 +6,7 @@ import org.ajoberstar.mulima.service.ProcessService;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,7 +38,8 @@ public final class MetaflacTagger implements MetadataParser, MetadataWriter {
             .thenApplyAsync(ProcessResult::assertSuccess)
             .thenApplyAsync(result -> {
               var builder = Metadata.builder("vorbis");
-              builder.setFile(file);
+              builder.setSourceFile(file);
+              builder.setAudioFile(file);
 
               result.getOutput().lines()
                       .map(String::trim)
@@ -60,6 +59,9 @@ public final class MetaflacTagger implements MetadataParser, MetadataWriter {
       List<String> command = new ArrayList<>();
       command.add(path);
       command.add("--remove-all-tags");
+
+      // FIXME add the artwork
+
       var translated = meta.translate("vorbis");
       translated.getTags().entrySet().stream()
               .flatMap(entry -> {

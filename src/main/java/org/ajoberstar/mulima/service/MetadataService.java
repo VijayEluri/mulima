@@ -30,6 +30,9 @@ public final class MetadataService {
         return parsers.stream()
                 .filter(parser -> parser.accepts(file))
                 .map(parser -> parser.parse(file))
+                .map(metaStage -> metaStage.exceptionally(e -> {
+                    throw new RuntimeException("Could not parse: " + file, e);
+                }))
                 .map(meta -> meta.thenApply(m -> m.translate("generic")))
                 .findFirst();
     }
@@ -37,6 +40,18 @@ public final class MetadataService {
     public CompletionStage<List<Metadata>> parseDir(Path dir) {
         try (var files = Files.list(dir)) {
             return files
+                    .map(this::parseFile)
+                    .flatMap(Optional::stream)
+                    .collect(AsyncCollectors.resultOfAll());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public CompletionStage<List<Metadata>> parseDirRecursive(Path dir) {
+        try (var files = Files.walk(dir)) {
+            return files
+                    .filter(Files::isRegularFile)
                     .map(this::parseFile)
                     .flatMap(Optional::stream)
                     .collect(AsyncCollectors.resultOfAll());

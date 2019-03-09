@@ -148,7 +148,7 @@ public class FlacCodec implements AudioEncoder, AudioDecoder, AudioSplitter {
                     var disc = matcher.group("disc");
                     var track = matcher.group("track");
                     var meta = Metadata.builder("generic")
-                            .setFile(file)
+                            .setSourceFile(file)
                             .addTag("discnumber", disc)
                             .addTag("tracknumber", track)
                             .build();
