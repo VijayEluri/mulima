@@ -1,6 +1,6 @@
-# This is a Gradle generated sourceFile for dependency locking.
+# This is a Gradle generated file for dependency locking.
 # Manual edits can break the build and are not advised.
-# This sourceFile is expected to be part of source control.
+# This file is expected to be part of source control.
 commons-cli:commons-cli:1.4
 commons-codec:commons-codec:1.12
 junit:junit:4.13-beta-2
@@ -19,6 +19,10 @@ org.codehaus.groovy:groovy:2.5.4
 org.hamcrest:hamcrest-core:1.3
 org.mockito:mockito-core:2.25.0
 org.objenesis:objenesis:2.6
+org.openjfx:javafx-base:11.0.1
+org.openjfx:javafx-controls:11.0.1
+org.openjfx:javafx-fxml:11.0.1
+org.openjfx:javafx-graphics:11.0.1
 org.spockframework:spock-core:1.3-RC1-groovy-2.5
 org.springframework:spring-aop:5.1.5.RELEASE
 org.springframework:spring-beans:5.1.5.RELEASE

@@ -1,5 +1,6 @@
 plugins {
   id 'application'
+  id 'org.openjfx.javafxplugin' version '0.0.7'
   id 'org.ajoberstar.grgit' version '3.0.0'
   id 'org.ajoberstar.reckon' version '0.9.0'
   id 'com.diffplug.gradle.spotless' version '3.18.0'
@@ -10,12 +11,17 @@ apply from: 'gradle/locking.gradle'
 
 group = 'org.ajoberstar'
 
-mainClassName = 'org.ajoberstar.mulima.Main'
+mainClassName = 'org.ajoberstar.mulima/org.ajoberstar.mulima.Main'
 sourceCompatibility = 11
 
 reckon {
   scopeFromProp()
   stageFromProp('beta', 'rc', 'final')
+}
+
+javafx {
+  version = '11.0.1'
+  modules = ['javafx.controls', 'javafx.fxml']
 }
 
 repositories { mavenCentral() }
@@ -24,7 +30,6 @@ dependencies {
   // logging
   implementation 'org.apache.logging.log4j:log4j-api:latest.release'
   runtimeOnly 'org.apache.logging.log4j:log4j-core:latest.release'
-  runtimeOnly 'org.apache.logging.log4j:log4j-jcl:latest.release'
   runtimeOnly 'com.lmax:disruptor:latest.release'
 
   // spring

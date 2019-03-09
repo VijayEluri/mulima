@@ -1,5 +1,10 @@
 package org.ajoberstar.mulima.audio;
 
+import org.ajoberstar.mulima.meta.CuePoint;
+import org.ajoberstar.mulima.meta.Metadata;
+import org.ajoberstar.mulima.service.ProcessResult;
+import org.ajoberstar.mulima.service.ProcessService;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -8,15 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.ajoberstar.mulima.meta.CuePoint;
-import org.ajoberstar.mulima.meta.Metadata;
-import org.ajoberstar.mulima.service.ProcessResult;
-import org.ajoberstar.mulima.service.ProcessService;
 
 public class FlacCodec implements AudioEncoder, AudioDecoder, AudioSplitter {
   private static final Pattern FILE_PATTERN = Pattern.compile("D0*(?<disc>\\d+)T0*(?<track>\\d+).flac");

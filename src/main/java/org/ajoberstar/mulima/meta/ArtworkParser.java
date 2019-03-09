@@ -13,6 +13,7 @@ public class ArtworkParser implements MetadataParser {
   @Override
   public CompletionStage<Metadata> parse(Path file) {
     var meta = Metadata.builder("generic")
+        .setSourceFile(file)
         .setArtworkFile(file)
         .build();
 

@@ -13,6 +13,7 @@ import org.ajoberstar.mulima.meta.MetadataParser;
 import org.ajoberstar.mulima.meta.MetadataWriter;
 import org.ajoberstar.mulima.meta.MetaflacTagger;
 import org.ajoberstar.mulima.meta.OpusInfoParser;
+import org.ajoberstar.mulima.service.LibraryService;
 import org.ajoberstar.mulima.service.MetadataService;
 import org.ajoberstar.mulima.service.MusicBrainzService;
 import org.ajoberstar.mulima.service.ProcessService;
@@ -73,5 +74,9 @@ public class SpringConfig {
   @Bean
   public MusicBrainzService musicbrainz(ProcessService process) {
     return new MusicBrainzService(HttpClients.rateLimited(1_000), process);
+  }
+
+  @Bean LibraryService library(MetadataService metadata, MusicBrainzService musicbrainz, FlacCodec flac, OpusEncoder opusenc) {
+    return new LibraryService(metadata, musicbrainz, flac, opusenc);
   }
 }

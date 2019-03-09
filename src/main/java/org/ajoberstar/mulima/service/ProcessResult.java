@@ -2,33 +2,10 @@ package org.ajoberstar.mulima.service;
 
 import java.util.List;
 
-
-/**
- * Represents the result of a Process execution. Provides access to the exit value as well as the
- * standard out and standard error output.
- * 
- * @author Andrew Oberstar
- * @since 0.1.0
- */
 public class ProcessResult {
-  /**
-   * The command that was executed
-   */
   private final String command;
-
-  /**
-   * The exit value of the process
-   */
   private final int exitVal;
-
-  /**
-   * The system output of the process
-   */
   private final String output;
-
-  /**
-   * The system error output of the process
-   */
   private final String error;
 
   public ProcessResult(List<String> command, int exitVal, String output, String error) {
@@ -58,15 +35,8 @@ public class ProcessResult {
     return error;
   }
 
-  /**
-   * @return true if the process was successful (exit value of 0), false otherwise
-   */
-  public boolean isSuccess() {
-    return exitVal == 0;
-  }
-
   public ProcessResult assertSuccess() {
-    if (isSuccess()) {
+    if (exitVal == 0) {
       return this;
     } else {
       var lines = List.of(

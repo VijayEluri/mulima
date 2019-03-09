@@ -1,10 +1,14 @@
-# This is a Gradle generated sourceFile for dependency locking.
+# This is a Gradle generated file for dependency locking.
 # Manual edits can break the build and are not advised.
-# This sourceFile is expected to be part of source control.
+# This file is expected to be part of source control.
 commons-cli:commons-cli:1.4
 commons-codec:commons-codec:1.12
 org.apache.commons:commons-lang3:3.8.1
 org.apache.logging.log4j:log4j-api:2.11.2
+org.openjfx:javafx-base:11.0.1
+org.openjfx:javafx-controls:11.0.1
+org.openjfx:javafx-fxml:11.0.1
+org.openjfx:javafx-graphics:11.0.1
 org.springframework:spring-aop:5.1.5.RELEASE
 org.springframework:spring-beans:5.1.5.RELEASE
 org.springframework:spring-context:5.1.5.RELEASE
