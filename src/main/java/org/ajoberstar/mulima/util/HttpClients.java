@@ -47,7 +47,6 @@ public final class HttpClients {
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
           // TODO better
-          return;
         }
       });
     }

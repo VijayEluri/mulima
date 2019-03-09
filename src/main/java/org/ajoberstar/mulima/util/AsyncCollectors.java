@@ -3,6 +3,7 @@ package org.ajoberstar.mulima.util;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.function.IntFunction;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -14,7 +15,7 @@ public final class AsyncCollectors {
 
   public static <X, T extends CompletionStage<X>> Collector<T, ?, CompletionStage<List<X>>> resultOfAll() {
     return Collectors.mapping(CompletionStage::toCompletableFuture, Collectors.collectingAndThen(Collectors.toList(), futures -> {
-      var all = CompletableFuture.allOf(futures.toArray(size -> new CompletableFuture[size]));
+      var all = CompletableFuture.allOf(futures.toArray((IntFunction<CompletableFuture<?>[]>) CompletableFuture[]::new));
       return all.thenApply(ignored -> {
         return futures.stream()
             .map(CompletableFuture::join)
@@ -25,7 +26,7 @@ public final class AsyncCollectors {
 
   public static <X, T extends CompletionStage<X>> Collector<T, ?, CompletionStage<Void>> allOf() {
     return Collectors.mapping(CompletionStage::toCompletableFuture, Collectors.collectingAndThen(Collectors.toList(), futures -> {
-      return CompletableFuture.allOf(futures.toArray(size -> new CompletableFuture[size]));
+      return CompletableFuture.allOf(futures.toArray((IntFunction<CompletableFuture<?>[]>) CompletableFuture[]::new));
     }));
   }
 }

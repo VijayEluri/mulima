@@ -98,7 +98,7 @@ public final class Metadata {
     var dSource = getSourceFile().or(parent::getSourceFile).orElse(null);
     var dArtwork = getArtworkFile().or(parent::getArtworkFile).orElse(null);
     var dAudio = getAudioFile().or(parent::getAudioFile).orElse(null);
-    var dTags = new HashMap<String, List<String>>(parent.getTags());
+    var dTags = new HashMap<>(parent.getTags());
     dTags.putAll(tags);
 
     var metadata = new Metadata(dialect, dSource, dArtwork, dAudio, dTags, cues, children);
@@ -221,7 +221,7 @@ public final class Metadata {
     }
 
     public Builder newChild() {
-      Builder builder = new Builder(dialect);
+      var builder = new Builder(dialect);
       builder.setSourceFile(sourceFile);
       builder.setArtworkFile(artworkFile);
       builder.setAudioFile(audioFile);

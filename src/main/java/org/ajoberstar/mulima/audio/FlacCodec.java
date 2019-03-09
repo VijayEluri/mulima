@@ -135,15 +135,13 @@ public class FlacCodec implements AudioEncoder, AudioDecoder, AudioSplitter {
 
     return process.execute(command, input)
         .thenApply(ProcessResult::assertSuccess)
-        .thenApply(result -> {
-          return parseSplitDir(destinationDirectory);
-        });
+        .thenApply(result -> parseSplitDir(destinationDirectory));
   }
 
   private List<Metadata> parseSplitDir(Path directory) {
     try {
       return Files.list(directory).flatMap(file -> {
-        Matcher matcher = FILE_PATTERN.matcher(file.getFileName().toString());
+        var matcher = FILE_PATTERN.matcher(file.getFileName().toString());
         if (matcher.matches()) {
           var disc = matcher.group("disc");
           var track = matcher.group("track");

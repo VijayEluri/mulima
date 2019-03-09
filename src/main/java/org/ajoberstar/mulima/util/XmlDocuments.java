@@ -76,7 +76,7 @@ public final class XmlDocuments {
       return Stream.of(node);
     } else {
       var currentPath = path[0];
-      var restPath = Arrays.stream(path).skip(1).toArray(size -> new String[size]);
+      var restPath = Arrays.stream(path).skip(1).toArray(String[]::new);
       if (currentPath.startsWith("@")) {
         var attrNode = node.getAttributes().getNamedItem(currentPath.substring(1));
         return Stream.of(attrNode);
