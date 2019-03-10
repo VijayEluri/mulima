@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Flow;
 import java.util.stream.Collectors;
 
 public final class LibraryService {
@@ -18,6 +19,8 @@ public final class LibraryService {
   private final MusicBrainzService musicbrainz;
   private final FlacCodec flac;
   private final OpusEncoder opusenc;
+
+  private Flow.Publisher<Metadata> sourceMetadata;
 
   public LibraryService(MetadataService metadata, MusicBrainzService musicbrainz, FlacCodec flac, OpusEncoder opusenc) {
     this.metadata = metadata;

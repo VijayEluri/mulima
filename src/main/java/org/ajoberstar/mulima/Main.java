@@ -42,6 +42,32 @@ public final class Main extends Application {
   }
 
   public static void main(String[] args) {
-    launch(args);
+//    launch(args);
+
+    try (var context = new AnnotationConfigApplicationContext(SpringConfig.class)) {
+
+      // [P1] Path -- directories to be scanned
+      // [P2] List<Metadata> -- metadata to merge
+      // [P3] List<Choice> -- failed merges
+      // [P4] Metadata -- successful merges
+      // [P5] Metadata -- ready to convert
+      // [P6] Metadata -- "final" library
+
+
+      // [P1] > [S1] > [P2] (success) -- parse metadata
+      // [P2] > [S2] > [P4] (success) or [P3] (failure) -- merge metadata
+      // [P3] > [S3] > [P4] (success) or [P3] (failure) -- user choice for merges
+      // [P4] > [S4] > [P5] (if not up to date) or [P6] (if up to date) -- check if convert needed
+      // [P5] > [S5] > [P6] -- convert
+
+
+      // UI Stuff
+
+      // Need a merge conflicts view
+      // Need a MusicBrainz release chooser view
+      // Need a progress bar view (but do I?)
+    }
   }
+
+
 }
