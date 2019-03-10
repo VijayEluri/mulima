@@ -18,12 +18,6 @@ public final class CueSheetParser implements MetadataParser {
   private static final Pattern NUM_REGEX = Pattern.compile(".*\\(([0-9])\\)\\.cue");
   private static final Pattern LINE_REGEX = Pattern.compile("^((?:REM )?[A-Z0-9]+) [\"']?([^\"']*)[\"']?.*$");
 
-  private final ExecutorService executor;
-
-  public CueSheetParser(ExecutorService executor) {
-    this.executor = executor;
-  }
-
   @Override
   public boolean accepts(Path file) {
     return file.getFileName().toString().endsWith(".cue");
@@ -72,7 +66,7 @@ public final class CueSheetParser implements MetadataParser {
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
-    }, executor);
+    });
   }
 
   private String parseDiscNumber(Path file) {

@@ -11,6 +11,7 @@ import org.ajoberstar.mulima.meta.ArtworkParser;
 import org.ajoberstar.mulima.meta.CueSheetParser;
 import org.ajoberstar.mulima.meta.MetadataParser;
 import org.ajoberstar.mulima.meta.MetadataWriter;
+import org.ajoberstar.mulima.meta.MetadataYaml;
 import org.ajoberstar.mulima.meta.MetaflacTagger;
 import org.ajoberstar.mulima.meta.OpusInfoParser;
 import org.ajoberstar.mulima.service.LibraryService;
@@ -33,17 +34,22 @@ public class SpringConfig {
 
   @Bean
   public AlbumXmlParser albumXml() {
-    return new AlbumXmlParser(ForkJoinPool.commonPool());
+    return new AlbumXmlParser();
   }
 
   @Bean
   public CueSheetParser cueSheet() {
-    return new CueSheetParser(ForkJoinPool.commonPool());
+    return new CueSheetParser();
   }
 
   @Bean
   public ArtworkParser artwork() {
     return new ArtworkParser();
+  }
+
+  @Bean
+  public MetadataYaml yaml() {
+    return new MetadataYaml();
   }
 
   @Bean

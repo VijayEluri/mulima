@@ -14,12 +14,6 @@ import org.w3c.dom.Node;
 public final class AlbumXmlParser implements MetadataParser {
   private static final Logger logger = LogManager.getLogger(AlbumXmlParser.class);
 
-  private final ExecutorService executor;
-
-  public AlbumXmlParser(ExecutorService executor) {
-    this.executor = executor;
-  }
-
   @Override
   public boolean accepts(Path file) {
     return file.endsWith("album.xml");
@@ -38,7 +32,7 @@ public final class AlbumXmlParser implements MetadataParser {
       parseTags(XmlDocuments.getChildren(album, "tag"), metadata);
       parseDiscs(XmlDocuments.getChildren(album, "disc"), metadata);
       return metadata.build();
-    }, executor);
+    });
   }
 
   private void parseDiscs(Stream<Node> nodes, Metadata.Builder album) {
