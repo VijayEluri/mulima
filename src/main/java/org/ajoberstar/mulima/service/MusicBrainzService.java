@@ -44,7 +44,7 @@ public final class MusicBrainzService {
   }
 
   public CompletionStage<String> calculateDiscId(Metadata cuesheet, Path flacFile) {
-    var tracks = cuesheet.denormalize();
+    var tracks = cuesheet.getChildren();
 
     Function<Metadata, Integer> trackNum = track -> track.getTags().getOrDefault("tracknumber", List.of()).stream()
         .findFirst()

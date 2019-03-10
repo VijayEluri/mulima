@@ -26,12 +26,12 @@ public final class Main extends Application {
       stage.setScene(scene);
       stage.show();
 
-      context.getBean(LibraryService.class).scan(Paths.get("D:", "originals", "flac-rips")).forEach((dir, metas) -> {
-        metas.stream()
-            .map(Metadata::denormalize)
-            .flatMap(List::stream)
-            .forEach(libraryView.getAllMetadata()::add);
-      });
+//      context.getBean(LibraryService.class).scan(Paths.get("D:", "originals", "flac-rips")).forEach((dir, metas) -> {
+//        metas.stream()
+//            .map(Metadata::denormalize)
+//            .flatMap(List::stream)
+//            .forEach(libraryView.getAllMetadata()::add);
+//      });
     }
 //    try {
 ////      Pane pane = FXMLLoader.load(getClass().getResource("/org/ajoberstar/mulima/ui/metadata.fxml"));

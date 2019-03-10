@@ -99,7 +99,7 @@ public class FlacCodec implements AudioEncoder, AudioDecoder, AudioSplitter {
     command.add("-d");
     command.add(destinationDirectory.toString());
 
-    var dMeta = meta.denormalize();
+    var dMeta = meta.getChildren();
 
     // assumes all metadata is for one disc
     var discNum = dMeta.stream()

@@ -55,8 +55,8 @@ public final class Metadata {
   private final List<Metadata> children;
 
   private Metadata(String dialect, Path sourceFile, Path artworkFile, Path audioFile, Map<String, List<String>> tags, List<CuePoint> cues, List<Metadata> children) {
-    this.dialect = dialect;
-    this.sourceFile = sourceFile;
+    this.dialect = Objects.requireNonNull(dialect, "dialect must not be null");
+    this.sourceFile = Objects.requireNonNull(sourceFile, "sourceFile must not be null");
     this.artworkFile = artworkFile;
     this.audioFile = audioFile;
     this.tags = Collections.unmodifiableMap(tags);
@@ -64,8 +64,8 @@ public final class Metadata {
     this.children = Collections.unmodifiableList(children);
   }
 
-  public Optional<Path> getSourceFile() {
-    return Optional.ofNullable(sourceFile);
+  public Path getSourceFile() {
+    return sourceFile;
   }
 
   public Optional<Path> getArtworkFile() {
@@ -98,13 +98,18 @@ public final class Metadata {
     return children;
   }
 
-  public List<Metadata> denormalize() {
-    return denormalize(Metadata.builder(null).build())
-        .collect(Collectors.toList());
+  public Metadata denormalize() {
+    var builder = Metadata.builder("generic");
+    builder.setSourceFile(sourceFile);
+
+    denormalize(this)
+        .forEach(builder::addChild);
+
+    return builder.build();
   }
 
   private Stream<Metadata> denormalize(Metadata parent) {
-    var dSource = getSourceFile().or(parent::getSourceFile).orElse(null);
+    var dSource = getSourceFile();
     var dArtwork = getArtworkFile().or(parent::getArtworkFile).orElse(null);
     var dAudio = getAudioFile().or(parent::getAudioFile).orElse(null);
     var dTags = new HashMap<>(parent.getTags());
@@ -181,8 +186,8 @@ public final class Metadata {
       this.dialect = dialect;
     }
 
-    public Optional<Path> getSourceFile() {
-      return Optional.ofNullable(sourceFile);
+    public Path getSourceFile() {
+      return sourceFile;
     }
 
     public Builder setSourceFile(Path sourceFile) {
@@ -220,6 +225,13 @@ public final class Metadata {
       return this;
     }
 
+    public Builder addAllTags(Map<String, List<String>> tags) {
+      tags.forEach((name, values) -> {
+        values.forEach(value -> addTag(name, value));
+      });
+      return this;
+    }
+
     public List<CuePoint> getCues() {
       return cues;
     }
@@ -238,6 +250,19 @@ public final class Metadata {
       builder.setSourceFile(sourceFile);
       builder.setArtworkFile(artworkFile);
       builder.setAudioFile(audioFile);
+      children.add(builder);
+      return builder;
+    }
+
+    public Builder addChild(Metadata child) {
+      var tChild = child.translate(dialect);
+      var builder = new Builder(dialect);
+      builder.setSourceFile(tChild.sourceFile);
+      builder.setArtworkFile(tChild.artworkFile);
+      builder.setAudioFile(tChild.audioFile);
+      tChild.getCues().forEach(builder::addCue);
+      builder.addAllTags(tChild.tags);
+      child.getChildren().forEach(builder::addChild);
       children.add(builder);
       return builder;
     }

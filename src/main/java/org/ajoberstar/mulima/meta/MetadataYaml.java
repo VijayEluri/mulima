@@ -23,7 +23,7 @@ public class MetadataYaml implements MetadataParser, MetadataWriter {
   }
 
   @Override public boolean accepts(Path file) {
-    return file.endsWith("metadata.yaml");
+    return file.getFileName().toString().endsWith(".yaml");
   }
 
   @Override public CompletionStage<Metadata> parse(Path file) {
