@@ -16,8 +16,7 @@ import org.apache.logging.log4j.Logger;
 public final class CueSheetParser implements MetadataParser {
   private static final Logger logger = LogManager.getLogger(CueSheetParser.class);
   private static final Pattern NUM_REGEX = Pattern.compile(".*\\(([0-9])\\)\\.cue");
-  private static final Pattern LINE_REGEX =
-      Pattern.compile("^((?:REM )?[A-Z0-9]+) [\"']?([^\"']*)[\"']?.*$");
+  private static final Pattern LINE_REGEX = Pattern.compile("^((?:REM )?[A-Z0-9]+) [\"']?([^\"']*)[\"']?.*$");
 
   private final ExecutorService executor;
 
@@ -62,7 +61,8 @@ public final class CueSheetParser implements MetadataParser {
             var time = values[1];
             trackBuilder.addCue(new CuePoint(index, time));
           } else if (trackBuilder == null) {
-            rootBuilder.addTag(name, value);
+            var n = "TITLE".equals(name) ? "ALBUM" : name;
+            rootBuilder.addTag(n, value);
           } else {
             trackBuilder.addTag(name, value);
           }

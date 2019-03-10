@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="org.ajoberstar.mulima.ui.MetadataController">
+  <SplitPane dividerPositions="0.3f">
+    <ListView fx:id="list"/>
+    <VBox>
+      <Label text="Source File" />
+      <TextField fx:id="sourceFile" text="" />
+      <Label text="Artwork File" />
+      <TextField fx:id="artworkFile" text="" />
+      <Label text="Audio File" />
+      <TextField fx:id="audioFile" text="" />
+      <TableView fx:id="cues">
+        <columns>
+          <TableColumn fx:id="index" text="Index" />
+          <TableColumn fx:id="time" text="Time" />
+        </columns>
+      </TableView>
+
+      <TableView fx:id="tags">
+        <columns>
+          <TableColumn fx:id="tagName" text="Tag" />
+          <TableColumn fx:id="tagValue" text="Value" />
+        </columns>
+      </TableView>
+    </VBox>
+  </SplitPane>
+</VBox>

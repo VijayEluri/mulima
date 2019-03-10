@@ -19,6 +19,9 @@ module org.ajoberstar.mulima {
   requires org.apache.commons.lang3;
   requires org.apache.commons.codec;
 
+  // exports
   opens org.ajoberstar.mulima.init to spring.core, spring.beans, spring.context;
+  opens org.ajoberstar.mulima.meta to javafx.base, org.apache.commons.lang3;
+  opens org.ajoberstar.mulima.ui to javafx.fxml;
   exports org.ajoberstar.mulima;
 }

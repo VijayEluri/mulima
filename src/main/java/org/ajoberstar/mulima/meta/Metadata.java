@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -21,11 +22,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public final class Metadata {
-  private static final Logger logger = LogManager.getLogger(Metadata.class);
   private static final List<Map<String, String>> TAG_MAPPINGS;
 
   static {
-    try (var stream = Metadata.class.getResourceAsStream("/org/mulima/meta/tags.csv")) {
+    try (var stream = Metadata.class.getResourceAsStream("/org/ajoberstar/mulima/meta/tags.csv")) {
       var contents = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
       var headers = contents.lines().findFirst()
           .map(line -> line.split(","))
@@ -41,7 +41,6 @@ public final class Metadata {
             }
             return row;
           }).collect(Collectors.toList());
-      logger.debug("Loaded tag mappings: {}", TAG_MAPPINGS);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
@@ -79,6 +78,16 @@ public final class Metadata {
 
   public Map<String, List<String>> getTags() {
     return tags;
+  }
+
+  public Optional<String> getTagValue(String tag) {
+    if (tags.containsKey(tag)) {
+      var value = tags.get(tag).stream()
+          .collect(Collectors.joining(", "));
+      return Optional.of(value);
+    } else {
+      return Optional.empty();
+    }
   }
 
   public List<CuePoint> getCues() {
