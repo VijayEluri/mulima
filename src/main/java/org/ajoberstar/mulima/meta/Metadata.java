@@ -97,13 +97,17 @@ public final class Metadata {
   }
 
   public Metadata denormalize() {
-    var builder = Metadata.builder("generic");
-    builder.setSourceFile(sourceFile);
+    if (children.isEmpty()) {
+      return this;
+    } else {
+      var builder = Metadata.builder("generic");
+      builder.setSourceFile(sourceFile);
 
-    denormalize(this)
-        .forEach(builder::addChild);
+      denormalize(this)
+          .forEach(builder::addChild);
 
-    return builder.build();
+      return builder.build();
+    }
   }
 
   private Stream<Metadata> denormalize(Metadata parent) {

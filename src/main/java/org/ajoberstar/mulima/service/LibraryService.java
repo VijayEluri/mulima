@@ -1,9 +1,13 @@
 package org.ajoberstar.mulima.service;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Flow;
+import java.util.stream.Collectors;
 
 import org.ajoberstar.mulima.audio.FlacCodec;
 import org.ajoberstar.mulima.audio.OpusEncoder;
@@ -28,36 +32,20 @@ public final class LibraryService {
     this.opusenc = opusenc;
   }
 
-  public Map<Path, List<Metadata>> scan(Path sourceDir) {
-    // var allMetadata = metadata.parseDirRecursive(sourceDir).toCompletableFuture().join();
-    // return allMetadata.stream()
-    // .collect(Collectors.groupingBy(metadata -> metadata.getSourceFile().getParent()));
-    return null;
+  public List<Metadata> scan(Path sourceDir) {
+    try (var fileStream = Files.walk(sourceDir)) {
+      return fileStream
+          .filter(Files::isDirectory)
+          .map(metadata::parseDir)
+          .filter(m -> !m.getChildren().isEmpty())
+          .collect(Collectors.toList());
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
-  public void convert(Path sourceDir, Path losslessDestDir, Path lossyDestDir) {
+  public void convert(Metadata album, Path losslessDestDir, Path lossyDestDir) {
 
-  }
-
-  public void handleDirectory(Path albumDir) {
-    // try {
-    // Files.
-    //
-    // Optional<CompletionStage<Metadata>> albumXml = Files.list(albumDir)
-    // .filter(albumXmlParser::accepts)
-    // .map(albumXmlParser::parse)
-    // .findAny();
-    //
-    // Optional<CompletionStage<Metadata>> cueSheet = Files.list(albumDir)
-    // .filter(cueSheetParser::accepts)
-    // .map(cueSheetParser::parse)
-    // .findAny();
-    //
-    // var artwork = Files.list(albumDir)
-    // .
-    // } catch (IOException e) {
-    // throw new UncheckedIOException(e);
-    // }
 
   }
 
