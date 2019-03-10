@@ -1,5 +1,7 @@
 package org.ajoberstar.mulima.ui;
 
+import java.nio.file.Path;
+import java.util.List;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
@@ -7,10 +9,8 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import org.ajoberstar.mulima.meta.Metadata;
 
-import java.nio.file.Path;
-import java.util.List;
+import org.ajoberstar.mulima.meta.Metadata;
 
 public class LibraryView {
   private final VBox root = new VBox();

@@ -6,8 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 import org.ajoberstar.mulima.meta.AlbumXmlParser;
@@ -17,7 +15,6 @@ import org.ajoberstar.mulima.meta.Metadata;
 import org.ajoberstar.mulima.meta.MetadataParser;
 import org.ajoberstar.mulima.meta.MetadataWriter;
 import org.ajoberstar.mulima.meta.MetadataYaml;
-import org.ajoberstar.mulima.util.AsyncCollectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -61,19 +58,14 @@ public final class MetadataService {
     return parsers.stream()
         .filter(parser -> parser.accepts(file))
         .map(parser -> parser.parse(file))
-        .map(metaStage -> metaStage.exceptionally(e -> {
-          throw new RuntimeException("Could not parse: " + file, e);
-        }))
-        .map(meta -> meta.thenApply(m -> m.translate("generic")))
-        .map(CompletionStage::toCompletableFuture)
-        .map(CompletableFuture::join)
+        .map(meta -> meta.translate("generic"))
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException("No parser available for: " + file.getFileName()));
   }
 
   public Metadata parseDir(Path dir) {
-    try {
-      var files = Files.list(dir).collect(Collectors.toList());
+    try (var fileStream = Files.list(dir)) {
+      var files = fileStream.collect(Collectors.toList());
 
       var artwork = parseDirFor(files, artworkParser);
       var cues = parseDirFor(files, cueSheetParser);
@@ -116,28 +108,14 @@ public final class MetadataService {
     return dirFiles.stream()
         .filter(parser::accepts)
         .map(parser::parse)
-        .map(CompletionStage::toCompletableFuture)
-        .map(CompletableFuture::join)
         .collect(Collectors.toList());
   }
 
-//  public CompletionStage<List<Metadata>> parseDirRecursive(Path dir) {
-//    try (var files = Files.walk(dir)) {
-//      return files
-//          .filter(Files::isRegularFile)
-//          .map(this::parseFile)
-//          .flatMap(Optional::stream)
-//          .collect(AsyncCollectors.resultOfAll());
-//    } catch (IOException e) {
-//      throw new UncheckedIOException(e);
-//    }
-//  }
-
-  public CompletionStage<Void> writeFile(Metadata meta, Path file) {
-    return writers.stream()
-        .filter(writer -> writer.accepts(file))
-        .map(writer -> writer.write(meta, file))
+  public void writeFile(Metadata meta, Path file) {
+    var writer = writers.stream()
+        .filter(w -> w.accepts(file))
         .findFirst()
         .orElseThrow(() -> new IllegalArgumentException("No writers available for: " + file.getFileName()));
+    writer.write(meta, file);
   }
 }

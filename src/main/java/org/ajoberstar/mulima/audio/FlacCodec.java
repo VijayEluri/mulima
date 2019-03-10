@@ -1,21 +1,19 @@
 package org.ajoberstar.mulima.audio;
 
-import org.ajoberstar.mulima.meta.CuePoint;
-import org.ajoberstar.mulima.meta.Metadata;
-import org.ajoberstar.mulima.service.ProcessResult;
-import org.ajoberstar.mulima.service.ProcessService;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.ajoberstar.mulima.meta.CuePoint;
+import org.ajoberstar.mulima.meta.Metadata;
+import org.ajoberstar.mulima.service.ProcessService;
 
 public class FlacCodec implements AudioEncoder, AudioDecoder, AudioSplitter {
   private static final Pattern FILE_PATTERN = Pattern.compile("D0*(?<disc>\\d+)T0*(?<track>\\d+).flac");
@@ -50,7 +48,7 @@ public class FlacCodec implements AudioEncoder, AudioDecoder, AudioSplitter {
   }
 
   @Override
-  public CompletionStage<Void> encode(Path source, Path destination) {
+  public void encode(Path source, Path destination) {
     var command = new ArrayList<String>();
     command.add(flacPath);
     command.add("-s"); // silent
@@ -59,12 +57,11 @@ public class FlacCodec implements AudioEncoder, AudioDecoder, AudioSplitter {
     command.add(destination.toString());
     command.add(source.toString());
 
-    return process.execute(command)
-        .thenAccept(ProcessResult::assertSuccess);
+    process.execute(command).assertSuccess();
   }
 
   @Override
-  public CompletionStage<Void> decode(Path source, Path destination) {
+  public void decode(Path source, Path destination) {
     var command = new ArrayList<String>();
     command.add(flacPath);
     command.add("-d"); // decode
@@ -72,12 +69,11 @@ public class FlacCodec implements AudioEncoder, AudioDecoder, AudioSplitter {
     command.add("-o");
     command.add(destination.toString());
     command.add(source.toString());
-    return process.execute(command)
-        .thenAccept(ProcessResult::assertSuccess);
+    process.execute(command).assertSuccess();
   }
 
   @Override
-  public CompletionStage<List<Metadata>> split(Metadata meta, Path source, Path destinationDirectory) {
+  public Metadata split(Metadata meta, Path source, Path destinationDirectory) {
     var command = new ArrayList<String>();
     command.add(shntoolPath);
     command.add("split");
@@ -132,14 +128,16 @@ public class FlacCodec implements AudioEncoder, AudioDecoder, AudioSplitter {
         .map(cue -> cue.getTime().replaceAll(":([^:\\.]+)$", ".$1"))
         .collect(Collectors.joining(System.lineSeparator()));
 
-    return process.execute(command, input)
-        .thenApply(ProcessResult::assertSuccess)
-        .thenApply(result -> parseSplitDir(destinationDirectory));
+    process.execute(command, input).assertSuccess();
+    return parseSplitDir(destinationDirectory);
   }
 
-  private List<Metadata> parseSplitDir(Path directory) {
+  private Metadata parseSplitDir(Path directory) {
     try (var stream = Files.list(directory)) {
-      return stream.flatMap(file -> {
+      var builder = Metadata.builder("generic");
+      builder.setSourceFile(directory);
+
+      stream.flatMap(file -> {
         var matcher = FILE_PATTERN.matcher(file.getFileName().toString());
         if (matcher.matches()) {
           var disc = matcher.group("disc");
@@ -153,7 +151,8 @@ public class FlacCodec implements AudioEncoder, AudioDecoder, AudioSplitter {
         } else {
           return Stream.empty();
         }
-      }).collect(Collectors.toList());
+      }).forEach(builder::addChild);
+      return builder.build();
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }

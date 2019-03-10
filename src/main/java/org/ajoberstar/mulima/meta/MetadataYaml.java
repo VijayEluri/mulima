@@ -1,8 +1,5 @@
 package org.ajoberstar.mulima.meta;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
@@ -11,9 +8,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 public class MetadataYaml implements MetadataParser, MetadataWriter {
   private final ObjectMapper mapper;
@@ -22,39 +20,38 @@ public class MetadataYaml implements MetadataParser, MetadataWriter {
     this.mapper = new ObjectMapper(new YAMLFactory());
   }
 
-  @Override public boolean accepts(Path file) {
+  @Override
+  public boolean accepts(Path file) {
     return file.getFileName().toString().endsWith(".yaml");
   }
 
-  @Override public CompletionStage<Metadata> parse(Path file) {
-    return CompletableFuture.supplyAsync(() -> {
-      try {
-        var builder = Metadata.builder("generic");
-        builder.setSourceFile(file);
-        var map = mapper.readValue(file.toFile(), Map.class);
-        fromMap(builder, map);
-        return builder.build();
-      } catch (IOException e) {
-        throw new UncheckedIOException(e);
-      }
-    });
+  @Override
+  public Metadata parse(Path file) {
+    try {
+      var builder = Metadata.builder("generic");
+      builder.setSourceFile(file);
+      var map = mapper.readValue(file.toFile(), Map.class);
+      fromMap(builder, map);
+      return builder.build();
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
-  @Override public CompletionStage<Void> write(Metadata meta, Path file) {
-    return CompletableFuture.runAsync(() -> {
-      try {
-        mapper.writeValue(file.toFile(), toMap(meta));
-      } catch (IOException e) {
-        throw new UncheckedIOException(e);
-      }
-    });
+  @Override
+  public void write(Metadata meta, Path file) {
+    try {
+      mapper.writeValue(file.toFile(), toMap(meta));
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
   public Map<String, Object> toMap(Metadata metadata) {
     var meta = metadata.translate("generic");
     var cues = meta.getCues().stream()
         .map(cue -> Map.of("index", cue.getIndex(), "time", cue.getTime()))
-            .collect(Collectors.toList());
+        .collect(Collectors.toList());
     var map = new LinkedHashMap<String, Object>();
     map.put("artworkFile", metadata.getArtworkFile().orElse(null));
     map.put("audioFile", metadata.getAudioFile().orElse(null));

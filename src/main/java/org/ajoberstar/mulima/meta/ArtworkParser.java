@@ -1,8 +1,6 @@
 package org.ajoberstar.mulima.meta;
 
 import java.nio.file.Path;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 public class ArtworkParser implements MetadataParser {
   @Override
@@ -11,12 +9,10 @@ public class ArtworkParser implements MetadataParser {
   }
 
   @Override
-  public CompletionStage<Metadata> parse(Path file) {
-    var meta = Metadata.builder("generic")
+  public Metadata parse(Path file) {
+    return Metadata.builder("generic")
         .setSourceFile(file)
         .setArtworkFile(file)
         .build();
-
-    return CompletableFuture.completedStage(meta);
   }
 }

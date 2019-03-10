@@ -2,7 +2,6 @@ package org.ajoberstar.mulima.init;
 
 import java.util.List;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
 
 import org.ajoberstar.mulima.audio.FlacCodec;
 import org.ajoberstar.mulima.audio.OpusEncoder;
@@ -14,7 +13,6 @@ import org.ajoberstar.mulima.meta.MetadataWriter;
 import org.ajoberstar.mulima.meta.MetadataYaml;
 import org.ajoberstar.mulima.meta.MetaflacTagger;
 import org.ajoberstar.mulima.meta.OpusInfoParser;
-import org.ajoberstar.mulima.service.FileMergeService;
 import org.ajoberstar.mulima.service.LibraryService;
 import org.ajoberstar.mulima.service.MetadataService;
 import org.ajoberstar.mulima.service.MusicBrainzService;
@@ -54,11 +52,6 @@ public class SpringConfig {
   }
 
   @Bean
-  public FileMergeService merge(ProcessService process) {
-    return new FileMergeService("C:\\Program Files\\Beyond Compare 4\\BCompare.exe", process);
-  }
-
-  @Bean
   public MetadataService metadata(List<MetadataParser> parsers, List<MetadataWriter> writers) {
     return new MetadataService(parsers, writers);
   }
@@ -88,7 +81,8 @@ public class SpringConfig {
     return new MusicBrainzService(HttpClients.rateLimited(1_000), process);
   }
 
-  @Bean LibraryService library(MetadataService metadata, MusicBrainzService musicbrainz, FlacCodec flac, OpusEncoder opusenc, FileMergeService merge) {
-    return new LibraryService(metadata, musicbrainz, flac, opusenc, merge);
+  @Bean
+  LibraryService library(MetadataService metadata, MusicBrainzService musicbrainz, FlacCodec flac, OpusEncoder opusenc) {
+    return new LibraryService(metadata, musicbrainz, flac, opusenc);
   }
 }

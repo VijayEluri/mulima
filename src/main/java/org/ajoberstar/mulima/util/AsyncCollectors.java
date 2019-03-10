@@ -13,7 +13,7 @@ public final class AsyncCollectors {
     // do not instantiate
   }
 
-  public static <X, T extends CompletionStage<X>> Collector<T, ?, CompletionStage<List<X>>> resultOfAll() {
+  public static <X, T extends CompletionStage<X>> Collector<T, ?, CompletableFuture<List<X>>> resultOfAll() {
     return Collectors.mapping(CompletionStage::toCompletableFuture, Collectors.collectingAndThen(Collectors.toList(), futures -> {
       var all = CompletableFuture.allOf(futures.toArray((IntFunction<CompletableFuture<?>[]>) CompletableFuture[]::new));
       return all.thenApply(ignored -> {
@@ -24,7 +24,7 @@ public final class AsyncCollectors {
     }));
   }
 
-  public static <X, T extends CompletionStage<X>> Collector<T, ?, CompletionStage<Void>> allOf() {
+  public static <X, T extends CompletionStage<X>> Collector<T, ?, CompletableFuture<Void>> allOf() {
     return Collectors.mapping(CompletionStage::toCompletableFuture, Collectors.collectingAndThen(Collectors.toList(), futures -> {
       return CompletableFuture.allOf(futures.toArray((IntFunction<CompletableFuture<?>[]>) CompletableFuture[]::new));
     }));

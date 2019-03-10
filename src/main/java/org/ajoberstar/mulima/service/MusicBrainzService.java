@@ -17,7 +17,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -43,7 +42,7 @@ public final class MusicBrainzService {
     this.process = process;
   }
 
-  public CompletionStage<String> calculateDiscId(Metadata cuesheet, Path flacFile) {
+  public String calculateDiscId(Metadata cuesheet, Path flacFile) {
     var tracks = cuesheet.getChildren();
 
     Function<Metadata, Integer> trackNum = track -> track.getTags().getOrDefault("tracknumber", List.of()).stream()
@@ -60,36 +59,32 @@ public final class MusicBrainzService {
         .max(Comparator.naturalOrder())
         .orElse(-1);
 
-    var sampleRateStage = process.execute("C:\\Users\\andre\\bin\\metaflac.exe", "--show-sample-rate", flacFile.toString())
-        .thenApply(ProcessResult::assertSuccess)
-        .thenApply(ProcessResult::getOutput)
-        .thenApply(String::trim)
-        .thenApply(Long::parseLong);
-    var sampleTotalStage = process.execute("C:\\Users\\andre\\bin\\metaflac.exe", "--show-total-samples", flacFile.toString())
-        .thenApply(ProcessResult::assertSuccess)
-        .thenApply(ProcessResult::getOutput)
-        .thenApply(String::trim)
-        .thenApply(Long::parseLong);
+    var sampleRate = Long.parseLong(process.execute("C:\\Users\\andre\\bin\\metaflac.exe", "--show-sample-rate", flacFile.toString())
+        .assertSuccess()
+        .getOutput()
+        .trim());
+    var sampleTotal = Long.parseLong(process.execute("C:\\Users\\andre\\bin\\metaflac.exe", "--show-total-samples", flacFile.toString())
+        .assertSuccess()
+        .getOutput()
+        .trim());
 
-    return sampleRateStage.thenCombine(sampleTotalStage, (sampleRate, sampleTotal) -> {
-      var offsets = tracks.stream()
-          .collect(Collectors.toMap(trackNum, this::calculateOffset));
-      var leadOutOffset = sampleTotal * 75 / sampleRate + 150;
-      offsets.put(0, (int) leadOutOffset);
+    var offsets = tracks.stream()
+        .collect(Collectors.toMap(trackNum, this::calculateOffset));
+    var leadOutOffset = sampleTotal * 75 / sampleRate + 150;
+    offsets.put(0, (int) leadOutOffset);
 
-      var str = new StringBuilder();
-      str.append(String.format("%02X", firstTrack));
-      str.append(String.format("%02X", lastTrack));
-      for (var i = 0; i < 100; i++) {
-        var offset = offsets.getOrDefault(i, 0);
-        str.append(String.format("%08X", offset));
-      }
+    var str = new StringBuilder();
+    str.append(String.format("%02X", firstTrack));
+    str.append(String.format("%02X", lastTrack));
+    for (var i = 0; i < 100; i++) {
+      var offset = offsets.getOrDefault(i, 0);
+      str.append(String.format("%08X", offset));
+    }
 
-      return Base64.encodeBase64String(DigestUtils.sha1(str.toString()))
-          .replaceAll("\\+", ".")
-          .replaceAll("/", "_")
-          .replaceAll("=", "-");
-    });
+    return Base64.encodeBase64String(DigestUtils.sha1(str.toString()))
+        .replaceAll("\\+", ".")
+        .replaceAll("/", "_")
+        .replaceAll("=", "-");
   }
 
   private int calculateOffset(Metadata track) {
@@ -100,14 +95,14 @@ public final class MusicBrainzService {
         .orElseThrow(() -> new IllegalArgumentException("Track does not have cue point with index 1: " + track));
   }
 
-  public CompletionStage<List<Metadata>> lookupByDiscId(String discId) {
+  public List<Metadata> lookupByDiscId(String discId) {
     return getXml("https://musicbrainz.org/ws/2/discid/%s", discId).thenApply(maybeDoc -> {
       return maybeDoc.map(doc -> {
         return XmlDocuments.getChildren(doc, "metadata", "disc", "release-list", "release")
             .map(release -> handleRelease(release, discId))
             .collect(Collectors.toList());
       }).orElse(Collections.emptyList());
-    });
+    }).join();
   }
 
   private Metadata handleRelease(Node release, String discId) {
@@ -131,7 +126,7 @@ public final class MusicBrainzService {
     return meta.build();
   }
 
-  public CompletionStage<Optional<Metadata>> lookupByReleaseId(String releaseId) {
+  public Optional<Metadata> lookupByReleaseId(String releaseId) {
     return getXml("https://musicbrainz.org/ws/2/release/%s?inc=recordings+artists+release-groups+labels", releaseId).thenCompose(maybeDoc -> {
       return maybeDoc.map(doc -> {
         var meta = Metadata.builder("generic");
@@ -171,11 +166,11 @@ public final class MusicBrainzService {
         return mediums.thenApply(ignored -> {
           return Optional.of(meta.build());
         });
-      }).orElse(CompletableFuture.completedStage(Optional.empty()));
-    });
+      }).orElse(CompletableFuture.completedFuture(Optional.empty()));
+    }).join();
   }
 
-  private CompletionStage<Void> handleMedium(Node medium, Metadata.Builder parent) {
+  private CompletableFuture<Void> handleMedium(Node medium, Metadata.Builder parent) {
     var meta = parent.newChild();
     getText(medium, "position").ifPresent(value -> meta.addTag("discnumber", value));
     getText(medium, "track-list", "@count").ifPresent(value -> meta.addTag("totaltracks", value));
@@ -185,7 +180,7 @@ public final class MusicBrainzService {
         .collect(AsyncCollectors.allOf());
   }
 
-  private CompletionStage<Void> handleTrack(Node track, Metadata.Builder parent) {
+  private CompletableFuture<Void> handleTrack(Node track, Metadata.Builder parent) {
     var meta = parent.newChild();
 
     getText(track, "@id").ifPresent(value -> meta.addTag("musicbrainz_trackid", value));
@@ -194,10 +189,10 @@ public final class MusicBrainzService {
 
     return getText(track, "recording", "@id")
         .map(value -> handleRecording(value, meta))
-        .orElse(CompletableFuture.completedStage(null));
+        .orElse(CompletableFuture.completedFuture(null));
   }
 
-  private CompletionStage<Void> handleRecording(String recordingId, Metadata.Builder meta) {
+  private CompletableFuture<Void> handleRecording(String recordingId, Metadata.Builder meta) {
     return getXml("https://musicbrainz.org/ws/2/recording/%s?inc=artists+work-rels", recordingId).thenCompose(maybeDoc -> {
       meta.addTag("musicbrainz_recordingid", recordingId);
       return maybeDoc.flatMap(doc -> {
@@ -219,11 +214,11 @@ public final class MusicBrainzService {
                   .map(value -> handleWork(value, meta));
             });
 
-      }).orElse(CompletableFuture.completedStage(null));
+      }).orElse(CompletableFuture.completedFuture(null));
     });
   }
 
-  private CompletionStage<Void> handleWork(String workId, Metadata.Builder meta) {
+  private CompletableFuture<Void> handleWork(String workId, Metadata.Builder meta) {
     meta.addTag("musicbrainz_workid", workId);
 
     return getXml("https://musicbrainz.org/ws/2/work/%s?inc=artist-rels", workId).thenAccept(maybeDoc -> {
@@ -258,7 +253,7 @@ public final class MusicBrainzService {
     }
   }
 
-  private CompletionStage<Optional<Document>> getXml(String uriFormat, Object... uriArgs) {
+  private CompletableFuture<Optional<Document>> getXml(String uriFormat, Object... uriArgs) {
     var uri = safeUri(uriFormat, uriArgs);
 
     var uriHash = DigestUtils.sha256Hex(uri.toString());
@@ -266,7 +261,7 @@ public final class MusicBrainzService {
     var cachePath = Paths.get("D:", "temp", uriHash + ".xml");
     if (Files.exists(cachePath)) {
       logger.debug("Using cached result for URI: {}", uri);
-      return CompletableFuture.completedStage(Optional.of(XmlDocuments.parse(cachePath)));
+      return CompletableFuture.completedFuture(Optional.of(XmlDocuments.parse(cachePath)));
     } else {
       // TODO lower level
       logger.error("Requesting URI, as it is not cached: {}", uri);

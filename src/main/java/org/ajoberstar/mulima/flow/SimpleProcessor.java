@@ -27,13 +27,15 @@ class SimpleProcessor<T, R> implements Flow.Processor<T, R> {
 
   // Processor API
 
-  @Override public void subscribe(Flow.Subscriber<? super R> subscriber) {
+  @Override
+  public void subscribe(Flow.Subscriber<? super R> subscriber) {
     publisher.subscribe(subscriber);
   }
 
   // Subscriber API
 
-  @Override public void onSubscribe(Flow.Subscription subscription) {
+  @Override
+  public void onSubscribe(Flow.Subscription subscription) {
     Optional.ofNullable(this.subscription).ifPresent(sub -> {
       throw new IllegalStateException("Already subscribed to another publisher.");
     });
@@ -41,7 +43,8 @@ class SimpleProcessor<T, R> implements Flow.Processor<T, R> {
     subscription.request(buffer.remainingCapacity());
   }
 
-  @Override public void onNext(T item) {
+  @Override
+  public void onNext(T item) {
     if (buffer.offer(item)) {
       CompletableFuture.completedFuture(buffer.remove())
           .thenApply(function)
@@ -56,11 +59,13 @@ class SimpleProcessor<T, R> implements Flow.Processor<T, R> {
     }
   }
 
-  @Override public void onError(Throwable throwable) {
+  @Override
+  public void onError(Throwable throwable) {
     // do nothing
   }
 
-  @Override public void onComplete() {
+  @Override
+  public void onComplete() {
     // do nothing
   }
 }

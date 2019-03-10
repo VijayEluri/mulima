@@ -2,9 +2,7 @@ package org.ajoberstar.mulima.audio;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.concurrent.CompletionStage;
 
-import org.ajoberstar.mulima.service.ProcessResult;
 import org.ajoberstar.mulima.service.ProcessService;
 
 public class OpusEncoder implements AudioEncoder {
@@ -26,7 +24,7 @@ public class OpusEncoder implements AudioEncoder {
   }
 
   @Override
-  public CompletionStage<Void> encode(Path source, Path destination) {
+  public void encode(Path source, Path destination) {
     var command = new ArrayList<String>();
     command.add(path);
     command.add("--bitrate");
@@ -34,7 +32,6 @@ public class OpusEncoder implements AudioEncoder {
     command.add(source.toString());
     command.add(destination.toString());
 
-    return process.execute(command)
-        .thenAccept(ProcessResult::assertSuccess);
+    process.execute(command).assertSuccess();
   }
 }

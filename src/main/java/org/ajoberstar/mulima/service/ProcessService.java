@@ -24,30 +24,26 @@ public final class ProcessService {
     this.executor = executor;
   }
 
-  public CompletableFuture<ProcessResult> execute(String... command) {
+  public ProcessResult execute(String... command) {
     var builder = new ProcessBuilder(command);
     return execute(builder);
   }
 
-  public CompletableFuture<ProcessResult> execute(List<String> command) {
+  public ProcessResult execute(List<String> command) {
     var builder = new ProcessBuilder(command);
     return execute(builder);
   }
 
-  public CompletableFuture<ProcessResult> execute(List<String> command, String inputStr) {
+  public ProcessResult execute(List<String> command, String inputStr) {
     var builder = new ProcessBuilder(command);
     return execute(builder, inputStr);
   }
 
-  public CompletableFuture<ProcessResult> execute(ProcessBuilder builder) {
+  public ProcessResult execute(ProcessBuilder builder) {
     return execute(builder, null);
   }
 
-  public CompletableFuture<ProcessResult> execute(ProcessBuilder builder, String inputStr) {
-    return CompletableFuture.supplyAsync(() -> executeBlocking(builder, inputStr), executor);
-  }
-
-  private ProcessResult executeBlocking(ProcessBuilder builder, String inputStr) {
+  public ProcessResult execute(ProcessBuilder builder, String inputStr) {
     try {
       var process = builder.start();
       var exitCode = process.onExit().thenApply(Process::exitValue);

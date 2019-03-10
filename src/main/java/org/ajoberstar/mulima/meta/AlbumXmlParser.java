@@ -1,9 +1,6 @@
 package org.ajoberstar.mulima.meta;
 
 import java.nio.file.Path;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutorService;
 import java.util.stream.Stream;
 
 import org.ajoberstar.mulima.util.XmlDocuments;
@@ -20,19 +17,17 @@ public final class AlbumXmlParser implements MetadataParser {
   }
 
   @Override
-  public CompletionStage<Metadata> parse(Path file) {
-    return CompletableFuture.supplyAsync(() -> {
-      var doc = XmlDocuments.parse(file);
-      // TODO better exception
-      var album = XmlDocuments.getChildren(doc, "album").findAny().orElseThrow(() -> new RuntimeException("Invalid album.xml. No root <album> element."));
+  public Metadata parse(Path file) {
+    var doc = XmlDocuments.parse(file);
+    // TODO better exception
+    var album = XmlDocuments.getChildren(doc, "album").findAny().orElseThrow(() -> new RuntimeException("Invalid album.xml. No root <album> element."));
 
-      var metadata = Metadata.builder("album-xml");
-      metadata.setSourceFile(file);
+    var metadata = Metadata.builder("album-xml");
+    metadata.setSourceFile(file);
 
-      parseTags(XmlDocuments.getChildren(album, "tag"), metadata);
-      parseDiscs(XmlDocuments.getChildren(album, "disc"), metadata);
-      return metadata.build();
-    });
+    parseTags(XmlDocuments.getChildren(album, "tag"), metadata);
+    parseDiscs(XmlDocuments.getChildren(album, "disc"), metadata);
+    return metadata.build();
   }
 
   private void parseDiscs(Stream<Node> nodes, Metadata.Builder album) {

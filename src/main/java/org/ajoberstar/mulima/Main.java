@@ -3,14 +3,10 @@ package org.ajoberstar.mulima;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+
 import org.ajoberstar.mulima.init.SpringConfig;
-import org.ajoberstar.mulima.meta.Metadata;
-import org.ajoberstar.mulima.service.LibraryService;
 import org.ajoberstar.mulima.ui.LibraryView;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
-import java.nio.file.Paths;
-import java.util.List;
 
 public final class Main extends Application {
 
@@ -26,23 +22,24 @@ public final class Main extends Application {
       stage.setScene(scene);
       stage.show();
 
-//      context.getBean(LibraryService.class).scan(Paths.get("D:", "originals", "flac-rips")).forEach((dir, metas) -> {
-//        metas.stream()
-//            .map(Metadata::denormalize)
-//            .flatMap(List::stream)
-//            .forEach(libraryView.getAllMetadata()::add);
-//      });
+      // context.getBean(LibraryService.class).scan(Paths.get("D:", "originals",
+      // "flac-rips")).forEach((dir, metas) -> {
+      // metas.stream()
+      // .map(Metadata::denormalize)
+      // .flatMap(List::stream)
+      // .forEach(libraryView.getAllMetadata()::add);
+      // });
     }
-//    try {
-////      Pane pane = FXMLLoader.load(getClass().getResource("/org/ajoberstar/mulima/ui/metadata.fxml"));
-//
-//    } catch (IOException e) {
-//      throw new UncheckedIOException(e);
-//    }
+    // try {
+    //// Pane pane = FXMLLoader.load(getClass().getResource("/org/ajoberstar/mulima/ui/metadata.fxml"));
+    //
+    // } catch (IOException e) {
+    // throw new UncheckedIOException(e);
+    // }
   }
 
   public static void main(String[] args) {
-//    launch(args);
+    // launch(args);
 
     try (var context = new AnnotationConfigApplicationContext(SpringConfig.class)) {
 
