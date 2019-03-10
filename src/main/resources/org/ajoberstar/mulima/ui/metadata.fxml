@@ -7,9 +7,10 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.TreeView?>
 <VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="org.ajoberstar.mulima.ui.MetadataController">
   <SplitPane dividerPositions="0.3f">
-    <ListView fx:id="list"/>
+    <TreeView fx:id="tree"/>
     <VBox>
       <Label text="Source File" />
       <TextField fx:id="sourceFile" text="" />

@@ -4,10 +4,12 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import org.ajoberstar.mulima.meta.Metadata;
 
+import java.nio.file.Path;
 import java.util.List;
 
 public class LibraryView {
@@ -16,6 +18,18 @@ public class LibraryView {
 
   public LibraryView() {
     root.getChildren().add(table);
+
+    var source = new TableColumn<Metadata, Path>("source");
+    source.setCellValueFactory(new PropertyValueFactory<>("sourceFile"));
+    table.getColumns().add(source);
+
+    var artwork = new TableColumn<Metadata, Path>("artwork");
+    artwork.setCellValueFactory(new PropertyValueFactory<>("artworkFile"));
+    table.getColumns().add(artwork);
+
+    var audio = new TableColumn<Metadata, Path>("audio");
+    audio.setCellValueFactory(new PropertyValueFactory<>("audioFile"));
+    table.getColumns().add(audio);
 
     var columns = List.of("albumartist", "album", "discnumber", "tracknumber", "title", "artist");
 

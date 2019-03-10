@@ -41,6 +41,9 @@ dependencies {
   // util
   implementation 'org.apache.commons:commons-lang3:latest.release'
   implementation 'commons-codec:commons-codec:latest.release'
+  implementation 'com.fasterxml.jackson.core:jackson-core:latest.release'
+  implementation 'com.fasterxml.jackson.core:jackson-databind:latest.release'
+  implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:latest.release'
 
   testImplementation 'junit:junit:latest.release'
   testImplementation 'org.mockito:mockito-core:latest.release'

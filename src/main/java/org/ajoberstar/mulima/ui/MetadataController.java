@@ -30,7 +30,7 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ForkJoinPool;
 
 public class MetadataController implements Initializable {
-  @FXML private ListView<Metadata> list;
+  @FXML private TreeView<Metadata> tree;
 
   @FXML private TextField sourceFile;
   @FXML private TextField artworkFile;
@@ -75,26 +75,26 @@ public class MetadataController implements Initializable {
       }
     });
 
-    list.setCellFactory(cellFactory);
-
-    var cue = new CueSheetParser(ForkJoinPool.commonPool());
-    cue.parse(Paths.get("D:", "test", "The Missing Piece.cue")).thenAccept(metadata -> {
-      var dMeta = metadata.denormalize();
-      list.getItems().setAll(dMeta);
-
-      list.getFocusModel().focusedItemProperty().addListener((obs, oldMeta, newMeta) -> {
-        sourceFile.setText(newMeta.getSourceFile().map(Path::toString).orElse(""));
-        artworkFile.setText(newMeta.getArtworkFile().map(Path::toString).orElse(""));
-        audioFile.setText(newMeta.getAudioFile().map(Path::toString).orElse(""));
-
-        cues.getItems().setAll(newMeta.getCues());
-
-        tags.getItems().clear();
-        newMeta.getTags().entrySet().stream()
-            .flatMap(entry -> entry.getValue().stream().map(value -> Map.of("name", entry.getKey(), "value", value)))
-            .forEach(tags.getItems()::add);
-      });
-    });
+//    list.setCellFactory(cellFactory);
+//
+//    var cue = new CueSheetParser(ForkJoinPool.commonPool());
+//    cue.parse(Paths.get("D:", "test", "The Missing Piece.cue")).thenAccept(metadata -> {
+//      var dMeta = metadata.denormalize();
+//      tree.getItems().setAll(dMeta);
+//
+//      list.getFocusModel().focusedItemProperty().addListener((obs, oldMeta, newMeta) -> {
+//        sourceFile.setText(newMeta.getSourceFile().map(Path::toString).orElse(""));
+//        artworkFile.setText(newMeta.getArtworkFile().map(Path::toString).orElse(""));
+//        audioFile.setText(newMeta.getAudioFile().map(Path::toString).orElse(""));
+//
+//        cues.getItems().setAll(newMeta.getCues());
+//
+//        tags.getItems().clear();
+//        newMeta.getTags().entrySet().stream()
+//            .flatMap(entry -> entry.getValue().stream().map(value -> Map.of("name", entry.getKey(), "value", value)))
+//            .forEach(tags.getItems()::add);
+//      });
+//    });
   }
 
   private TreeItem<Metadata> toTreeItem(Metadata metadata) {

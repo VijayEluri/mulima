@@ -120,21 +120,25 @@ public final class Metadata {
   }
 
   public Metadata translate(String toDialect) {
-    var translatedTags = new HashMap<String, List<String>>();
-    tags.forEach((name, values) -> {
-      TAG_MAPPINGS.stream()
-          .filter(mapping -> name.equals(mapping.get(dialect)))
-          .filter(mapping -> mapping.containsKey(toDialect))
-          .map(mapping -> mapping.get(toDialect))
-          .findFirst()
-          .ifPresent(toName -> translatedTags.put(toName, values));
-    });
+    if (dialect.equals(toDialect)) {
+      return this;
+    } else {
+      var translatedTags = new HashMap<String, List<String>>();
+      tags.forEach((name, values) -> {
+        TAG_MAPPINGS.stream()
+            .filter(mapping -> name.equals(mapping.get(dialect)))
+            .filter(mapping -> mapping.containsKey(toDialect))
+            .map(mapping -> mapping.get(toDialect))
+            .findFirst()
+            .ifPresent(toName -> translatedTags.put(toName, values));
+      });
 
-    var translatedChildren = children.stream()
-        .map(child -> child.translate(toDialect))
-        .collect(Collectors.toList());
+      var translatedChildren = children.stream()
+          .map(child -> child.translate(toDialect))
+          .collect(Collectors.toList());
 
-    return new Metadata(toDialect, sourceFile, artworkFile, audioFile, translatedTags, cues, translatedChildren);
+      return new Metadata(toDialect, sourceFile, artworkFile, audioFile, translatedTags, cues, translatedChildren);
+    }
   }
 
   @Override
