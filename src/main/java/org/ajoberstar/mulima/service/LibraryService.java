@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Flow;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.ajoberstar.mulima.audio.FlacCodec;
@@ -44,9 +47,43 @@ public final class LibraryService {
     }
   }
 
-  public void convert(Metadata album, Path losslessDestDir, Path lossyDestDir) {
+  public void convert(Metadata meta, Path losslessDestRootDir, Path lossyDestRootDir) {
+    // prep directory names
+    var artist = getCommonPathSafeTagValue(meta, "albumartist").or(() -> getCommonPathSafeTagValue(meta, "artist")).orElse("Various Artists");
+    var album = getCommonPathSafeTagValue(meta, "album").orElseThrow(() -> new IllegalArgumentException("Unknown album name in: " + meta));
 
+    // create dest directories
+    var losslessDir = losslessDestRootDir.resolve(artist).resolve(album);
+    var lossyDir = lossyDestRootDir.resolve(artist).resolve(album);
 
+    // FIXME what if they already exist, should we overwrite?
+    try {
+      Files.createDirectories(losslessDir);
+      Files.createDirectories(lossyDir);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+
+    // lossless conversion
+    var losslessResult = flac.split(meta, losslessDir);
+
+    // lossy conversion
+    losslessResult.getChildren().stream().forEach(track -> {
+      var discNum = track.getTagValue("discnumber").map(Integer::parseInt).orElseThrow(() -> new IllegalStateException("Track does not have a disc number: " + track));
+      var trackNum = track.getTagValue("tracknumber").map(Integer::parseInt).orElseThrow(() -> new IllegalStateException("Track does not have a track number: " + track));
+      var fileName = String.format("D%02dT%02d.opus", discNum, trackNum);
+      track.getAudioFile().ifPresent(source -> opusenc.encode(source, lossyDir.resolve(fileName)));
+    });
+  }
+
+  private Optional<String> getCommonPathSafeTagValue(Metadata metadata, String tagName) {
+    var valuesToCount = metadata.getChildren().stream()
+        .flatMap(m -> m.getTagValue(tagName).stream())
+        .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+    return valuesToCount.entrySet().stream()
+        .collect(Collectors.maxBy(Comparator.comparing(Map.Entry::getValue)))
+        .map(Map.Entry::getKey);
+        // TODO path safe
   }
 
   public boolean isUpToDate(Metadata album) {

@@ -5,7 +5,9 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -13,6 +15,7 @@ import java.util.stream.Stream;
 
 import org.ajoberstar.mulima.meta.CuePoint;
 import org.ajoberstar.mulima.meta.Metadata;
+import org.ajoberstar.mulima.meta.MetaflacTagger;
 import org.ajoberstar.mulima.service.ProcessService;
 
 public class FlacCodec implements AudioEncoder, AudioDecoder, AudioSplitter {
@@ -22,12 +25,14 @@ public class FlacCodec implements AudioEncoder, AudioDecoder, AudioSplitter {
   private final int compressionLevel;
   private final String shntoolPath;
   private final ProcessService process;
+  private final MetaflacTagger metaflac;
 
-  public FlacCodec(String flacPath, int compressionLevel, String shntoolPath, ProcessService process) {
+  public FlacCodec(String flacPath, int compressionLevel, String shntoolPath, ProcessService process, MetaflacTagger metaflac) {
     this.flacPath = flacPath;
     this.compressionLevel = compressionLevel;
     this.shntoolPath = shntoolPath;
     this.process = process;
+    this.metaflac = metaflac;
   }
 
   @Override
@@ -73,7 +78,27 @@ public class FlacCodec implements AudioEncoder, AudioDecoder, AudioSplitter {
   }
 
   @Override
-  public Metadata split(Metadata meta, Path source, Path destinationDirectory) {
+  public Metadata split(Metadata meta, Path destDir) {
+    var tracksByDisc = meta.getChildren().stream()
+        .collect(Collectors.groupingBy(this::toDiscNumber));
+
+    tracksByDisc.values().forEach(tracks -> {
+      var audioFiles = tracks.stream()
+          .map(Metadata::getAudioFile)
+          .flatMap(Optional::stream)
+          .collect(Collectors.toSet());
+
+      if (audioFiles.size() == 1) {
+        split(tracks, audioFiles.iterator().next(), destDir);
+      } else {
+        throw new IllegalArgumentException("Disc's tracks are source from different audio files: " + tracks);
+      }
+    });
+
+    return tagSplitFiles(meta, destDir);
+  }
+
+  private void split(List<Metadata> tracks, Path sourceFile, Path destDir) {
     var command = new ArrayList<String>();
     command.add(shntoolPath);
     command.add("split");
@@ -93,14 +118,12 @@ public class FlacCodec implements AudioEncoder, AudioDecoder, AudioSplitter {
 
     // destination dir
     command.add("-d");
-    command.add(destinationDirectory.toString());
-
-    var dMeta = meta.getChildren();
+    command.add(destDir.toString());
 
     // assumes all metadata is for one disc
-    var discNum = dMeta.stream()
+    var discNum = tracks.stream()
         .map(Metadata::getTags)
-        .flatMap(tags -> tags.getOrDefault("discNumber", List.of()).stream())
+        .flatMap(tags -> tags.getOrDefault("discnumber", List.of()).stream())
         .map(Integer::parseInt)
         .findFirst()
         .orElse(1);
@@ -111,7 +134,7 @@ public class FlacCodec implements AudioEncoder, AudioDecoder, AudioSplitter {
 
     Function<Metadata, Stream<CuePoint>> toSplitPoint = track -> track.getCues().stream().filter(cue -> cue.getIndex() == 1);
 
-    var startsAtTrack1 = dMeta.stream()
+    var startsAtTrack1 = tracks.stream()
         .flatMap(toSplitPoint)
         .map(CuePoint::getTime)
         .anyMatch("00:00:00"::equals);
@@ -121,18 +144,21 @@ public class FlacCodec implements AudioEncoder, AudioDecoder, AudioSplitter {
     command.add(startsAtTrack1 ? "1" : "0");
 
     // source file
-    command.add(source.toString());
+    command.add(sourceFile.toString());
 
-    var input = dMeta.stream()
+    var input = tracks.stream()
         .flatMap(toSplitPoint)
+        .sorted(Comparator.comparing(CuePoint::getTime))
         .map(cue -> cue.getTime().replaceAll(":([^:\\.]+)$", ".$1"))
         .collect(Collectors.joining(System.lineSeparator()));
 
     process.execute(command, input).assertSuccess();
-    return parseSplitDir(destinationDirectory);
   }
 
-  private Metadata parseSplitDir(Path directory) {
+  private Metadata tagSplitFiles(Metadata meta, Path directory) {
+    var metaByDiscAndTrack = meta.getChildren().stream()
+        .collect(Collectors.groupingBy(this::toDiscNumber, Collectors.toMap(this::toTrackNumber, Function.identity())));
+
     try (var stream = Files.list(directory)) {
       var builder = Metadata.builder("generic");
       builder.setSourceFile(directory);
@@ -140,21 +166,41 @@ public class FlacCodec implements AudioEncoder, AudioDecoder, AudioSplitter {
       stream.flatMap(file -> {
         var matcher = FILE_PATTERN.matcher(file.getFileName().toString());
         if (matcher.matches()) {
-          var disc = matcher.group("disc");
-          var track = matcher.group("track");
-          var meta = Metadata.builder("generic")
-              .setSourceFile(file)
-              .addTag("discnumber", disc)
-              .addTag("tracknumber", track)
-              .build();
-          return Stream.of(meta);
+          var disc = Integer.parseInt(matcher.group("disc"));
+          var track = Integer.parseInt(matcher.group("track"));
+
+          if (track == 0) {
+            try {
+              Files.delete(file);
+              return Stream.empty();
+            } catch (IOException e) {
+              throw new UncheckedIOException(e);
+            }
+          } else {
+            var trackMeta = metaByDiscAndTrack.get(disc).get(track);
+            metaflac.write(trackMeta, file);
+            return Stream.of(metaflac.parse(file));
+          }
         } else {
           return Stream.empty();
         }
       }).forEach(builder::addChild);
+
       return builder.build();
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
+  }
+
+  private Integer toDiscNumber(Metadata meta) {
+    return meta.getTagValue("discnumber")
+        .map(Integer::parseInt)
+        .orElseThrow(() -> new IllegalArgumentException("Track does not have disc number: " + meta));
+  }
+
+  private Integer toTrackNumber(Metadata meta) {
+    return meta.getTagValue("tracknumber")
+        .map(Integer::parseInt)
+        .orElseThrow(() -> new IllegalArgumentException("Track does not have track number: " + meta));
   }
 }

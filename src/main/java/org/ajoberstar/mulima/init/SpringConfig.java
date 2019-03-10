@@ -62,8 +62,8 @@ public class SpringConfig {
   }
 
   @Bean
-  public FlacCodec flac(ProcessService process) {
-    return new FlacCodec("C:\\Users\\andre\\bin\\flac.exe", 8, "C:\\Users\\andre\\bin\\shntool.exe", process);
+  public FlacCodec flac(ProcessService process, MetaflacTagger metaflac) {
+    return new FlacCodec("C:\\Users\\andre\\bin\\flac.exe", 8, "C:\\Users\\andre\\bin\\shntool.exe", process, metaflac);
   }
 
   @Bean
