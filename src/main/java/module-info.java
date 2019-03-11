@@ -10,6 +10,8 @@ module org.ajoberstar.mulima {
   requires javafx.fxml;
 
   // spring
+  requires spring.core;
+  requires spring.beans;
   requires spring.context;
 
   // logging
@@ -21,6 +23,10 @@ module org.ajoberstar.mulima {
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
   requires com.fasterxml.jackson.dataformat.yaml;
+
+  // metrics
+  requires micrometer.core;
+  requires micrometer.registry.influx;
 
   // exports
   opens org.ajoberstar.mulima.init to spring.core, spring.beans, spring.context;

@@ -33,9 +33,12 @@ dependencies {
   // logging
   implementation 'org.apache.logging.log4j:log4j-api:latest.release'
   runtimeOnly 'org.apache.logging.log4j:log4j-core:latest.release'
+  runtimeOnly 'org.apache.logging.log4j:log4j-slf4j-impl:latest.release'
   runtimeOnly 'com.lmax:disruptor:latest.release'
 
   // spring
+  implementation 'org.springframework:spring-core:latest.release'
+  implementation 'org.springframework:spring-beans:latest.release'
   implementation 'org.springframework:spring-context:latest.release'
 
   // cli
@@ -48,10 +51,9 @@ dependencies {
   implementation 'com.fasterxml.jackson.core:jackson-databind:latest.release'
   implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:latest.release'
 
-  testImplementation 'junit:junit:latest.release'
-  testImplementation 'org.mockito:mockito-core:latest.release'
-  testImplementation 'org.spockframework:spock-core:latest.release'
-  testRuntimeOnly 'cglib:cglib:latest.release'
+  // metrics
+  implementation 'io.micrometer:micrometer-core:latest.release'
+  implementation 'io.micrometer:micrometer-registry-influx:latest.release'
 }
 
 spotless {

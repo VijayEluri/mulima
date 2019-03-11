@@ -12,33 +12,27 @@ public final class Flows {
     // do nothing
   }
 
-  public static <T> Flow.Publisher<T> publisher() {
+  public static <T> SubmissionPublisher<T> publisher() {
     return new SubmissionPublisher<>();
   }
 
-  public static <T> Flow.Publisher<T> publisher(Executor executor, int maxBufferCapacity) {
+  public static <T> SubmissionPublisher<T> publisher(Executor executor, int maxBufferCapacity) {
     return new SubmissionPublisher<>(executor, maxBufferCapacity);
   }
 
-  public static <T> Flow.Subscriber<T> subscriber(Consumer<T> action) {
-    return new SimpleProcessor<>(ForkJoinPool.commonPool(), 1, item -> {
-      action.accept(item);
-      return null;
-    });
+  public static <T> Flow.Subscriber<T> subscriber(String name, Consumer<T> itemAction) {
+    return new SimpleSubscriber<>(name, ForkJoinPool.commonPool(), 1, itemAction, t -> {});
   }
 
-  public static <T> Flow.Subscriber<T> subscriber(Executor executor, int maxBufferCapacity, Consumer<T> action) {
-    return new SimpleProcessor<>(executor, maxBufferCapacity, item -> {
-      action.accept(item);
-      return null;
-    });
+  public static <T> Flow.Subscriber<T> subscriber(String name, Consumer<T> itemAction, Consumer<Throwable> errorAction) {
+    return new SimpleSubscriber<>(name, ForkJoinPool.commonPool(), 1, itemAction, errorAction);
   }
 
-  public static <T, R> Flow.Processor<T, R> subscriber(Function<T, R> function) {
-    return new SimpleProcessor<>(ForkJoinPool.commonPool(), 1, function);
+  public static <T> Flow.Subscriber<T> subscriber(String name, Executor executor, int maxBufferCapacity, Consumer<T> itemAction) {
+    return new SimpleSubscriber<>(name, executor, maxBufferCapacity, itemAction, t -> {});
   }
 
-  public static <T, R> Flow.Processor<T, R> subscriber(Executor executor, int maxBufferCapacity, Function<T, R> function) {
-    return new SimpleProcessor<>(executor, maxBufferCapacity, function);
+  public static <T> Flow.Subscriber<T> subscriber(String name, Executor executor, int maxBufferCapacity, Consumer<T> itemAction, Consumer<Throwable> errorAction) {
+    return new SimpleSubscriber<>(name, executor, maxBufferCapacity, itemAction, errorAction);
   }
 }

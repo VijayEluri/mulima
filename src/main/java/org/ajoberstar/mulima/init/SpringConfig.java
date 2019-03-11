@@ -1,8 +1,16 @@
 package org.ajoberstar.mulima.init;
 
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import io.micrometer.core.instrument.Clock;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
+import io.micrometer.influx.InfluxConfig;
+import io.micrometer.influx.InfluxConsistency;
+import io.micrometer.influx.InfluxMeterRegistry;
 import org.ajoberstar.mulima.audio.FlacCodec;
 import org.ajoberstar.mulima.audio.OpusEncoder;
 import org.ajoberstar.mulima.meta.AlbumXmlParser;
@@ -18,16 +26,43 @@ import org.ajoberstar.mulima.service.MetadataService;
 import org.ajoberstar.mulima.service.MusicBrainzService;
 import org.ajoberstar.mulima.service.ProcessService;
 import org.ajoberstar.mulima.util.HttpClients;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 
 @Configuration
+@PropertySource("file:///${APPDATA}/mulima/mulima.properties")
 public class SpringConfig {
+  @Autowired
+  private Environment env;
+
+  @Bean
+  public MeterRegistry influx() {
+    var config = new InfluxConfig() {
+      @Override public String get(String key) {
+        return env.getProperty("micrometer." + key);
+      }
+    };
+    return InfluxMeterRegistry.builder(config)
+        .clock(Clock.SYSTEM)
+        .build();
+  }
+
+  @Bean
+  public ExecutorService blocking() {
+    var executor = Executors.newCachedThreadPool();
+    ExecutorServiceMetrics.monitor(Metrics.globalRegistry, executor, "blocking");
+    return executor;
+  }
+
   @Bean
   public ProcessService process() {
     var procs = Runtime.getRuntime().availableProcessors();
     var threads = Math.max(procs - 1, 1);
     var executor = Executors.newFixedThreadPool(threads);
+    ExecutorServiceMetrics.monitor(Metrics.globalRegistry, executor, "process-pool");
     return new ProcessService(executor);
   }
 
@@ -58,22 +93,22 @@ public class SpringConfig {
 
   @Bean
   public MetaflacTagger metaflac(ProcessService process) {
-    return new MetaflacTagger("C:\\Users\\andre\\bin\\metaflac.exe", process);
+    return new MetaflacTagger(env.getProperty("metaflac.path", "metaflac"), process);
   }
 
   @Bean
   public FlacCodec flac(ProcessService process, MetaflacTagger metaflac) {
-    return new FlacCodec("C:\\Users\\andre\\bin\\flac.exe", 8, "C:\\Users\\andre\\bin\\shntool.exe", process, metaflac);
+    return new FlacCodec(env.getProperty("flac.path", "flac"), Integer.parseInt(env.getProperty("flac.compressionLevel", "5")), env.getProperty("shntool.path", "shntool"), process, metaflac);
   }
 
   @Bean
   public OpusInfoParser opusinfo(ProcessService process) {
-    return new OpusInfoParser("C:\\Users\\andre\\bin\\opusinfo.exe", process);
+    return new OpusInfoParser(env.getProperty("opusinfo.path", "opusinfo"), process);
   }
 
   @Bean
   public OpusEncoder opusenc(ProcessService process) {
-    return new OpusEncoder("C:\\Users\\andre\\bin\\opusenc.exe", 128, process);
+    return new OpusEncoder(env.getProperty("opusenc.path", "opusenc"), Integer.parseInt(env.getProperty("opusenc.bitrate", "96")), process);
   }
 
   @Bean
