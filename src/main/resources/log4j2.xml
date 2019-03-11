@@ -2,13 +2,20 @@
 <Configuration>
   <Appenders>
     <Console name="Console">
-      <PatternLayout pattern="%date{ISO8601} %level %logger{-2} - %message %NDC %MDC%n" />
+      <PatternLayout pattern="%date{ISO8601} %level %message%n" alwaysWriteExceptions="false" />
     </Console>
+    <RandomAccessFile name="File" fileName="${env:APPDATA}/mulima/mulima.log" append="false">
+      <PatternLayout pattern="%date{ISO8601} %level %logger - %message %NDC %MDC%n" />
+    </RandomAccessFile>
   </Appenders>
   <Loggers>
     <AsyncRoot level="WARN">
       <AppenderRef ref="Console" />
+      <AppenderRef ref="File" />
     </AsyncRoot>
     <AsyncLogger name="org.ajoberstar.mulima" level="INFO" />
+    <AsyncLogger name="org.ajoberstar.mulima.flow" level="INFO" additivity="false">
+      <AppenderRef ref="File" />
+    </AsyncLogger>
   </Loggers>
 </Configuration>

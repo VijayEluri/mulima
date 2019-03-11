@@ -35,16 +35,16 @@ public final class MusicBrainzService {
   private static final Logger logger = LogManager.getLogger(MusicBrainzService.class);
 
   private final HttpClient http;
+  private final String metaflacPath;
   private final ProcessService process;
 
-  public MusicBrainzService(HttpClient http, ProcessService process) {
+  public MusicBrainzService(HttpClient http, String metaflacPath, ProcessService process) {
     this.http = http;
+    this.metaflacPath = metaflacPath;
     this.process = process;
   }
 
-  public String calculateDiscId(Metadata cuesheet, Path flacFile) {
-    var tracks = cuesheet.getChildren();
-
+  public String calculateDiscId(List<Metadata> tracks, Path flacFile) {
     Function<Metadata, Integer> trackNum = track -> track.getTags().getOrDefault("tracknumber", List.of()).stream()
         .findFirst()
         .map(Integer::parseInt)
@@ -59,11 +59,11 @@ public final class MusicBrainzService {
         .max(Comparator.naturalOrder())
         .orElse(-1);
 
-    var sampleRate = Long.parseLong(process.execute("C:\\Users\\andre\\bin\\metaflac.exe", "--show-sample-rate", flacFile.toString())
+    var sampleRate = Long.parseLong(process.execute(metaflacPath, "--show-sample-rate", flacFile.toString())
         .assertSuccess()
         .getOutput()
         .trim());
-    var sampleTotal = Long.parseLong(process.execute("C:\\Users\\andre\\bin\\metaflac.exe", "--show-total-samples", flacFile.toString())
+    var sampleTotal = Long.parseLong(process.execute(metaflacPath, "--show-total-samples", flacFile.toString())
         .assertSuccess()
         .getOutput()
         .trim());
@@ -107,6 +107,8 @@ public final class MusicBrainzService {
 
   private Metadata handleRelease(Node release, String discId) {
     var meta = Metadata.builder("generic");
+    // TODO duplication
+    meta.setSourceFile(cachePath(safeUri("https://musicbrainz.org/ws/2/discid/%s", discId)));
     meta.addTag("musicbrainz_discid", discId);
     meta.addTag("musicbrainz_albumid", XmlDocuments.getAttribute(release, "id"));
     getText(release, "title").ifPresent(value -> meta.addTag("album", value));
@@ -130,6 +132,8 @@ public final class MusicBrainzService {
     return getXml("https://musicbrainz.org/ws/2/release/%s?inc=recordings+artists+release-groups+labels", releaseId).thenCompose(maybeDoc -> {
       return maybeDoc.map(doc -> {
         var meta = Metadata.builder("generic");
+        // TODO duplication
+        meta.setSourceFile(cachePath(safeUri("https://musicbrainz.org/ws/2/release/%s?inc=recordings+artists+release-groups+labels", releaseId)));
 
         getText(doc, "metadata", "release", "@id").ifPresent(value -> meta.addTag("musicbrainz_albumid", value));
         getText(doc, "metadata", "release", "title").ifPresent(value -> meta.addTag("album", value));
@@ -255,16 +259,12 @@ public final class MusicBrainzService {
 
   private CompletableFuture<Optional<Document>> getXml(String uriFormat, Object... uriArgs) {
     var uri = safeUri(uriFormat, uriArgs);
-
-    var uriHash = DigestUtils.sha256Hex(uri.toString());
-    // TODO externalize path
-    var cachePath = Paths.get("D:", "temp", uriHash + ".xml");
+    var cachePath = cachePath(uri);
     if (Files.exists(cachePath)) {
       logger.debug("Using cached result for URI: {}", uri);
       return CompletableFuture.completedFuture(Optional.of(XmlDocuments.parse(cachePath)));
     } else {
-      // TODO lower level
-      logger.error("Requesting URI, as it is not cached: {}", uri);
+      logger.debug("Requesting URI, as it is not cached: {}", uri);
       var request = HttpRequest.newBuilder(uri)
           .GET()
           .header("User-Agent", "mulima/0.2.0-SNAPSHOT ( https://github.com/ajoberstar/mulima )")
@@ -281,7 +281,7 @@ public final class MusicBrainzService {
             throw new UncheckedIOException(e);
           }
         } else if (response.statusCode() == 404) {
-          logger.warn("Not found at: {}", uri);
+          logger.debug("Not found at: {}", uri);
           return Optional.empty();
         } else {
           // TODO do better
@@ -289,6 +289,12 @@ public final class MusicBrainzService {
         }
       });
     }
+  }
+
+  private Path cachePath(URI uri) {
+    var uriHash = DigestUtils.sha256Hex(uri.toString());
+    // TODO externalize path
+    return Paths.get("D:", "temp", uriHash + ".xml");
   }
 
   private URI safeUri(String format, Object... args) {

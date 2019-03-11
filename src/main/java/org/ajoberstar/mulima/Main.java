@@ -13,6 +13,7 @@ import org.ajoberstar.mulima.init.SpringConfig;
 import org.ajoberstar.mulima.meta.Metadata;
 import org.ajoberstar.mulima.service.LibraryService;
 import org.ajoberstar.mulima.service.MetadataService;
+import org.ajoberstar.mulima.service.MusicBrainzService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -22,9 +23,13 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
+import java.util.stream.Collectors;
 
 public final class Main {
   private static final Logger logger = LogManager.getLogger(Main.class);
@@ -49,6 +54,7 @@ public final class Main {
       logger.info("Mulima started.");
       var library = context.getBean(LibraryService.class);
       var metadata = context.getBean(MetadataService.class);
+      var musicbrainz = context.getBean(MusicBrainzService.class);
 
       // directories to be scanned
       var sourceDirPublisher = Flows.<Path>publisher();
@@ -59,16 +65,20 @@ public final class Main {
       // invalid metadata
       var invalidAlbumPublisher = Flows.<Metadata>publisher();
 
+      // musicbrainz chooser
+      var choicePublisher = Flows.<Map.Entry<Metadata, List<Metadata>>>publisher();
+
       // validated metadata
       var validAlbumPublisher = Flows.<Metadata>publisher();
 
       // converted metadata
       var successfulConversionsPublisher = Flows.<Metadata>publisher();
+      var failedConversionsPublisher = Flows.<Metadata>publisher();
 
       var blocking = context.getBean("blocking", ExecutorService.class);
 
       // directory scanner
-      var sourceDirScannerSubscriber = Flows.<Path>subscriber("Source directory scanner", blocking, Math.max(Runtime.getRuntime().availableProcessors() / 2, 1), dir -> {
+      var sourceDirScannerSubscriber = Flows.<Path>subscriber("Source directory scanner", blocking, 1, dir -> {
         var result = metadata.parseDir(dir);
         if (!result.getChildren().isEmpty()) {
           discoveredAlbumPublisher.submit(result);
@@ -77,39 +87,82 @@ public final class Main {
       sourceDirPublisher.subscribe(sourceDirScannerSubscriber);
 
       // validator
-      var validatorSubscriber = Flows.<Metadata>subscriber("Metadata validator", blocking, 25, meta -> {
-        // TODO actually validate
-        validAlbumPublisher.submit(meta);
+      var validatorSubscriber = Flows.<Metadata>subscriber("Metadata validator", blocking, 1, meta -> {
+        var hasMusicBrainzData = meta.getChildren().stream()
+            .map(m -> meta.getTagValue("musicbrainz_albumid"))
+            .allMatch(Optional::isPresent);
+
+        if (hasMusicBrainzData) {
+          validAlbumPublisher.submit(meta);
+        } else {
+          invalidAlbumPublisher.submit(meta);
+        }
       });
       discoveredAlbumPublisher.subscribe(validatorSubscriber);
+
+      // musicbrainz lookup
+      var musicbrainzLookupSubscriber = Flows.<Metadata>subscriber("MusicBrainz lookup", blocking, Runtime.getRuntime().availableProcessors(), meta -> {
+        var audioToTracks = meta.getChildren().stream()
+            .collect(Collectors.groupingBy(m -> m.getAudioFile().get()));
+
+        var possibleReleases = audioToTracks.entrySet().stream()
+            .map(entry -> musicbrainz.calculateDiscId(entry.getValue(), entry.getKey()))
+            .flatMap(discId -> musicbrainz.lookupByDiscId(discId).stream())
+            .collect(Collectors.toList());
+
+        if (possibleReleases.isEmpty()) {
+          logger.warn("No releases found for: {}", meta.getSourceFile());
+        } else {
+          choicePublisher.submit(Map.entry(meta, possibleReleases));
+        }
+      });
+      invalidAlbumPublisher.subscribe(musicbrainzLookupSubscriber);
+
+      // musicbrainz chooser
+      var releaseChoiceSubscriber = Flows.<Map.Entry<Metadata, List<Metadata>>>subscriber("MusicBrainz release chooser", blocking, 1, choice -> {
+        var meta = choice.getKey();
+        var candidates = choice.getValue();
+        System.out.println("Choice for: " + meta.getSourceFile());
+        System.out.println("  " + meta.getChildren().get(0).getTagValue("albumartist").or(() -> meta.getChildren().get(0).getTagValue("artist")).orElse("Unknown artist"));
+        System.out.println("  " + meta.getChildren().get(0).getTagValue("album").orElse("Unknown album"));
+        candidates.forEach(candidate -> {
+          System.out.println("  - " + candidate.getTagValue("musicbrainz_albumid").orElse("Unknown release ID"));
+          System.out.println("    " + candidate.getTagValue("albumartist").or(() -> candidate.getTagValue("artist")).orElse("Unknown artist"));
+          System.out.println("    " + candidate.getTagValue("album").orElse("Unkown album"));
+        });
+        try {
+          Thread.sleep(5000);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
+      });
+      choicePublisher.subscribe(releaseChoiceSubscriber);
 
       // converter
       var conversionSubscriber = Flows.<Metadata>subscriber("Album conversion", blocking, Math.max(Runtime.getRuntime().availableProcessors() / 2, 1), meta -> {
         logger.info("Starting conversion of: {}", meta.getSourceFile());
         var losslessDir = Paths.get("D:", "test", "lossless");
         var lossyDir = Paths.get("D:", "test", "lossy");
-        library.convert(meta, losslessDir, lossyDir);
-        successfulConversionsPublisher.submit(meta);
+        try {
+          library.convert(meta, losslessDir, lossyDir);
+          successfulConversionsPublisher.submit(meta);
+        } catch (Exception e) {
+          failedConversionsPublisher.submit(meta);
+        }
       });
       validAlbumPublisher.subscribe(conversionSubscriber);
 
       // success logger
-      var successSubscriber = Flows.<Metadata>subscriber("Successful conversion", ForkJoinPool.commonPool(), 25, meta -> {
+      var successSubscriber = Flows.<Metadata>subscriber("Successful conversion", ForkJoinPool.commonPool(), 1, meta -> {
         logger.info("Successfully converted: {}", meta.getSourceFile());
       });
       successfulConversionsPublisher.subscribe(successSubscriber);
 
-      // [P3] List<Choice> -- failed merges
-      // [P4] Metadata -- successful merges
-      // [P5] Metadata -- ready to convert
-      // [P6] Metadata -- "final" library
-
-
-      // [P1] > [S1] > [P2] (success) -- parse metadata
-      // [P2] > [S2] > [P4] (success) or [P3] (failure) -- merge metadata
-      // [P3] > [S3] > [P4] (success) or [P3] (failure) -- user choice for merges
-      // [P4] > [S4] > [P5] (if not up to date) or [P6] (if up to date) -- check if convert needed
-      // [P5] > [S5] > [P6] -- convert
+      // failure logger
+      var failureSubscriber = Flows.<Metadata>subscriber("Failed conversion", ForkJoinPool.commonPool(), 1, meta -> {
+        logger.error("Failed to convert: {}", meta.getSourceFile());
+      });
+      failedConversionsPublisher.subscribe(failureSubscriber);
 
       // lets get this party started
       try (var fileStream = Files.walk(Paths.get("D:", "originals", "flac-rips"))) {
