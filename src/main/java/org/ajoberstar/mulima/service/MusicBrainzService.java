@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.ajoberstar.mulima.meta.CuePoint;
 import org.ajoberstar.mulima.meta.Metadata;
@@ -96,7 +97,8 @@ public final class MusicBrainzService {
   }
 
   public List<Metadata> lookupByDiscId(String discId) {
-    return getXml("https://musicbrainz.org/ws/2/discid/%s", discId).thenApply(maybeDoc -> {
+    // TODO use same inc= as on release to save a step
+    return getXml("https://musicbrainz.org/ws/2/discid/%s?inc=recordings+artists+release-groups+labels", discId).thenApply(maybeDoc -> {
       return maybeDoc.map(doc -> {
         return XmlDocuments.getChildren(doc, "metadata", "disc", "release-list", "release")
             .map(release -> handleRelease(release, discId))
@@ -108,76 +110,50 @@ public final class MusicBrainzService {
   private Metadata handleRelease(Node release, String discId) {
     var meta = Metadata.builder("generic");
     // TODO duplication
-    meta.setSourceFile(cachePath(safeUri("https://musicbrainz.org/ws/2/discid/%s", discId)));
+    meta.setSourceFile(cachePath(safeUri("https://musicbrainz.org/ws/2/discid/%s?inc=recordings+artists+release-groups+labels", discId)));
     meta.addTag("musicbrainz_discid", discId);
-    meta.addTag("musicbrainz_albumid", XmlDocuments.getAttribute(release, "id"));
+    
+    getText(release, "@id").ifPresent(value -> meta.addTag("musicbrainz_albumid", value));
     getText(release, "title").ifPresent(value -> meta.addTag("album", value));
     getText(release, "date").ifPresent(value -> meta.addTag("date", value));
     getText(release, "barcode").ifPresent(value -> meta.addTag("barcode", value));
-    getText(release, "medium-list", "@count").ifPresent(value -> meta.addTag("totaldiscs", value));
-    XmlDocuments.getChildren(release, "medium-list", "medium")
-        .filter(medium -> {
-          return XmlDocuments.getChildren(medium, "disc-list", "disc")
-              .map(disc -> XmlDocuments.getAttribute(disc, "id"))
-              .anyMatch(discId::equals);
-        }).map(medium -> getText(medium, "position"))
-        .flatMap(Optional::stream)
-        .findFirst()
-        .ifPresent(value -> meta.addTag("discnumber", value));
 
-    return meta.build();
-  }
+    getText(release, "release-group", "@id").ifPresent(value -> meta.addTag("musicbrainz_releasegroupid", value));
+    getText(release, "release-group", "first-release-date").ifPresent(value -> meta.addTag("originaldate", value));
 
-  public Optional<Metadata> lookupByReleaseId(String releaseId) {
-    return getXml("https://musicbrainz.org/ws/2/release/%s?inc=recordings+artists+release-groups+labels", releaseId).thenCompose(maybeDoc -> {
-      return maybeDoc.map(doc -> {
-        var meta = Metadata.builder("generic");
-        // TODO duplication
-        meta.setSourceFile(cachePath(safeUri("https://musicbrainz.org/ws/2/release/%s?inc=recordings+artists+release-groups+labels", releaseId)));
+    var primaryReleaseType = getText(release, "release-group", "primary-type");
+    var secondaryReleaseTypes = XmlDocuments.getChildren(release, "release-group", "secondary-type-list", "secondary-type")
+        .map(Node::getTextContent);
+    var releaseType = Stream.concat(primaryReleaseType.stream(), secondaryReleaseTypes)
+        .collect(Collectors.joining(" + "));
 
-        getText(doc, "metadata", "release", "@id").ifPresent(value -> meta.addTag("musicbrainz_albumid", value));
-        getText(doc, "metadata", "release", "title").ifPresent(value -> meta.addTag("album", value));
-        getText(doc, "metadata", "release", "date").ifPresent(value -> meta.addTag("date", value));
-        getText(doc, "metadata", "release", "barcode").ifPresent(value -> meta.addTag("barcode", value));
-        getText(doc, "metadata", "release", "medium-list", "@count").ifPresent(value -> meta.addTag("totaldiscs", value));
+    primaryReleaseType.ifPresent(value -> meta.addTag("releasetype", releaseType));
 
-        getText(doc, "metadata", "release", "release-group", "@id").ifPresent(value -> meta.addTag("musicbrainz_releasegroupid", value));
-        getText(doc, "metadata", "release", "release-group", "first-release-date").ifPresent(value -> meta.addTag("originaldate", value));
+    getText(release, "metadata", "label-info-list", "label-info", "label", "name").ifPresent(value -> meta.addTag("label", value));
+    getText(release, "metadata", "label-info-list", "label-info", "catalog-number").ifPresent(value -> meta.addTag("catalognumber", value));
 
-        var primaryReleaseType = getText(doc, "metadata", "release", "release-group", "primary-type");
-        var secondaryReleaseTypes = XmlDocuments.getChildren(doc, "metadata", "release", "release-group", "secondary-type-list", "secondary-type")
-            .map(Node::getTextContent)
-            .collect(Collectors.joining(" + "));
-        primaryReleaseType.ifPresent(value -> meta.addTag("releasetype", String.join(" + ", value, secondaryReleaseTypes)));
+    XmlDocuments.getChildren(release, "artist-credit", "name-credit", "artist", "@id")
+        .map(Node::getTextContent)
+        .forEach(value -> meta.addTag("musicbrainz_albumartistid", value));
+    XmlDocuments.getChildren(release, "artist-credit", "name-credit", "artist", "name")
+        .map(Node::getTextContent)
+        .forEach(value -> meta.addTag("albumartist", value));
+    XmlDocuments.getChildren(release, "artist-credit", "name-credit", "artist", "sort-name")
+        .map(Node::getTextContent)
+        .forEach(value -> meta.addTag("albumartistsort", value));
 
-        getText(doc, "metadata", "label-info-list", "label-info", "label", "name").ifPresent(value -> meta.addTag("label", value));
-        getText(doc, "metadata", "label-info-list", "label-info", "catalog-number").ifPresent(value -> meta.addTag("catalognumber", value));
+    var mediums = XmlDocuments.getChildren(release, "medium-list", "medium")
+        .map(medium -> handleMedium(medium, meta))
+        .collect(AsyncCollectors.allOf());
 
-        XmlDocuments.getChildren(doc, "metadata", "release", "artist-credit", "name-credit", "artist", "@id")
-            .map(Node::getTextContent)
-            .forEach(value -> meta.addTag("musicbrainz_albumartistid", value));
-        XmlDocuments.getChildren(doc, "metadata", "release", "artist-credit", "name-credit", "artist", "name")
-            .map(Node::getTextContent)
-            .forEach(value -> meta.addTag("albumartist", value));
-        XmlDocuments.getChildren(doc, "metadata", "release", "artist-credit", "name-credit", "artist", "sort-name")
-            .map(Node::getTextContent)
-            .forEach(value -> meta.addTag("albumartistsort", value));
-
-        var mediums = XmlDocuments.getChildren(doc, "metadata", "release", "medium-list", "medium")
-            .map(medium -> handleMedium(medium, meta))
-            .collect(AsyncCollectors.allOf());
-
-        return mediums.thenApply(ignored -> {
-          return Optional.of(meta.build());
-        });
-      }).orElse(CompletableFuture.completedFuture(Optional.empty()));
+    return mediums.thenApply(ignored -> {
+      return meta.build();
     }).join();
   }
 
   private CompletableFuture<Void> handleMedium(Node medium, Metadata.Builder parent) {
     var meta = parent.newChild();
     getText(medium, "position").ifPresent(value -> meta.addTag("discnumber", value));
-    getText(medium, "track-list", "@count").ifPresent(value -> meta.addTag("totaltracks", value));
 
     return XmlDocuments.getChildren(medium, "track-list", "track")
         .map(track -> handleTrack(track, meta))

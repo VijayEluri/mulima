@@ -122,13 +122,14 @@ public final class Main {
       var releaseChoiceSubscriber = Flows.<Map.Entry<Metadata, List<Metadata>>>subscriber("MusicBrainz release chooser", blocking, 1, choice -> {
         var meta = choice.getKey();
         var candidates = choice.getValue();
-        System.out.println("Choice for: " + meta.getSourceFile());
-        System.out.println("  " + meta.getChildren().get(0).getTagValue("albumartist").or(() -> meta.getChildren().get(0).getTagValue("artist")).orElse("Unknown artist"));
-        System.out.println("  " + meta.getChildren().get(0).getTagValue("album").orElse("Unknown album"));
+        var artist = meta.getChildren().get(0).getTagValue("albumartist").or(() -> meta.getChildren().get(0).getTagValue("artist")).orElse("Unknown artist");
+        var album = meta.getChildren().get(0).getTagValue("album").orElse("Unknown album");
+        System.out.println(String.format("Choice for: %s - %s (%s)", artist, album, meta.getSourceFile()));
         candidates.forEach(candidate -> {
-          System.out.println("  - " + candidate.getTagValue("musicbrainz_albumid").orElse("Unknown release ID"));
-          System.out.println("    " + candidate.getTagValue("albumartist").or(() -> candidate.getTagValue("artist")).orElse("Unknown artist"));
-          System.out.println("    " + candidate.getTagValue("album").orElse("Unkown album"));
+          var cReleaseId = candidate.getTagValue("musicbrainz_albumid").orElse("Unknown release ID");
+          var cArtist = candidate.getTagValue("albumartist").or(() -> candidate.getTagValue("artist")).orElse("Unknown artist");
+          var cAlbum = candidate.getTagValue("album").orElse("Unkown album");
+          System.out.println(String.format("  * %s - %s (%s)", cArtist, cAlbum, cReleaseId));
         });
         try {
           Thread.sleep(5000);
