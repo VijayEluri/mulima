@@ -37,12 +37,14 @@ public final class HttpClients {
     @Override
     public void execute(Runnable command) {
       delegate.execute(() -> {
-        command.run();
-
         try {
-          Thread.sleep(delayMillis, delayNanos);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
+          command.run();
+        } finally {
+          try {
+            Thread.sleep(delayMillis, delayNanos);
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+          }
         }
       });
     }

@@ -17,6 +17,8 @@ org.openjfx:javafx-base:11.0.1
 org.openjfx:javafx-controls:11.0.1
 org.openjfx:javafx-fxml:11.0.1
 org.openjfx:javafx-graphics:11.0.1
+org.openjfx:javafx-media:11.0.1
+org.openjfx:javafx-web:11.0.1
 org.slf4j:slf4j-api:1.7.25
 org.springframework:spring-aop:5.1.5.RELEASE
 org.springframework:spring-beans:5.1.5.RELEASE

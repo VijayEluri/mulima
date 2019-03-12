@@ -240,7 +240,7 @@ public final class MusicBrainzService {
       logger.debug("Using cached result for URI: {}", uri);
       return CompletableFuture.completedFuture(Optional.of(XmlDocuments.parse(cachePath)));
     } else {
-      logger.debug("Requesting URI, as it is not cached: {}", uri);
+      logger.info("Requesting URI, as it is not cached: {}", uri);
       var request = HttpRequest.newBuilder(uri)
           .GET()
           .header("User-Agent", "mulima/0.2.0-SNAPSHOT ( https://github.com/ajoberstar/mulima )")

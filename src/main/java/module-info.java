@@ -7,6 +7,7 @@ module org.ajoberstar.mulima {
 
   // java fx
   requires javafx.controls;
+  requires javafx.web;
   requires javafx.fxml;
 
   // spring

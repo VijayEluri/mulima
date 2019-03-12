@@ -8,6 +8,25 @@ import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
 import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
 import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.collections.ListChangeListener;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.VBox;
+import javafx.scene.web.WebView;
+import javafx.stage.Stage;
 import org.ajoberstar.mulima.flow.Flows;
 import org.ajoberstar.mulima.init.SpringConfig;
 import org.ajoberstar.mulima.meta.Metadata;
@@ -23,24 +42,207 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.Collectors;
 
-public final class Main {
+public final class Main extends Application {
   private static final Logger logger = LogManager.getLogger(Main.class);
 
-  public static void main(String[] args) {
+  private static final SubmissionPublisher<Map.Entry<String, Object>> toUIPublisher = Flows.publisher(Executors.newSingleThreadExecutor(), 100);
+  private static final SubmissionPublisher<Map.Entry<String, Object>> toBackendPublisher = Flows.publisher(Executors.newSingleThreadExecutor(), 100);
+
+  @Override
+  public void start(Stage stage) {
+    var pane = new VBox();
+
+    stage.setTitle("Mulima: Adele - 25 (D:\\music\\Adele\\25\\metadata.yaml");
+
+    var table = new TableView<Metadata>();
+    var artistCol = new TableColumn<Metadata, String>("Artist");
+    var albumCol = new TableColumn<Metadata, String>("Album");
+    var dateCol = new TableColumn<Metadata, String>("Release Date");
+    var labelCol = new TableColumn<Metadata, String>("Label");
+    var catalogNumberCol = new TableColumn<Metadata, String>("Catalog Number");
+    var barcodeCol = new TableColumn<Metadata, String>("Barcode");
+    var releaseIdCol = new TableColumn<Metadata, String>("Release ID");
+
+    artistCol.setCellValueFactory(cdf -> {
+      var meta = cdf.getValue();
+      var value = meta.getTagValue("albumartist").or(() -> meta.getTagValue("artist")).orElse("Unknown");
+      return new ReadOnlyStringWrapper(value);
+    });
+
+    albumCol.setCellValueFactory(cdf -> {
+      var meta = cdf.getValue();
+      var value = meta.getTagValue("album").orElse("Unknown");
+      return new ReadOnlyStringWrapper(value);
+    });
+
+    dateCol.setCellValueFactory(cdf -> {
+      var meta = cdf.getValue();
+      var value = meta.getTagValue("date").orElse("Unknown");
+      return new ReadOnlyStringWrapper(value);
+    });
+
+    labelCol.setCellValueFactory(cdf -> {
+      var meta = cdf.getValue();
+      var value = meta.getTagValue("label").orElse("Unknown");
+      return new ReadOnlyStringWrapper(value);
+    });
+
+    catalogNumberCol.setCellValueFactory(cdf -> {
+      var meta = cdf.getValue();
+      var value = meta.getTagValue("catalogNumber").orElse("Unknown");
+      return new ReadOnlyStringWrapper(value);
+    });
+
+    barcodeCol.setCellValueFactory(cdf -> {
+      var meta = cdf.getValue();
+      var value = meta.getTagValue("barcode").orElse("Unknown");
+      return new ReadOnlyStringWrapper(value);
+    });
+
+    releaseIdCol.setCellValueFactory(cdf -> {
+      var meta = cdf.getValue();
+      var value = meta.getTagValue("musicbrainz_albumid").orElse("Unknown");
+      return new ReadOnlyStringWrapper(value);
+    });
+
+    table.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+    table.getColumns().addAll(artistCol, albumCol, dateCol, labelCol, catalogNumberCol, barcodeCol, releaseIdCol);
+    pane.getChildren().add(table);
+
+    var buttons = new ButtonBar();
+    var definitely = new Button("Definitely");
+    var probably = new Button("Probably");
+    var none = new Button("None");
+    var skip = new Button("Skip");
+    buttons.getButtons().addAll(definitely, probably, none, skip);
+    pane.getChildren().add(buttons);
+
+
+    var meta1 = Metadata.builder("generic")
+        .setSourceFile(Paths.get("D:\\one\\something.flac"))
+        .addTag("artist", "Adele")
+        .addTag("album", "25")
+        .addTag("musicbrainz_albumid", "2b4c1e9c-1904-4155-9df6-d1681ddef130")
+        .build();
+
+    var meta2 = Metadata.builder("generic")
+        .setSourceFile(Paths.get("D:\\one\\something.flac"))
+        .addTag("artist", "Adele")
+        .addTag("album", "25")
+        .addTag("musicbrainz_albumid", "89015f5d-d3dc-4ad3-904b-492870bbf4e4")
+        .build();
+
+    var meta3 = Metadata.builder("generic")
+        .setSourceFile(Paths.get("D:\\one\\something3.flac"))
+        .addTag("albumartist", "King Crimson")
+        .addTag("album", "Starless and Bible Black")
+        .addTag("musicbrainz_albumid", "f808c363-9df6-4dda-904e-838bfe93b831")
+        .build();
+
+    table.getItems().addAll(meta1, meta2, meta3);
+
+    var web = new WebView();
+    pane.getChildren().add(web);
+
+    table.getSelectionModel().getSelectedItems().addListener((ListChangeListener<Metadata>) change -> {
+      change.getList().forEach(metadata -> {
+        var releaseId = metadata.getTagValue("musicbrainz_albumid").get();
+        var uri = String.format("https://musicbrainz.org/release/%s", releaseId);
+        web.getEngine().load(uri);
+      });
+    });
+
+    var progress = new ProgressBar();
+    progress.setMaxWidth(1920);
+    progress.progressProperty().bind(web.getEngine().getLoadWorker().progressProperty());
+    pane.getChildren().add(progress);
+
+
+    var choiceBarrier = new CyclicBarrier(2);
+
+    var fromBackendSubscriber = Flows.<Map.Entry<String, Object>>subscriber("Backend responses", Executors.newSingleThreadExecutor(), 1, item -> {
+      logger.error("Received message from backend: {} -> {}", item.getKey(), item.getValue());
+      if ("Choice".equals(item.getKey())) {
+        var entry = (Map.Entry<Metadata, List<Metadata>>) item.getValue();
+        var meta = entry.getKey();
+        var options = entry.getValue();
+
+        var artist = meta.getTagValue("albumartist").or(() -> meta.getTagValue("artist")).orElse("Unknown");
+        var album = meta.getTagValue("album").orElse("Unknown");
+        var source = meta.getSourceFile();
+
+        Platform.runLater(() -> stage.setTitle(String.format("Mulima: %s - %s (%s)", artist, album, source)));
+
+        table.getItems().setAll(options);
+
+        try {
+          choiceBarrier.await();
+          choiceBarrier.reset();
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        } catch (BrokenBarrierException e) {
+          // TODO what?
+        }
+      } else {
+        logger.warn("Unknown message from backend: {} -> {}", item.getKey(), item.getValue());
+      }
+    });
+    toUIPublisher.subscribe(fromBackendSubscriber);
+
+    definitely.setOnAction(event -> {
+      var choice = table.getSelectionModel().getSelectedItem();
+      toBackendPublisher.submit(Map.entry("Choice", choice));
+
+      try {
+        choiceBarrier.await();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      } catch (BrokenBarrierException e) {
+        // TODO what?
+      }
+      stage.setTitle("Mulima: Waiting for next choice");
+      table.getItems().clear();
+    });
+
+    var scene = new Scene(pane, 1024, 768);
+    stage.setScene(scene);
+    stage.show();
+
+    var backgroundService = new Service() {
+      @Override
+      public Task<Void> createTask() {
+        return new Task<>() {
+          @Override
+          protected Void call() {
+            runBackend();
+            return null;
+          }
+        };
+      }
+    };
+    backgroundService.start();
+  }
+
+  public static void runBackend() {
     try (var context = new AnnotationConfigApplicationContext(SpringConfig.class)) {
       // Metrics
       Metrics.addRegistry(context.getBean(MeterRegistry.class));
       Metrics.globalRegistry.config().commonTags(
-        "application", "mulima",
-        "execution", UUID.randomUUID().toString()
+          "application", "mulima",
+          "execution", UUID.randomUUID().toString()
       );
       new ClassLoaderMetrics().bindTo(Metrics.globalRegistry);
       new JvmMemoryMetrics().bindTo(Metrics.globalRegistry);
@@ -49,6 +251,11 @@ public final class Main {
       new JvmThreadMetrics().bindTo(Metrics.globalRegistry);
 
       ExecutorServiceMetrics.monitor(Metrics.globalRegistry, ForkJoinPool.commonPool(), "fork-join-common-pool");
+
+      var fromUISubscriber = Flows.<Map.Entry<String, Object>>subscriber("UI commands", Executors.newSingleThreadExecutor(), 1, item -> {
+        logger.error("Received message from UI: {} -> {}", item.getKey(), item.getValue());
+      });
+      toBackendPublisher.subscribe(fromUISubscriber);
 
       // Now it begins
       logger.info("Mulima started.");
@@ -131,11 +338,7 @@ public final class Main {
           var cAlbum = candidate.getTagValue("album").orElse("Unkown album");
           System.out.println(String.format("  * %s - %s (%s)", cArtist, cAlbum, cReleaseId));
         });
-        try {
-          Thread.sleep(5000);
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-        }
+        toUIPublisher.submit(Map.entry("Choice", choice));
       });
       choicePublisher.subscribe(releaseChoiceSubscriber);
 
@@ -178,5 +381,9 @@ public final class Main {
     } finally {
       logger.info("Mulima complete.");
     }
+  }
+
+  public static void main(String[] args) {
+    launch(args);
   }
 }

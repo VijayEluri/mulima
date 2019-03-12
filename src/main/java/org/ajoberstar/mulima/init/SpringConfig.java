@@ -113,7 +113,7 @@ public class SpringConfig {
 
   @Bean
   public MusicBrainzService musicbrainz(ProcessService process) {
-    return new MusicBrainzService(HttpClients.rateLimited(1_500), env.getProperty("metaflac.path", "metaflac"), process);
+    return new MusicBrainzService(HttpClients.rateLimited(5_000), env.getProperty("metaflac.path", "metaflac"), process);
   }
 
   @Bean
