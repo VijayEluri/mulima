@@ -1,6 +1,15 @@
 package org.ajoberstar.mulima.service;
 
-import static org.ajoberstar.mulima.util.XmlDocuments.getText;
+import io.micrometer.core.instrument.util.IOUtils;
+import org.ajoberstar.mulima.meta.CuePoint;
+import org.ajoberstar.mulima.meta.Metadata;
+import org.ajoberstar.mulima.util.XmlDocuments;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -12,25 +21,14 @@ import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.ajoberstar.mulima.meta.CuePoint;
-import org.ajoberstar.mulima.meta.Metadata;
-import org.ajoberstar.mulima.util.AsyncCollectors;
-import org.ajoberstar.mulima.util.XmlDocuments;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import static org.ajoberstar.mulima.util.XmlDocuments.getText;
 
 public final class MusicBrainzService {
   private static final Logger logger = LogManager.getLogger(MusicBrainzService.class);
@@ -98,13 +96,11 @@ public final class MusicBrainzService {
 
   public List<Metadata> lookupByDiscId(String discId) {
     // TODO use same inc= as on release to save a step
-    return getXml("https://musicbrainz.org/ws/2/discid/%s?inc=recordings+artists+release-groups+labels", discId).thenApply(maybeDoc -> {
-      return maybeDoc.map(doc -> {
-        return XmlDocuments.getChildren(doc, "metadata", "disc", "release-list", "release")
-            .map(release -> handleRelease(release, discId))
-            .collect(Collectors.toList());
-      }).orElse(Collections.emptyList());
-    }).join();
+    return getXml("https://musicbrainz.org/ws/2/discid/%s?inc=recordings+artists+release-groups+labels", discId).map(doc -> {
+      return XmlDocuments.getChildren(doc, "metadata", "disc", "release-list", "release")
+          .map(release -> handleRelease(release, discId))
+          .collect(Collectors.toList());
+    }).orElse(List.of());
   }
 
   private Metadata handleRelease(Node release, String discId) {
@@ -142,75 +138,66 @@ public final class MusicBrainzService {
         .map(Node::getTextContent)
         .forEach(value -> meta.addTag("albumartistsort", value));
 
-    var mediums = XmlDocuments.getChildren(release, "medium-list", "medium")
-        .map(medium -> handleMedium(medium, meta))
-        .collect(AsyncCollectors.allOf());
+    XmlDocuments.getChildren(release, "medium-list", "medium")
+        .forEach(medium -> handleMedium(medium, meta));
 
-    return mediums.thenApply(ignored -> {
-      return meta.build();
-    }).join();
+    return meta.build();
   }
 
-  private CompletableFuture<Void> handleMedium(Node medium, Metadata.Builder parent) {
+  private void handleMedium(Node medium, Metadata.Builder parent) {
     var meta = parent.newChild();
     getText(medium, "position").ifPresent(value -> meta.addTag("discnumber", value));
 
-    return XmlDocuments.getChildren(medium, "track-list", "track")
-        .map(track -> handleTrack(track, meta))
-        .collect(AsyncCollectors.allOf());
+    XmlDocuments.getChildren(medium, "track-list", "track")
+        .forEach(track -> handleTrack(track, meta));
   }
 
-  private CompletableFuture<Void> handleTrack(Node track, Metadata.Builder parent) {
+  private void handleTrack(Node track, Metadata.Builder parent) {
     var meta = parent.newChild();
 
     getText(track, "@id").ifPresent(value -> meta.addTag("musicbrainz_trackid", value));
     getText(track, "position").ifPresent(value -> meta.addTag("tracknumber", value));
     getText(track, "recording", "title").ifPresent(value -> meta.addTag("title", value));
 
-    return getText(track, "recording", "@id")
-        .map(value -> handleRecording(value, meta))
-        .orElse(CompletableFuture.completedFuture(null));
-  }
-
-  private CompletableFuture<Void> handleRecording(String recordingId, Metadata.Builder meta) {
-    return getXml("https://musicbrainz.org/ws/2/recording/%s?inc=artists+work-rels", recordingId).thenCompose(maybeDoc -> {
-      meta.addTag("musicbrainz_recordingid", recordingId);
-      return maybeDoc.flatMap(doc -> {
-        XmlDocuments.getChildren(doc, "metadata", "recording", "artist-credit", "name-credit", "artist", "@id")
-            .map(Node::getTextContent)
-            .forEach(value -> meta.addTag("musicbrainz_artistid", value));
-        XmlDocuments.getChildren(doc, "metadata", "recording", "artist-credit", "name-credit", "artist", "name")
-            .map(Node::getTextContent)
-            .forEach(value -> meta.addTag("artist", value));
-        XmlDocuments.getChildren(doc, "metadata", "recording", "artist-credit", "name-credit", "artist", "sort-name")
-            .map(Node::getTextContent)
-            .forEach(value -> meta.addTag("artistsort", value));
-
-        return XmlDocuments.getChildren(doc, "metadata", "recording", "relation-list")
-            .filter(rel -> "work".equals(XmlDocuments.getAttribute(rel, "target-type")))
-            .findFirst()
-            .flatMap(rel -> {
-              return getText(rel, "relation", "work", "@id")
-                  .map(value -> handleWork(value, meta));
-            });
-
-      }).orElse(CompletableFuture.completedFuture(null));
+    getText(track, "recording", "@id").ifPresent(value -> {
+      handleRecording(value, meta);
     });
   }
 
-  private CompletableFuture<Void> handleWork(String workId, Metadata.Builder meta) {
+  private void handleRecording(String recordingId, Metadata.Builder meta) {
+    var maybeDoc = getXml("https://musicbrainz.org/ws/2/recording/%s?inc=artists+work-rels", recordingId);
+    meta.addTag("musicbrainz_recordingid", recordingId);
+    maybeDoc.ifPresent(doc -> {
+      XmlDocuments.getChildren(doc, "metadata", "recording", "artist-credit", "name-credit", "artist", "@id")
+          .map(Node::getTextContent)
+          .forEach(value -> meta.addTag("musicbrainz_artistid", value));
+      XmlDocuments.getChildren(doc, "metadata", "recording", "artist-credit", "name-credit", "artist", "name")
+          .map(Node::getTextContent)
+          .forEach(value -> meta.addTag("artist", value));
+      XmlDocuments.getChildren(doc, "metadata", "recording", "artist-credit", "name-credit", "artist", "sort-name")
+          .map(Node::getTextContent)
+          .forEach(value -> meta.addTag("artistsort", value));
+
+      XmlDocuments.getChildren(doc, "metadata", "recording", "relation-list")
+          .filter(rel -> "work".equals(XmlDocuments.getAttribute(rel, "target-type")))
+          .findFirst()
+          .flatMap(rel -> getText(rel, "relation", "work", "@id"))
+          .ifPresent(value -> handleWork(value, meta));
+    });
+  }
+
+  private void handleWork(String workId, Metadata.Builder meta) {
     meta.addTag("musicbrainz_workid", workId);
 
-    return getXml("https://musicbrainz.org/ws/2/work/%s?inc=artist-rels", workId).thenAccept(maybeDoc -> {
-      if (maybeDoc.isPresent()) {
-        var doc = maybeDoc.get();
+    var maybeDoc = getXml("https://musicbrainz.org/ws/2/work/%s?inc=artist-rels", workId);
+    if (maybeDoc.isPresent()) {
+      var doc = maybeDoc.get();
 
-        XmlDocuments.getChildren(doc, "metadata", "work", "relation-list")
-            .filter(relList -> "artist".equals(XmlDocuments.getAttribute(relList, "target-type")))
-            .flatMap(relList -> XmlDocuments.getChildren(relList, "relation"))
-            .forEach(rel -> handleArtistRel(rel, meta));
-      }
-    });
+      XmlDocuments.getChildren(doc, "metadata", "work", "relation-list")
+          .filter(relList -> "artist".equals(XmlDocuments.getAttribute(relList, "target-type")))
+          .flatMap(relList -> XmlDocuments.getChildren(relList, "relation"))
+          .forEach(rel -> handleArtistRel(rel, meta));
+    }
   }
 
   private void handleArtistRel(Node rel, Metadata.Builder meta) {
@@ -233,12 +220,12 @@ public final class MusicBrainzService {
     }
   }
 
-  private CompletableFuture<Optional<Document>> getXml(String uriFormat, Object... uriArgs) {
+  private Optional<Document> getXml(String uriFormat, Object... uriArgs) {
     var uri = safeUri(uriFormat, uriArgs);
     var cachePath = cachePath(uri);
     if (Files.exists(cachePath)) {
       logger.debug("Using cached result for URI: {}", uri);
-      return CompletableFuture.completedFuture(Optional.of(XmlDocuments.parse(cachePath)));
+      return Optional.of(XmlDocuments.parse(cachePath));
     } else {
       logger.info("Requesting URI, as it is not cached: {}", uri);
       var request = HttpRequest.newBuilder(uri)
@@ -247,7 +234,8 @@ public final class MusicBrainzService {
           .build();
       var handler = HttpResponse.BodyHandlers.ofInputStream();
 
-      return http.sendAsync(request, handler).thenApply(response -> {
+      try {
+        var response = http.send(request, handler);
         if (response.statusCode() == 200) {
           try (var stream = response.body()) {
             var doc = XmlDocuments.parse(stream);
@@ -257,13 +245,27 @@ public final class MusicBrainzService {
             throw new UncheckedIOException(e);
           }
         } else if (response.statusCode() == 404) {
-          logger.debug("Not found at: {}", uri);
+          logger.warn("Not found at: {}", uri);
           return Optional.empty();
         } else {
+          // FIXME
+          logger.error("Error {} at {}: {}", response.statusCode(), uri, IOUtils.toString(response.body()));
           // TODO do better
           throw new RuntimeException("Something bad: " + response.toString());
         }
-      });
+      } catch (InterruptedException e) {
+        // TODO do better
+        throw new RuntimeException("Interrupted.", e);
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      } finally {
+        try {
+          // Musicbrainz as a rate limit. You can only request once per second. So leave a buffer between requests.
+          Thread.sleep(1200);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
+      }
     }
   }
 

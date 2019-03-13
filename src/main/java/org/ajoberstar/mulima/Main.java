@@ -65,7 +65,7 @@ public final class Main extends Application {
   public void start(Stage stage) {
     var pane = new VBox();
 
-    stage.setTitle("Mulima: Adele - 25 (D:\\music\\Adele\\25\\metadata.yaml");
+    stage.setTitle("Mulima: Waiting for next choice");
 
     var table = new TableView<Metadata>();
     var artistCol = new TableColumn<Metadata, String>("Artist");
@@ -130,30 +130,6 @@ public final class Main extends Application {
     buttons.getButtons().addAll(definitely, probably, none, skip);
     pane.getChildren().add(buttons);
 
-
-    var meta1 = Metadata.builder("generic")
-        .setSourceFile(Paths.get("D:\\one\\something.flac"))
-        .addTag("artist", "Adele")
-        .addTag("album", "25")
-        .addTag("musicbrainz_albumid", "2b4c1e9c-1904-4155-9df6-d1681ddef130")
-        .build();
-
-    var meta2 = Metadata.builder("generic")
-        .setSourceFile(Paths.get("D:\\one\\something.flac"))
-        .addTag("artist", "Adele")
-        .addTag("album", "25")
-        .addTag("musicbrainz_albumid", "89015f5d-d3dc-4ad3-904b-492870bbf4e4")
-        .build();
-
-    var meta3 = Metadata.builder("generic")
-        .setSourceFile(Paths.get("D:\\one\\something3.flac"))
-        .addTag("albumartist", "King Crimson")
-        .addTag("album", "Starless and Bible Black")
-        .addTag("musicbrainz_albumid", "f808c363-9df6-4dda-904e-838bfe93b831")
-        .build();
-
-    table.getItems().addAll(meta1, meta2, meta3);
-
     var web = new WebView();
     pane.getChildren().add(web);
 
@@ -184,9 +160,10 @@ public final class Main extends Application {
         var album = meta.getTagValue("album").orElse("Unknown");
         var source = meta.getSourceFile();
 
-        Platform.runLater(() -> stage.setTitle(String.format("Mulima: %s - %s (%s)", artist, album, source)));
-
-        table.getItems().setAll(options);
+        Platform.runLater(() -> {
+          stage.setTitle(String.format("Mulima: %s - %s (%s)", artist, album, source));
+          table.getItems().setAll(options);
+        });
 
         try {
           choiceBarrier.await();
@@ -204,6 +181,10 @@ public final class Main extends Application {
 
     definitely.setOnAction(event -> {
       var choice = table.getSelectionModel().getSelectedItem();
+      if (choice == null) {
+        return;
+      }
+
       toBackendPublisher.submit(Map.entry("Choice", choice));
 
       try {
@@ -294,7 +275,7 @@ public final class Main extends Application {
       sourceDirPublisher.subscribe(sourceDirScannerSubscriber);
 
       // validator
-      var validatorSubscriber = Flows.<Metadata>subscriber("Metadata validator", blocking, 1, meta -> {
+      var validatorSubscriber = Flows.<Metadata>subscriber("Metadata validator", blocking, Runtime.getRuntime().availableProcessors(), meta -> {
         var hasMusicBrainzData = meta.getChildren().stream()
             .map(m -> meta.getTagValue("musicbrainz_albumid"))
             .allMatch(Optional::isPresent);
@@ -308,7 +289,7 @@ public final class Main extends Application {
       discoveredAlbumPublisher.subscribe(validatorSubscriber);
 
       // musicbrainz lookup
-      var musicbrainzLookupSubscriber = Flows.<Metadata>subscriber("MusicBrainz lookup", blocking, Runtime.getRuntime().availableProcessors(), meta -> {
+      var musicbrainzLookupSubscriber = Flows.<Metadata>subscriber("MusicBrainz lookup", blocking, 1, meta -> {
         var audioToTracks = meta.getChildren().stream()
             .collect(Collectors.groupingBy(m -> m.getAudioFile().get()));
 
