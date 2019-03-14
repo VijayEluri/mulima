@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -37,10 +38,13 @@ public final class MusicBrainzService {
   private final String metaflacPath;
   private final ProcessService process;
 
+  private final ReentrantLock rateLimitLock;
+
   public MusicBrainzService(HttpClient http, String metaflacPath, ProcessService process) {
     this.http = http;
     this.metaflacPath = metaflacPath;
     this.process = process;
+    this.rateLimitLock = new ReentrantLock();
   }
 
   public String calculateDiscId(List<Metadata> tracks, Path flacFile) {
@@ -222,19 +226,25 @@ public final class MusicBrainzService {
 
   private Optional<Document> getXml(String uriFormat, Object... uriArgs) {
     var uri = safeUri(uriFormat, uriArgs);
+    var notFoundPath = notFoundPath(uri);
     var cachePath = cachePath(uri);
-    if (Files.exists(cachePath)) {
+
+    if (Files.exists(notFoundPath)) {
+      logger.debug("Using cached not found result for URI: {}", uri);
+      return Optional.empty();
+    } else if (Files.exists(cachePath)) {
       logger.debug("Using cached result for URI: {}", uri);
       return Optional.of(XmlDocuments.parse(cachePath));
     } else {
-      logger.info("Requesting URI, as it is not cached: {}", uri);
-      var request = HttpRequest.newBuilder(uri)
-          .GET()
-          .header("User-Agent", "mulima/0.2.0-SNAPSHOT ( https://github.com/ajoberstar/mulima )")
-          .build();
-      var handler = HttpResponse.BodyHandlers.ofInputStream();
-
+      rateLimitLock.lock();
       try {
+        logger.info("Requesting URI, as it is not cached: {}", uri);
+        var request = HttpRequest.newBuilder(uri)
+            .GET()
+            .header("User-Agent", "mulima/0.2.0-SNAPSHOT ( https://github.com/ajoberstar/mulima )")
+            .build();
+        var handler = HttpResponse.BodyHandlers.ofInputStream();
+
         var response = http.send(request, handler);
         if (response.statusCode() == 200) {
           try (var stream = response.body()) {
@@ -246,6 +256,7 @@ public final class MusicBrainzService {
           }
         } else if (response.statusCode() == 404) {
           logger.warn("Not found at: {}", uri);
+          Files.createFile(notFoundPath);
           return Optional.empty();
         } else {
           // FIXME
@@ -261,10 +272,11 @@ public final class MusicBrainzService {
       } finally {
         try {
           // Musicbrainz as a rate limit. You can only request once per second. So leave a buffer between requests.
-          Thread.sleep(1200);
+          Thread.sleep(1_000);
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
         }
+        rateLimitLock.unlock();
       }
     }
   }
@@ -272,7 +284,13 @@ public final class MusicBrainzService {
   private Path cachePath(URI uri) {
     var uriHash = DigestUtils.sha256Hex(uri.toString());
     // TODO externalize path
-    return Paths.get("D:", "temp", uriHash + ".xml");
+    return Paths.get("D:", "temp", "found", uriHash + ".xml");
+  }
+
+  private Path notFoundPath(URI uri) {
+    var uriHash = DigestUtils.sha256Hex(uri.toString());
+    // TODO externalize path
+    return Paths.get("D:", "temp", "not-found", uriHash + ".xml");
   }
 
   private URI safeUri(String format, Object... args) {

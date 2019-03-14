@@ -8,7 +8,6 @@ module org.ajoberstar.mulima {
   // java fx
   requires javafx.controls;
   requires javafx.web;
-  requires javafx.fxml;
 
   // spring
   requires spring.core;
@@ -32,6 +31,5 @@ module org.ajoberstar.mulima {
   // exports
   opens org.ajoberstar.mulima.init to spring.core, spring.beans, spring.context;
   opens org.ajoberstar.mulima.meta to javafx.base, org.apache.commons.lang3;
-  opens org.ajoberstar.mulima.ui to javafx.fxml;
   exports org.ajoberstar.mulima;
 }

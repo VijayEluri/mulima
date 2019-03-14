@@ -1,15 +1,10 @@
 package org.ajoberstar.mulima.init;
 
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import io.micrometer.core.instrument.Clock;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
 import io.micrometer.influx.InfluxConfig;
-import io.micrometer.influx.InfluxConsistency;
 import io.micrometer.influx.InfluxMeterRegistry;
 import org.ajoberstar.mulima.audio.FlacCodec;
 import org.ajoberstar.mulima.audio.OpusEncoder;
@@ -32,6 +27,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
+import java.util.List;
+import java.util.concurrent.Executors;
+
 @Configuration
 @PropertySource("file:///${APPDATA}/mulima/mulima.properties")
 public class SpringConfig {
@@ -48,13 +46,6 @@ public class SpringConfig {
     return InfluxMeterRegistry.builder(config)
         .clock(Clock.SYSTEM)
         .build();
-  }
-
-  @Bean
-  public ExecutorService blocking() {
-    var executor = Executors.newCachedThreadPool();
-    ExecutorServiceMetrics.monitor(Metrics.globalRegistry, executor, "blocking");
-    return executor;
   }
 
   @Bean

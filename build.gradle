@@ -21,11 +21,7 @@ reckon {
 
 javafx {
   version = '11.0.1'
-  modules = [
-    'javafx.controls',
-    'javafx.fxml',
-    'javafx.web'
-  ]
+  modules = ['javafx.controls', 'javafx.web']
 }
 
 repositories { mavenCentral() }

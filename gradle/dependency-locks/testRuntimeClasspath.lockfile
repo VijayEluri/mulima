@@ -18,7 +18,6 @@ org.hdrhistogram:HdrHistogram:2.1.9
 org.latencyutils:LatencyUtils:2.0.3
 org.openjfx:javafx-base:11.0.1
 org.openjfx:javafx-controls:11.0.1
-org.openjfx:javafx-fxml:11.0.1
 org.openjfx:javafx-graphics:11.0.1
 org.openjfx:javafx-media:11.0.1
 org.openjfx:javafx-web:11.0.1

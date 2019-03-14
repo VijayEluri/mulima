@@ -17,13 +17,10 @@ import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
-import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
@@ -42,7 +39,6 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -58,8 +54,8 @@ import java.util.stream.Collectors;
 public final class Main extends Application {
   private static final Logger logger = LogManager.getLogger(Main.class);
 
-  private static final SubmissionPublisher<Map.Entry<String, Object>> toUIPublisher = Flows.publisher(Executors.newSingleThreadExecutor(), 100);
-  private static final SubmissionPublisher<Map.Entry<String, Object>> toBackendPublisher = Flows.publisher(Executors.newSingleThreadExecutor(), 100);
+  private static final SubmissionPublisher<Map.Entry<String, Object>> toUIPublisher = Flows.publisher("to-ui-publisher", 100);
+  private static final SubmissionPublisher<Map.Entry<String, Object>> toBackendPublisher = Flows.publisher("to-backend-publisher", 100);
 
   @Override
   public void start(Stage stage) {
@@ -149,7 +145,7 @@ public final class Main extends Application {
 
     var choiceBarrier = new CyclicBarrier(2);
 
-    var fromBackendSubscriber = Flows.<Map.Entry<String, Object>>subscriber("Backend responses", Executors.newSingleThreadExecutor(), 1, item -> {
+    var fromBackendSubscriber = Flows.<Map.Entry<String, Object>>subscriber("backend-response-subscriber", 1, item -> {
       logger.error("Received message from backend: {} -> {}", item.getKey(), item.getValue());
       if ("Choice".equals(item.getKey())) {
         var entry = (Map.Entry<Metadata, List<Metadata>>) item.getValue();
@@ -233,7 +229,7 @@ public final class Main extends Application {
 
       ExecutorServiceMetrics.monitor(Metrics.globalRegistry, ForkJoinPool.commonPool(), "fork-join-common-pool");
 
-      var fromUISubscriber = Flows.<Map.Entry<String, Object>>subscriber("UI commands", Executors.newSingleThreadExecutor(), 1, item -> {
+      var fromUISubscriber = Flows.<Map.Entry<String, Object>>subscriber("ui-command-subscriber", 1, item -> {
         logger.error("Received message from UI: {} -> {}", item.getKey(), item.getValue());
       });
       toBackendPublisher.subscribe(fromUISubscriber);
@@ -245,28 +241,26 @@ public final class Main extends Application {
       var musicbrainz = context.getBean(MusicBrainzService.class);
 
       // directories to be scanned
-      var sourceDirPublisher = Flows.<Path>publisher();
+      var sourceDirPublisher = Flows.<Path>publisher("source-dir-publisher", 25);
 
       // discovered source metadata
-      var discoveredAlbumPublisher = Flows.<Metadata>publisher();
+      var discoveredAlbumPublisher = Flows.<Metadata>publisher("discovered-album-publisher", 25);
 
       // invalid metadata
-      var invalidAlbumPublisher = Flows.<Metadata>publisher();
+      var invalidAlbumPublisher = Flows.<Metadata>publisher("invalid-album-publisher", 25);
 
       // musicbrainz chooser
-      var choicePublisher = Flows.<Map.Entry<Metadata, List<Metadata>>>publisher();
+      var choicePublisher = Flows.<Map.Entry<Metadata, List<Metadata>>>publisher("choice-publisher", 25);
 
       // validated metadata
-      var validAlbumPublisher = Flows.<Metadata>publisher();
+      var validAlbumPublisher = Flows.<Metadata>publisher("valid-album-publisher", 25);
 
       // converted metadata
-      var successfulConversionsPublisher = Flows.<Metadata>publisher();
-      var failedConversionsPublisher = Flows.<Metadata>publisher();
-
-      var blocking = context.getBean("blocking", ExecutorService.class);
+      var successfulConversionsPublisher = Flows.<Metadata>publisher("successful-conversion-publisher", 25);
+      var failedConversionsPublisher = Flows.<Metadata>publisher("failed-conversion-publisher", 25);
 
       // directory scanner
-      var sourceDirScannerSubscriber = Flows.<Path>subscriber("Source directory scanner", blocking, 1, dir -> {
+      var sourceDirScannerSubscriber = Flows.<Path>subscriber("source-directory-scanner-subscriber",1, dir -> {
         var result = metadata.parseDir(dir);
         if (!result.getChildren().isEmpty()) {
           discoveredAlbumPublisher.submit(result);
@@ -275,13 +269,13 @@ public final class Main extends Application {
       sourceDirPublisher.subscribe(sourceDirScannerSubscriber);
 
       // validator
-      var validatorSubscriber = Flows.<Metadata>subscriber("Metadata validator", blocking, Runtime.getRuntime().availableProcessors(), meta -> {
+      var validatorSubscriber = Flows.<Metadata>subscriber("metadata-validator-subscriber", 1, meta -> {
         var hasMusicBrainzData = meta.getChildren().stream()
             .map(m -> meta.getTagValue("musicbrainz_albumid"))
             .allMatch(Optional::isPresent);
 
         if (hasMusicBrainzData) {
-          validAlbumPublisher.submit(meta);
+//          validAlbumPublisher.submit(meta);
         } else {
           invalidAlbumPublisher.submit(meta);
         }
@@ -289,7 +283,7 @@ public final class Main extends Application {
       discoveredAlbumPublisher.subscribe(validatorSubscriber);
 
       // musicbrainz lookup
-      var musicbrainzLookupSubscriber = Flows.<Metadata>subscriber("MusicBrainz lookup", blocking, 1, meta -> {
+      var musicbrainzLookupSubscriber = Flows.<Metadata>subscriber("musicbrainz-lookup-subscriber", 1, meta -> {
         var audioToTracks = meta.getChildren().stream()
             .collect(Collectors.groupingBy(m -> m.getAudioFile().get()));
 
@@ -307,7 +301,7 @@ public final class Main extends Application {
       invalidAlbumPublisher.subscribe(musicbrainzLookupSubscriber);
 
       // musicbrainz chooser
-      var releaseChoiceSubscriber = Flows.<Map.Entry<Metadata, List<Metadata>>>subscriber("MusicBrainz release chooser", blocking, 1, choice -> {
+      var releaseChoiceSubscriber = Flows.<Map.Entry<Metadata, List<Metadata>>>subscriber("musicbrainz-release-chooser-subscriber", 25, choice -> {
         var meta = choice.getKey();
         var candidates = choice.getValue();
         var artist = meta.getChildren().get(0).getTagValue("albumartist").or(() -> meta.getChildren().get(0).getTagValue("artist")).orElse("Unknown artist");
@@ -319,12 +313,12 @@ public final class Main extends Application {
           var cAlbum = candidate.getTagValue("album").orElse("Unkown album");
           System.out.println(String.format("  * %s - %s (%s)", cArtist, cAlbum, cReleaseId));
         });
-        toUIPublisher.submit(Map.entry("Choice", choice));
+//        toUIPublisher.submit(Map.entry("Choice", choice));
       });
       choicePublisher.subscribe(releaseChoiceSubscriber);
 
       // converter
-      var conversionSubscriber = Flows.<Metadata>subscriber("Album conversion", blocking, Math.max(Runtime.getRuntime().availableProcessors() / 2, 1), meta -> {
+      var conversionSubscriber = Flows.<Metadata>subscriber("album-conversion-subscriber", Math.max(Runtime.getRuntime().availableProcessors() / 2, 1), meta -> {
         logger.info("Starting conversion of: {}", meta.getSourceFile());
         var losslessDir = Paths.get("D:", "test", "lossless");
         var lossyDir = Paths.get("D:", "test", "lossy");
@@ -335,19 +329,19 @@ public final class Main extends Application {
           failedConversionsPublisher.submit(meta);
         }
       });
-      validAlbumPublisher.subscribe(conversionSubscriber);
+//      validAlbumPublisher.subscribe(conversionSubscriber);
 
       // success logger
-      var successSubscriber = Flows.<Metadata>subscriber("Successful conversion", ForkJoinPool.commonPool(), 1, meta -> {
+      var successSubscriber = Flows.<Metadata>subscriber("successful-conversion-subscriber", 1, meta -> {
         logger.info("Successfully converted: {}", meta.getSourceFile());
       });
-      successfulConversionsPublisher.subscribe(successSubscriber);
+//      successfulConversionsPublisher.subscribe(successSubscriber);
 
       // failure logger
-      var failureSubscriber = Flows.<Metadata>subscriber("Failed conversion", ForkJoinPool.commonPool(), 1, meta -> {
+      var failureSubscriber = Flows.<Metadata>subscriber("failed-conversion-subscriber", 1, meta -> {
         logger.error("Failed to convert: {}", meta.getSourceFile());
       });
-      failedConversionsPublisher.subscribe(failureSubscriber);
+//      failedConversionsPublisher.subscribe(failureSubscriber);
 
       // lets get this party started
       try (var fileStream = Files.walk(Paths.get("D:", "originals", "flac-rips"))) {

@@ -1,9 +1,7 @@
 package org.ajoberstar.mulima.flow;
 
 import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Metrics;
-import org.ajoberstar.mulima.Main;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -11,13 +9,11 @@ import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Flow;
-import java.util.concurrent.SubmissionPublisher;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
-class SimpleSubscriber<T> implements Flow.Subscriber<T> {
+class SimpleSubscriber<T> implements Flow.Subscriber<T>, AutoCloseable {
   private static final Logger logger = LogManager.getLogger(SimpleSubscriber.class);
 
   private final Counter receivedItems;
@@ -25,14 +21,14 @@ class SimpleSubscriber<T> implements Flow.Subscriber<T> {
   private final Counter failedItems;
 
   private final String name;
-  private final Executor executor;
+  private final ExecutorService executor;
   private final BlockingQueue<T> buffer;
   private final Consumer<T> itemHandler;
   private final Consumer<? super Throwable> errorHandler;
 
   private Flow.Subscription subscription;
 
-  public SimpleSubscriber(String name, Executor executor, int maxBufferCapacity, Consumer<T> itemHandler, Consumer<? super Throwable> errorHandler) {
+  public SimpleSubscriber(String name, ExecutorService executor, int maxBufferCapacity, Consumer<T> itemHandler, Consumer<? super Throwable> errorHandler) {
     this.name = name;
     this.executor = executor;
     this.buffer = new ArrayBlockingQueue<>(maxBufferCapacity);
@@ -60,7 +56,7 @@ class SimpleSubscriber<T> implements Flow.Subscriber<T> {
       throw new IllegalStateException(name + " already subscribed to another publisher.");
     });
     this.subscription = subscription;
-    subscription.request(buffer.remainingCapacity());
+    subscription.request(1);
   }
 
   @Override
@@ -97,5 +93,10 @@ class SimpleSubscriber<T> implements Flow.Subscriber<T> {
   public void onComplete() {
     logger.debug("{} received completion from publisher.", name);
     // do nothing
+  }
+
+  @Override
+  public void close() {
+    executor.shutdown();
   }
 }
