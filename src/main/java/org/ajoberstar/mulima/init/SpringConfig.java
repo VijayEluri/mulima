@@ -1,5 +1,10 @@
 package org.ajoberstar.mulima.init;
 
+import java.net.http.HttpClient;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.UUID;
+
 import io.micrometer.core.instrument.Clock;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Metrics;
@@ -31,11 +36,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 
-import java.net.http.HttpClient;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.UUID;
-
 @Configuration
 @PropertySource("file:///${APPDATA}/mulima/mulima.properties")
 public class SpringConfig {
@@ -45,7 +45,8 @@ public class SpringConfig {
   @Bean
   public MeterRegistry influx() {
     var config = new InfluxConfig() {
-      @Override public String get(String key) {
+      @Override
+      public String get(String key) {
         return env.getProperty("micrometer." + key);
       }
     };
@@ -56,8 +57,7 @@ public class SpringConfig {
     Metrics.addRegistry(registry);
     Metrics.globalRegistry.config().commonTags(
         "application", "mulima",
-        "execution", UUID.randomUUID().toString()
-    );
+        "execution", UUID.randomUUID().toString());
     new ClassLoaderMetrics().bindTo(Metrics.globalRegistry);
     new JvmMemoryMetrics().bindTo(Metrics.globalRegistry);
     new JvmGcMetrics().bindTo(Metrics.globalRegistry);

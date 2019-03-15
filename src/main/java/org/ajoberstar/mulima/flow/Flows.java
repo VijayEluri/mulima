@@ -1,16 +1,15 @@
 package org.ajoberstar.mulima.flow;
 
-import io.micrometer.core.instrument.Metrics;
-import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
-import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
 
 public final class Flows {
   private Flows() {
@@ -24,7 +23,8 @@ public final class Flows {
 
   public static <T> Flow.Subscriber<T> subscriber(String name, int maxBufferCapacity, Consumer<T> itemAction) {
     var executor = newExecutorService(name, 1);
-    return new SimpleSubscriber<>(name, executor, maxBufferCapacity, itemAction, t -> {});
+    return new SimpleSubscriber<>(name, executor, maxBufferCapacity, itemAction, t -> {
+    });
   }
 
   public static <T> Flow.Subscriber<T> subscriber(String name, int maxBufferCapacity, Consumer<T> itemAction, Consumer<Throwable> errorAction) {

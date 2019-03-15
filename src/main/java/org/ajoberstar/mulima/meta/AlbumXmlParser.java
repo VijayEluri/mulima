@@ -19,7 +19,7 @@ import org.w3c.dom.Node;
 
 public final class AlbumXmlParser implements MetadataParser {
   private static final Logger logger = LogManager.getLogger(AlbumXmlParser.class);
-  private static final Pattern DISC_AUDIO_FILE =Pattern.compile("D(\\d+)\\.flac|.*\\((\\d+)\\)\\.flac");
+  private static final Pattern DISC_AUDIO_FILE = Pattern.compile("D(\\d+)\\.flac|.*\\((\\d+)\\)\\.flac");
 
   @Override
   public boolean accepts(Path file) {

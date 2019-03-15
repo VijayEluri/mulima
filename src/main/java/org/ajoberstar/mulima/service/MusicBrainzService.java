@@ -1,16 +1,6 @@
 package org.ajoberstar.mulima.service;
 
-import io.micrometer.core.instrument.util.IOUtils;
-import org.ajoberstar.mulima.meta.CuePoint;
-import org.ajoberstar.mulima.meta.Metadata;
-import org.ajoberstar.mulima.meta.MetaflacTagger;
-import org.ajoberstar.mulima.util.XmlDocuments;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import static org.ajoberstar.mulima.util.XmlDocuments.getText;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -29,7 +19,17 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.ajoberstar.mulima.util.XmlDocuments.getText;
+import io.micrometer.core.instrument.util.IOUtils;
+import org.ajoberstar.mulima.meta.CuePoint;
+import org.ajoberstar.mulima.meta.Metadata;
+import org.ajoberstar.mulima.meta.MetaflacTagger;
+import org.ajoberstar.mulima.util.XmlDocuments;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 public final class MusicBrainzService {
   private static final Logger logger = LogManager.getLogger(MusicBrainzService.class);
@@ -106,7 +106,7 @@ public final class MusicBrainzService {
     // TODO duplication
     meta.setSourceFile(cachePath(safeUri("https://musicbrainz.org/ws/2/discid/%s?inc=recordings+artists+release-groups+labels", discId)));
     meta.addTag("musicbrainz_discid", discId);
-    
+
     getText(release, "@id").ifPresent(value -> meta.addTag("musicbrainz_albumid", value));
     getText(release, "title").ifPresent(value -> meta.addTag("album", value));
     getText(release, "date").ifPresent(value -> meta.addTag("date", value));
@@ -265,7 +265,8 @@ public final class MusicBrainzService {
         throw new UncheckedIOException(e);
       } finally {
         try {
-          // Musicbrainz as a rate limit. You can only request once per second. So leave a buffer between requests.
+          // Musicbrainz as a rate limit. You can only request once per second. So leave a buffer between
+          // requests.
           Thread.sleep(1_000);
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();

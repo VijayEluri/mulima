@@ -83,7 +83,7 @@ public final class LibraryService {
     return valuesToCount.entrySet().stream()
         .collect(Collectors.maxBy(Comparator.comparing(Map.Entry::getValue)))
         .map(Map.Entry::getKey);
-        // TODO path safe
+    // TODO path safe
   }
 
   public boolean isUpToDate(Metadata album) {

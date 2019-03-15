@@ -1,15 +1,5 @@
 package org.ajoberstar.mulima;
 
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
-import org.ajoberstar.mulima.flow.Flows;
-import org.ajoberstar.mulima.meta.Metadata;
-import org.ajoberstar.mulima.service.LibraryService;
-import org.ajoberstar.mulima.service.MetadataService;
-import org.ajoberstar.mulima.service.MusicBrainzService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -19,18 +9,28 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.stream.Collectors;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
+
+import org.ajoberstar.mulima.flow.Flows;
+import org.ajoberstar.mulima.meta.Metadata;
+import org.ajoberstar.mulima.service.LibraryService;
+import org.ajoberstar.mulima.service.MetadataService;
+import org.ajoberstar.mulima.service.MusicBrainzService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class MulimaService extends Service implements AutoCloseable {
   private static final Logger logger = LogManager.getLogger(MulimaService.class);
 
   private final SubmissionPublisher<Path> sourceDirPublisher = Flows.publisher("source-dir-publisher", 25);
   private final SubmissionPublisher<Metadata> discoveredAlbumPublisher = Flows.publisher("discovered-album-publisher", 25);
-  private final SubmissionPublisher<Metadata>  invalidAlbumPublisher = Flows.publisher("invalid-album-publisher", 25);
-  private final SubmissionPublisher<Map.Entry<Metadata, List<Metadata>>>  choicePublisher = Flows.publisher("choice-publisher", 25);
-  private final SubmissionPublisher<Map<String, Object>>  decisionPublisher = Flows.publisher("decision-publisher", 25);
-  private final SubmissionPublisher<Metadata>  validAlbumPublisher = Flows.publisher("valid-album-publisher", 25);
-  private final SubmissionPublisher<Metadata>  successfulConversionsPublisher = Flows.publisher("successful-conversion-publisher", 25);
-  private final SubmissionPublisher<Metadata>  failedConversionsPublisher = Flows.publisher("failed-conversion-publisher", 25);
+  private final SubmissionPublisher<Metadata> invalidAlbumPublisher = Flows.publisher("invalid-album-publisher", 25);
+  private final SubmissionPublisher<Map.Entry<Metadata, List<Metadata>>> choicePublisher = Flows.publisher("choice-publisher", 25);
+  private final SubmissionPublisher<Map<String, Object>> decisionPublisher = Flows.publisher("decision-publisher", 25);
+  private final SubmissionPublisher<Metadata> validAlbumPublisher = Flows.publisher("valid-album-publisher", 25);
+  private final SubmissionPublisher<Metadata> successfulConversionsPublisher = Flows.publisher("successful-conversion-publisher", 25);
+  private final SubmissionPublisher<Metadata> failedConversionsPublisher = Flows.publisher("failed-conversion-publisher", 25);
 
   private final LibraryService library;
   private final MetadataService metadata;
@@ -93,7 +93,7 @@ public class MulimaService extends Service implements AutoCloseable {
 
   private void process() {
     // directory scanner
-    var sourceDirScannerSubscriber = Flows.<Path>subscriber("source-directory-scanner-subscriber",1, dir -> {
+    var sourceDirScannerSubscriber = Flows.<Path>subscriber("source-directory-scanner-subscriber", 1, dir -> {
       var result = metadata.parseDir(dir);
       if (!result.getChildren().isEmpty()) {
         discoveredAlbumPublisher.submit(result);
@@ -142,8 +142,8 @@ public class MulimaService extends Service implements AutoCloseable {
 
       var destYaml = meta.getSourceFile().resolve("metadata.yaml");
       metadata.writeFile(choice, destYaml);
-      
-//      validAlbumPublisher.submit(choice);
+
+      // validAlbumPublisher.submit(choice);
     });
     decisionPublisher.subscribe(decisionSubscriber);
 
