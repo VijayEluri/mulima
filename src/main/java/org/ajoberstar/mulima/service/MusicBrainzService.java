@@ -3,6 +3,7 @@ package org.ajoberstar.mulima.service;
 import io.micrometer.core.instrument.util.IOUtils;
 import org.ajoberstar.mulima.meta.CuePoint;
 import org.ajoberstar.mulima.meta.Metadata;
+import org.ajoberstar.mulima.meta.MetaflacTagger;
 import org.ajoberstar.mulima.util.XmlDocuments;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -20,7 +21,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -35,15 +35,15 @@ public final class MusicBrainzService {
   private static final Logger logger = LogManager.getLogger(MusicBrainzService.class);
 
   private final HttpClient http;
-  private final String metaflacPath;
-  private final ProcessService process;
+  private final MetaflacTagger metaflac;
+  private final Path cachePath;
 
   private final ReentrantLock rateLimitLock;
 
-  public MusicBrainzService(HttpClient http, String metaflacPath, ProcessService process) {
+  public MusicBrainzService(HttpClient http, MetaflacTagger metaflac, Path cachePath) {
     this.http = http;
-    this.metaflacPath = metaflacPath;
-    this.process = process;
+    this.metaflac = metaflac;
+    this.cachePath = cachePath;
     this.rateLimitLock = new ReentrantLock();
   }
 
@@ -62,14 +62,8 @@ public final class MusicBrainzService {
         .max(Comparator.naturalOrder())
         .orElse(-1);
 
-    var sampleRate = Long.parseLong(process.execute(metaflacPath, "--show-sample-rate", flacFile.toString())
-        .assertSuccess()
-        .getOutput()
-        .trim());
-    var sampleTotal = Long.parseLong(process.execute(metaflacPath, "--show-total-samples", flacFile.toString())
-        .assertSuccess()
-        .getOutput()
-        .trim());
+    var sampleRate = metaflac.getSampleRate(flacFile);
+    var sampleTotal = metaflac.getTotalSamples(flacFile);
 
     var offsets = tracks.stream()
         .collect(Collectors.toMap(trackNum, this::calculateOffset));
@@ -283,14 +277,12 @@ public final class MusicBrainzService {
 
   private Path cachePath(URI uri) {
     var uriHash = DigestUtils.sha256Hex(uri.toString());
-    // TODO externalize path
-    return Paths.get("D:", "temp", "found", uriHash + ".xml");
+    return cachePath.resolve("found").resolve(uriHash + ".xml");
   }
 
   private Path notFoundPath(URI uri) {
     var uriHash = DigestUtils.sha256Hex(uri.toString());
-    // TODO externalize path
-    return Paths.get("D:", "temp", "not-found", uriHash + ".xml");
+    return cachePath.resolve("not-found").resolve(uriHash + ".xml");
   }
 
   private URI safeUri(String format, Object... args) {

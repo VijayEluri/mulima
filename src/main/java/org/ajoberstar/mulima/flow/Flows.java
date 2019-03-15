@@ -1,8 +1,12 @@
 package org.ajoberstar.mulima.flow;
 
+import io.micrometer.core.instrument.Metrics;
+import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Flow;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.SubmissionPublisher;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,9 +32,11 @@ public final class Flows {
     return new SimpleSubscriber<>(name, executor, maxBufferCapacity, itemAction, errorAction);
   }
 
-  private static ExecutorService newExecutorService(String name, int poolSize) {
+  public static ExecutorService newExecutorService(String name, int poolSize) {
     var threadFactory = new NamingThreadFactory(name);
-    return Executors.newFixedThreadPool(poolSize, threadFactory);
+    var executor = Executors.newFixedThreadPool(poolSize, threadFactory);
+    ExecutorServiceMetrics.monitor(Metrics.globalRegistry, executor, name);
+    return executor;
   }
 
   private static class NamingThreadFactory implements ThreadFactory {

@@ -1,19 +1,9 @@
 package org.ajoberstar.mulima;
 
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Metrics;
-import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
-import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
-import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
-import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
-import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
-import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.ListChangeListener;
-import javafx.concurrent.Service;
-import javafx.concurrent.Task;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
@@ -27,35 +17,28 @@ import javafx.stage.Stage;
 import org.ajoberstar.mulima.flow.Flows;
 import org.ajoberstar.mulima.init.SpringConfig;
 import org.ajoberstar.mulima.meta.Metadata;
-import org.ajoberstar.mulima.service.LibraryService;
-import org.ajoberstar.mulima.service.MetadataService;
-import org.ajoberstar.mulima.service.MusicBrainzService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.SubmissionPublisher;
-import java.util.stream.Collectors;
 
 public final class Main extends Application {
   private static final Logger logger = LogManager.getLogger(Main.class);
 
-  private static final SubmissionPublisher<Map.Entry<String, Object>> toUIPublisher = Flows.publisher("to-ui-publisher", 100);
-  private static final SubmissionPublisher<Map.Entry<String, Object>> toBackendPublisher = Flows.publisher("to-backend-publisher", 100);
+  private ConfigurableApplicationContext context;
+  private MulimaService mulima;
+
+  @Override
+  public void init() {
+    context = new AnnotationConfigApplicationContext(SpringConfig.class);
+    mulima = context.getBean(MulimaService.class);
+    mulima.start();
+  }
 
   @Override
   public void start(Stage stage) {
@@ -173,7 +156,7 @@ public final class Main extends Application {
         logger.warn("Unknown message from backend: {} -> {}", item.getKey(), item.getValue());
       }
     });
-    toUIPublisher.subscribe(fromBackendSubscriber);
+    mulima.getToUIPublisher().subscribe(fromBackendSubscriber);
 
     definitely.setOnAction(event -> {
       var choice = table.getSelectionModel().getSelectedItem();
@@ -181,7 +164,7 @@ public final class Main extends Application {
         return;
       }
 
-      toBackendPublisher.submit(Map.entry("Choice", choice));
+      mulima.getToBackendPublisher().submit(Map.entry("Choice", choice));
 
       try {
         choiceBarrier.await();
@@ -197,168 +180,20 @@ public final class Main extends Application {
     var scene = new Scene(pane, 1024, 768);
     stage.setScene(scene);
     stage.show();
-
-    var backgroundService = new Service() {
-      @Override
-      public Task<Void> createTask() {
-        return new Task<>() {
-          @Override
-          protected Void call() {
-            runBackend();
-            return null;
-          }
-        };
-      }
-    };
-    backgroundService.start();
   }
 
-  public static void runBackend() {
-    try (var context = new AnnotationConfigApplicationContext(SpringConfig.class)) {
-      // Metrics
-      Metrics.addRegistry(context.getBean(MeterRegistry.class));
-      Metrics.globalRegistry.config().commonTags(
-          "application", "mulima",
-          "execution", UUID.randomUUID().toString()
-      );
-      new ClassLoaderMetrics().bindTo(Metrics.globalRegistry);
-      new JvmMemoryMetrics().bindTo(Metrics.globalRegistry);
-      new JvmGcMetrics().bindTo(Metrics.globalRegistry);
-      new ProcessorMetrics().bindTo(Metrics.globalRegistry);
-      new JvmThreadMetrics().bindTo(Metrics.globalRegistry);
-
-      ExecutorServiceMetrics.monitor(Metrics.globalRegistry, ForkJoinPool.commonPool(), "fork-join-common-pool");
-
-      var fromUISubscriber = Flows.<Map.Entry<String, Object>>subscriber("ui-command-subscriber", 1, item -> {
-        logger.error("Received message from UI: {} -> {}", item.getKey(), item.getValue());
-      });
-      toBackendPublisher.subscribe(fromUISubscriber);
-
-      // Now it begins
-      logger.info("Mulima started.");
-      var library = context.getBean(LibraryService.class);
-      var metadata = context.getBean(MetadataService.class);
-      var musicbrainz = context.getBean(MusicBrainzService.class);
-
-      // directories to be scanned
-      var sourceDirPublisher = Flows.<Path>publisher("source-dir-publisher", 25);
-
-      // discovered source metadata
-      var discoveredAlbumPublisher = Flows.<Metadata>publisher("discovered-album-publisher", 25);
-
-      // invalid metadata
-      var invalidAlbumPublisher = Flows.<Metadata>publisher("invalid-album-publisher", 25);
-
-      // musicbrainz chooser
-      var choicePublisher = Flows.<Map.Entry<Metadata, List<Metadata>>>publisher("choice-publisher", 25);
-
-      // validated metadata
-      var validAlbumPublisher = Flows.<Metadata>publisher("valid-album-publisher", 25);
-
-      // converted metadata
-      var successfulConversionsPublisher = Flows.<Metadata>publisher("successful-conversion-publisher", 25);
-      var failedConversionsPublisher = Flows.<Metadata>publisher("failed-conversion-publisher", 25);
-
-      // directory scanner
-      var sourceDirScannerSubscriber = Flows.<Path>subscriber("source-directory-scanner-subscriber",1, dir -> {
-        var result = metadata.parseDir(dir);
-        if (!result.getChildren().isEmpty()) {
-          discoveredAlbumPublisher.submit(result);
-        }
-      });
-      sourceDirPublisher.subscribe(sourceDirScannerSubscriber);
-
-      // validator
-      var validatorSubscriber = Flows.<Metadata>subscriber("metadata-validator-subscriber", 1, meta -> {
-        var hasMusicBrainzData = meta.getChildren().stream()
-            .map(m -> meta.getTagValue("musicbrainz_albumid"))
-            .allMatch(Optional::isPresent);
-
-        if (hasMusicBrainzData) {
-//          validAlbumPublisher.submit(meta);
-        } else {
-          invalidAlbumPublisher.submit(meta);
-        }
-      });
-      discoveredAlbumPublisher.subscribe(validatorSubscriber);
-
-      // musicbrainz lookup
-      var musicbrainzLookupSubscriber = Flows.<Metadata>subscriber("musicbrainz-lookup-subscriber", 1, meta -> {
-        var audioToTracks = meta.getChildren().stream()
-            .collect(Collectors.groupingBy(m -> m.getAudioFile().get()));
-
-        var possibleReleases = audioToTracks.entrySet().stream()
-            .map(entry -> musicbrainz.calculateDiscId(entry.getValue(), entry.getKey()))
-            .flatMap(discId -> musicbrainz.lookupByDiscId(discId).stream())
-            .collect(Collectors.toList());
-
-        if (possibleReleases.isEmpty()) {
-          logger.warn("No releases found for: {}", meta.getSourceFile());
-        } else {
-          choicePublisher.submit(Map.entry(meta, possibleReleases));
-        }
-      });
-      invalidAlbumPublisher.subscribe(musicbrainzLookupSubscriber);
-
-      // musicbrainz chooser
-      var releaseChoiceSubscriber = Flows.<Map.Entry<Metadata, List<Metadata>>>subscriber("musicbrainz-release-chooser-subscriber", 25, choice -> {
-        var meta = choice.getKey();
-        var candidates = choice.getValue();
-        var artist = meta.getChildren().get(0).getTagValue("albumartist").or(() -> meta.getChildren().get(0).getTagValue("artist")).orElse("Unknown artist");
-        var album = meta.getChildren().get(0).getTagValue("album").orElse("Unknown album");
-        System.out.println(String.format("Choice for: %s - %s (%s)", artist, album, meta.getSourceFile()));
-        candidates.forEach(candidate -> {
-          var cReleaseId = candidate.getTagValue("musicbrainz_albumid").orElse("Unknown release ID");
-          var cArtist = candidate.getTagValue("albumartist").or(() -> candidate.getTagValue("artist")).orElse("Unknown artist");
-          var cAlbum = candidate.getTagValue("album").orElse("Unkown album");
-          System.out.println(String.format("  * %s - %s (%s)", cArtist, cAlbum, cReleaseId));
-        });
-//        toUIPublisher.submit(Map.entry("Choice", choice));
-      });
-      choicePublisher.subscribe(releaseChoiceSubscriber);
-
-      // converter
-      var conversionSubscriber = Flows.<Metadata>subscriber("album-conversion-subscriber", Math.max(Runtime.getRuntime().availableProcessors() / 2, 1), meta -> {
-        logger.info("Starting conversion of: {}", meta.getSourceFile());
-        var losslessDir = Paths.get("D:", "test", "lossless");
-        var lossyDir = Paths.get("D:", "test", "lossy");
-        try {
-          library.convert(meta, losslessDir, lossyDir);
-          successfulConversionsPublisher.submit(meta);
-        } catch (Exception e) {
-          failedConversionsPublisher.submit(meta);
-        }
-      });
-//      validAlbumPublisher.subscribe(conversionSubscriber);
-
-      // success logger
-      var successSubscriber = Flows.<Metadata>subscriber("successful-conversion-subscriber", 1, meta -> {
-        logger.info("Successfully converted: {}", meta.getSourceFile());
-      });
-//      successfulConversionsPublisher.subscribe(successSubscriber);
-
-      // failure logger
-      var failureSubscriber = Flows.<Metadata>subscriber("failed-conversion-subscriber", 1, meta -> {
-        logger.error("Failed to convert: {}", meta.getSourceFile());
-      });
-//      failedConversionsPublisher.subscribe(failureSubscriber);
-
-      // lets get this party started
-      try (var fileStream = Files.walk(Paths.get("D:", "originals", "flac-rips"))) {
-        fileStream
-            .filter(Files::isDirectory)
-            .forEach(sourceDirPublisher::submit);
-      } catch (IOException e) {
-        throw new UncheckedIOException(e);
-      }
-    } catch (Exception e) {
-      logger.error("Error occurred.", e);
-    } finally {
-      logger.info("Mulima complete.");
-    }
+  @Override
+  public void stop() {
+    context.stop();
   }
 
   public static void main(String[] args) {
-    launch(args);
+    try {
+      logger.info("Mulima started.");
+      launch(args);
+      logger.info("Mulima completed.");
+    } catch (Exception e) {
+      logger.error("Mulima failed.", e);
+    }
   }
 }

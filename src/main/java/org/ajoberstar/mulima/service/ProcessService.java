@@ -10,18 +10,20 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Supplier;
 
+import org.ajoberstar.mulima.flow.Flows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public final class ProcessService {
+public final class ProcessService implements AutoCloseable {
   private static final Logger logger = LogManager.getLogger(ProcessService.class);
 
   private final ExecutorService executor;
 
-  public ProcessService(ExecutorService executor) {
-    this.executor = executor;
+  public ProcessService(int poolSize) {
+    this.executor = Flows.newExecutorService("process-service", poolSize);
   }
 
   public ProcessResult execute(String... command) {
@@ -81,5 +83,10 @@ public final class ProcessService {
         logger.debug("Problem writing input for process.", e);
       }
     }
+  }
+
+  @Override
+  public void close() {
+    executor.shutdown();
   }
 }

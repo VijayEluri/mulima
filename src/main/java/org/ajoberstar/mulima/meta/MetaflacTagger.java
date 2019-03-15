@@ -69,4 +69,20 @@ public final class MetaflacTagger implements MetadataParser, MetadataWriter {
 
     process.execute(command).assertSuccess();
   }
+
+  public long getSampleRate(Path file) {
+    var result = process.execute(path, "--show-sample-rate", file.toString())
+        .assertSuccess()
+        .getOutput()
+        .trim();
+    return Long.parseLong(result);
+  }
+
+  public long getTotalSamples(Path file) {
+    var result = process.execute(path, "--show-total-samples", file.toString())
+        .assertSuccess()
+        .getOutput()
+        .trim();
+    return Long.parseLong(result);
+  }
 }
