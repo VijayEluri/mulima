@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicReference;
 
 public final class Main extends Application {
   private static final Logger logger = LogManager.getLogger(Main.class);
@@ -42,18 +43,27 @@ public final class Main extends Application {
 
   @Override
   public void start(Stage stage) {
-    var pane = new VBox();
-
     stage.setTitle("Mulima: Waiting for next choice");
+
+    var currentMeta = new AtomicReference<Metadata>();
+
+    var pane = new VBox();
 
     var table = new TableView<Metadata>();
     var artistCol = new TableColumn<Metadata, String>("Artist");
+    artistCol.setPrefWidth(200);
     var albumCol = new TableColumn<Metadata, String>("Album");
+    albumCol.setPrefWidth(200);
     var dateCol = new TableColumn<Metadata, String>("Release Date");
+    dateCol.setPrefWidth(75);
     var labelCol = new TableColumn<Metadata, String>("Label");
+    labelCol.setPrefWidth(100);
     var catalogNumberCol = new TableColumn<Metadata, String>("Catalog Number");
+    catalogNumberCol.setPrefWidth(75);
     var barcodeCol = new TableColumn<Metadata, String>("Barcode");
+    barcodeCol.setPrefWidth(75);
     var releaseIdCol = new TableColumn<Metadata, String>("Release ID");
+    releaseIdCol.setPrefWidth(200);
 
     artistCol.setCellValueFactory(cdf -> {
       var meta = cdf.getValue();
@@ -112,6 +122,8 @@ public final class Main extends Application {
     var web = new WebView();
     pane.getChildren().add(web);
 
+    // Actions/Events
+
     table.getSelectionModel().getSelectedItems().addListener((ListChangeListener<Metadata>) change -> {
       change.getList().forEach(metadata -> {
         var releaseId = metadata.getTagValue("musicbrainz_albumid").get();
@@ -121,42 +133,37 @@ public final class Main extends Application {
     });
 
     var progress = new ProgressBar();
-    progress.setMaxWidth(1920);
+    progress.setMaxWidth(960);
     progress.progressProperty().bind(web.getEngine().getLoadWorker().progressProperty());
     pane.getChildren().add(progress);
 
-
     var choiceBarrier = new CyclicBarrier(2);
 
-    var fromBackendSubscriber = Flows.<Map.Entry<String, Object>>subscriber("backend-response-subscriber", 1, item -> {
-      logger.error("Received message from backend: {} -> {}", item.getKey(), item.getValue());
-      if ("Choice".equals(item.getKey())) {
-        var entry = (Map.Entry<Metadata, List<Metadata>>) item.getValue();
-        var meta = entry.getKey();
-        var options = entry.getValue();
+    var choiceSubscriber = Flows.<Map.Entry<Metadata, List<Metadata>>>subscriber("backend-response-subscriber", 1, entry -> {
+      var meta = entry.getKey();
+      var options = entry.getValue();
 
-        var artist = meta.getTagValue("albumartist").or(() -> meta.getTagValue("artist")).orElse("Unknown");
-        var album = meta.getTagValue("album").orElse("Unknown");
-        var source = meta.getSourceFile();
+      var artist = meta.getTagValue("albumartist").or(() -> meta.getTagValue("artist")).orElse("Unknown");
+      var album = meta.getTagValue("album").orElse("Unknown");
+      var source = meta.getSourceFile();
 
-        Platform.runLater(() -> {
-          stage.setTitle(String.format("Mulima: %s - %s (%s)", artist, album, source));
-          table.getItems().setAll(options);
-        });
+      currentMeta.set(meta);
 
-        try {
-          choiceBarrier.await();
-          choiceBarrier.reset();
-        } catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-        } catch (BrokenBarrierException e) {
-          // TODO what?
-        }
-      } else {
-        logger.warn("Unknown message from backend: {} -> {}", item.getKey(), item.getValue());
+      Platform.runLater(() -> {
+        stage.setTitle(String.format("Mulima: %s - %s (%s)", artist, album, source));
+        table.getItems().setAll(options);
+      });
+
+      try {
+        choiceBarrier.await();
+        choiceBarrier.reset();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      } catch (BrokenBarrierException e) {
+        // TODO what?
       }
     });
-    mulima.getToUIPublisher().subscribe(fromBackendSubscriber);
+    mulima.getChoicePublisher().subscribe(choiceSubscriber);
 
     definitely.setOnAction(event -> {
       var choice = table.getSelectionModel().getSelectedItem();
@@ -164,7 +171,10 @@ public final class Main extends Application {
         return;
       }
 
-      mulima.getToBackendPublisher().submit(Map.entry("Choice", choice));
+      var meta = currentMeta.getAndSet(null);
+      var decision = Map.of("original", meta, "choice", choice, "confidence", "definitely");
+
+      mulima.getDecisionPublisher().submit(decision);
 
       try {
         choiceBarrier.await();
@@ -177,7 +187,55 @@ public final class Main extends Application {
       table.getItems().clear();
     });
 
-    var scene = new Scene(pane, 1024, 768);
+    probably.setOnAction(event -> {
+      var choice = table.getSelectionModel().getSelectedItem();
+      if (choice == null) {
+        return;
+      }
+
+      var meta = currentMeta.getAndSet(null);
+      var decision = Map.of("original", meta, "choice", choice, "confidence", "probably");
+
+      mulima.getDecisionPublisher().submit(decision);
+
+      try {
+        choiceBarrier.await();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      } catch (BrokenBarrierException e) {
+        // TODO what?
+      }
+      stage.setTitle("Mulima: Waiting for next choice");
+      table.getItems().clear();
+    });
+
+    none.setOnAction(event -> {
+      currentMeta.set(null);
+      try {
+        choiceBarrier.await();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      } catch (BrokenBarrierException e) {
+        // TODO what?
+      }
+      stage.setTitle("Mulima: Waiting for next choice");
+      table.getItems().clear();
+    });
+
+    skip.setOnAction(event -> {
+      currentMeta.set(null);
+      try {
+        choiceBarrier.await();
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      } catch (BrokenBarrierException e) {
+        // TODO what?
+      }
+      stage.setTitle("Mulima: Waiting for next choice");
+      table.getItems().clear();
+    });
+
+    var scene = new Scene(pane, 960, 1080);
     stage.setScene(scene);
     stage.show();
   }

@@ -53,3 +53,5 @@ musicbrainz_discid,TXXX:MusicBrainz Disc Id,TXXX:MusicBrainz Disc Id,MUSICBRAINZ
 acoustid_id,TXXX:Acoustid Id,TXXX:Acoustid Id,ACOUSTID_ID,,
 acoustid_fingerprint,TXXX:Acoustid Fingerprint,TXXX:Acoustid Fingerprint,ACOUSTID_FINGERPRINT,,
 freedb_id,TXXX:FreeDB Id,TXXX:FreeDB Id,FREEDB_ID,cddbId,REM DISCID
+mulima_confidence,TXXX:Mulima Confidence,TXXX:Mulima Confidence,MULIMA_CONFIDENCE,,
+mulima_familiarity,TXXX:Mulima Familiarity,TXXX:Mulima Familiarity,MULIMA_FAMILIARITY,,

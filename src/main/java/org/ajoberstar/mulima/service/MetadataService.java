@@ -89,14 +89,14 @@ public final class MetadataService {
           throw new RuntimeException("Dir contains multiple .yaml files: " + dir);
         }
         yamls.forEach(builder::addChild);
+      } else if (!cues.isEmpty()) {
+        cues.forEach(builder::addChild);
       } else if (!xmls.isEmpty()) {
         if (xmls.size() > 1) {
           // TODO better
           throw new RuntimeException("Dir contains multiple album.xml files: " + dir);
         }
         xmls.forEach(builder::addChild);
-      } else if (!cues.isEmpty()) {
-        cues.forEach(builder::addChild);
       }
       return builder.build().denormalize();
     } catch (IOException e) {
