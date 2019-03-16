@@ -140,8 +140,12 @@ public class MulimaService extends Service implements AutoCloseable {
 
       var builder = Metadata.builder("generic");
 
+      // FIXME merge cues into choice before writing out
+
       var destYaml = meta.getSourceFile().resolve("metadata.yaml");
       metadata.writeFile(choice, destYaml);
+
+      // FIXME maybe this should submit to the sourceDirScanner again?
 
       // validAlbumPublisher.submit(choice);
     });
@@ -151,6 +155,7 @@ public class MulimaService extends Service implements AutoCloseable {
     var conversionSubscriber = Flows.<Metadata>subscriber("album-conversion-subscriber", Math.max(Runtime.getRuntime().availableProcessors() / 2, 1), meta -> {
       logger.info("Starting conversion of: {}", meta.getSourceFile());
       try {
+        // FIXME don't reconvert if nothing has changed
 
         library.convert(meta, losslessDir, lossyDir);
         successfulConversionsPublisher.submit(meta);

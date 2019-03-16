@@ -55,3 +55,5 @@ acoustid_fingerprint,TXXX:Acoustid Fingerprint,TXXX:Acoustid Fingerprint,ACOUSTI
 freedb_id,TXXX:FreeDB Id,TXXX:FreeDB Id,FREEDB_ID,cddbId,REM DISCID
 mulima_confidence,TXXX:Mulima Confidence,TXXX:Mulima Confidence,MULIMA_CONFIDENCE,,
 mulima_familiarity,TXXX:Mulima Familiarity,TXXX:Mulima Familiarity,MULIMA_FAMILIARITY,,
+mulima_metadata_version,TXXX:Mulima Metadata Version,TXXX:Mulima Metadata Version,MULIMA_METADATA_VERSION,,
+mulima_canon,TXXX:Mulima Canon,TXXX:Mulima Canon,MULIMA_CANON,,
