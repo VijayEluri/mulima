@@ -53,11 +53,17 @@ public class MetadataYaml implements MetadataParser, MetadataWriter {
         .map(cue -> Map.of("index", cue.getIndex(), "time", cue.getTime()))
         .collect(Collectors.toList());
     var map = new LinkedHashMap<String, Object>();
-    map.put("artworkFile", metadata.getArtworkFile().orElse(null));
-    map.put("audioFile", metadata.getAudioFile().orElse(null));
-    map.put("cues", cues);
-    map.put("tags", metadata.getTags());
-    map.put("children", metadata.getChildren().stream().map(this::toMap).collect(Collectors.toList()));
+    metadata.getArtworkFile().ifPresent(value -> map.put("artworkFile", value));
+    metadata.getAudioFile().ifPresent(value -> map.put("audioFile", value));
+    if (!cues.isEmpty()) {
+      map.put("cues", cues);
+    }
+    if (!metadata.getTags().isEmpty()) {
+      map.put("tags", metadata.getTags());
+    }
+    if (!metadata.getChildren().isEmpty()) {
+      map.put("children", metadata.getChildren().stream().map(this::toMap).collect(Collectors.toList()));
+    }
     return map;
   }
 
@@ -65,16 +71,16 @@ public class MetadataYaml implements MetadataParser, MetadataWriter {
     meta.setArtworkFile(Optional.ofNullable((String) map.get("artworkFile")).map(Paths::get).orElse(null));
     meta.setAudioFile(Optional.ofNullable((String) map.get("audioFile")).map(Paths::get).orElse(null));
 
-    ((List<Map<String, Object>>) map.get("cues")).forEach(cueMap -> {
+    ((List<Map<String, Object>>) map.getOrDefault("cues", List.of())).forEach(cueMap -> {
       var cue = new CuePoint((int) cueMap.get("index"), (String) cueMap.get("time"));
       meta.addCue(cue);
     });
 
-    ((Map<String, List<String>>) map.get("tags")).forEach((key, values) -> {
+    ((Map<String, List<String>>) map.getOrDefault("tags", Map.of())).forEach((key, values) -> {
       values.forEach(value -> meta.addTag(key, value));
     });
 
-    ((List<Map<String, Object>>) map.get("children")).forEach(childMap -> {
+    ((List<Map<String, Object>>) map.getOrDefault("children", List.of())).forEach(childMap -> {
       var childMeta = meta.newChild();
       fromMap(childMeta, childMap);
     });
