@@ -77,7 +77,7 @@ public final class MetadataService {
 
       // there's probably only one artwork, so this is more code than it should be
       artwork.stream()
-          .map(Metadata::getAudioFile)
+          .map(Metadata::getArtworkFile)
           .flatMap(Optional::stream)
           .findFirst()
           .ifPresent(builder::setArtworkFile);

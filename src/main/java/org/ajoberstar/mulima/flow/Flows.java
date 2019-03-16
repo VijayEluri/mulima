@@ -22,13 +22,13 @@ public final class Flows {
   }
 
   public static <T> Flow.Subscriber<T> subscriber(String name, int maxBufferCapacity, Consumer<T> itemAction) {
-    var executor = newExecutorService(name, 1);
+    var executor = newExecutorService(name, maxBufferCapacity);
     return new SimpleSubscriber<>(name, executor, maxBufferCapacity, itemAction, t -> {
     });
   }
 
   public static <T> Flow.Subscriber<T> subscriber(String name, int maxBufferCapacity, Consumer<T> itemAction, Consumer<Throwable> errorAction) {
-    var executor = newExecutorService(name, 1);
+    var executor = newExecutorService(name, maxBufferCapacity);
     return new SimpleSubscriber<>(name, executor, maxBufferCapacity, itemAction, errorAction);
   }
 

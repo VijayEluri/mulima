@@ -6,11 +6,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,6 +24,11 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 public final class Metadata {
   private static final List<Map<String, String>> TAG_MAPPINGS;
+  private static final Comparator<Metadata> SORT_ORDER = Comparator.<Metadata, String>comparing(m -> m.getTagValue("albumartistsort").or(() -> m.getTagValue("artistsort")).orElse(""))
+      .thenComparing(m -> m.getTagValue("originaldate").orElse("0000-00-00"))
+      .thenComparing(m -> m.getTagValue("date").orElse("0000-00-00"))
+      .thenComparing(m -> m.getTagValue("discnumber").map(Integer::parseInt).orElse(0))
+      .thenComparing(m -> m.getTagValue("tracknumber").map(Integer::parseInt).orElse(0));
 
   static {
     try (var stream = Metadata.class.getResourceAsStream("/org/ajoberstar/mulima/meta/tags.csv")) {
@@ -88,6 +96,17 @@ public final class Metadata {
     }
   }
 
+  public Optional<String> getCommonTagValue(String tagName) {
+    return getTagValue(tagName).or(() -> {
+      var valuesToCount = this.denormalize().getChildren().stream()
+          .flatMap(m -> m.getTagValue(tagName).stream())
+          .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+      return valuesToCount.entrySet().stream()
+          .collect(Collectors.maxBy(Comparator.comparing(Map.Entry::getValue)))
+          .map(Map.Entry::getKey);
+    });
+  }
+
   public List<CuePoint> getCues() {
     return cues;
   }
@@ -122,7 +141,8 @@ public final class Metadata {
       return Stream.of(metadata);
     } else {
       return children.stream()
-          .flatMap(child -> child.denormalize(metadata));
+          .flatMap(child -> child.denormalize(metadata))
+          .sorted(SORT_ORDER);
     }
   }
 
@@ -146,11 +166,6 @@ public final class Metadata {
 
       return new Metadata(toDialect, sourceFile, artworkFile, audioFile, translatedTags, cues, translatedChildren);
     }
-  }
-
-  public Metadata merge(Metadata right) {
-    // FIXME implement
-    return null;
   }
 
   @Override
@@ -186,8 +201,8 @@ public final class Metadata {
     private Path artworkFile = null;
     private Path audioFile = null;
     private Map<String, List<String>> tags = new HashMap<>();
-    private List<CuePoint> cues = new ArrayList<>();
-    private List<Builder> children = new ArrayList<>();
+    private Stream.Builder<CuePoint> cues = Stream.builder();
+    private Stream.Builder<Builder> children = Stream.builder();
 
     private Builder(String dialect) {
       this.dialect = dialect;
@@ -202,17 +217,9 @@ public final class Metadata {
       return this;
     }
 
-    public Optional<Path> getArtworkFile() {
-      return Optional.ofNullable(artworkFile);
-    }
-
     public Builder setArtworkFile(Path artworkFile) {
       this.artworkFile = artworkFile;
       return this;
-    }
-
-    public Optional<Path> getAudioFile() {
-      return Optional.ofNullable(audioFile);
     }
 
     public Builder setAudioFile(Path audioFile) {
@@ -239,17 +246,9 @@ public final class Metadata {
       return this;
     }
 
-    public List<CuePoint> getCues() {
-      return cues;
-    }
-
     public Builder addCue(CuePoint cue) {
       cues.add(cue);
       return this;
-    }
-
-    public List<Builder> getChildren() {
-      return children;
     }
 
     public Builder newChild() {
@@ -275,10 +274,15 @@ public final class Metadata {
     }
 
     public Metadata build() {
-      var builtChildren = children.stream()
-          .map(Builder::build)
+      var builtCues = cues.build()
+          .sorted(Comparator.naturalOrder())
           .collect(Collectors.toList());
-      return new Metadata(dialect, sourceFile, artworkFile, audioFile, tags, cues, builtChildren);
+      var builtChildren = children.build()
+          .map(b -> b.setSourceFile(Optional.ofNullable(b.sourceFile).orElse(sourceFile)))
+          .map(Builder::build)
+          .sorted(SORT_ORDER)
+          .collect(Collectors.toList());
+      return new Metadata(dialect, sourceFile, artworkFile, audioFile, tags, builtCues, builtChildren);
     }
   }
 }

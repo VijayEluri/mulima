@@ -2,6 +2,9 @@ package org.ajoberstar.mulima.meta;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedHashMap;
@@ -68,8 +71,8 @@ public class MetadataYaml implements MetadataParser, MetadataWriter {
   }
 
   public void fromMap(Metadata.Builder meta, Map<String, Object> map) {
-    meta.setArtworkFile(Optional.ofNullable((String) map.get("artworkFile")).map(Paths::get).orElse(null));
-    meta.setAudioFile(Optional.ofNullable((String) map.get("audioFile")).map(Paths::get).orElse(null));
+    meta.setArtworkFile(Optional.ofNullable((String) map.get("artworkFile")).map(this::safeUri).map(Paths::get).orElse(null));
+    meta.setAudioFile(Optional.ofNullable((String) map.get("audioFile")).map(this::safeUri).map(Paths::get).orElse(null));
 
     ((List<Map<String, Object>>) map.getOrDefault("cues", List.of())).forEach(cueMap -> {
       var cue = new CuePoint((int) cueMap.get("index"), (String) cueMap.get("time"));
@@ -84,5 +87,14 @@ public class MetadataYaml implements MetadataParser, MetadataWriter {
       var childMeta = meta.newChild();
       fromMap(childMeta, childMap);
     });
+  }
+
+  private URI safeUri(String uriStr) {
+    try {
+      return new URI(uriStr);
+    } catch (URISyntaxException e) {
+      // TODO better
+      throw new RuntimeException(e);
+    }
   }
 }

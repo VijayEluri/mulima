@@ -93,19 +93,28 @@ public final class MusicBrainzService {
   }
 
   public List<Metadata> lookupByDiscId(String discId) {
-    // TODO use same inc= as on release to save a step
-    return getXml("https://musicbrainz.org/ws/2/discid/%s?inc=recordings+artists+release-groups+labels", discId).map(doc -> {
+    var uri = safeUri("https://musicbrainz.org/ws/2/discid/%s", discId);
+    return getXml(uri).stream().flatMap(doc -> {
       return XmlDocuments.getChildren(doc, "metadata", "disc", "release-list", "release")
-          .map(release -> handleRelease(release, discId))
-          .collect(Collectors.toList());
-    }).orElse(List.of());
+          .map(release -> handleRelease(release))
+          .map(meta -> meta.setSourceFile(cachePath(uri)))
+          .map(Metadata.Builder::build);
+    }).collect(Collectors.toList());
   }
 
-  private Metadata handleRelease(Node release, String discId) {
+  public Optional<Metadata> lookupByReleaseId(String releaseId) {
+    var uri = safeUri("https://musicbrainz.org/ws/2/release/%s?inc=recordings+artists+release-groups+labels", releaseId);
+    return getXml(uri).flatMap(doc -> {
+      return XmlDocuments.getChildren(doc, "metadata", "release")
+          .map(release -> handleRelease(release))
+          .map(meta -> meta.setSourceFile(cachePath(uri)))
+          .map(Metadata.Builder::build)
+          .findAny();
+    });
+  }
+
+  private Metadata.Builder handleRelease(Node release) {
     var meta = Metadata.builder("generic");
-    // TODO duplication
-    meta.setSourceFile(cachePath(safeUri("https://musicbrainz.org/ws/2/discid/%s?inc=recordings+artists+release-groups+labels", discId)));
-    meta.addTag("musicbrainz_discid", discId);
 
     getText(release, "@id").ifPresent(value -> meta.addTag("musicbrainz_albumid", value));
     getText(release, "title").ifPresent(value -> meta.addTag("album", value));
@@ -139,7 +148,7 @@ public final class MusicBrainzService {
     XmlDocuments.getChildren(release, "medium-list", "medium")
         .forEach(medium -> handleMedium(medium, meta));
 
-    return meta.build();
+    return meta;
   }
 
   private void handleMedium(Node medium, Metadata.Builder parent) {
@@ -220,6 +229,10 @@ public final class MusicBrainzService {
 
   private Optional<Document> getXml(String uriFormat, Object... uriArgs) {
     var uri = safeUri(uriFormat, uriArgs);
+    return getXml(uri);
+  }
+
+  private Optional<Document> getXml(URI uri) {
     var notFoundPath = notFoundPath(uri);
     var cachePath = cachePath(uri);
 

@@ -56,7 +56,7 @@ class SimpleSubscriber<T> implements Flow.Subscriber<T>, AutoCloseable {
       throw new IllegalStateException(name + " already subscribed to another publisher.");
     });
     this.subscription = subscription;
-    subscription.request(1);
+    subscription.request(buffer.remainingCapacity());
   }
 
   @Override

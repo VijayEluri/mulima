@@ -38,7 +38,6 @@ public final class Main extends Application {
   public void init() {
     context = new AnnotationConfigApplicationContext(SpringConfig.class);
     mulima = context.getBean(MulimaService.class);
-    mulima.start();
   }
 
   @Override
@@ -67,43 +66,43 @@ public final class Main extends Application {
 
     artistCol.setCellValueFactory(cdf -> {
       var meta = cdf.getValue();
-      var value = meta.getTagValue("albumartist").or(() -> meta.getTagValue("artist")).orElse("Unknown");
+      var value = meta.getCommonTagValue("albumartist").or(() -> meta.getCommonTagValue("artist")).orElse("Unknown");
       return new ReadOnlyStringWrapper(value);
     });
 
     albumCol.setCellValueFactory(cdf -> {
       var meta = cdf.getValue();
-      var value = meta.getTagValue("album").orElse("Unknown");
+      var value = meta.getCommonTagValue("album").orElse("Unknown");
       return new ReadOnlyStringWrapper(value);
     });
 
     dateCol.setCellValueFactory(cdf -> {
       var meta = cdf.getValue();
-      var value = meta.getTagValue("date").orElse("Unknown");
+      var value = meta.getCommonTagValue("date").orElse("Unknown");
       return new ReadOnlyStringWrapper(value);
     });
 
     labelCol.setCellValueFactory(cdf -> {
       var meta = cdf.getValue();
-      var value = meta.getTagValue("label").orElse("Unknown");
+      var value = meta.getCommonTagValue("label").orElse("Unknown");
       return new ReadOnlyStringWrapper(value);
     });
 
     catalogNumberCol.setCellValueFactory(cdf -> {
       var meta = cdf.getValue();
-      var value = meta.getTagValue("catalogNumber").orElse("Unknown");
+      var value = meta.getCommonTagValue("catalogNumber").orElse("Unknown");
       return new ReadOnlyStringWrapper(value);
     });
 
     barcodeCol.setCellValueFactory(cdf -> {
       var meta = cdf.getValue();
-      var value = meta.getTagValue("barcode").orElse("Unknown");
+      var value = meta.getCommonTagValue("barcode").orElse("Unknown");
       return new ReadOnlyStringWrapper(value);
     });
 
     releaseIdCol.setCellValueFactory(cdf -> {
       var meta = cdf.getValue();
-      var value = meta.getTagValue("musicbrainz_albumid").orElse("Unknown");
+      var value = meta.getCommonTagValue("musicbrainz_albumid").orElse("Unknown");
       return new ReadOnlyStringWrapper(value);
     });
 
@@ -126,7 +125,7 @@ public final class Main extends Application {
 
     table.getSelectionModel().getSelectedItems().addListener((ListChangeListener<Metadata>) change -> {
       change.getList().forEach(metadata -> {
-        var releaseId = metadata.getTagValue("musicbrainz_albumid").get();
+        var releaseId = metadata.getCommonTagValue("musicbrainz_albumid").get();
         var uri = String.format("https://musicbrainz.org/release/%s", releaseId);
         web.getEngine().load(uri);
       });
@@ -143,8 +142,8 @@ public final class Main extends Application {
       var meta = entry.getKey();
       var options = entry.getValue();
 
-      var artist = meta.getTagValue("albumartist").or(() -> meta.getTagValue("artist")).orElse("Unknown");
-      var album = meta.getTagValue("album").orElse("Unknown");
+      var artist = meta.getCommonTagValue("albumartist").or(() -> meta.getCommonTagValue("artist")).orElse("Unknown");
+      var album = meta.getCommonTagValue("album").orElse("Unknown");
       var source = meta.getSourceFile();
 
       currentMeta.set(meta);
@@ -238,6 +237,8 @@ public final class Main extends Application {
     var scene = new Scene(pane, 960, 1080);
     stage.setScene(scene);
     stage.show();
+
+    mulima.start();
   }
 
   @Override

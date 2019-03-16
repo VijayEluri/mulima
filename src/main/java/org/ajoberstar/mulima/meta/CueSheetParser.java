@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 public final class CueSheetParser implements MetadataParser {
   private static final Logger logger = LogManager.getLogger(CueSheetParser.class);
   private static final Pattern NUM_REGEX = Pattern.compile(".*\\(([0-9])\\)\\.cue");
-  private static final Pattern LINE_REGEX = Pattern.compile("^((?:REM )?[A-Z0-9]+) [\"']?([^\"']*)[\"']?.*$");
+  private static final Pattern LINE_REGEX = Pattern.compile("^(?<tag>(?:REM )?[A-Z0-9]+) (?<quote>[\"'])?(?<value>.+?)\\2?(?: WAVE)?$");
 
   @Override
   public boolean accepts(Path file) {
@@ -36,8 +36,8 @@ public final class CueSheetParser implements MetadataParser {
           continue;
         }
 
-        var name = matcher.group(1).trim();
-        var value = matcher.group(2).trim();
+        var name = matcher.group("tag").trim();
+        var value = matcher.group("value").trim();
 
         if ("FILE".equals(name)) {
           rootBuilder.setAudioFile(file.resolveSibling(value));
