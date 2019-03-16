@@ -148,6 +148,11 @@ public final class Metadata {
     }
   }
 
+  public Metadata merge(Metadata right) {
+    // FIXME implement
+    return null;
+  }
+
   @Override
   public boolean equals(Object that) {
     return EqualsBuilder.reflectionEquals(this, that);

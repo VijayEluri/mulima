@@ -1,5 +1,8 @@
 package org.ajoberstar.mulima.meta;
 
+import org.ajoberstar.mulima.util.XmlDocuments;
+import org.w3c.dom.Node;
+
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -12,13 +15,7 @@ import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import org.ajoberstar.mulima.util.XmlDocuments;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Node;
-
 public final class AlbumXmlParser implements MetadataParser {
-  private static final Logger logger = LogManager.getLogger(AlbumXmlParser.class);
   private static final Pattern DISC_AUDIO_FILE = Pattern.compile("D(\\d+)\\.flac|.*\\((\\d+)\\)\\.flac");
 
   @Override
@@ -62,7 +59,7 @@ public final class AlbumXmlParser implements MetadataParser {
               .map(toDiscNum)
               .findAny()
               .orElse(1);
-          return num == discNum;
+          return num.equals(discNum);
         };
 
         fileStream

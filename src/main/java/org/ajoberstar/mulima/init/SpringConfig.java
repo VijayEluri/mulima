@@ -121,7 +121,12 @@ public class SpringConfig {
 
   @Bean
   public MusicBrainzService musicbrainz(MetaflacTagger metaflac) {
-    return new MusicBrainzService(HttpClient.newHttpClient(), metaflac, Paths.get(System.getenv("APPDATA"), "mulima", "musicbrainz-cache"));
+    var appdata = Paths.get(System.getenv("APPDATA"));
+    if (appdata.isAbsolute()) {
+      return new MusicBrainzService(HttpClient.newHttpClient(), metaflac, appdata.resolve("mulima").resolve("musicbrainz-cache"));
+    } else {
+      throw new IllegalArgumentException("APPDATA environment variable is not an absolute path.");
+    }
   }
 
   @Bean

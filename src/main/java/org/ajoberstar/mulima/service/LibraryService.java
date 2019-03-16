@@ -26,8 +26,6 @@ public final class LibraryService {
   private final FlacCodec flac;
   private final OpusEncoder opusenc;
 
-  private Flow.Publisher<Metadata> sourceMetadata;
-
   public LibraryService(MetadataService metadata, MusicBrainzService musicbrainz, FlacCodec flac, OpusEncoder opusenc) {
     this.metadata = metadata;
     this.musicbrainz = musicbrainz;

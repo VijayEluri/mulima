@@ -45,14 +45,14 @@ public final class CueSheetParser implements MetadataParser {
           trackBuilder = rootBuilder.newChild();
           var currentTrack = Integer.parseInt(value.split(" ")[0]);
           trackBuilder.addTag(name, Integer.toString(currentTrack));
-        } else if ("INDEX".equals(name)) {
-          var values = value.split(" ");
-          int index = Integer.valueOf(values[0]);
-          var time = values[1];
-          trackBuilder.addCue(new CuePoint(index, time));
         } else if (trackBuilder == null) {
           var n = "TITLE".equals(name) ? "ALBUM" : name;
           rootBuilder.addTag(n, value);
+        } else if ("INDEX".equals(name)) {
+          var values = value.split(" ");
+          int index = Integer.parseInt(values[0]);
+          var time = values[1];
+          trackBuilder.addCue(new CuePoint(index, time));
         } else {
           trackBuilder.addTag(name, value);
         }
