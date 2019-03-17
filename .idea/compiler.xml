@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="org.ajoberstar.mulima.main" target="11" />
+      <module name="org.ajoberstar.mulima.mulima.dev" target="11" />
+      <module name="org.ajoberstar.mulima.mulima.main" target="11" />
+      <module name="org.ajoberstar.mulima.mulima.test" target="11" />
+      <module name="org.ajoberstar.mulima.test" target="11" />
+    </bytecodeTargetLevel>
+  </component>
+</project>
