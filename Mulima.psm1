@@ -1,4 +1,4 @@
-Function ConvertFrom-Cue {
+function ConvertFrom-Cue {
   param(
     [Parameter(Mandatory = $True)]
     [string] $Path
@@ -7,7 +7,7 @@ Function ConvertFrom-Cue {
   Get-Content -Path $Path | Where-Object { $_ -match $LineRegex } | ForEach-Object { $Matches.time }
 }
 
-Function Get-DiscId {
+function Get-DiscId {
   param(
     [Parameter(Mandatory = $True)]
     [string] $CuePath,
@@ -32,7 +32,6 @@ Function Get-DiscId {
 
   $Offsets = , $LeadOutOffset + $CueOffsets
 
-
   $Parts = ('{0:X2}' -f 1), ('{0:X2}' -f $Cues.Count)
   for ($i = 0; $i -lt 100; $i++) {
     if ($i -lt $Offsets.Count) {
@@ -48,4 +47,34 @@ Function Get-DiscId {
   $UTF8 = New-object -TypeName System.Text.UTF8Encoding
   $ShaBytes = $SHA1.ComputeHash($UTF8.GetBytes($BaseString))
   (([Convert]::ToBase64String($ShaBytes) -replace '\+', '.') -replace '/', '_') -replace '=', '-'
+}
+
+function Split-Disc {
+  param(
+    [Parameter(Mandatory = $True)]
+    [int] $DiscNumber,
+
+    [Parameter(Mandatory = $True)]
+    [string] $CuePath,
+
+    [Parameter(Mandatory = $True)]
+    [string] $FlacPath,
+
+    [Parameter(Mandatory = $True)]
+    [string] $DestPath
+  )
+
+  $DiscId = Get-DiscId -CuePath $CuePath -FlacPath $FlacPath
+  $Cues = ConvertFrom-Cue -Path $CuePath | ForEach-Object { $_ -replace ":(\d+)$", '.$1' }
+  if ('00:00.00' -in $Cues) {
+    $StartNum = 1
+  } else {
+    $StartNum = 0
+  }
+  $FilePrefix = 'D{0:D3}T' -f $DiscNumber
+  $Cues | shntool split -q -i flac -o flac -O never -d $DestPath -a $FilePrefix -c $StartNum $FlacPath
+
+  Get-ChildItem -Path $DestPath -Filter "$($FilePrefix)*.flac" | ForEach-Object {
+    metaflac "--set-tag=MUSICBRAINZ_DISCID=$DiscId" $_.FullName
+  }
 }
