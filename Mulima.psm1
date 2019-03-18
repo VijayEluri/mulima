@@ -1,3 +1,21 @@
+function Resolve-RelativePath {
+  param(
+    [Parameter(Mandatory = $True)]
+    [string] $RootPath,
+
+    [Parameter(Mandatory = $True)]
+    [string] $Path,
+
+    [Parameter(Mandatory = $True)]
+    [string] $NewRootPath
+  )
+
+  $FullRootPath = [IO.Path]::GetFullPath($RootPath)
+  $FullNewRootPath = [IO.Path]::GetFullPath($NewRootPath)
+  $FullPath = [IO.Path]::GetFullPath($Path)
+  $FullPath.Replace($FullRootPath, $FullNewRootPath)
+}
+
 function ConvertFrom-Cue {
   param(
     [Parameter(Mandatory = $True)]
@@ -49,32 +67,110 @@ function Get-DiscId {
   (([Convert]::ToBase64String($ShaBytes) -replace '\+', '.') -replace '/', '_') -replace '=', '-'
 }
 
-function Split-Disc {
+function Split-Discs {
   param(
     [Parameter(Mandatory = $True)]
-    [int] $DiscNumber,
-
-    [Parameter(Mandatory = $True)]
-    [string] $CuePath,
-
-    [Parameter(Mandatory = $True)]
-    [string] $FlacPath,
+    [string] $Path,
 
     [Parameter(Mandatory = $True)]
     [string] $DestPath
   )
 
-  $DiscId = Get-DiscId -CuePath $CuePath -FlacPath $FlacPath
-  $Cues = ConvertFrom-Cue -Path $CuePath | ForEach-Object { $_ -replace ":(\d+)$", '.$1' }
-  if ('00:00.00' -in $Cues) {
-    $StartNum = 1
-  } else {
-    $StartNum = 0
-  }
-  $FilePrefix = 'D{0:D3}T' -f $DiscNumber
-  $Cues | shntool split -q -i flac -o flac -O never -d $DestPath -a $FilePrefix -c $StartNum $FlacPath
+  for ($i = 0; $i -lt 1000; $i++) {
+    $CuePath = Join-Path -Path $Path -ChildPath ("D{0:D3}.cue" -f $DiscNumber)
+    $FlacPath = Join-Path -Path $Path -ChildPath ("D{0:D3}.flac" -f $DiscNumber)
+    $ArtworkPath = 'thumb.png', 'thumb.jpg' | ForEach-Object { Join-Path -Path $Path -ChildPath $_ } | Where-Object { Test-Path -Path $_ } | Select-Object -First 1
 
-  Get-ChildItem -Path $DestPath -Filter "$($FilePrefix)*.flac" | ForEach-Object {
-    metaflac "--set-tag=MUSICBRAINZ_DISCID=$DiscId" $_.FullName
+    if (Test-Path -Path $CuePath -or Test-Path -Path $FlacPath) {
+      break
+    }
+
+    Write-Progress -Activity "Splitting $Path into $DestPath" -Status "Disc $i"
+
+    $DiscId = Get-DiscId -CuePath $CuePath -FlacPath $FlacPath
+    $Cues = ConvertFrom-Cue -Path $CuePath | ForEach-Object { $_ -replace ":(\d+)$", '.$1' }
+    if ('00:00.00' -in $Cues) {
+      $StartNum = 1
+    } else {
+      $StartNum = 0
+    }
+    $FilePrefix = 'D{0:D3}T' -f $DiscNumber
+    $Cues | shntool split -q -i flac -o flac -O never -d $DestPath -a $FilePrefix -c $StartNum $FlacPath
+
+    if ($ArtworkPath) {
+      $ImageArg = "--import-picture-from=$ArtworkPath"
+    } else {
+      $ImageArg = ''
+    }
+    Get-ChildItem -Path $DestPath -Filter "$($FilePrefix)*.flac" | ForEach-Object {
+      metaflac "--set-tag=MUSICBRAINZ_DISCID=$DiscId" $ImageArg $_.FullName
+    }
+
+    $Track0 = Join-Path -Path $DestPath -ChildPath "$($FilePrefix)00.flac"
+    if (Test-Path $Track0) {
+      Remove-Item -Path $Track0
+    }
   }
+  Write-Progress -Activity "Splitting $Path into $DestPath" -Completed
+}
+
+function Format-SourceDir {
+  param(
+    [Parameter(Mandatory = $True)]
+    [string] $Path
+  )
+
+  Get-ChildItem -Path $Path -Filter '*.flac' | Where-Object { $_.Name -notmatch 'D\d+\.flac' } | Rename-Item -NewName {
+    if ($_ -match '.*\((\d+)\)\.flac') {
+      'D{0:D3}.flac' -f [int]$Matches[1]
+    } else {
+      'D001.flac'
+    }
+  }
+
+  Get-ChildItem -Path $Path -Filter '*.cue' | Where-Object { $_.Name -notmatch 'D\d+\.cue' } | Rename-Item -NewName {
+    if ($_ -match '.*\((\d+)\)\.cue') {
+      'D{0:D3}.cue' -f [int]$Matches[1]
+    } else {
+      'D001.cue'
+    }
+  }
+
+  if (Test-Path "$Path\folder.jpeg") {
+    magick "$Path\folder.jpeg" -resize '1000x1000>' "$Path\thumb.jpg"
+  } elseif (Test-Path "$Path\folder.jpg") {
+    magick "$Path\folder.jpg" -resize '1000x1000>' "$Path\thumb.jpg"
+  } elseif (Test-Path "$Path\folder.png") {
+    magick "$Path\folder.png" -resize '1000x1000>' "$Path\thumb.png"
+  }
+}
+
+function Split-AllDiscs {
+  param(
+    [Parameter(Mandatory = $True)]
+    [string] $RootPath,
+
+    [Parameter(Mandatory = $True)]
+    [string] $DestRootPath
+  )
+
+  $DiscDirs = Get-ChildItem -Path $RootPath -Directory | Where-Object { -Not (Get-ChildItem -Path $_.FullName -Directory) }
+
+  $DiscDirs | ForEach-Object {
+    $Source = $_.FullName
+    $Dest = Resolve-RelativePath -RootPath $RootPath -Path $Source -NewRootPath $DestRootPath
+    Format-SourceDir -Path $Source
+    Split-Discs -Path $Source -DestPath $Dest
+  }
+}
+
+function ConvertTo-Opus {
+  param(
+    [Parameter(Mandatory = $True)]
+    [string] $Path,
+
+    [Parameter(Mandatory = $True)]
+    [string] $DestPath
+  )
+
 }
