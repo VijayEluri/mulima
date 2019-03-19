@@ -76,16 +76,16 @@ function Split-Discs {
     [string] $DestPath
   )
 
-  for ($i = 0; $i -lt 1000; $i++) {
+  for ($DiscNumber = 1; $DiscNumber -lt 1000; $DiscNumber++) {
     $CuePath = Join-Path -Path $Path -ChildPath ("D{0:D3}.cue" -f $DiscNumber)
     $FlacPath = Join-Path -Path $Path -ChildPath ("D{0:D3}.flac" -f $DiscNumber)
     $ArtworkPath = 'thumb.png', 'thumb.jpg' | ForEach-Object { Join-Path -Path $Path -ChildPath $_ } | Where-Object { Test-Path -Path $_ } | Select-Object -First 1
 
-    if (Test-Path -Path $CuePath -or Test-Path -Path $FlacPath) {
+    if (-Not ((Test-Path -Path $CuePath) -and (Test-Path -Path $FlacPath))) {
       break
     }
 
-    Write-Progress -Activity "Splitting $Path into $DestPath" -Status "Disc $i"
+    Write-Progress -Activity "Splitting $Path" -Status "Disc $DiscNumber"
 
     $DiscId = Get-DiscId -CuePath $CuePath -FlacPath $FlacPath
     $Cues = ConvertFrom-Cue -Path $CuePath | ForEach-Object { $_ -replace ":(\d+)$", '.$1' }
@@ -95,7 +95,7 @@ function Split-Discs {
       $StartNum = 0
     }
     $FilePrefix = 'D{0:D3}T' -f $DiscNumber
-    $Cues | shntool split -q -i flac -o flac -O never -d $DestPath -a $FilePrefix -c $StartNum $FlacPath
+    $Cues | shntool split -q -i flac -o flac -O always -d $DestPath -a $FilePrefix -c $StartNum $FlacPath
 
     if ($ArtworkPath) {
       $ImageArg = "--import-picture-from=$ArtworkPath"
@@ -111,7 +111,16 @@ function Split-Discs {
       Remove-Item -Path $Track0
     }
   }
-  Write-Progress -Activity "Splitting $Path into $DestPath" -Completed
+
+  $Artist = Split-Path -Path (Split-Path -Path $DestPath -Parent) -Leaf
+  $Album = Split-Path -Path $DestPath -Leaf
+  Get-ChildItem -Path $DestPath -Filter '*.flac' | Where-Object { $_.Name -match 'D(\d+)T(\d+)\.flac' } | ForEach-Object {
+    $Disc = [int]($Matches[1])
+    $Track = [int]($Matches[2])
+    metaflac "--set-tag=ALBUMARTIST=$Artist" "--set-tag=ALBUM=$Album" "--set-tag=DISCNUMBER=$Disc" "--set-tag=TRACKNUMBER=$Track" $_.FullName
+  }
+
+  Write-Progress -Activity "Splitting $Path" -Completed
 }
 
 function Format-SourceDir {
@@ -154,11 +163,12 @@ function Split-AllDiscs {
     [string] $DestRootPath
   )
 
-  $DiscDirs = Get-ChildItem -Path $RootPath -Directory | Where-Object { -Not (Get-ChildItem -Path $_.FullName -Directory) }
+  $DiscDirs = Get-ChildItem -Path $RootPath -Directory -Recurse | Where-Object { -Not (Get-ChildItem -Path $_.FullName -Directory) }
 
   $DiscDirs | ForEach-Object {
     $Source = $_.FullName
     $Dest = Resolve-RelativePath -RootPath $RootPath -Path $Source -NewRootPath $DestRootPath
+    New-Item -Path $Dest -ItemType Directory -Force | Out-Null
     Format-SourceDir -Path $Source
     Split-Discs -Path $Source -DestPath $Dest
   }
@@ -172,5 +182,4 @@ function ConvertTo-Opus {
     [Parameter(Mandatory = $True)]
     [string] $DestPath
   )
-
 }
