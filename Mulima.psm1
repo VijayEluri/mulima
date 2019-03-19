@@ -209,8 +209,8 @@ function Split-Discs {
 
     Write-Progress -Activity "Splitting $Path" -Status "Disc $DiscNumber"
 
-    $DiscId = Get-DiscId -CuePath $CuePath -FlacPath $FlacPath
-    $Cues = ConvertFrom-Cue -Path $CuePath | ForEach-Object { $_ -replace ":(\d+)$", '.$1' }
+    $ExistingTags = Get-VorbisComments -Path $FlacPath
+    $Cues = Get-CuePoints -Path $CuePath | ForEach-Object { $_ -replace ":(\d+)$", '.$1' }
     if ('00:00.00' -in $Cues) {
       $StartNum = 1
     } else {
@@ -224,8 +224,13 @@ function Split-Discs {
     } else {
       $ImageArg = ''
     }
+    $TagArgs = $ExistingTags.PSObject.Properties | ForEach-Object { "--set-tag=$($_.Name)=$($_.Value)" }
+
     Get-ChildItem -Path $DestPath -Filter "$($FilePrefix)*.flac" | ForEach-Object {
-      metaflac "--set-tag=MUSICBRAINZ_DISCID=$DiscId" $ImageArg $_.FullName
+      if ($_.Name -match 'D\d+T(\d+).flac') {
+        $TrackNumber = [int]$Matches[1]
+      }
+      metaflac @TagArgs "--set-tag=TRACKNUMBER=$TrackNumber" $ImageArg $_.FullName
     }
 
     $Track0 = Join-Path -Path $DestPath -ChildPath "$($FilePrefix)00.flac"
@@ -233,15 +238,6 @@ function Split-Discs {
       Remove-Item -Path $Track0
     }
   }
-
-  $Artist = Split-Path -Path (Split-Path -Path $DestPath -Parent) -Leaf
-  $Album = Split-Path -Path $DestPath -Leaf
-  Get-ChildItem -Path $DestPath -Filter '*.flac' | Where-Object { $_.Name -match 'D(\d+)T(\d+)\.flac' } | ForEach-Object {
-    $Disc = [int]($Matches[1])
-    $Track = [int]($Matches[2])
-    metaflac "--set-tag=ALBUMARTIST=$Artist" "--set-tag=ALBUM=$Album" "--set-tag=DISCNUMBER=$Disc" "--set-tag=TRACKNUMBER=$Track" $_.FullName
-  }
-
   Write-Progress -Activity "Splitting $Path" -Completed
 }
 
