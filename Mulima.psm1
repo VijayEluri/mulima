@@ -16,13 +16,22 @@ function Resolve-RelativePath {
   $FullPath.Replace($FullRootPath, $FullNewRootPath)
 }
 
-function ConvertFrom-Cue {
+function Get-CuePoints {
   param(
     [Parameter(Mandatory = $True)]
     [string] $Path
   )
   $LineRegex = "\s*INDEX 01 (?<time>\d{2}:\d{2}:\d{2})\s*"
   Get-Content -Path $Path | Where-Object { $_ -match $LineRegex } | ForEach-Object { $Matches.time }
+}
+
+function Get-VorbisComments {
+  param(
+    [Parameter(Mandatory = $True)]
+    [string] $Path
+  )
+  $LineRegex = "\s*comment\[\d+\]: (?<tag>.+?)=(?<value>.+)"
+  metaflac '--list' '--block-type=VORBIS_COMMENT' $Path | Where-Object { $_ -match $LineRegex } | ForEach-Object { $Tags = @{} } { $Tags.Add($Matches.tag, $Matches.value) } { [pscustomobject]$Tags }
 }
 
 function Get-DiscId {
@@ -34,7 +43,7 @@ function Get-DiscId {
     [string] $FlacPath
   )
 
-  $Cues = ConvertFrom-Cue -Path $CuePath
+  $Cues = Get-CuePoints -Path $CuePath
   $SampleRate = [int](metaflac '--show-sample-rate' $FlacPath | Out-String)
   $TotalSamples = [int](metaflac '--show-total-samples' $FlacPath | Out-String)
 
@@ -65,6 +74,103 @@ function Get-DiscId {
   $UTF8 = New-object -TypeName System.Text.UTF8Encoding
   $ShaBytes = $SHA1.ComputeHash($UTF8.GetBytes($BaseString))
   (([Convert]::ToBase64String($ShaBytes) -replace '\+', '.') -replace '/', '_') -replace '=', '-'
+}
+
+function Repair-SourceDir {
+  param(
+    [Parameter(Mandatory = $True)]
+    [string] $Path,
+
+    [Parameter()]
+    [switch] $Force
+  )
+
+  Get-ChildItem -Path $Path -Filter '*.flac' | Where-Object { $_.Name -notmatch 'D\d+\.flac' } | Rename-Item -NewName {
+    if ($_ -match '.*\((\d+)\)\.flac') {
+      'D{0:D3}.flac' -f [int]$Matches[1]
+    } else {
+      'D001.flac'
+    }
+  }
+
+  Get-ChildItem -Path $Path -Filter '*.cue' | Where-Object { $_.Name -notmatch 'D\d+\.cue' } | Rename-Item -NewName {
+    if ($_ -match '.*\((\d+)\)\.cue') {
+      'D{0:D3}.cue' -f [int]$Matches[1]
+    } else {
+      'D001.cue'
+    }
+  }
+
+  if (Test-Path "$Path\folder.jpeg") {
+    magick "$Path\folder.jpeg" -resize '1000x1000>' "$Path\thumb.jpg"
+  } elseif (Test-Path "$Path\folder.jpg") {
+    magick "$Path\folder.jpg" -resize '1000x1000>' "$Path\thumb.jpg"
+  } elseif (Test-Path "$Path\folder.png") {
+    magick "$Path\folder.png" -resize '1000x1000>' "$Path\thumb.png"
+  }
+
+  Get-ChildItem -Path $Path -Filter '*.flac' | ForEach-Object {
+    $FlacPath = $_.FullName
+    $CuePath = Join-Path -Path $Path -ChildPath "$($_.BaseName).cue"
+
+    $ExistingTags = Get-VorbisComments -Path $FlacPath
+
+    if ($ExistingTags.PSObject.Properties.Name -contains 'MUSICBRAINZ_DISCID' -and (-Not $Force)) {
+      $DiscId = $ExistingTags.'MUSICBRAINZ_DISCID'
+    } else {
+      $DiscId = Get-DiscId -CuePath $CuePath -FlacPath $FlacPath
+    }
+
+    $Release = $Null
+    if ($ExistingTags.PSObject.Properties.Name -contains 'MUSICBRAINZ_ALBUMID' -and (-Not $Force)) {
+      $ReleaseId = $ExistingTags.'MUSICBRAINZ_ALBUMID'
+    } else {
+      Start-Process -FilePath "https://musicbrainz.org/cdtoc/$DiscId"
+      $Response = Invoke-RestMethod -Uri "https://musicbrainz.org/ws/2/discid/$($DiscId)?inc=artists"
+      $OptionIndex = 0
+      $Options = $Response.metadata.disc.'release-list'.release | ForEach-Object {
+        [pscustomobject]@{
+          'Index'          = $OptionIndex++
+          'Artist'         = $_.'artist-credit'.'name-credit'.'artist'.'name' -join ', '
+          'Title'          = $_.title
+          'Disambiguation' = $_.disambiguation
+          'Date'           = $_.date
+          'Country'        = $_.'release-event-list'.'release-event'.name
+          'Barcode'        = $_.barcode
+          'ReleaseId'      = $_.id
+        }
+      }
+      $Options | Format-Table | Out-Host
+
+      $Choice = Read-Host -Prompt 'Choose an option (-1 to skip)'
+      if ($Choice -ge 0) {
+        $Release = $Options[$Choice]
+        $ReleaseId = $Release.ReleaseId
+      } else {
+        return
+      }
+    }
+
+    if ($ExistingTags.PSObject.Properties.Name -contains 'ARTIST' -and (-Not $Force)) {
+      $Artist = $ExistingTags.'ARTIST'
+    } else {
+      $Artist = $Release.Artist
+    }
+
+    if ($ExistingTags.PSObject.Properties.Name -contains 'ALBUM' -and (-Not $Force)) {
+      $Artist = $ExistingTags.'ALBUM'
+    } elseif ($Release.Disambiguation) {
+      $Album = "{0} ({1})" -f $Release.Title, $Release.Disambiguation
+    } else {
+      $Album = $Release.Title
+    }
+
+    if ($FlacPath -match 'D(\d+).flac') {
+      $DiscNumber = [int]$Matches[1]
+    }
+
+    metaflac '--remove-all-tags' "--set-tag=MUSICBRAINZ_ALBUMID=$ReleaseId" "--set-tag=MUSICBRAINZ_DISCID=$DiscId" "--set-tag=ALBUMARTST=$Artist" "--set-tag=ALBUM=$Album" "--set-tag=DISCNUMBER=$DiscNumber" $FlacPath
+  }
 }
 
 function Split-Discs {
@@ -121,37 +227,6 @@ function Split-Discs {
   }
 
   Write-Progress -Activity "Splitting $Path" -Completed
-}
-
-function Format-SourceDir {
-  param(
-    [Parameter(Mandatory = $True)]
-    [string] $Path
-  )
-
-  Get-ChildItem -Path $Path -Filter '*.flac' | Where-Object { $_.Name -notmatch 'D\d+\.flac' } | Rename-Item -NewName {
-    if ($_ -match '.*\((\d+)\)\.flac') {
-      'D{0:D3}.flac' -f [int]$Matches[1]
-    } else {
-      'D001.flac'
-    }
-  }
-
-  Get-ChildItem -Path $Path -Filter '*.cue' | Where-Object { $_.Name -notmatch 'D\d+\.cue' } | Rename-Item -NewName {
-    if ($_ -match '.*\((\d+)\)\.cue') {
-      'D{0:D3}.cue' -f [int]$Matches[1]
-    } else {
-      'D001.cue'
-    }
-  }
-
-  if (Test-Path "$Path\folder.jpeg") {
-    magick "$Path\folder.jpeg" -resize '1000x1000>' "$Path\thumb.jpg"
-  } elseif (Test-Path "$Path\folder.jpg") {
-    magick "$Path\folder.jpg" -resize '1000x1000>' "$Path\thumb.jpg"
-  } elseif (Test-Path "$Path\folder.png") {
-    magick "$Path\folder.png" -resize '1000x1000>' "$Path\thumb.png"
-  }
 }
 
 function Split-AllDiscs {
