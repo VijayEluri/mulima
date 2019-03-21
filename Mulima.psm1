@@ -167,6 +167,9 @@ function Repair-SourceDir {
           return
         }
         $Choice = Read-Host -Prompt 'Choose an option (''s'' to skip, ? to open in browser)'
+        if ($Choice -match '\d+') {
+          $Choice = [int]$Choice
+        }
       }
     }
 
