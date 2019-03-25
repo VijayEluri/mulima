@@ -126,25 +126,64 @@ function Repair-SourceDir {
     try {
       Start-Sleep -Seconds 1
       $Response = Invoke-RestMethod -Uri "https://musicbrainz.org/ws/2/discid/$($DiscId)?inc=artists+labels"
+
+      $OptionIndex = 0
+      $Options = $Response.metadata.disc.'release-list'.release | ForEach-Object {
+        [pscustomobject]@{
+          'Index'          = $OptionIndex++
+          'Artist'         = $_.'artist-credit'.'name-credit'.'artist'.'name' -join ', '
+          'Title'          = $_.title
+          'Disambiguation' = $_.disambiguation
+          'DiscNumber'     = $_.'medium-list'.medium | Where-Object { $_.'disc-list'.disc.id -eq $DiscId } | Select-Object -ExpandProperty position
+          'DiscTotal'      = $_.'medium-list'.count
+          'Date'           = $_.date
+          'Country'        = $_.'release-event-list'.'release-event'.area.name
+          'Label'          = $_.'label-info-list'.'label-info'.label.name
+          'CatalogNumber'  = $_.'label-info-list'.'label-info'.'catalog-number'
+          'Barcode'        = $_.barcode
+          'ReleaseId'      = $_.id
+        }
+      }
     } catch {
       Write-Warning -Message "No release found for $DiscId"
-      return
-    }
-    $OptionIndex = 0
-    $Options = $Response.metadata.disc.'release-list'.release | ForEach-Object {
-      [pscustomobject]@{
-        'Index'          = $OptionIndex++
-        'Artist'         = $_.'artist-credit'.'name-credit'.'artist'.'name' -join ', '
-        'Title'          = $_.title
-        'Disambiguation' = $_.disambiguation
-        'DiscNumber'     = $_.'medium-list'.medium | Where-Object { $_.'disc-list'.disc.id -eq $DiscId } | Select-Object -ExpandProperty position
-        'DiscTotal'      = $_.'medium-list'.count
-        'Date'           = $_.date
-        'Country'        = $_.'release-event-list'.'release-event'.area.name
-        'Label'          = $_.'label-info-list'.'label-info'.label.name
-        'CatalogNumber'  = $_.'label-info-list'.'label-info'.'catalog-number'
-        'Barcode'        = $_.barcode
-        'ReleaseId'      = $_.id
+      while ($True) {
+        $Choice = Read-Host -Prompt 'Enter a release ID (''s'' to skip, ? to open in browser)'
+        if ($Choice -eq '?') {
+          Start-Process -FilePath 'https://musicbrainz.org/search'
+        } elseif ($Choice -eq 's') {
+          return
+        } else {
+          try {
+            Start-Sleep -Seconds 1
+            $Response = Invoke-RestMethod -Uri "https://musicbrainz.org/ws/2/release/$($Choice)?inc=artists+labels+recordings"
+            $DiscNumber = [int](Read-Host -Prompt 'Which disc number is this')
+            $Release = [pscustomobject]@{
+              'Artist'         = $Response.metadata.release.'artist-credit'.'name-credit'.'artist'.'name' -join ', '
+              'Title'          = $Response.metadata.release.title
+              'Disambiguation' = $Response.metadata.release.disambiguation
+              'DiscNumber'     = $DiscNumber
+              'DiscTotal'      = $Response.metadata.release.'medium-list'.count
+              'Date'           = $Response.metadata.release.date
+              'Country'        = $Response.metadata.release.'release-event-list'.'release-event'.area.name
+              'Label'          = $Response.metadata.release.'label-info-list'.'label-info'.label.name
+              'CatalogNumber'  = $Response.metadata.release.'label-info-list'.'label-info'.'catalog-number'
+              'Barcode'        = $Response.metadata.release.barcode
+              'ReleaseId'      = $Response.metadata.release.id
+            }
+            $Options = @($Release)
+            $ReleaseId = $Release.ReleaseId
+
+            $Release | Format-List | Out-Host
+            $Verified = (Read-Host -Prompt 'Does this look right? (y/n)') -eq 'y'
+            if ($Verified) {
+              break
+            } else {
+              Write-Host 'OK. Trying again...'
+            }
+          } catch {
+            Write-Warning -Message "No release found for $Choice"
+          }
+        }
       }
     }
 
