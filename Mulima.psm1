@@ -76,6 +76,68 @@ function Get-DiscId {
   (([Convert]::ToBase64String($ShaBytes) -replace '\+', '.') -replace '/', '_') -replace '=', '-'
 }
 
+function Get-Releases {
+  param(
+    [Parameter(Mandatory = $True, ParameterSetName = 'ByReleaseId')]
+    [string] $ReleaseId,
+
+    [Parameter(Mandatory = $True, ParameterSetName = 'ByDiscId')]
+    [string] $DiscId
+  )
+
+  Start-Sleep -Seconds 1
+  if ($PSCmdlet.ParameterSetName -eq 'ByReleaseId') {
+    try {
+      $Response = Invoke-RestMethod -Uri "https://musicbrainz.org/ws/2/release/$($Choice)?inc=artists+labels+recordings"
+    } catch {
+      Write-Warning "No releases found for release ID: $ReleaseId"
+      return @()
+    }
+
+    [pscustomobject]@{
+      'Artist'         = $Response.metadata.release.'artist-credit'.'name-credit'.'artist'.'name' -join ', '
+      'Title'          = $Response.metadata.release.title
+      'Disambiguation' = $Response.metadata.release.disambiguation
+      'DiscNumbers'    = [pscustomobject]@{}
+      'DiscTotal'      = $Response.metadata.release.'medium-list'.count
+      'Date'           = $Response.metadata.release.date
+      'Country'        = $Response.metadata.release.'release-event-list'.'release-event'.area.name
+      'Label'          = $Response.metadata.release.'label-info-list'.'label-info'.label.name
+      'CatalogNumber'  = $Response.metadata.release.'label-info-list'.'label-info'.'catalog-number'
+      'Barcode'        = $Response.metadata.release.barcode
+      'ReleaseId'      = $Response.metadata.release.id
+    }
+  } else {
+    try {
+      $Response = Invoke-RestMethod -Uri "https://musicbrainz.org/ws/2/discid/$($DiscId)?inc=artists+labels"
+    } catch {
+      Write-Warning "No releases found for disc ID: $DiscId"
+      return @()
+    }
+
+    $OptionIndex = 0
+    $Response.metadata.disc.'release-list'.release | ForEach-Object {
+      [pscustomobject]@{
+        'Index'          = $OptionIndex++
+        'Artist'         = $_.'artist-credit'.'name-credit'.'artist'.'name' -join ', '
+        'Title'          = $_.title
+        'Disambiguation' = $_.disambiguation
+        'DiscNumbers'    = $_.'medium-list'.medium | ForEach-Object -Begin { $Discs = @{} } -End { [pscustomobject]$Discs  } -Process {
+          $DiscIds = $_.'disc-list'.disc.id
+          $Discs.Add($_.position, $DiscIds)
+        }
+        'DiscTotal'      = $_.'medium-list'.count
+        'Date'           = $_.date
+        'Country'        = $_.'release-event-list'.'release-event'.area.name
+        'Label'          = $_.'label-info-list'.'label-info'.label.name
+        'CatalogNumber'  = $_.'label-info-list'.'label-info'.'catalog-number'
+        'Barcode'        = $_.barcode
+        'ReleaseId'      = $_.id
+      }
+    }
+  }
+}
+
 function Repair-SourceDir {
   param(
     [Parameter(Mandatory = $True)]
@@ -85,7 +147,7 @@ function Repair-SourceDir {
     [switch] $Force
   )
 
-  Write-Host "Repairing: $Path"
+  Write-Host "***** Repairing: $Path *****"
 
   Get-ChildItem -Path $Path -Filter '*.flac' | Where-Object { $_.Name -notmatch 'D\d+\.flac' } | Rename-Item -NewName {
     if ($_ -match '.*\((\d+)\)\.flac') {
@@ -111,109 +173,83 @@ function Repair-SourceDir {
     magick "$Path\folder.png" -resize '1000x1000>' "$Path\thumb.png"
   }
 
-  $Release = $Null
-  Get-ChildItem -Path $Path -Filter '*.flac' | ForEach-Object {
+  $CurrentState = Get-ChildItem -Path $Path -Filter '*.flac' | ForEach-Object {
     $FlacPath = $_.FullName
     $CuePath = Join-Path -Path $Path -ChildPath "$($_.BaseName).cue"
-
     $ExistingTags = Get-VorbisComments -Path $FlacPath
-
-    if ($ExistingTags.PSObject.Properties.Name -contains 'MUSICBRAINZ_ALBUMID' -and (-Not $Force)) {
-      return
-    }
-
-    $DiscId = Get-DiscId -CuePath $CuePath -FlacPath $FlacPath
-    try {
-      Start-Sleep -Seconds 1
-      $Response = Invoke-RestMethod -Uri "https://musicbrainz.org/ws/2/discid/$($DiscId)?inc=artists+labels"
-
-      $OptionIndex = 0
-      $Options = $Response.metadata.disc.'release-list'.release | ForEach-Object {
-        [pscustomobject]@{
-          'Index'          = $OptionIndex++
-          'Artist'         = $_.'artist-credit'.'name-credit'.'artist'.'name' -join ', '
-          'Title'          = $_.title
-          'Disambiguation' = $_.disambiguation
-          'DiscNumber'     = $_.'medium-list'.medium | Where-Object { $_.'disc-list'.disc.id -eq $DiscId } | Select-Object -ExpandProperty position
-          'DiscTotal'      = $_.'medium-list'.count
-          'Date'           = $_.date
-          'Country'        = $_.'release-event-list'.'release-event'.area.name
-          'Label'          = $_.'label-info-list'.'label-info'.label.name
-          'CatalogNumber'  = $_.'label-info-list'.'label-info'.'catalog-number'
-          'Barcode'        = $_.barcode
-          'ReleaseId'      = $_.id
-        }
-      }
-    } catch {
-      Write-Warning -Message "No release found for $DiscId"
-      while ($True) {
-        $Choice = Read-Host -Prompt 'Enter a release ID (''s'' to skip, ? to open in browser)'
-        if ($Choice -eq '?') {
-          Start-Process -FilePath 'https://musicbrainz.org/search'
-        } elseif ($Choice -eq 's') {
-          return
-        } else {
-          try {
-            Start-Sleep -Seconds 1
-            $Response = Invoke-RestMethod -Uri "https://musicbrainz.org/ws/2/release/$($Choice)?inc=artists+labels+recordings"
-            $DiscNumber = [int](Read-Host -Prompt 'Which disc number is this')
-            $Release = [pscustomobject]@{
-              'Artist'         = $Response.metadata.release.'artist-credit'.'name-credit'.'artist'.'name' -join ', '
-              'Title'          = $Response.metadata.release.title
-              'Disambiguation' = $Response.metadata.release.disambiguation
-              'DiscNumber'     = $DiscNumber
-              'DiscTotal'      = $Response.metadata.release.'medium-list'.count
-              'Date'           = $Response.metadata.release.date
-              'Country'        = $Response.metadata.release.'release-event-list'.'release-event'.area.name
-              'Label'          = $Response.metadata.release.'label-info-list'.'label-info'.label.name
-              'CatalogNumber'  = $Response.metadata.release.'label-info-list'.'label-info'.'catalog-number'
-              'Barcode'        = $Response.metadata.release.barcode
-              'ReleaseId'      = $Response.metadata.release.id
-            }
-            $Options = @($Release)
-            $ReleaseId = $Release.ReleaseId
-
-            $Release | Format-List | Out-Host
-            $Verified = (Read-Host -Prompt 'Does this look right? (y/n)') -eq 'y'
-            if ($Verified) {
-              break
-            } else {
-              Write-Host 'OK. Trying again...'
-            }
-          } catch {
-            Write-Warning -Message "No release found for $Choice"
-          }
-        }
-      }
-    }
-
-    $ExistingOption = $Options | Where-Object { $_.ReleaseId -eq $Release.ReleaseId }
-    if ($ExistingOption) {
-      $Release = $ExistingOption
-      $ReleaseId = $Release.ReleaseId
+    if ($ExistingTags.PSObject.Properties.Name -contains 'MUSICBRAINZ_DISCID') {
+      $DiscId = $ExistingTags.'MUSICBRAINZ_DISCID'
     } else {
-      $Options | Format-Table -Property * -AutoSize | Out-Host
+      $DiscId = Get-DiscId -CuePath $CuePath -FlacPath $FlacPath
+    }
+    [pscustomobject]@{
+      'FlacPath' = $FlacPath
+      'CuePath'  = $CuePath
+      'DiscId'   = $DiscId
+      'Tags'     = $ExistingTags
+    }
+  }
 
-      $Choice = 999999999
-      while ($True) {
-        if ($Choice -eq '?') {
-          Start-Process -FilePath "https://musicbrainz.org/cdtoc/$DiscId"
-        } elseif ($Choice -ge 0 -and $Choice -lt @($Options).Count) {
-          $Release = $Options[$Choice]
-          $ReleaseId = $Release.ReleaseId
+  $WithoutReleaseId = $CurrentState | Where-Object { $_.Tags.PSObject.Properties.Name -notcontains 'MUSICBRAINZ_ALBUMID' }
+
+  if ($WithoutReleaseId.Count -eq 0 -and (-not $Force)) {
+    return
+  }
+
+  Write-Host ('**** Existing tags for: {0} ****' -f $Path)
+  $CurrentState | Format-Table -Property FlacPath, DiscId, Tags -AutoSize | Out-Host
+  # $CurrentState | ForEach-Object {
+  #   Write-Host ('{0} ({1})' -f (Split-Path -Path $_.FlacPath -Leaf), $_.DiscId)
+  #   $_.Tags | Format-Table | Out-Host
+  # }
+
+  $Options = $CurrentState.DiscId | ForEach-Object { Get-Releases -DiscId $_ } | Select-Object -Unique
+
+  Write-Host '*** Options ***'
+  $Options | Format-Table -Property Index, Artist, Title, Disambiguation, DiscTotal, Date, Country, Label, CatalogNumber, Barcode, ReleaseId -AutoSize | Out-Host
+
+  $Release = $Null
+  $ChoiceNum = -1
+  while ($True) {
+    $Choice = Read-Host -Prompt 'Enter an option number or release ID (''s'' to skip, ? to open in browser)'
+    if ($Choice -eq '?') {
+      Start-Process -FilePath 'https://musicbrainz.org/search'
+    } elseif ($Choice -eq 's') {
+      return
+    } elseif ($Choice -match '^\d+$') {
+      $ChoiceNum = [int]$Choice
+      if ($ChoiceNum -ge 0 -and $ChoiceNum -lt @($Options).Count) {
+        $Release = $Options[$ChoiceNum]
+        $Release | Format-List | Out-Host
+        $Verified = (Read-Host -Prompt 'Does this look right? (y/n)') -eq 'y'
+        if ($Verified) {
           break
-        } elseif ($Choice -eq 's') {
-          return
         }
-        $Choice = Read-Host -Prompt 'Choose an option (''s'' to skip, ? to open in browser)'
-        if ($Choice -match '\d+') {
-          $Choice = [int]$Choice
+      }
+    } else {
+      $Release = Get-Releases -ReleaseId $Choice
+      if ($Release) {
+        $Release | Format-List | Out-Host
+        $Verified = (Read-Host -Prompt 'Does this look right? (y/n)') -eq 'y'
+        if ($Verified) {
+          break
         }
       }
     }
+  }
 
+  $CurrentState | ForEach-Object {
+    $CurrentDisc = $_
     $Artist = $Release.Artist
-    $DiscNumber = $Release.DiscNumber
+
+    $DiscNumber = $Release.DiscNumbers.PSObject.Properties | Where-Object {
+      $_.Value -contains $CurrentDisc.DiscId
+    } | ForEach-Object { [int]$_.Name }
+
+    $FlacName = Split-Path -Path $CurrentDisc.FlacPath -Leaf
+    if (-not $DiscNumber) {
+      $DiscNumber = [int](Read-Host -Prompt "What disc id this? $FlacName")
+    }
 
     if ($Release.Disambiguation) {
       $Album = "{0} ({1})" -f $Release.Title, $Release.Disambiguation
@@ -221,11 +257,11 @@ function Repair-SourceDir {
       $Album = $Release.Title
     }
 
-    if ((Split-Path -Path $FlacPath -Leaf) -ne ('D{0:D3}.flac' -f $Release.DiscNumber)) {
-      Write-Warning -Message "Disc number does not match file name: $FlacPath"
+    if ($FlacName -ne ('D{0:D3}.flac' -f $DiscNumber)) {
+      Write-Warning -Message "Disc number does not match file name: $($CurrentDisc.FlacPath)"
     }
 
-    metaflac '--remove-all-tags' "--set-tag=MUSICBRAINZ_ALBUMID=$ReleaseId" "--set-tag=MUSICBRAINZ_DISCID=$DiscId" "--set-tag=ALBUMARTST=$Artist" "--set-tag=ALBUM=$Album" "--set-tag=DISCNUMBER=$DiscNumber" $FlacPath
+    metaflac '--remove-all-tags' "--set-tag=MUSICBRAINZ_ALBUMID=$($Release.ReleaseId)" "--set-tag=MUSICBRAINZ_DISCID=$($CurrentDisc.DiscId)" "--set-tag=ALBUMARTST=$Artist" "--set-tag=ALBUM=$Album" "--set-tag=DISCNUMBER=$DiscNumber" $CurrentDisc.FlacPath
   }
 }
 
