@@ -115,6 +115,11 @@ function Get-Releases {
       return @()
     }
 
+    if ($Response.metadata.cdstub.id -or ($Response.metadata.disc.'release-list'.count -eq '0')) {
+      Write-Warning "CD stub found for disc ID: $DiscId"
+      return @()
+    }
+
     $OptionIndex = 0
     $Response.metadata.disc.'release-list'.release | ForEach-Object {
       [pscustomobject]@{
@@ -147,7 +152,7 @@ function Repair-SourceDir {
     [switch] $Force
   )
 
-  Write-Host "***** Repairing: $Path *****"
+  Write-Host "*** Repairing: $Path ***"
 
   Get-ChildItem -Path $Path -Filter '*.flac' | Where-Object { $_.Name -notmatch 'D\d+\.flac' } | Rename-Item -NewName {
     if ($_ -match '.*\((\d+)\)\.flac') {
@@ -196,16 +201,11 @@ function Repair-SourceDir {
     return
   }
 
-  Write-Host ('**** Existing tags for: {0} ****' -f $Path)
+  Write-Host ('***** Existing tags for: {0} *****' -f $Path)
   $CurrentState | Format-Table -Property FlacPath, DiscId, Tags -AutoSize | Out-Host
-  # $CurrentState | ForEach-Object {
-  #   Write-Host ('{0} ({1})' -f (Split-Path -Path $_.FlacPath -Leaf), $_.DiscId)
-  #   $_.Tags | Format-Table | Out-Host
-  # }
 
+  Write-Host '***** Options *****'
   $Options = $CurrentState.DiscId | ForEach-Object { Get-Releases -DiscId $_ } | Select-Object -Unique
-
-  Write-Host '*** Options ***'
   $Options | Format-Table -Property Index, Artist, Title, Disambiguation, DiscTotal, Date, Country, Label, CatalogNumber, Barcode, ReleaseId -AutoSize | Out-Host
 
   $Release = $Null
