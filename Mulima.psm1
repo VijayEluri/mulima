@@ -88,7 +88,7 @@ function Get-Releases {
   Start-Sleep -Seconds 1
   if ($PSCmdlet.ParameterSetName -eq 'ByReleaseId') {
     try {
-      $Response = Invoke-RestMethod -Uri "https://musicbrainz.org/ws/2/release/$($Choice)?inc=artists+labels+recordings"
+      $Response = Invoke-RestMethod -Uri "https://musicbrainz.org/ws/2/release/$($ReleaseId)?inc=artists+labels+recordings"
     } catch {
       Write-Warning "No releases found for release ID: $ReleaseId"
       return @()
@@ -141,6 +141,38 @@ function Get-Releases {
       }
     }
   }
+}
+
+function Get-ReleaseTracks {
+  param(
+    [Parameter(Mandatory = $True)]
+    [string] $ReleaseId
+  )
+
+  Start-Sleep -Seconds 1
+  try {
+    $Response = Invoke-RestMethod -Uri "https://musicbrainz.org/ws/2/release/$($ReleaseId)?inc=recordings"
+  } catch {
+    Write-Warning "No releases found for release ID: $ReleaseId"
+    return
+  }
+
+  $Result = @{}
+  foreach ($Medium in $Response.metadata.release.'medium-list'.medium) {
+    $DiscNumber = $Medium.position
+    $Disc = @{}
+
+    foreach ($Track in $Medium.'track-list'.track) {
+      $Disc.Add($Track.position, [pscustomobject]@{
+          'TrackId'     = $Track.id
+          'RecordingId' = $Track.recording.id
+          'Title'       = $Track.recording.title
+        })
+    }
+
+    $Result.Add($DiscNumber, [pscustomobject]$Disc)
+  }
+  [pscustomobject]$Result
 }
 
 function Repair-SourceDir {
@@ -286,6 +318,7 @@ function Split-Discs {
     [string] $DestPath
   )
 
+  $TrackIds = $Null
   for ($DiscNumber = 1; $DiscNumber -lt 1000; $DiscNumber++) {
     $CuePath = Join-Path -Path $Path -ChildPath ("D{0:D3}.cue" -f $DiscNumber)
     $FlacPath = Join-Path -Path $Path -ChildPath ("D{0:D3}.flac" -f $DiscNumber)
@@ -298,6 +331,11 @@ function Split-Discs {
     Write-Progress -Activity "Splitting $Path" -Status "Disc $DiscNumber"
 
     $ExistingTags = Get-VorbisComments -Path $FlacPath
+
+    if (-not $TrackIds) {
+      $TrackIds = Get-ReleaseTracks -ReleaseId $ExistingTags.'MUSICBRAINZ_ALBUMID'
+    }
+
     $Cues = Get-CuePoints -Path $CuePath | ForEach-Object { $_ -replace ":(\d+)$", '.$1' }
     if ('00:00.00' -in $Cues) {
       $StartNum = 1
@@ -318,7 +356,12 @@ function Split-Discs {
       if ($_.Name -match 'D\d+T(\d+).flac') {
         $TrackNumber = [int]$Matches[1]
       }
-      metaflac @TagArgs "--set-tag=TRACKNUMBER=$TrackNumber" $ImageArg $_.FullName
+
+      $RealDiscNumber = $ExistingTags.'DISCNUMBER'
+      $TrackId = $TrackIds.$RealDiscNumber.$TrackNumber.TrackId
+      $RecordingId = $TrackIds.$RealDiscNumber.$TrackNumber.RecordingId
+      $Title = $TrackIds.$RealDiscNumber.$TrackNumber.Title
+      metaflac @TagArgs "--set-tag=TITLE=$Title" "--set-tag=MUSICBRAINZ_TRACKID=$RecordingId" "--set-tag=MUSICBRAINZ_RELEASETRACKID=$TrackId" "--set-tag=TRACKNUMBER=$TrackNumber" $ImageArg $_.FullName
     }
 
     $Track0 = Join-Path -Path $DestPath -ChildPath "$($FilePrefix)00.flac"
@@ -344,7 +387,6 @@ function Split-AllDiscs {
     $Source = $_.FullName
     $Dest = Resolve-RelativePath -RootPath $RootPath -Path $Source -NewRootPath $DestRootPath
     New-Item -Path $Dest -ItemType Directory -Force | Out-Null
-    Format-SourceDir -Path $Source
     Split-Discs -Path $Source -DestPath $Dest
   }
 }
