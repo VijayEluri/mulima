@@ -378,8 +378,6 @@ function Split-Discs {
       break
     }
 
-    Write-Progress -Activity "Splitting $Path" -Status "Disc $DiscNumber"
-
     $ExistingTags = Get-VorbisComments -Path $FlacPath
 
     if (-not $TrackIds) {
@@ -418,26 +416,6 @@ function Split-Discs {
     if (Test-Path $Track0) {
       Remove-Item -Path $Track0
     }
-  }
-  Write-Progress -Activity "Splitting $Path" -Completed
-}
-
-function Split-AllDiscs {
-  param(
-    [Parameter(Mandatory = $True)]
-    [string] $RootPath,
-
-    [Parameter(Mandatory = $True)]
-    [string] $DestRootPath
-  )
-
-  $DiscDirs = Get-ChildItem -Path $RootPath -Directory -Recurse | Where-Object { -Not (Get-ChildItem -Path $_.FullName -Directory) }
-
-  $DiscDirs | ForEach-Object {
-    $Source = $_.FullName
-    $Dest = Resolve-RelativePath -RootPath $RootPath -Path $Source -NewRootPath $DestRootPath
-    New-Item -Path $Dest -ItemType Directory -Force | Out-Null
-    Split-Discs -Path $Source -DestPath $Dest
   }
 }
 
@@ -483,4 +461,13 @@ function Update-LosslessLibrary {
     [Parameter(Mandatory = $True)]
     [string] $StagingPath
   )
+
+  $DiscDirs = Get-ChildItem -Path $OriginalPath -Directory -Recurse | Where-Object { -Not (Get-ChildItem -Path $_.FullName -Directory) }
+
+  $DiscDirs | Write-Progress -Activity 'Updating Lossless Library' -Status 'Splitting flac files' -CurrentOperation { "Splitting $_" } | ForEach-Object {
+    $Source = $_.FullName
+    $Dest = Resolve-RelativePath -RootPath $OriginalPath -Path $Source -NewRootPath $StagingPath
+    New-Item -Path $Dest -ItemType Directory -Force | Out-Null
+    Split-Discs -Path $Source -DestPath $Dest
+  }
 }
