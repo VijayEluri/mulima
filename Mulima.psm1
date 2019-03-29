@@ -10,10 +10,60 @@ function Resolve-RelativePath {
     [string] $NewRootPath
   )
 
-  $FullRootPath = [IO.Path]::GetFullPath($RootPath)
-  $FullNewRootPath = [IO.Path]::GetFullPath($NewRootPath)
-  $FullPath = [IO.Path]::GetFullPath($Path)
+  $FullRootPath = (Resolve-Path -Path (Join-Path -Path $RootPath -ChildPath '')).Path
+  $FullNewRootPath = (Resolve-Path -Path (Join-Path -Path $NewRootPath -ChildPath '')).Path
+  $FullPath = (Resolve-Path -Path $Path).Path
   $FullPath.Replace($FullRootPath, $FullNewRootPath)
+}
+
+function Watch-Progress {
+  [CmdletBinding()]
+  param(
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
+    [object[]] $InputObject,
+
+    [Parameter()]
+    [int] $Id = (Get-Random -Maximum 1000),
+
+    [Parameter()]
+    [int] $ParentId = -1,
+
+    [Parameter(Mandatory = $True)]
+    [string] $Activity,
+
+    [Parameter()]
+    [string] $Status,
+
+    [Parameter()]
+    [scriptblock] $CurrentOperation = { $_.ToString() }
+  )
+
+  $TotalStopWatch = [System.Diagnostics.Stopwatch]::New()
+  $TotalStopWatch.Start()
+  $PeriodStopWatch = [System.Diagnostics.Stopwatch]::New()
+  $PeriodStopWatch.Start()
+
+  $Data = @($Input)
+  $TotalCount = $Data.Count
+  $CurrentItem = 0
+
+  try {
+    Write-Progress -ParentId:$ParentId -Id:$Id -Activity:$Activity -Status:$Status
+    $Data | ForEach-Object {
+      $CurrentItem += 1
+      if ($PeriodStopWatch.ElapsedMilliseconds -gt 500 -or $CurrentItem -eq 0) {
+        $RemainingSeconds = $TotalStopWatch.ElapsedMilliseconds / $CurrentItem * ($TotalCount - $CurrentItem) / 1000
+        $CurrentOp = &$CurrentOperation
+        Write-Progress -ParentId:$ParentId -Id:$Id -Activity:$Activity -Status:$Status -CurrentOperation:$CurrentOp -PercentComplete ($CurrentItem / $TotalCount * 100) -SecondsRemaining $RemainingSeconds
+        $PeriodStopWatch.Restart()
+      }
+      Write-Output -InputObject $_
+    }
+  } finally {
+    Write-Progress -ParentId:$ParentId -Id:$Id -Activity:$Activity -Completed
+    $TotalStopWatch.Stop()
+    $PeriodStopWatch.Stop()
+  }
 }
 
 function Get-CuePoints {
@@ -397,6 +447,40 @@ function ConvertTo-Opus {
     [string] $Path,
 
     [Parameter(Mandatory = $True)]
-    [string] $DestPath
+    [string] $DestPath,
+
+    [Parameter()]
+    [int] $Bitrate = 128
+  )
+
+  opusenc '--quiet' '--bitrate' $Bitrate $Path $DestPath
+}
+
+function Update-LossyLibrary {
+  param(
+    [Parameter(Mandatory = $True)]
+    [string] $LosslessPath,
+
+    [Parameter(Mandatory = $True)]
+    [string] $LossyPath
+  )
+
+  $FlacFiles = Get-ChildItem -Path $LosslessPath -Recurse -Filter '*.flac'
+
+  $FlacFiles | Watch-Progress -Activity 'Updating Lossy Library' -Status 'Converting flac to opus' -CurrentOperation { "Converting $_" } | ForEach-Object {
+    $FlacPath = $_.FullName
+    $OpusPath = (Resolve-RelativePath -RootPath $LosslessPath -Path $FlacPath -NewRootPath $LossyPath).Replace('.flac', '.opus')
+    New-Item -Path (Split-Path -Path $OpusPath -Parent) -ItemType Directory -Force | Out-Null
+    ConvertTo-Opus -Path $FlacPath -DestPath $OpusPath
+  }
+}
+
+function Update-LosslessLibrary {
+  param(
+    [Parameter(Mandatory = $True)]
+    [string] $OriginalPath,
+
+    [Parameter(Mandatory = $True)]
+    [string] $StagingPath
   )
 }
