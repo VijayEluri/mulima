@@ -329,7 +329,7 @@ function Repair-SourceDir {
     } | ForEach-Object { [int]$_.Name }
 
     $FlacName = Split-Path -Path $CurrentDisc.FlacPath -Leaf
-    if (-not $DiscNumber) {
+    if (-not $DiscNumber -or @($DiscNumber).Count -gt 1) {
       $DiscNumber = [int](Read-Host -Prompt "What disc id this? $FlacName")
     }
 
@@ -391,14 +391,19 @@ function Split-Discs {
       $StartNum = 0
     }
     $FilePrefix = 'D{0:D3}T' -f $DiscNumber
-    $Cues | shntool split -q -i flac -o flac -O always -d $DestPath -a $FilePrefix -c $StartNum $FlacPath
+    if ($Cues.Count -gt 1) {
+      $Cues | shntool split -q -i flac -o flac -O always -d $DestPath -a $FilePrefix -c $StartNum $FlacPath
+    } else {
+      $Dest = Join-Path -Path $DestPath -ChildPath "$($FilePrefix)01.flac"
+      Copy-Item -Path $FlacPath -Destination $Dest
+    }
 
     if ($ArtworkPath) {
       $ImageArg = "--import-picture-from=$ArtworkPath"
     } else {
       $ImageArg = ''
     }
-    $TagArgs = $ExistingTags.PSObject.Properties | ForEach-Object { "--set-tag=$($_.Name)=$($_.Value)" }
+    $TagArgs = $ExistingTags.PSObject.Properties | ForEach-Object { "--set-tag=$($_.Name)=`"$($_.Value)`"" }
 
     Get-ChildItem -Path $DestPath -Filter "$($FilePrefix)*.flac" | ForEach-Object {
       if ($_.Name -match 'D\d+T(\d+).flac') {
@@ -459,14 +464,14 @@ function Update-LosslessLibrary {
     [string] $OriginalPath,
 
     [Parameter(Mandatory = $True)]
-    [string] $StagingPath
+    [string] $LosslessPath
   )
 
   $DiscDirs = Get-ChildItem -Path $OriginalPath -Directory -Recurse | Where-Object { -Not (Get-ChildItem -Path $_.FullName -Directory) }
 
-  $DiscDirs | Write-Progress -Activity 'Updating Lossless Library' -Status 'Splitting flac files' -CurrentOperation { "Splitting $_" } | ForEach-Object {
+  $DiscDirs | Watch-Progress -Activity 'Updating Lossless Library' -Status 'Splitting flac files' -CurrentOperation { "Splitting $_" } | ForEach-Object {
     $Source = $_.FullName
-    $Dest = Resolve-RelativePath -RootPath $OriginalPath -Path $Source -NewRootPath $StagingPath
+    $Dest = Resolve-RelativePath -RootPath $OriginalPath -Path $Source -NewRootPath $LosslessPath
     New-Item -Path $Dest -ItemType Directory -Force | Out-Null
     Split-Discs -Path $Source -DestPath $Dest
   }
