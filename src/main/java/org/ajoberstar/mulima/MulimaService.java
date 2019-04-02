@@ -1,7 +1,15 @@
 package org.ajoberstar.mulima;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.SubmissionPublisher;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+
 import org.ajoberstar.mulima.flow.Flows;
 import org.ajoberstar.mulima.meta.Metadata;
 import org.ajoberstar.mulima.service.LibraryService;
@@ -9,15 +17,6 @@ import org.ajoberstar.mulima.service.MetadataService;
 import org.ajoberstar.mulima.service.MusicBrainzService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.SubmissionPublisher;
 
 public class MulimaService extends Service implements AutoCloseable {
   private static final Logger logger = LogManager.getLogger(MulimaService.class);
@@ -143,10 +142,10 @@ public class MulimaService extends Service implements AutoCloseable {
       try {
         library.convert(meta, losslessDir, lossyDir);
         logger.info("Successfully converted: {}", meta.getSourceFile());
-//        successfulConversionsPublisher.submit(meta);
+        // successfulConversionsPublisher.submit(meta);
       } catch (Exception e) {
         logger.error("Failed to convert: {}", meta.getSourceFile(), e);
-//        failedConversionsPublisher.submit(meta);
+        // failedConversionsPublisher.submit(meta);
       }
     });
     validAlbumPublisher.subscribe(conversionSubscriber);

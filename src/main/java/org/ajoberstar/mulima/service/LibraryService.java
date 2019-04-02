@@ -1,27 +1,22 @@
 package org.ajoberstar.mulima.service;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.ajoberstar.mulima.audio.FlacCodec;
 import org.ajoberstar.mulima.audio.OpusEncoder;
 import org.ajoberstar.mulima.meta.Metadata;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileTime;
-import java.time.Instant;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public final class LibraryService {
   private static final Logger logger = LogManager.getLogger(LibraryService.class);
@@ -138,7 +133,7 @@ public final class LibraryService {
 
   private Optional<String> getCommonPathSafeTagValue(Metadata metadata, String tagName) {
     return metadata.getCommonTagValue(tagName)
-      .map(value -> value.replaceAll("[<>:\"\\*\\?\\|/\\\\]+", "_"));
+        .map(value -> value.replaceAll("[<>:\"\\*\\?\\|/\\\\]+", "_"));
   }
 
   private List<FileTime> getFileTimes(Path dir) {

@@ -2,7 +2,6 @@ package org.ajoberstar.mulima.meta;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;

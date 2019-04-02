@@ -88,7 +88,7 @@ Please set the JAVA_HOME variable in your environment to match the
 location of your Java installation."
 fi
 
-# Increase the maximum sourceFile descriptors if we can.
+# Increase the maximum file descriptors if we can.
 if [ "$cygwin" = "false" -a "$darwin" = "false" -a "$nonstop" = "false" ] ; then
     MAX_FD_LIMIT=`ulimit -H -n`
     if [ $? -eq 0 ] ; then
@@ -97,10 +97,10 @@ if [ "$cygwin" = "false" -a "$darwin" = "false" -a "$nonstop" = "false" ] ; then
         fi
         ulimit -n $MAX_FD
         if [ $? -ne 0 ] ; then
-            warn "Could not set maximum sourceFile descriptor limit: $MAX_FD"
+            warn "Could not set maximum file descriptor limit: $MAX_FD"
         fi
     else
-        warn "Could not query maximum sourceFile descriptor limit: $MAX_FD_LIMIT"
+        warn "Could not query maximum file descriptor limit: $MAX_FD_LIMIT"
     fi
 fi
 
@@ -111,8 +111,8 @@ fi
 
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin ; then
-    APP_HOME=`cygpath --flacPath --mixed "$APP_HOME"`
-    CLASSPATH=`cygpath --flacPath --mixed "$CLASSPATH"`
+    APP_HOME=`cygpath --path --mixed "$APP_HOME"`
+    CLASSPATH=`cygpath --path --mixed "$CLASSPATH"`
     JAVACMD=`cygpath --unix "$JAVACMD"`
 
     # We build the pattern for arguments to be converted via cygpath
@@ -134,7 +134,7 @@ if $cygwin ; then
         CHECK2=`echo "$arg"|egrep -c "^-"`                                 ### Determine if an option
 
         if [ $CHECK -ne 0 ] && [ $CHECK2 -eq 0 ] ; then                    ### Added a condition
-            eval `echo args$i`=`cygpath --flacPath --ignore --mixed "$arg"`
+            eval `echo args$i`=`cygpath --path --ignore --mixed "$arg"`
         else
             eval `echo args$i`="\"$arg\""
         fi
