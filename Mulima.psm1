@@ -68,20 +68,24 @@ function Watch-Progress {
 
 function Get-CuePoints {
   param(
-    [Parameter(Mandatory = $True)]
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
     [string] $Path
   )
-  $LineRegex = "\s*INDEX 01 (?<time>\d{2}:\d{2}:\d{2})\s*"
-  Get-Content -Path $Path | Where-Object { $_ -match $LineRegex } | ForEach-Object { $Matches.time }
+  Process {
+    $LineRegex = "\s*INDEX 01 (?<time>\d{2}:\d{2}:\d{2})\s*"
+    Get-Content -Path $Path | Where-Object { $_ -match $LineRegex } | ForEach-Object { $Matches.time }
+  }
 }
 
 function Get-VorbisComments {
   param(
-    [Parameter(Mandatory = $True)]
+    [Parameter(Mandatory = $True, ValueFromPipeline = $True)]
     [string] $Path
   )
-  $LineRegex = "\s*comment\[\d+\]: (?<tag>.+?)=(?<value>.+)"
-  metaflac '--list' '--block-type=VORBIS_COMMENT' $Path | Where-Object { $_ -match $LineRegex } | ForEach-Object { $Tags = @{} } { $Tags.Add($Matches.tag, $Matches.value) } { [pscustomobject]$Tags }
+  Process {
+    $LineRegex = "\s*comment\[\d+\]: (?<tag>.+?)=(?<value>.+)"
+    metaflac.exe '--list' '--block-type=VORBIS_COMMENT' $Path | Where-Object { $_ -match $LineRegex } | ForEach-Object { $Tags = @{ } } { $Tags.Add($Matches.tag, $Matches.value) } { [pscustomobject]$Tags }
+  }
 }
 
 function Get-DiscId {
@@ -94,8 +98,8 @@ function Get-DiscId {
   )
 
   $Cues = Get-CuePoints -Path $CuePath
-  $SampleRate = [int](metaflac '--show-sample-rate' $FlacPath | Out-String)
-  $TotalSamples = [int](metaflac '--show-total-samples' $FlacPath | Out-String)
+  $SampleRate = [int](metaflac.exe '--show-sample-rate' $FlacPath | Out-String)
+  $TotalSamples = [int](metaflac.exe '--show-total-samples' $FlacPath | Out-String)
 
   $LeadOutOffset = [int]($TotalSamples * 75 / $SampleRate + 150)
 
@@ -121,7 +125,7 @@ function Get-DiscId {
   $BaseString = $Parts -join ''
 
   $SHA1 = New-Object -TypeName System.Security.Cryptography.SHA1CryptoServiceProvider
-  $UTF8 = New-object -TypeName System.Text.UTF8Encoding
+  $UTF8 = New-Object -TypeName System.Text.UTF8Encoding
   $ShaBytes = $SHA1.ComputeHash($UTF8.GetBytes($BaseString))
   (([Convert]::ToBase64String($ShaBytes) -replace '\+', '.') -replace '/', '_') -replace '=', '-'
 }
@@ -148,7 +152,7 @@ function Get-Releases {
       'Artist'         = $Response.metadata.release.'artist-credit'.'name-credit'.'artist'.'name' -join ', '
       'Title'          = $Response.metadata.release.title
       'Disambiguation' = $Response.metadata.release.disambiguation
-      'DiscNumbers'    = [pscustomobject]@{}
+      'DiscNumbers'    = [pscustomobject]@{ }
       'DiscTotal'      = $Response.metadata.release.'medium-list'.count
       'Date'           = $Response.metadata.release.date
       'Country'        = $Response.metadata.release.'release-event-list'.'release-event'.area.name
@@ -177,7 +181,7 @@ function Get-Releases {
         'Artist'         = $_.'artist-credit'.'name-credit'.'artist'.'name' -join ', '
         'Title'          = $_.title
         'Disambiguation' = $_.disambiguation
-        'DiscNumbers'    = $_.'medium-list'.medium | ForEach-Object -Begin { $Discs = @{} } -End { [pscustomobject]$Discs  } -Process {
+        'DiscNumbers'    = $_.'medium-list'.medium | ForEach-Object -Begin { $Discs = @{ } } -End { [pscustomobject]$Discs } -Process {
           $DiscIds = $_.'disc-list'.disc.id
           $Discs.Add($_.position, $DiscIds)
         }
@@ -207,10 +211,10 @@ function Get-ReleaseTracks {
     return
   }
 
-  $Result = @{}
+  $Result = @{ }
   foreach ($Medium in $Response.metadata.release.'medium-list'.medium) {
     $DiscNumber = $Medium.position
-    $Disc = @{}
+    $Disc = @{ }
 
     foreach ($Track in $Medium.'track-list'.track) {
       $Disc.Add($Track.position, [pscustomobject]@{
@@ -253,11 +257,11 @@ function Repair-SourceDir {
   }
 
   if (Test-Path "$Path\folder.jpeg") {
-    magick "$Path\folder.jpeg" -resize '1000x1000>' "$Path\thumb.jpg"
+    magick.exe "$Path\folder.jpeg" -resize '1000x1000>' "$Path\thumb.jpg"
   } elseif (Test-Path "$Path\folder.jpg") {
-    magick "$Path\folder.jpg" -resize '1000x1000>' "$Path\thumb.jpg"
+    magick.exe "$Path\folder.jpg" -resize '1000x1000>' "$Path\thumb.jpg"
   } elseif (Test-Path "$Path\folder.png") {
-    magick "$Path\folder.png" -resize '1000x1000>' "$Path\thumb.png"
+    magick.exe "$Path\folder.png" -resize '1000x1000>' "$Path\thumb.png"
   }
 
   $CurrentState = Get-ChildItem -Path $Path -Filter '*.flac' | ForEach-Object {
@@ -343,7 +347,7 @@ function Repair-SourceDir {
       Write-Warning -Message "Disc number does not match file name: $($CurrentDisc.FlacPath)"
     }
 
-    metaflac '--remove-all-tags' "--set-tag=MUSICBRAINZ_ALBUMID=$($Release.ReleaseId)" "--set-tag=MUSICBRAINZ_DISCID=$($CurrentDisc.DiscId)" "--set-tag=ALBUMARTST=$Artist" "--set-tag=ALBUM=$Album" "--set-tag=DISCNUMBER=$DiscNumber" $CurrentDisc.FlacPath
+    metaflac.exe '--remove-all-tags' "--set-tag=MUSICBRAINZ_ALBUMID=$($Release.ReleaseId)" "--set-tag=MUSICBRAINZ_DISCID=$($CurrentDisc.DiscId)" "--set-tag=ALBUMARTST=$Artist" "--set-tag=ALBUM=$Album" "--set-tag=DISCNUMBER=$DiscNumber" $CurrentDisc.FlacPath
   }
 }
 
@@ -392,7 +396,7 @@ function Split-Discs {
     }
     $FilePrefix = 'D{0:D3}T' -f $DiscNumber
     if ($Cues.Count -gt 1) {
-      $Cues | shntool split -q -i flac -o flac -O always -d $DestPath -a $FilePrefix -c $StartNum $FlacPath
+      $Cues | shntool.exe split -q -i flac -o flac -O always -d $DestPath -a $FilePrefix -c $StartNum $FlacPath
     } else {
       $Dest = Join-Path -Path $DestPath -ChildPath "$($FilePrefix)01.flac"
       Copy-Item -Path $FlacPath -Destination $Dest
@@ -414,7 +418,7 @@ function Split-Discs {
       $TrackId = $TrackIds.$RealDiscNumber.$TrackNumber.TrackId
       $RecordingId = $TrackIds.$RealDiscNumber.$TrackNumber.RecordingId
       $Title = $TrackIds.$RealDiscNumber.$TrackNumber.Title
-      metaflac @TagArgs "--set-tag=TITLE=$Title" "--set-tag=MUSICBRAINZ_TRACKID=$RecordingId" "--set-tag=MUSICBRAINZ_RELEASETRACKID=$TrackId" "--set-tag=TRACKNUMBER=$TrackNumber" $ImageArg $_.FullName
+      metaflac.exe @TagArgs "--set-tag=TITLE=$Title" "--set-tag=MUSICBRAINZ_TRACKID=$RecordingId" "--set-tag=MUSICBRAINZ_RELEASETRACKID=$TrackId" "--set-tag=TRACKNUMBER=$TrackNumber" $ImageArg $_.FullName
     }
 
     $Track0 = Join-Path -Path $DestPath -ChildPath "$($FilePrefix)00.flac"
@@ -436,10 +440,11 @@ function ConvertTo-Opus {
     [int] $Bitrate = 128
   )
 
-  opusenc '--quiet' '--bitrate' $Bitrate $Path $DestPath
+  opusenc.exe '--quiet' '--bitrate' $Bitrate $Path $DestPath
 }
 
 function Update-LossyLibrary {
+  [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Medium')]
   param(
     [Parameter(Mandatory = $True)]
     [string] $LosslessPath,
@@ -453,15 +458,25 @@ function Update-LossyLibrary {
   $FlacFiles | Watch-Progress -Activity 'Updating Lossy Library' -Status 'Converting flac to opus' -CurrentOperation { "Converting $_" } | ForEach-Object {
     $FlacPath = $_.FullName
     $OpusPath = (Resolve-RelativePath -RootPath $LosslessPath -Path $FlacPath -NewRootPath $LossyPath).Replace('.flac', '.opus')
-    New-Item -Path (Split-Path -Path $OpusPath -Parent) -ItemType Directory -Force | Out-Null
-    ConvertTo-Opus -Path $FlacPath -DestPath $OpusPath
+
+    $FlacDate = (Get-Item -Path $FlacPath).LastWriteTime
+    if (Test-Path -Path $OpusPath -NewerThan $FlacDate) {
+      Write-Verbose "$FlacPath is up to date."
+    } elseif ($PSCmdlet.ShouldProcess($FlacPath, "Convert to opus")) {
+      New-Item -Path (Split-Path -Path $OpusPath -Parent) -ItemType Directory -Force | Out-Null
+      ConvertTo-Opus -Path $FlacPath -DestPath $OpusPath
+    }
   }
 }
 
 function Update-LosslessLibrary {
+  [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'Medium')]
   param(
     [Parameter(Mandatory = $True)]
     [string] $OriginalPath,
+
+    [Parameter(Mandatory = $True)]
+    [string] $StagingPath,
 
     [Parameter(Mandatory = $True)]
     [string] $LosslessPath
@@ -471,8 +486,23 @@ function Update-LosslessLibrary {
 
   $DiscDirs | Watch-Progress -Activity 'Updating Lossless Library' -Status 'Splitting flac files' -CurrentOperation { "Splitting $_" } | ForEach-Object {
     $Source = $_.FullName
-    $Dest = Resolve-RelativePath -RootPath $OriginalPath -Path $Source -NewRootPath $LosslessPath
-    New-Item -Path $Dest -ItemType Directory -Force | Out-Null
-    Split-Discs -Path $Source -DestPath $Dest
+    $Staging = Resolve-RelativePath -RootPath $OriginalPath -Path $Source -NewRootPath $StagingPath
+    $Dest = Resolve-RelativePath -RootPath $OriginalPath -Path $Source -NewRootPath $StagingPath
+
+    $ReleaseId = Get-ChildItem -Path $Source -Filter '*.flac' | ForEach-Object { Get-VorbisComments -Path $_.FullName } | Where-Object { $_.PSObject.Properties.Name -contains 'MUSICBRAINZ_ALBUMID' } | Select-Object -First 1 -ExpandProperty 'MUSICBRAINZ_ALBUMID'
+
+    $SourceDate = (Get-ChildItem -Path $Source | ForEach-Object { $_.LastWriteTime } | Measure-Object -Maximum).Maximum
+
+    $Staging = Join-Path -Path $StagingPath -ChildPath $ReleaseId
+    $Lossless = Join-Path -Path $LosslessPath -ChildPath $ReleaseId
+
+    $StagingUpToDate = (Test-Path -Path $Staging) -and (Get-ChildItem -Path $Staging | Test-Path -NewerThan $SourceDate) -contains $False
+    $LosslessUpToDate = (Test-Path -Path $Lossless) -and (Get-ChildItem -Path $Lossless | Test-Path -NewerThan $SourceDate) -contains $False
+    if ($StagingUpToDate -or $LosslessUpToDate) {
+      Write-Verbose "$Source is up to date."
+    } elseif ($PSCmdlet.ShouldProcess($Source, "Split flac disc files")) {
+      New-Item -Path $Staging -ItemType Directory -Force | Out-Null
+      Split-Discs -Path $Source -DestPath $Staging
+    }
   }
 }
