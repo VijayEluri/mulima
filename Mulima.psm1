@@ -347,7 +347,7 @@ function Repair-SourceDir {
       Write-Warning -Message "Disc number does not match file name: $($CurrentDisc.FlacPath)"
     }
 
-    metaflac.exe '--remove-all-tags' "--set-tag=MUSICBRAINZ_ALBUMID=$($Release.ReleaseId)" "--set-tag=MUSICBRAINZ_DISCID=$($CurrentDisc.DiscId)" "--set-tag=ALBUMARTST=$Artist" "--set-tag=ALBUM=$Album" "--set-tag=DISCNUMBER=$DiscNumber" $CurrentDisc.FlacPath
+    metaflac.exe '--remove-all-tags' "--set-tag=MUSICBRAINZ_ALBUMID=`"$($Release.ReleaseId)`"" "--set-tag=MUSICBRAINZ_DISCID=`"$($CurrentDisc.DiscId)`"" "--set-tag=ALBUMARTST=`"$Artist`"" "--set-tag=ALBUM=`"$Album`"" "--set-tag=DISCNUMBER=`"$DiscNumber`"" $CurrentDisc.FlacPath
   }
 }
 
@@ -403,7 +403,7 @@ function Split-Discs {
     }
 
     if ($ArtworkPath) {
-      $ImageArg = "--import-picture-from=$ArtworkPath"
+      $ImageArg = "--import-picture-from=`"$ArtworkPath`""
     } else {
       $ImageArg = ''
     }
@@ -418,7 +418,7 @@ function Split-Discs {
       $TrackId = $TrackIds.$RealDiscNumber.$TrackNumber.TrackId
       $RecordingId = $TrackIds.$RealDiscNumber.$TrackNumber.RecordingId
       $Title = $TrackIds.$RealDiscNumber.$TrackNumber.Title
-      metaflac.exe @TagArgs "--set-tag=TITLE=$Title" "--set-tag=MUSICBRAINZ_TRACKID=$RecordingId" "--set-tag=MUSICBRAINZ_RELEASETRACKID=$TrackId" "--set-tag=TRACKNUMBER=$TrackNumber" $ImageArg $_.FullName
+      metaflac.exe @TagArgs "--set-tag=TITLE=`"$Title`"" "--set-tag=MUSICBRAINZ_TRACKID=`"$RecordingId`"" "--set-tag=MUSICBRAINZ_RELEASETRACKID=`"$TrackId`"" "--set-tag=TRACKNUMBER=`"$TrackNumber`"" $ImageArg $_.FullName
     }
 
     $Track0 = Join-Path -Path $DestPath -ChildPath "$($FilePrefix)00.flac"
@@ -484,7 +484,7 @@ function Update-LosslessLibrary {
 
   $DiscDirs = Get-ChildItem -Path $OriginalPath -Directory -Recurse | Where-Object { -Not (Get-ChildItem -Path $_.FullName -Directory) }
 
-  $DiscDirs | Watch-Progress -Activity 'Updating Lossless Library' -Status 'Splitting flac files' -CurrentOperation { "Splitting $_" } | ForEach-Object {
+  $ToSplit = $DiscDirs | Watch-Progress -Activity 'Updating Lossless Library' -Status 'Scanning for updates' -CurrentOperation { "Scanning $_" } | ForEach-Object {
     $Source = $_.FullName
     $Staging = Resolve-RelativePath -RootPath $OriginalPath -Path $Source -NewRootPath $StagingPath
     $Dest = Resolve-RelativePath -RootPath $OriginalPath -Path $Source -NewRootPath $StagingPath
@@ -496,13 +496,23 @@ function Update-LosslessLibrary {
     $Staging = Join-Path -Path $StagingPath -ChildPath $ReleaseId
     $Lossless = Join-Path -Path $LosslessPath -ChildPath $ReleaseId
 
-    $StagingUpToDate = (Test-Path -Path $Staging) -and (Get-ChildItem -Path $Staging | Test-Path -NewerThan $SourceDate) -contains $False
-    $LosslessUpToDate = (Test-Path -Path $Lossless) -and (Get-ChildItem -Path $Lossless | Test-Path -NewerThan $SourceDate) -contains $False
-    if ($StagingUpToDate -or $LosslessUpToDate) {
-      Write-Verbose "$Source is up to date."
-    } elseif ($PSCmdlet.ShouldProcess($Source, "Split flac disc files")) {
-      New-Item -Path $Staging -ItemType Directory -Force | Out-Null
-      Split-Discs -Path $Source -DestPath $Staging
+    [pscustomobject]@{
+      'Source'   = $Source
+      'Staging'  = $Staging
+      'Lossless' = $Lossless
+    }
+  } | Where-Object {
+    $Dir = $_
+    $SourceDate = (Get-ChildItem -Path $Dir.Source | ForEach-Object { $_.LastWriteTime } | Measure-Object -Maximum).Maximum
+    $StagingUpToDate = (Test-Path -Path $Dir.Staging) -and (Get-ChildItem -Path $Dir.Staging | Test-Path -NewerThan $SourceDate) -notcontains $False
+    $LosslessUpToDate = (Test-Path -Path $Dir.Lossless) -and (Get-ChildItem -Path $Dir.Lossless | Test-Path -NewerThan $SourceDate) -notcontains $False
+    -not ($StagingUpToDate -or $LosslessUpToDate)
+  }
+
+  $ToSplit | Watch-Progress -Activity 'Updating Lossless Library' -Status 'Splitting flac files' -CurrentOperation { "Splitting $($_.Source)" } | ForEach-Object {
+    if ($PSCmdlet.ShouldProcess($_.Source, "Split flac disc files")) {
+      New-Item -Path $_.Staging -ItemType Directory -Force | Out-Null
+      Split-Discs -Path $_.Source -DestPath $_.Staging
     }
   }
 }
