@@ -50,10 +50,6 @@ dependencies {
   implementation 'com.fasterxml.jackson.core:jackson-core:latest.release'
   implementation 'com.fasterxml.jackson.core:jackson-databind:latest.release'
   implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:latest.release'
-
-  // metrics
-  implementation 'io.micrometer:micrometer-core:latest.release'
-  implementation 'io.micrometer:micrometer-registry-influx:latest.release'
 }
 
 spotless {

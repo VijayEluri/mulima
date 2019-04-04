@@ -1,21 +1,9 @@
 package org.ajoberstar.mulima.init;
 
-import io.micrometer.core.instrument.Clock;
-import io.micrometer.core.instrument.MeterRegistry;
-import io.micrometer.core.instrument.Metrics;
-import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics;
-import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics;
-import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics;
-import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics;
-import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
-import io.micrometer.influx.InfluxConfig;
-import io.micrometer.influx.InfluxMeterRegistry;
 import org.ajoberstar.mulima.MulimaService;
 import org.ajoberstar.mulima.audio.Flac;
 import org.ajoberstar.mulima.audio.OpusEnc;
 import org.ajoberstar.mulima.meta.CueSheet;
-import org.ajoberstar.mulima.meta.MetadataParser;
-import org.ajoberstar.mulima.meta.MetadataWriter;
 import org.ajoberstar.mulima.meta.Metaflac;
 import org.ajoberstar.mulima.meta.OpusInfo;
 import org.ajoberstar.mulima.service.LibraryService;
@@ -30,39 +18,12 @@ import org.springframework.core.env.Environment;
 
 import java.net.http.HttpClient;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.UUID;
 
 @Configuration
 @PropertySource("file:///${APPDATA}/mulima/mulima.properties")
 public class SpringConfig {
   @Autowired
   private Environment env;
-
-  @Bean
-  public MeterRegistry influx() {
-    var config = new InfluxConfig() {
-      @Override
-      public String get(String key) {
-        return env.getProperty("micrometer." + key);
-      }
-    };
-    var registry = InfluxMeterRegistry.builder(config)
-        .clock(Clock.SYSTEM)
-        .build();
-
-    Metrics.addRegistry(registry);
-    Metrics.globalRegistry.config().commonTags(
-        "application", "mulima",
-        "execution", UUID.randomUUID().toString());
-    new ClassLoaderMetrics().bindTo(Metrics.globalRegistry);
-    new JvmMemoryMetrics().bindTo(Metrics.globalRegistry);
-    new JvmGcMetrics().bindTo(Metrics.globalRegistry);
-    new ProcessorMetrics().bindTo(Metrics.globalRegistry);
-    new JvmThreadMetrics().bindTo(Metrics.globalRegistry);
-
-    return registry;
-  }
 
   @Bean
   public ProcessService process() {

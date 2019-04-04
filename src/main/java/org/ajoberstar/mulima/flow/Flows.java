@@ -8,9 +8,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-import io.micrometer.core.instrument.Metrics;
-import io.micrometer.core.instrument.binder.jvm.ExecutorServiceMetrics;
-
 public final class Flows {
   private Flows() {
     // do nothing
@@ -34,9 +31,7 @@ public final class Flows {
 
   public static ExecutorService newExecutorService(String name, int poolSize) {
     var threadFactory = new NamingThreadFactory(name);
-    var executor = Executors.newFixedThreadPool(poolSize, threadFactory);
-    ExecutorServiceMetrics.monitor(Metrics.globalRegistry, executor, name);
-    return executor;
+    return Executors.newFixedThreadPool(poolSize, threadFactory);
   }
 
   private static class NamingThreadFactory implements ThreadFactory {

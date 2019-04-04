@@ -1,5 +1,8 @@
 package org.ajoberstar.mulima.flow;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -8,17 +11,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Flow;
 import java.util.function.Consumer;
 
-import io.micrometer.core.instrument.Counter;
-import io.micrometer.core.instrument.Metrics;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 class SimpleSubscriber<T> implements Flow.Subscriber<T>, AutoCloseable {
   private static final Logger logger = LogManager.getLogger(SimpleSubscriber.class);
-
-  private final Counter receivedItems;
-  private final Counter processedItems;
-  private final Counter failedItems;
 
   private final String name;
   private final ExecutorService executor;
@@ -35,16 +29,6 @@ class SimpleSubscriber<T> implements Flow.Subscriber<T>, AutoCloseable {
     this.itemHandler = itemHandler;
     this.errorHandler = errorHandler;
     this.subscription = null;
-
-    this.receivedItems = Counter.builder("subscriber.items.received")
-        .tag("subscriber.name", name)
-        .register(Metrics.globalRegistry);
-    this.processedItems = Counter.builder("subscriber.items.processed")
-        .tag("subscriber.name", name)
-        .register(Metrics.globalRegistry);
-    this.failedItems = Counter.builder("subscriber.items.failed")
-        .tag("subscriber.name", name)
-        .register(Metrics.globalRegistry);
   }
 
   // Subscriber API
@@ -62,17 +46,14 @@ class SimpleSubscriber<T> implements Flow.Subscriber<T>, AutoCloseable {
   @Override
   public void onNext(T item) {
     logger.debug("{} received item: {}", name, item);
-    receivedItems.increment();
     if (buffer.offer(item)) {
       logger.trace("{} added item to queue: {}", name, item);
       CompletableFuture.completedFuture(buffer.poll())
           .thenAcceptAsync(itemHandler, executor)
           .handle((result, e) -> {
             if (e == null) {
-              processedItems.increment();
               logger.debug("{} item successfully processed: {}", name, item);
             } else {
-              failedItems.increment();
               logger.error("{} item failed processing: {}", name, item, e);
             }
             subscription.request(1);

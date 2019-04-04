@@ -24,10 +24,6 @@ module org.ajoberstar.mulima {
   requires com.fasterxml.jackson.databind;
   requires com.fasterxml.jackson.dataformat.yaml;
 
-  // metrics
-  requires micrometer.core;
-  requires micrometer.registry.influx;
-
   // exports
   opens org.ajoberstar.mulima.init to spring.core, spring.beans, spring.context;
   opens org.ajoberstar.mulima.meta to javafx.base, org.apache.commons.lang3;

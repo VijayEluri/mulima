@@ -1,26 +1,5 @@
 package org.ajoberstar.mulima.service;
 
-import static org.ajoberstar.mulima.util.XmlDocuments.getText;
-
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import io.micrometer.core.instrument.util.IOUtils;
 import org.ajoberstar.mulima.meta.CuePoint;
 import org.ajoberstar.mulima.meta.Metadata;
 import org.ajoberstar.mulima.meta.Metaflac;
@@ -31,6 +10,23 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.ajoberstar.mulima.util.XmlDocuments.getText;
 
 public final class MusicBrainzService {
   private static final Logger logger = LogManager.getLogger(MusicBrainzService.class);
@@ -304,7 +300,9 @@ public final class MusicBrainzService {
           return Optional.empty();
         } else {
           // FIXME
-          logger.error("Error {} at {}: {}", response.statusCode(), uri, IOUtils.toString(response.body()));
+          var streamStr = new ByteArrayOutputStream();
+          response.body().transferTo(streamStr);
+          logger.error("Error {} at {}: {}", response.statusCode(), uri, streamStr.toString());
           // TODO do better
           throw new RuntimeException("Something bad: " + response.toString());
         }
