@@ -20,6 +20,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
@@ -105,10 +106,23 @@ public final class MusicBrainzService {
 
     primaryReleaseType.ifPresent(value -> builder.addTag("releasetype", releaseType));
 
-    getText(release, "metadata", "label-info-list", "label-info", "label", "name").ifPresent(value -> builder.addTag("label", value));
-    getText(release, "metadata", "label-info-list", "label-info", "catalog-number").ifPresent(value -> builder.addTag("catalognumber", value));
+    getText(release, "label-info-list", "label-info", "label", "name").ifPresent(value -> builder.addTag("label", value));
+    getText(release, "label-info-list", "label-info", "catalog-number").ifPresent(value -> builder.addTag("catalognumber", value));
 
-    // TODO genre
+    var releaseGenres = XmlDocuments.getChildren(release, "genre-list", "genre")
+        .sorted(Comparator.<Node, Integer>comparing(genre -> XmlDocuments.getText(genre, "@count").map(Integer::parseInt).orElse(0)).reversed())
+        .flatMap(genre -> XmlDocuments.getText(genre, "name").stream())
+        .limit(5)
+        .collect(Collectors.toList());
+
+    var artistGenres = XmlDocuments.getChildren(release, "artist-credit", "name-credit", "artist", "genre-list", "genre")
+        .sorted(Comparator.<Node, Integer>comparing(genre -> XmlDocuments.getText(genre, "@count").map(Integer::parseInt).orElse(0)).reversed())
+        .flatMap(genre -> XmlDocuments.getText(genre, "name").stream())
+        .limit(5)
+        .collect(Collectors.toList());
+
+    var genres = releaseGenres.isEmpty() ? artistGenres : releaseGenres;
+    genres.forEach(genre -> builder.addTag("genre", genre));
 
     XmlDocuments.getChildren(release, "artist-credit")
         .forEach(credit -> handleAlbumArtistCredit(credit, builder));
@@ -131,9 +145,8 @@ public final class MusicBrainzService {
     getText(track, "position").ifPresent(value -> builder.addTag("tracknumber", value));
     getText(track, "recording", "title").ifPresent(value -> builder.addTag("title", value)); // TODO use work title?
 
-    // TODO this or the recording artist?
-//    XmlDocuments.getChildren(track, "artist-credit")
-//        .forEach(credit -> handleArtistCredit(credit, builder));
+    XmlDocuments.getChildren(track, "artist-credit")
+        .forEach(credit -> handleArtistCredit(credit, builder));
 
     XmlDocuments.getChildren(track, "recording").forEach(recording -> {
       handleRecording(recording, builder);
@@ -143,8 +156,6 @@ public final class MusicBrainzService {
 
   private void handleRecording(Node recording, Metadata.Builder builder) {
     getText(recording, "@id").ifPresent(value -> builder.addTag("musicbrainz_recordingid", value));
-    XmlDocuments.getChildren(recording, "artist-credit")
-        .forEach(credit -> handleArtistCredit(credit, builder));
 
     XmlDocuments.getChildren(recording, "relation-list")
         .filter(relList -> "artist".equals(XmlDocuments.getAttribute(relList, "target-type")))
@@ -153,19 +164,18 @@ public final class MusicBrainzService {
 
     XmlDocuments.getChildren(recording, "relation-list")
         .filter(rel -> "work".equals(XmlDocuments.getAttribute(rel, "target-type")))
-        .flatMap(workRel -> XmlDocuments.getChildren(workRel, "work"))
+        .flatMap(workRel -> XmlDocuments.getChildren(workRel, "relation", "work"))
         .forEach(work -> handleWork(work, builder));
   }
 
   private void handleWork(Node work, Metadata.Builder builder) {
     getText(work, "@id").ifPresent(value -> builder.addTag("musicbrainz_workid", value));
+    getText(work, "title").ifPresent(value -> builder.addTag("work", value));
 
     XmlDocuments.getChildren(work, "relation-list")
         .filter(relList -> "artist".equals(XmlDocuments.getAttribute(relList, "target-type")))
         .flatMap(relList -> XmlDocuments.getChildren(relList, "relation"))
         .forEach(rel -> handleArtistRel(rel, builder));
-
-    // TODO identify parent works for movements and movement numbers?
   }
 
   private void handleArtistRel(Node rel, Metadata.Builder meta) {
