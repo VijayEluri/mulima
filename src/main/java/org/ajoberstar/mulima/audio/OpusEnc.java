@@ -5,12 +5,12 @@ import java.util.ArrayList;
 
 import org.ajoberstar.mulima.service.ProcessService;
 
-public class OpusEncoder implements AudioEncoder {
+public class OpusEnc implements AudioEncoder {
   private final String path;
   private final int bitrate;
   private final ProcessService process;
 
-  public OpusEncoder(String path, int bitrate, ProcessService process) {
+  public OpusEnc(String path, int bitrate, ProcessService process) {
     this.path = path;
     this.bitrate = bitrate;
     this.process = process;

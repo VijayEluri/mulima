@@ -1,27 +1,22 @@
 package org.ajoberstar.mulima.meta;
 
+import org.ajoberstar.mulima.service.ProcessService;
+
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.ajoberstar.mulima.service.ProcessService;
-
-public final class MetaflacTagger implements MetadataParser, MetadataWriter {
-  private static final Pattern REGEX = Pattern.compile("comment\\[[0-9]+\\]: ([A-Za-z]+)=(.+)");
+public final class Metaflac implements MetadataParser, MetadataWriter {
+  private static final Pattern REGEX = Pattern.compile("comment\\[\\d+\\]: (?<tag>.+?)=(?<value>.+)");
 
   private final String path;
   private final ProcessService process;
 
-  public MetaflacTagger(String path, ProcessService process) {
+  public Metaflac(String path, ProcessService process) {
     this.path = path;
     this.process = process;
-  }
-
-  @Override
-  public boolean accepts(Path file) {
-    return file.getFileName().toString().endsWith(".flac");
   }
 
   @Override
@@ -35,16 +30,13 @@ public final class MetaflacTagger implements MetadataParser, MetadataWriter {
     var result = process.execute(command).assertSuccess();
 
     var builder = Metadata.builder("vorbis");
-    builder.setSourceFile(file);
-    builder.setAudioFile(file);
-
     result.getOutput().lines()
         .map(String::trim)
         .map(REGEX::matcher)
         .filter(Matcher::matches)
         .forEach(matcher -> {
-          var name = matcher.group(1);
-          var value = matcher.group(2);
+          var name = matcher.group("tag");
+          var value = matcher.group("value");
           builder.addTag(name, value);
         });
     return builder.build();
@@ -58,8 +50,8 @@ public final class MetaflacTagger implements MetadataParser, MetadataWriter {
 
     // FIXME add the artwork
 
-    var translated = meta.translate("vorbis");
-    translated.getTags().entrySet().stream()
+    var translated = meta.translateTags("vorbis");
+    translated.entrySet().stream()
         .flatMap(entry -> {
           var tag = entry.getKey();
           return entry.getValue().stream()

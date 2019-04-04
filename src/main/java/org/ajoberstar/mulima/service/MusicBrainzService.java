@@ -12,6 +12,7 @@ import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
@@ -22,7 +23,7 @@ import java.util.stream.Stream;
 import io.micrometer.core.instrument.util.IOUtils;
 import org.ajoberstar.mulima.meta.CuePoint;
 import org.ajoberstar.mulima.meta.Metadata;
-import org.ajoberstar.mulima.meta.MetaflacTagger;
+import org.ajoberstar.mulima.meta.Metaflac;
 import org.ajoberstar.mulima.util.XmlDocuments;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -35,46 +36,34 @@ public final class MusicBrainzService {
   private static final Logger logger = LogManager.getLogger(MusicBrainzService.class);
 
   private final HttpClient http;
-  private final MetaflacTagger metaflac;
+  private final Metaflac metaflac;
   private final Path cachePath;
 
   private final ReentrantLock rateLimitLock;
 
-  public MusicBrainzService(HttpClient http, MetaflacTagger metaflac, Path cachePath) {
+  public MusicBrainzService(HttpClient http, Metaflac metaflac, Path cachePath) {
     this.http = http;
     this.metaflac = metaflac;
     this.cachePath = cachePath;
     this.rateLimitLock = new ReentrantLock();
   }
 
-  public String calculateDiscId(List<Metadata> tracks, Path flacFile) {
-    Function<Metadata, Integer> trackNum = track -> track.getTags().getOrDefault("tracknumber", List.of()).stream()
-        .findFirst()
-        .map(Integer::parseInt)
-        .orElse(-1);
-
-    var firstTrack = tracks.stream()
-        .map(trackNum)
-        .min(Comparator.naturalOrder())
-        .orElse(-1);
-    var lastTrack = tracks.stream()
-        .map(trackNum)
-        .max(Comparator.naturalOrder())
-        .orElse(-1);
+  public String calculateDiscId(Path flacFile, List<CuePoint> cues) {
+    var firstTrack = 1;
+    var lastTrack = cues.size();
 
     var sampleRate = metaflac.getSampleRate(flacFile);
     var sampleTotal = metaflac.getTotalSamples(flacFile);
 
-    var offsets = tracks.stream()
-        .collect(Collectors.toMap(trackNum, this::calculateOffset));
+    var cueOffsets = cues.stream().map(CuePoint::getOffset);
     var leadOutOffset = sampleTotal * 75 / sampleRate + 150;
-    offsets.put(0, (int) leadOutOffset);
+    var offsets = Stream.concat(Stream.of(leadOutOffset), cueOffsets).collect(Collectors.toList());
 
     var str = new StringBuilder();
     str.append(String.format("%02X", firstTrack));
     str.append(String.format("%02X", lastTrack));
     for (var i = 0; i < 100; i++) {
-      var offset = offsets.getOrDefault(i, 0);
+      var offset = i < offsets.size() ? offsets.get(i) : 0;
       str.append(String.format("%08X", offset));
     }
 
@@ -84,45 +73,33 @@ public final class MusicBrainzService {
         .replaceAll("=", "-");
   }
 
-  private int calculateOffset(Metadata track) {
-    return track.getCues().stream()
-        .filter(cue -> cue.getIndex() == 1)
-        .mapToInt(CuePoint::getOffset)
-        .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Track does not have cue point with index 1: " + track));
-  }
-
-  public List<Metadata> lookupByDiscId(String discId) {
+  public List<String> lookupByDiscId(String discId) {
     var uri = safeUri("https://musicbrainz.org/ws/2/discid/%s", discId);
     return getXml(uri).stream().flatMap(doc -> {
-      return XmlDocuments.getChildren(doc, "metadata", "disc", "release-list", "release")
-          .map(release -> handleRelease(release))
-          .map(meta -> meta.setSourceFile(cachePath(uri)))
-          .map(Metadata.Builder::build);
+      return XmlDocuments.getChildren(doc, "metadata", "disc", "release-list", "release", "@id")
+          .map(Node::getTextContent);
     }).collect(Collectors.toList());
   }
 
-  public Optional<Metadata> lookupByReleaseId(String releaseId) {
-    var uri = safeUri("https://musicbrainz.org/ws/2/release/%s?inc=recordings+artists+release-groups+labels", releaseId);
-    return getXml(uri).flatMap(doc -> {
+  public Optional<List<Metadata>> lookupByReleaseId(String releaseId) {
+    var uri = safeUri("https://musicbrainz.org/ws/2/release/%s?inc=artists+artist-rels+artist-credits+recordings+recording-level-rels+work-rels+work-level-rels+release-groups+release-group-rels+labels+genres+aliases", releaseId);
+    return getXml(uri).map(doc -> {
       return XmlDocuments.getChildren(doc, "metadata", "release")
-          .map(release -> handleRelease(release))
-          .map(meta -> meta.setSourceFile(cachePath(uri)))
-          .map(Metadata.Builder::build)
-          .findAny();
+          .flatMap(release -> handleRelease(release))
+          .collect(Collectors.toList());
     });
   }
 
-  private Metadata.Builder handleRelease(Node release) {
-    var meta = Metadata.builder("generic");
+  private Stream<Metadata> handleRelease(Node release) {
+    var builder = Metadata.builder("generic");
 
-    getText(release, "@id").ifPresent(value -> meta.addTag("musicbrainz_albumid", value));
-    getText(release, "title").ifPresent(value -> meta.addTag("album", value));
-    getText(release, "date").ifPresent(value -> meta.addTag("date", value));
-    getText(release, "barcode").ifPresent(value -> meta.addTag("barcode", value));
+    getText(release, "@id").ifPresent(value -> builder.addTag("musicbrainz_releaseid", value));
+    getText(release, "title").ifPresent(value -> builder.addTag("album", value)); // TODO disambiguation
+    getText(release, "date").ifPresent(value -> builder.addTag("date", value));
+    getText(release, "barcode").ifPresent(value -> builder.addTag("barcode", value));
 
-    getText(release, "release-group", "@id").ifPresent(value -> meta.addTag("musicbrainz_releasegroupid", value));
-    getText(release, "release-group", "first-release-date").ifPresent(value -> meta.addTag("originaldate", value));
+    getText(release, "release-group", "@id").ifPresent(value -> builder.addTag("musicbrainz_releasegroupid", value));
+    getText(release, "release-group", "first-release-date").ifPresent(value -> builder.addTag("originaldate", value));
 
     var primaryReleaseType = getText(release, "release-group", "primary-type");
     var secondaryReleaseTypes = XmlDocuments.getChildren(release, "release-group", "secondary-type-list", "secondary-type")
@@ -130,86 +107,74 @@ public final class MusicBrainzService {
     var releaseType = Stream.concat(primaryReleaseType.stream(), secondaryReleaseTypes)
         .collect(Collectors.joining(" + "));
 
-    primaryReleaseType.ifPresent(value -> meta.addTag("releasetype", releaseType));
+    primaryReleaseType.ifPresent(value -> builder.addTag("releasetype", releaseType));
 
-    getText(release, "metadata", "label-info-list", "label-info", "label", "name").ifPresent(value -> meta.addTag("label", value));
-    getText(release, "metadata", "label-info-list", "label-info", "catalog-number").ifPresent(value -> meta.addTag("catalognumber", value));
+    getText(release, "metadata", "label-info-list", "label-info", "label", "name").ifPresent(value -> builder.addTag("label", value));
+    getText(release, "metadata", "label-info-list", "label-info", "catalog-number").ifPresent(value -> builder.addTag("catalognumber", value));
 
-    XmlDocuments.getChildren(release, "artist-credit", "name-credit", "artist", "@id")
-        .map(Node::getTextContent)
-        .forEach(value -> meta.addTag("musicbrainz_albumartistid", value));
-    XmlDocuments.getChildren(release, "artist-credit", "name-credit", "artist", "name")
-        .map(Node::getTextContent)
-        .forEach(value -> meta.addTag("albumartist", value));
-    XmlDocuments.getChildren(release, "artist-credit", "name-credit", "artist", "sort-name")
-        .map(Node::getTextContent)
-        .forEach(value -> meta.addTag("albumartistsort", value));
+    // TODO genre
 
-    XmlDocuments.getChildren(release, "medium-list", "medium")
-        .forEach(medium -> handleMedium(medium, meta));
+    XmlDocuments.getChildren(release, "artist-credit")
+        .forEach(credit -> handleAlbumArtistCredit(credit, builder));
 
-    return meta;
+    var meta = builder.build();
+    return XmlDocuments.getChildren(release, "medium-list", "medium")
+        .flatMap(medium -> handleMedium(medium, meta.copy()));
   }
 
-  private void handleMedium(Node medium, Metadata.Builder parent) {
-    var meta = parent.newChild();
-    getText(medium, "position").ifPresent(value -> meta.addTag("discnumber", value));
-
-    XmlDocuments.getChildren(medium, "track-list", "track")
-        .forEach(track -> handleTrack(track, meta));
+  private Stream<Metadata> handleMedium(Node medium, Metadata.Builder builder) {
+    getText(medium, "title").ifPresent(value -> builder.addTag("discsubtitle", value));
+    getText(medium, "position").ifPresent(value -> builder.addTag("discnumber", value));
+    var meta = builder.build();
+    return XmlDocuments.getChildren(medium, "track-list", "track")
+        .map(track -> handleTrack(track, meta.copy()));
   }
 
-  private void handleTrack(Node track, Metadata.Builder parent) {
-    var meta = parent.newChild();
+  private Metadata handleTrack(Node track, Metadata.Builder builder) {
+    getText(track, "@id").ifPresent(value -> builder.addTag("musicbrainz_trackid", value));
+    getText(track, "position").ifPresent(value -> builder.addTag("tracknumber", value));
+    getText(track, "recording", "title").ifPresent(value -> builder.addTag("title", value)); // TODO use work title?
 
-    getText(track, "@id").ifPresent(value -> meta.addTag("musicbrainz_trackid", value));
-    getText(track, "position").ifPresent(value -> meta.addTag("tracknumber", value));
-    getText(track, "recording", "title").ifPresent(value -> meta.addTag("title", value));
+    // TODO this or the recording artist?
+//    XmlDocuments.getChildren(track, "artist-credit")
+//        .forEach(credit -> handleArtistCredit(credit, builder));
 
-    getText(track, "recording", "@id").ifPresent(value -> {
-      handleRecording(value, meta);
+    XmlDocuments.getChildren(track, "recording").forEach(recording -> {
+      handleRecording(recording, builder);
     });
+    return builder.build();
   }
 
-  private void handleRecording(String recordingId, Metadata.Builder meta) {
-    var maybeDoc = getXml("https://musicbrainz.org/ws/2/recording/%s?inc=artists+work-rels", recordingId);
-    meta.addTag("musicbrainz_recordingid", recordingId);
-    maybeDoc.ifPresent(doc -> {
-      XmlDocuments.getChildren(doc, "metadata", "recording", "artist-credit", "name-credit", "artist", "@id")
-          .map(Node::getTextContent)
-          .forEach(value -> meta.addTag("musicbrainz_artistid", value));
-      XmlDocuments.getChildren(doc, "metadata", "recording", "artist-credit", "name-credit", "artist", "name")
-          .map(Node::getTextContent)
-          .forEach(value -> meta.addTag("artist", value));
-      XmlDocuments.getChildren(doc, "metadata", "recording", "artist-credit", "name-credit", "artist", "sort-name")
-          .map(Node::getTextContent)
-          .forEach(value -> meta.addTag("artistsort", value));
+  private void handleRecording(Node recording, Metadata.Builder builder) {
+    getText(recording, "@id").ifPresent(value -> builder.addTag("musicbrainz_recordingid", value));
+    XmlDocuments.getChildren(recording, "artist-credit")
+        .forEach(credit -> handleArtistCredit(credit, builder));
 
-      XmlDocuments.getChildren(doc, "metadata", "recording", "relation-list")
-          .filter(rel -> "work".equals(XmlDocuments.getAttribute(rel, "target-type")))
-          .findFirst()
-          .flatMap(rel -> getText(rel, "relation", "work", "@id"))
-          .ifPresent(value -> handleWork(value, meta));
-    });
+    XmlDocuments.getChildren(recording, "relation-list")
+        .filter(relList -> "artist".equals(XmlDocuments.getAttribute(relList, "target-type")))
+        .flatMap(relList -> XmlDocuments.getChildren(relList, "relation"))
+        .forEach(rel -> handleArtistRel(rel, builder));
+
+    XmlDocuments.getChildren(recording, "relation-list")
+        .filter(rel -> "work".equals(XmlDocuments.getAttribute(rel, "target-type")))
+        .flatMap(workRel -> XmlDocuments.getChildren(workRel, "work"))
+        .forEach(work -> handleWork(work, builder));
   }
 
-  private void handleWork(String workId, Metadata.Builder meta) {
-    meta.addTag("musicbrainz_workid", workId);
+  private void handleWork(Node work, Metadata.Builder builder) {
+    getText(work, "@id").ifPresent(value -> builder.addTag("musicbrainz_workid", value));
 
-    var maybeDoc = getXml("https://musicbrainz.org/ws/2/work/%s?inc=artist-rels", workId);
-    if (maybeDoc.isPresent()) {
-      var doc = maybeDoc.get();
+    XmlDocuments.getChildren(work, "relation-list")
+        .filter(relList -> "artist".equals(XmlDocuments.getAttribute(relList, "target-type")))
+        .flatMap(relList -> XmlDocuments.getChildren(relList, "relation"))
+        .forEach(rel -> handleArtistRel(rel, builder));
 
-      XmlDocuments.getChildren(doc, "metadata", "work", "relation-list")
-          .filter(relList -> "artist".equals(XmlDocuments.getAttribute(relList, "target-type")))
-          .flatMap(relList -> XmlDocuments.getChildren(relList, "relation"))
-          .forEach(rel -> handleArtistRel(rel, meta));
-    }
+    // TODO identify parent works for movements and movement numbers?
   }
 
   private void handleArtistRel(Node rel, Metadata.Builder meta) {
     var type = XmlDocuments.getAttribute(rel, "type");
-    var name = XmlDocuments.getText(rel, "artist", "name");
+    var name = XmlDocuments.getText(rel, "target-credit").or(() -> XmlDocuments.getText(rel, "artist", "name"));
     var sortName = XmlDocuments.getText(rel, "artist", "sort-name");
     switch (type) {
       case "composer":
@@ -225,6 +190,78 @@ public final class MusicBrainzService {
       default:
         // TODO log
     }
+  }
+
+  private void handleAlbumArtistCredit(Node credit, Metadata.Builder meta) {
+    XmlDocuments.getChildren(credit, "name-credit")
+        .flatMap(nameCredit -> XmlDocuments.getText(nameCredit, "artist", "@id").stream())
+        .forEach(value -> meta.addTag("musicbrainz_albumartistid", value));
+
+    var joinedName = XmlDocuments.getChildren(credit, "name-credit")
+        .map(nameCredit -> {
+          var name = XmlDocuments.getChildren(nameCredit, "artist", "alias-list", "alias")
+              .filter(alias -> "primary".equals(XmlDocuments.getText(alias, "@primary").orElse("notprimary")))
+              .filter(alias -> "en".equals(XmlDocuments.getText(alias, "@locale").orElse("noten")))
+              .map(Node::getTextContent)
+              .findFirst()
+              .or(() -> XmlDocuments.getText(nameCredit, "artist", "name"))
+              .orElse("Unknown");
+          var join = XmlDocuments.getText(nameCredit, "@joinphrase").orElse("");
+          return name + join;
+        }).collect(Collectors.joining());
+
+    meta.addTag("albumartist", joinedName);
+
+    var joinedSortName = XmlDocuments.getChildren(credit, "name-credit")
+        .map(nameCredit -> {
+          var sortName = XmlDocuments.getChildren(nameCredit, "artist", "alias-list", "alias")
+              .filter(alias -> "primary".equals(XmlDocuments.getText(alias, "@primary").orElse("notprimary")))
+              .filter(alias -> "en".equals(XmlDocuments.getText(alias, "@locale").orElse("noten")))
+              .map(alias -> XmlDocuments.getAttribute(alias, "sort-name"))
+              .findFirst()
+              .or(() -> XmlDocuments.getText(nameCredit, "artist",  "sort-name"))
+              .orElse("Unknown");
+          var join = XmlDocuments.getText(nameCredit, "@joinphrase").orElse("");
+          return sortName + join;
+        }).collect(Collectors.joining());
+
+    meta.addTag("albumartistsort", joinedName);
+  }
+
+  private void handleArtistCredit(Node credit, Metadata.Builder meta) {
+    XmlDocuments.getChildren(credit, "name-credit")
+        .flatMap(nameCredit -> XmlDocuments.getText(nameCredit, "artist", "@id").stream())
+        .forEach(value -> meta.addTag("musicbrainz_artistid", value));
+
+    var joinedName = XmlDocuments.getChildren(credit, "name-credit")
+        .map(nameCredit -> {
+          var name = XmlDocuments.getChildren(nameCredit, "artist", "alias-list", "alias")
+              .filter(alias -> "primary".equals(XmlDocuments.getText(alias, "@primary").orElse("notprimary")))
+              .filter(alias -> "en".equals(XmlDocuments.getText(alias, "@locale").orElse("noten")))
+              .map(Node::getTextContent)
+              .findFirst()
+              .or(() -> XmlDocuments.getText(nameCredit, "artist", "name"))
+              .orElse("Unknown");
+          var join = XmlDocuments.getText(nameCredit, "@joinphrase").orElse("");
+          return name + join;
+        }).collect(Collectors.joining());
+
+    meta.addTag("artist", joinedName);
+
+    var joinedSortName = XmlDocuments.getChildren(credit, "name-credit")
+        .map(nameCredit -> {
+          var sortName = XmlDocuments.getChildren(nameCredit, "artist", "alias-list", "alias")
+              .filter(alias -> "primary".equals(XmlDocuments.getText(alias, "@primary").orElse("notprimary")))
+              .filter(alias -> "en".equals(XmlDocuments.getText(alias, "@locale").orElse("noten")))
+              .map(alias -> XmlDocuments.getAttribute(alias, "sort-name"))
+              .findFirst()
+              .or(() -> XmlDocuments.getText(nameCredit, "artist", "sort-name"))
+              .orElse("Unknown");
+          var join = XmlDocuments.getText(nameCredit, "@joinphrase").orElse("");
+          return sortName + join;
+        }).collect(Collectors.joining());
+
+    meta.addTag("artistsort", joinedName);
   }
 
   private Optional<Document> getXml(String uriFormat, Object... uriArgs) {
@@ -248,7 +285,7 @@ public final class MusicBrainzService {
         logger.info("Requesting URI, as it is not cached: {}", uri);
         var request = HttpRequest.newBuilder(uri)
             .GET()
-            .header("User-Agent", "mulima/0.2.0-SNAPSHOT ( https://github.com/ajoberstar/mulima )")
+            .header("User-Agent", "mulima/0.3.0-SNAPSHOT ( https://github.com/ajoberstar/mulima )")
             .build();
         var handler = HttpResponse.BodyHandlers.ofInputStream();
 
@@ -300,11 +337,7 @@ public final class MusicBrainzService {
   }
 
   private URI safeUri(String format, Object... args) {
-    try {
-      var str = String.format(format, args);
-      return new URI(str);
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException(e);
-    }
+    var str = String.format(format, args);
+    return URI.create(str);
   }
 }

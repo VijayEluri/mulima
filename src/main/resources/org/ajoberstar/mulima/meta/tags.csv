@@ -1,59 +1,59 @@
-generic,id3v23,id3v24,vorbis,album-xml,cuesheet
-album,TALB,TALB,ALBUM,album,ALBUM
-albumsort,TSOA,TSOA,ALBUMSORT,albumSort,
-title,TIT2,TIT2,TITLE,title,TITLE
-titlesort,TSOT,TSOT,TITLESORT,titleSort,
-work,TXXX:WORK,TXXX:WORK,WORK,,
-artist,TPE1,TPE1,ARTIST,artist,PERFORMER
-artistsort,TSOP,TSOP,ARTISTSORT,artistSort,
-albumartist,TPE2,TPE2,ALBUMARTIST,,
-albumartistsort,TSO2,TSO2,ALBUMARTISTSORT,,
-date,TYER,TDRC,DATE,releaseDate,REM DATE
-originaldate,TORY,TDOR,ORIGINALDATE,date,
-composer,TCOM,TCOM,COMPOSER,composer,
-composersort,TSOC,TSOC,COMPOSERSORT,,
-lyricist,TEXT,TEXT,LYRICIST,lyricist,
-conductor,TPE3,TPE3,CONDUCTOR,conductor,
-performer:instrument,IPLS:instrument,TMCL:instrument,PERFORMER=artist (instrument),,
-remixer,TPE4,TPE4,REMIXER,,
-arranger,IPLS:arranger,TIPL:arranger,ARRANGER,,
-engineer,IPLS:engineer,TIPL:engineer,ENGINEER,,
-producer,IPLS:producer,TIPL:producer,PRODUCER,producer,
-djmixer,IPLS:DJ-mix,TIPL:DJ-mix,DJMIXER,,
-mixer,IPLS:mix,TIPL:mix,MIXER,mixer,
-label,TPUB,TPUB,LABEL,organization,
-movement,MVNM,MVNM,MOVEMENTNAME,,
-movementnumber,MVIN,MVIN,MOVEMENT,,
-movementtotal,MVIN,MVIN,MOVEMENTTOTAL,,
-grouping,TIT1,TIT1,GROUPING,,
-subtitle,TIT3,TIT3,SUBTITLE,,
-discsubtitle,,TSST,DISCSUBTITLE,,
-tracknumber,TRCK,TRCK,TRACKNUMBER,trackNumber,TRACK
-totaltracks,TRCK,TRCK,TRACKTOTAL,,
-discnumber,TPOS,TPOS,DISCNUMBER,discNumber,DISC
-totaldiscs,TPOS,TPOS,DISCTOTAL,,
-genre,TCON,TCON,GENRE,genre,REM GENRE
-bpm,TBPM,TBPM,BPM,,
-mood,,TMOO,MOOD,,
-catalognumber,TXXX:CATALOGNUMBER,TXXX:CATALOGNUMBER,CATALOGNUMBER,catalogNumber,
-releasetype,TXXX:MusicBrainz Album Type,TXXX:MusicBrainz Album Type,RELEASETYPE,,
-language,TLAN,TLAN,LANGUAGE,,
-barcode,TXXX:BARCODE,TXXX:BARCODE,BARCODE,,
-isrc,TSRC,TSRC,ISRC,,
-musicbrainz_recordingid,UFID://musicbrainz.org,UFID://musicbrainz.org,MUSICBRAINZ_TRACKID,,
-musicbrainz_trackid,TXXX:MusicBrainz Release Track Id,TXXX:MusicBrainz Release Track Id,MUSICBRAINZ_RELEASETRACKID,,
-musicbrainz_albumid,TXXX:MusicBrainz Album Id,TXXX:MusicBrainz Album Id,MUSICBRAINZ_ALBUMID,,
-musicbrainz_originalalbumid,TXXX:MusicBrainz Original Album Id,TXXX:MusicBrainz Original Album Id,MUSICBRAINZ_ORIGINALALBUMID,,
-musicbrainz_artistid,TXXX:MusicBrainz Artist Id,TXXX:MusicBrainz Artist Id,MUSICBRAINZ_ARTISTID,,
-musicbrainz_originalartistid,TXXX:MusicBrainz Original Artist Id,TXXX:MusicBrainz Original Artist Id,MUSICBRAINZ_ORIGINALARTISTID,,
-musicbrainz_albumartistid,TXXX:MusicBrainz Album Artist Id,TXXX:MusicBrainz Album Artist Id,MUSICBRAINZ_ALBUMARTISTID,,
-musicbrainz_releasegroupid,TXXX:MusicBrainz Release Group Id,TXXX:MusicBrainz Release Group Id,MUSICBRAINZ_RELEASEGROUPID,,
-musicbrainz_workid,TXXX:MusicBrainz Work Id,TXXX:MusicBrainz Work Id,MUSICBRAINZ_WORKID,,
-musicbrainz_discid,TXXX:MusicBrainz Disc Id,TXXX:MusicBrainz Disc Id,MUSICBRAINZ_DISCID,,
-acoustid_id,TXXX:Acoustid Id,TXXX:Acoustid Id,ACOUSTID_ID,,
-acoustid_fingerprint,TXXX:Acoustid Fingerprint,TXXX:Acoustid Fingerprint,ACOUSTID_FINGERPRINT,,
-freedb_id,TXXX:FreeDB Id,TXXX:FreeDB Id,FREEDB_ID,cddbId,REM DISCID
-mulima_confidence,TXXX:Mulima Confidence,TXXX:Mulima Confidence,MULIMA_CONFIDENCE,,
-mulima_familiarity,TXXX:Mulima Familiarity,TXXX:Mulima Familiarity,MULIMA_FAMILIARITY,,
-mulima_metadata_version,TXXX:Mulima Metadata Version,TXXX:Mulima Metadata Version,MULIMA_METADATA_VERSION,,
-mulima_canon,TXXX:Mulima Canon,TXXX:Mulima Canon,MULIMA_CANON,,
+generic,id3v23,id3v24,vorbis
+album,TALB,TALB,ALBUM
+albumsort,TSOA,TSOA,ALBUMSORT
+title,TIT2,TIT2,TITLE
+titlesort,TSOT,TSOT,TITLESORT
+work,TXXX:WORK,TXXX:WORK,WORK
+artist,TPE1,TPE1,ARTIST
+artistsort,TSOP,TSOP,ARTISTSORT
+albumartist,TPE2,TPE2,ALBUMARTIST
+albumartistsort,TSO2,TSO2,ALBUMARTISTSORT
+date,TYER,TDRC,DATE
+originaldate,TORY,TDOR,ORIGINALDATE
+composer,TCOM,TCOM,COMPOSER
+composersort,TSOC,TSOC,COMPOSERSORT
+lyricist,TEXT,TEXT,LYRICIST
+conductor,TPE3,TPE3,CONDUCTOR
+performer:instrument,IPLS:instrument,TMCL:instrument,PERFORMER=artist (instrument)
+remixer,TPE4,TPE4,REMIXER
+arranger,IPLS:arranger,TIPL:arranger,ARRANGER
+engineer,IPLS:engineer,TIPL:engineer,ENGINEER
+producer,IPLS:producer,TIPL:producer,PRODUCER
+djmixer,IPLS:DJ-mix,TIPL:DJ-mix,DJMIXER
+mixer,IPLS:mix,TIPL:mix,MIXER
+label,TPUB,TPUB,LABEL
+movement,MVNM,MVNM,MOVEMENTNAME
+movementnumber,MVIN,MVIN,MOVEMENT
+movementtotal,MVIN,MVIN,MOVEMENTTOTAL
+grouping,TIT1,TIT1,GROUPING
+subtitle,TIT3,TIT3,SUBTITLE
+discsubtitle,,TSST,DISCSUBTITLE
+tracknumber,TRCK,TRCK,TRACKNUMBER
+totaltracks,TRCK,TRCK,TRACKTOTAL
+discnumber,TPOS,TPOS,DISCNUMBER
+totaldiscs,TPOS,TPOS,DISCTOTAL
+genre,TCON,TCON,GENRE
+bpm,TBPM,TBPM,BPM
+mood,,TMOO,MOOD
+catalognumber,TXXX:CATALOGNUMBER,TXXX:CATALOGNUMBER,CATALOGNUMBER
+releasetype,TXXX:MusicBrainz Album Type,TXXX:MusicBrainz Album Type,RELEASETYPE
+language,TLAN,TLAN,LANGUAGE
+barcode,TXXX:BARCODE,TXXX:BARCODE,BARCODE
+isrc,TSRC,TSRC,ISRC
+musicbrainz_recordingid,UFID://musicbrainz.org,UFID://musicbrainz.org,MUSICBRAINZ_TRACKID
+musicbrainz_trackid,TXXX:MusicBrainz Release Track Id,TXXX:MusicBrainz Release Track Id,MUSICBRAINZ_RELEASETRACKID
+musicbrainz_releaseid,TXXX:MusicBrainz Album Id,TXXX:MusicBrainz Album Id,MUSICBRAINZ_ALBUMID
+musicbrainz_originalreleaseid,TXXX:MusicBrainz Original Album Id,TXXX:MusicBrainz Original Album Id,MUSICBRAINZ_ORIGINALALBUMID
+musicbrainz_artistid,TXXX:MusicBrainz Artist Id,TXXX:MusicBrainz Artist Id,MUSICBRAINZ_ARTISTID
+musicbrainz_originalartistid,TXXX:MusicBrainz Original Artist Id,TXXX:MusicBrainz Original Artist Id,MUSICBRAINZ_ORIGINALARTISTID
+musicbrainz_albumartistid,TXXX:MusicBrainz Album Artist Id,TXXX:MusicBrainz Album Artist Id,MUSICBRAINZ_ALBUMARTISTID
+musicbrainz_releasegroupid,TXXX:MusicBrainz Release Group Id,TXXX:MusicBrainz Release Group Id,MUSICBRAINZ_RELEASEGROUPID
+musicbrainz_workid,TXXX:MusicBrainz Work Id,TXXX:MusicBrainz Work Id,MUSICBRAINZ_WORKID
+musicbrainz_discid,TXXX:MusicBrainz Disc Id,TXXX:MusicBrainz Disc Id,MUSICBRAINZ_DISCID
+acoustid_id,TXXX:Acoustid Id,TXXX:Acoustid Id,ACOUSTID_ID
+acoustid_fingerprint,TXXX:Acoustid Fingerprint,TXXX:Acoustid Fingerprint,ACOUSTID_FINGERPRINT
+freedb_id,TXXX:FreeDB Id,TXXX:FreeDB Id,FREEDB_ID
+mulima_confidence,TXXX:Mulima Confidence,TXXX:Mulima Confidence,MULIMA_CONFIDENCE
+mulima_familiarity,TXXX:Mulima Familiarity,TXXX:Mulima Familiarity,MULIMA_FAMILIARITY
+mulima_metadata_version,TXXX:Mulima Metadata Version,TXXX:Mulima Metadata Version,MULIMA_METADATA_VERSION
+mulima_canon,TXXX:Mulima Canon,TXXX:Mulima Canon,MULIMA_CANON

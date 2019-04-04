@@ -23,11 +23,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 public final class Metadata {
   private static final List<Map<String, String>> TAG_MAPPINGS;
-  private static final Comparator<Metadata> SORT_ORDER = Comparator.<Metadata, String>comparing(m -> m.getTagValue("albumartistsort").or(() -> m.getTagValue("artistsort")).orElse(""))
-      .thenComparing(m -> m.getTagValue("originaldate").orElse("0000-00-00"))
-      .thenComparing(m -> m.getTagValue("date").orElse("0000-00-00"))
-      .thenComparing(m -> m.getTagValue("discnumber").map(Integer::parseInt).orElse(0))
-      .thenComparing(m -> m.getTagValue("tracknumber").map(Integer::parseInt).orElse(0));
 
   static {
     try (var stream = Metadata.class.getResourceAsStream("/org/ajoberstar/mulima/meta/tags.csv")) {
@@ -51,34 +46,10 @@ public final class Metadata {
     }
   }
 
-  private final String dialect;
-  private final Path sourceFile;
-  private final Path artworkFile;
-  private final Path audioFile;
   private final Map<String, List<String>> tags;
-  private final List<CuePoint> cues;
-  private final List<Metadata> children;
 
-  private Metadata(String dialect, Path sourceFile, Path artworkFile, Path audioFile, Map<String, List<String>> tags, List<CuePoint> cues, List<Metadata> children) {
-    this.dialect = Objects.requireNonNull(dialect, "dialect must not be null");
-    this.sourceFile = Objects.requireNonNull(sourceFile, "sourceFile must not be null");
-    this.artworkFile = artworkFile;
-    this.audioFile = audioFile;
+  private Metadata(Map<String, List<String>> tags) {
     this.tags = Collections.unmodifiableMap(tags);
-    this.cues = Collections.unmodifiableList(cues);
-    this.children = Collections.unmodifiableList(children);
-  }
-
-  public Path getSourceFile() {
-    return sourceFile;
-  }
-
-  public Optional<Path> getArtworkFile() {
-    return Optional.ofNullable(artworkFile);
-  }
-
-  public Optional<Path> getAudioFile() {
-    return Optional.ofNullable(audioFile);
   }
 
   public Map<String, List<String>> getTags() {
@@ -95,75 +66,16 @@ public final class Metadata {
     }
   }
 
-  public Optional<String> getCommonTagValue(String tagName) {
-    return getTagValue(tagName).or(() -> {
-      var valuesToCount = this.denormalize().getChildren().stream()
-          .flatMap(m -> m.getTagValue(tagName).stream())
-          .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-      return valuesToCount.entrySet().stream()
-          .collect(Collectors.maxBy(Comparator.comparing(Map.Entry::getValue)))
-          .map(Map.Entry::getKey);
-    });
-  }
-
-  public List<CuePoint> getCues() {
-    return cues;
-  }
-
-  public List<Metadata> getChildren() {
-    return children;
-  }
-
-  public Metadata denormalize() {
-    if (children.isEmpty()) {
-      return this;
+  public Map<String, List<String>> translateTags(String toDialect) {
+    if ("generic".equals(toDialect)) {
+      return tags;
     } else {
-      var builder = Metadata.builder("generic");
-      builder.setSourceFile(sourceFile);
-
-      denormalize(this)
-          .forEach(builder::addChild);
-
-      return builder.build();
-    }
-  }
-
-  private Stream<Metadata> denormalize(Metadata parent) {
-    var dSource = getSourceFile();
-    var dArtwork = getArtworkFile().or(parent::getArtworkFile).orElse(null);
-    var dAudio = getAudioFile().or(parent::getAudioFile).orElse(null);
-    var dTags = new HashMap<>(parent.getTags());
-    dTags.putAll(tags);
-
-    var metadata = new Metadata(dialect, dSource, dArtwork, dAudio, dTags, cues, children);
-    if (children.isEmpty()) {
-      return Stream.of(metadata);
-    } else {
-      return children.stream()
-          .flatMap(child -> child.denormalize(metadata))
-          .sorted(SORT_ORDER);
-    }
-  }
-
-  public Metadata translate(String toDialect) {
-    if (dialect.equals(toDialect)) {
-      return this;
-    } else {
-      var translatedTags = new HashMap<String, List<String>>();
-      tags.forEach((name, values) -> {
-        TAG_MAPPINGS.stream()
-            .filter(mapping -> name.equals(mapping.get(dialect)))
-            .filter(mapping -> mapping.containsKey(toDialect))
-            .map(mapping -> mapping.get(toDialect))
-            .findFirst()
-            .ifPresent(toName -> translatedTags.put(toName, values));
-      });
-
-      var translatedChildren = children.stream()
-          .map(child -> child.translate(toDialect))
-          .collect(Collectors.toList());
-
-      return new Metadata(toDialect, sourceFile, artworkFile, audioFile, translatedTags, cues, translatedChildren);
+      return tags.entrySet().stream()
+          .flatMap(entry ->
+            getTagMapping("generic", toDialect, entry.getKey())
+                .map(tagName -> Map.entry(tagName, entry.getValue()))
+                .stream())
+          .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
   }
 
@@ -182,8 +94,12 @@ public final class Metadata {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
   }
 
+  public Builder copy() {
+    return new Builder("generic", new HashMap<>(tags));
+  }
+
   public static Builder builder(String dialect) {
-    return new Builder(dialect);
+    return new Builder(dialect, new HashMap<>());
   }
 
   private static Optional<String> getTagMapping(String fromDialect, String toDialect, String fromName) {
@@ -196,92 +112,32 @@ public final class Metadata {
 
   public static class Builder {
     private String dialect;
-    private Path sourceFile = null;
-    private Path artworkFile = null;
-    private Path audioFile = null;
-    private Map<String, List<String>> tags = new HashMap<>();
-    private Stream.Builder<CuePoint> cues = Stream.builder();
-    private Stream.Builder<Builder> children = Stream.builder();
+    private Map<String, List<String>> tags;
 
-    private Builder(String dialect) {
+    private Builder(String dialect, Map<String, List<String>> tags) {
       this.dialect = dialect;
-    }
-
-    public Path getSourceFile() {
-      return sourceFile;
-    }
-
-    public Builder setSourceFile(Path sourceFile) {
-      this.sourceFile = sourceFile;
-      return this;
-    }
-
-    public Builder setArtworkFile(Path artworkFile) {
-      this.artworkFile = artworkFile;
-      return this;
-    }
-
-    public Builder setAudioFile(Path audioFile) {
-      this.audioFile = audioFile;
-      return this;
-    }
-
-    public Map<String, List<String>> getTags() {
-      return tags;
+      this.tags = tags;
     }
 
     public Builder addTag(String name, String value) {
-      if (!tags.containsKey(name)) {
-        tags.put(name, new ArrayList<>());
-      }
-      tags.get(name).add(value);
-      return this;
-    }
-
-    public Builder addAllTags(Map<String, List<String>> tags) {
-      tags.forEach((name, values) -> {
-        values.forEach(value -> addTag(name, value));
+      getTagMapping(dialect, "generic", name).ifPresent(tagName -> {
+        if (!tags.containsKey(tagName)) {
+          tags.put(tagName, new ArrayList<>());
+        }
+        tags.get(tagName).add(value);
       });
       return this;
     }
 
-    public Builder addCue(CuePoint cue) {
-      cues.add(cue);
-      return this;
-    }
-
-    public Builder newChild() {
-      var builder = new Builder(dialect);
-      builder.setSourceFile(sourceFile);
-      builder.setArtworkFile(artworkFile);
-      builder.setAudioFile(audioFile);
-      children.add(builder);
-      return builder;
-    }
-
-    public Builder addChild(Metadata child) {
-      var tChild = child.translate(dialect);
-      var builder = new Builder(dialect);
-      builder.setSourceFile(tChild.sourceFile);
-      builder.setArtworkFile(tChild.artworkFile);
-      builder.setAudioFile(tChild.audioFile);
-      tChild.getCues().forEach(builder::addCue);
-      builder.addAllTags(tChild.tags);
-      child.getChildren().forEach(builder::addChild);
-      children.add(builder);
-      return builder;
-    }
+//    public Builder addAllTags(Map<String, List<String>> tags) {
+//      tags.forEach((name, values) -> {
+//        values.forEach(value -> addTag(name, value));
+//      });
+//      return this;
+//    }
 
     public Metadata build() {
-      var builtCues = cues.build()
-          .sorted(Comparator.naturalOrder())
-          .collect(Collectors.toList());
-      var builtChildren = children.build()
-          .map(b -> b.setSourceFile(Optional.ofNullable(b.sourceFile).orElse(sourceFile)))
-          .map(Builder::build)
-          .sorted(SORT_ORDER)
-          .collect(Collectors.toList());
-      return new Metadata(dialect, sourceFile, artworkFile, audioFile, tags, builtCues, builtChildren);
+      return new Metadata(tags);
     }
   }
 }

@@ -1,10 +1,5 @@
 package org.ajoberstar.mulima.init;
 
-import java.net.http.HttpClient;
-import java.nio.file.Paths;
-import java.util.List;
-import java.util.UUID;
-
 import io.micrometer.core.instrument.Clock;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Metrics;
@@ -16,16 +11,13 @@ import io.micrometer.core.instrument.binder.system.ProcessorMetrics;
 import io.micrometer.influx.InfluxConfig;
 import io.micrometer.influx.InfluxMeterRegistry;
 import org.ajoberstar.mulima.MulimaService;
-import org.ajoberstar.mulima.audio.FlacCodec;
-import org.ajoberstar.mulima.audio.OpusEncoder;
-import org.ajoberstar.mulima.meta.AlbumXmlParser;
-import org.ajoberstar.mulima.meta.ArtworkParser;
-import org.ajoberstar.mulima.meta.CueSheetParser;
+import org.ajoberstar.mulima.audio.Flac;
+import org.ajoberstar.mulima.audio.OpusEnc;
+import org.ajoberstar.mulima.meta.CueSheet;
 import org.ajoberstar.mulima.meta.MetadataParser;
 import org.ajoberstar.mulima.meta.MetadataWriter;
-import org.ajoberstar.mulima.meta.MetadataYaml;
-import org.ajoberstar.mulima.meta.MetaflacTagger;
-import org.ajoberstar.mulima.meta.OpusInfoParser;
+import org.ajoberstar.mulima.meta.Metaflac;
+import org.ajoberstar.mulima.meta.OpusInfo;
 import org.ajoberstar.mulima.service.LibraryService;
 import org.ajoberstar.mulima.service.MetadataService;
 import org.ajoberstar.mulima.service.MusicBrainzService;
@@ -35,6 +27,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+
+import java.net.http.HttpClient;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.UUID;
 
 @Configuration
 @PropertySource("file:///${APPDATA}/mulima/mulima.properties")
@@ -75,52 +72,37 @@ public class SpringConfig {
   }
 
   @Bean
-  public AlbumXmlParser albumXml() {
-    return new AlbumXmlParser();
+  public CueSheet cueSheet() {
+    return new CueSheet();
   }
 
   @Bean
-  public CueSheetParser cueSheet() {
-    return new CueSheetParser();
+  public MetadataService metadata(CueSheet cueSheet, Metaflac metaflac, OpusInfo opusInfo) {
+    return new MetadataService(cueSheet, metaflac, opusInfo);
   }
 
   @Bean
-  public ArtworkParser artwork() {
-    return new ArtworkParser();
+  public Metaflac metaflac(ProcessService process) {
+    return new Metaflac(env.getProperty("metaflac.path", "metaflac"), process);
   }
 
   @Bean
-  public MetadataYaml yaml() {
-    return new MetadataYaml();
+  public Flac flac(ProcessService process, Metaflac metaflac) {
+    return new Flac(env.getProperty("flac.path", "flac"), Integer.parseInt(env.getProperty("flac.compressionLevel", "5")), env.getProperty("shntool.path", "shntool"), process, metaflac);
   }
 
   @Bean
-  public MetadataService metadata(List<MetadataParser> parsers, List<MetadataWriter> writers) {
-    return new MetadataService(parsers, writers);
+  public OpusInfo opusinfo(ProcessService process) {
+    return new OpusInfo(env.getProperty("opusinfo.path", "opusinfo"), process);
   }
 
   @Bean
-  public MetaflacTagger metaflac(ProcessService process) {
-    return new MetaflacTagger(env.getProperty("metaflac.path", "metaflac"), process);
+  public OpusEnc opusenc(ProcessService process) {
+    return new OpusEnc(env.getProperty("opusenc.path", "opusenc"), Integer.parseInt(env.getProperty("opusenc.bitrate", "96")), process);
   }
 
   @Bean
-  public FlacCodec flac(ProcessService process, MetaflacTagger metaflac) {
-    return new FlacCodec(env.getProperty("flac.path", "flac"), Integer.parseInt(env.getProperty("flac.compressionLevel", "5")), env.getProperty("shntool.path", "shntool"), process, metaflac);
-  }
-
-  @Bean
-  public OpusInfoParser opusinfo(ProcessService process) {
-    return new OpusInfoParser(env.getProperty("opusinfo.path", "opusinfo"), process);
-  }
-
-  @Bean
-  public OpusEncoder opusenc(ProcessService process) {
-    return new OpusEncoder(env.getProperty("opusenc.path", "opusenc"), Integer.parseInt(env.getProperty("opusenc.bitrate", "96")), process);
-  }
-
-  @Bean
-  public MusicBrainzService musicbrainz(MetaflacTagger metaflac) {
+  public MusicBrainzService musicbrainz(Metaflac metaflac) {
     var appdata = Paths.get(System.getenv("APPDATA"));
     if (appdata.isAbsolute()) {
       return new MusicBrainzService(HttpClient.newHttpClient(), metaflac, appdata.resolve("mulima").resolve("musicbrainz-cache"));
@@ -130,7 +112,7 @@ public class SpringConfig {
   }
 
   @Bean
-  public LibraryService library(MetadataService metadata, MusicBrainzService musicbrainz, FlacCodec flac, OpusEncoder opusenc) {
+  public LibraryService library(MetadataService metadata, MusicBrainzService musicbrainz, Flac flac, OpusEnc opusenc) {
     return new LibraryService(metadata, musicbrainz, flac, opusenc);
   }
 

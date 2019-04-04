@@ -90,86 +90,86 @@ public class MulimaService extends Service implements AutoCloseable {
   }
 
   private void process() {
-    // directory scanner
-    var sourceDirScannerSubscriber = Flows.<Path>subscriber("source-directory-scanner-subscriber", 1, dir -> {
-      try {
-        var result = metadata.parseDir(dir);
-        if (!result.getChildren().isEmpty()) {
-          discoveredAlbumPublisher.submit(result);
-        }
-      } catch (Exception e) {
-        logger.error("Invalid metadata in dir: {}", dir, e);
-      }
-    });
-    sourceDirPublisher.subscribe(sourceDirScannerSubscriber);
-
-    // validator
-    var validatorSubscriber = Flows.<Metadata>subscriber("metadata-validator-subscriber", 1, meta -> {
-      var hasMusicBrainzData = meta.getCommonTagValue("musicbrainz_albumid").isPresent();
-      if (hasMusicBrainzData) {
-        validAlbumPublisher.submit(meta);
-      } else {
-        invalidAlbumPublisher.submit(meta);
-      }
-    });
-    discoveredAlbumPublisher.subscribe(validatorSubscriber);
-
-    // musicbrainz lookup
-    var musicbrainzLookupSubscriber = Flows.<Metadata>subscriber("musicbrainz-lookup-subscriber", 1, meta -> {
-      var possibleReleases = library.lookupChoices(meta);
-      if (possibleReleases.isEmpty()) {
-        logger.warn("No releases found for: {}", meta.getSourceFile());
-      } else if (possibleReleases.size() == 1) {
-        decisionPublisher.submit(Map.of("original", meta, "choice", possibleReleases.get(0), "confidence", "probably"));
-      } else {
-        choicePublisher.submit(Map.entry(meta, possibleReleases));
-      }
-    });
-    invalidAlbumPublisher.subscribe(musicbrainzLookupSubscriber);
-
-    var decisionSubscriber = Flows.<Map<String, Object>>subscriber("decision-subscriber", 1, decision -> {
-      var meta = (Metadata) decision.get("original");
-      var choice = (Metadata) decision.get("choice");
-      var destYaml = meta.getSourceFile().resolve("metadata.yaml");
-      metadata.writeFile(choice, destYaml);
-      validAlbumPublisher.submit(choice);
-    });
-    decisionPublisher.subscribe(decisionSubscriber);
-
-    // converter
-    var conversionSubscriber = Flows.<Metadata>subscriber("album-conversion-subscriber", Math.max(Runtime.getRuntime().availableProcessors() / 2, 1), meta -> {
-      logger.info("Starting conversion of: {}", meta.getSourceFile());
-      try {
-        library.convert(meta, losslessDir, lossyDir);
-        logger.info("Successfully converted: {}", meta.getSourceFile());
-        // successfulConversionsPublisher.submit(meta);
-      } catch (Exception e) {
-        logger.error("Failed to convert: {}", meta.getSourceFile(), e);
-        // failedConversionsPublisher.submit(meta);
-      }
-    });
-    validAlbumPublisher.subscribe(conversionSubscriber);
-
-    // success logger
-    var successSubscriber = Flows.<Metadata>subscriber("successful-conversion-subscriber", 1, meta -> {
-      logger.info("Successfully converted: {}", meta.getSourceFile());
-    });
-    successfulConversionsPublisher.subscribe(successSubscriber);
-
-    // failure logger
-    var failureSubscriber = Flows.<Metadata>subscriber("failed-conversion-subscriber", 1, meta -> {
-      logger.error("Failed to convert: {}", meta.getSourceFile());
-    });
-    failedConversionsPublisher.subscribe(failureSubscriber);
-
-    // lets get this party started
-    try (var fileStream = Files.walk(sourceDir)) {
-      fileStream
-          .filter(Files::isDirectory)
-          .forEach(sourceDirPublisher::submit);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
+//    // directory scanner
+//    var sourceDirScannerSubscriber = Flows.<Path>subscriber("source-directory-scanner-subscriber", 1, dir -> {
+//      try {
+//        var result = metadata.parseDir(dir);
+//        if (!result.getChildren().isEmpty()) {
+//          discoveredAlbumPublisher.submit(result);
+//        }
+//      } catch (Exception e) {
+//        logger.error("Invalid metadata in dir: {}", dir, e);
+//      }
+//    });
+//    sourceDirPublisher.subscribe(sourceDirScannerSubscriber);
+//
+//    // validator
+//    var validatorSubscriber = Flows.<Metadata>subscriber("metadata-validator-subscriber", 1, meta -> {
+//      var hasMusicBrainzData = meta.getCommonTagValue("musicbrainz_albumid").isPresent();
+//      if (hasMusicBrainzData) {
+//        validAlbumPublisher.submit(meta);
+//      } else {
+//        invalidAlbumPublisher.submit(meta);
+//      }
+//    });
+//    discoveredAlbumPublisher.subscribe(validatorSubscriber);
+//
+//    // musicbrainz lookup
+//    var musicbrainzLookupSubscriber = Flows.<Metadata>subscriber("musicbrainz-lookup-subscriber", 1, meta -> {
+//      var possibleReleases = library.lookupChoices(meta);
+//      if (possibleReleases.isEmpty()) {
+//        logger.warn("No releases found for: {}", meta.getSourceFile());
+//      } else if (possibleReleases.size() == 1) {
+//        decisionPublisher.submit(Map.of("original", meta, "choice", possibleReleases.get(0), "confidence", "probably"));
+//      } else {
+//        choicePublisher.submit(Map.entry(meta, possibleReleases));
+//      }
+//    });
+//    invalidAlbumPublisher.subscribe(musicbrainzLookupSubscriber);
+//
+//    var decisionSubscriber = Flows.<Map<String, Object>>subscriber("decision-subscriber", 1, decision -> {
+//      var meta = (Metadata) decision.get("original");
+//      var choice = (Metadata) decision.get("choice");
+//      var destYaml = meta.getSourceFile().resolve("metadata.yaml");
+//      metadata.writeFile(choice, destYaml);
+//      validAlbumPublisher.submit(choice);
+//    });
+//    decisionPublisher.subscribe(decisionSubscriber);
+//
+//    // converter
+//    var conversionSubscriber = Flows.<Metadata>subscriber("album-conversion-subscriber", Math.max(Runtime.getRuntime().availableProcessors() / 2, 1), meta -> {
+//      logger.info("Starting conversion of: {}", meta.getSourceFile());
+//      try {
+//        library.convert(meta, losslessDir, lossyDir);
+//        logger.info("Successfully converted: {}", meta.getSourceFile());
+//        // successfulConversionsPublisher.submit(meta);
+//      } catch (Exception e) {
+//        logger.error("Failed to convert: {}", meta.getSourceFile(), e);
+//        // failedConversionsPublisher.submit(meta);
+//      }
+//    });
+//    validAlbumPublisher.subscribe(conversionSubscriber);
+//
+//    // success logger
+//    var successSubscriber = Flows.<Metadata>subscriber("successful-conversion-subscriber", 1, meta -> {
+//      logger.info("Successfully converted: {}", meta.getSourceFile());
+//    });
+//    successfulConversionsPublisher.subscribe(successSubscriber);
+//
+//    // failure logger
+//    var failureSubscriber = Flows.<Metadata>subscriber("failed-conversion-subscriber", 1, meta -> {
+//      logger.error("Failed to convert: {}", meta.getSourceFile());
+//    });
+//    failedConversionsPublisher.subscribe(failureSubscriber);
+//
+//    // lets get this party started
+//    try (var fileStream = Files.walk(sourceDir)) {
+//      fileStream
+//          .filter(Files::isDirectory)
+//          .forEach(sourceDirPublisher::submit);
+//    } catch (IOException e) {
+//      throw new UncheckedIOException(e);
+//    }
   }
 
   @Override

@@ -8,20 +8,15 @@ import java.util.regex.Pattern;
 
 import org.ajoberstar.mulima.service.ProcessService;
 
-public final class OpusInfoParser implements MetadataParser {
+public final class OpusInfo implements MetadataParser {
   private static final Pattern REGEX = Pattern.compile("([A-Za-z]+)=(.+)");
 
   private final String path;
   private final ProcessService process;
 
-  public OpusInfoParser(String path, ProcessService process) {
+  public OpusInfo(String path, ProcessService process) {
     this.path = path;
     this.process = process;
-  }
-
-  @Override
-  public boolean accepts(Path file) {
-    return file.getFileName().toString().endsWith(".opus");
   }
 
   @Override
@@ -32,9 +27,6 @@ public final class OpusInfoParser implements MetadataParser {
     var result = process.execute(command).assertSuccess();
 
     var builder = Metadata.builder("vorbis");
-    builder.setSourceFile(file);
-    builder.setAudioFile(file);
-
     result.getOutput().lines()
         .map(String::trim)
         .dropWhile(line -> !"User comments section follows...".equals(line))
