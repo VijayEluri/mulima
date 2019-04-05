@@ -1,8 +1,5 @@
 package org.ajoberstar.mulima.flow;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.util.Optional;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -10,6 +7,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Flow;
 import java.util.function.Consumer;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 class SimpleSubscriber<T> implements Flow.Subscriber<T>, AutoCloseable {
   private static final Logger logger = LogManager.getLogger(SimpleSubscriber.class);

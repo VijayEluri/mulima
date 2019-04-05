@@ -8,7 +8,7 @@ import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,22 +26,37 @@ public final class LibraryService {
   private final MusicBrainzService musicbrainz;
   private final Flac flac;
   private final OpusEnc opusenc;
+  private final Path sourceRootDir;
+  private final Path losslessRootDir;
+  private final Path lossyRootDir;
 
-  public LibraryService(MetadataService metadata, MusicBrainzService musicbrainz, Flac flac, OpusEnc opusenc) {
+  public LibraryService(MetadataService metadata, MusicBrainzService musicbrainz, Flac flac, OpusEnc opusenc, Map<String, Path> libraries) {
     this.metadata = metadata;
     this.musicbrainz = musicbrainz;
     this.flac = flac;
     this.opusenc = opusenc;
+    this.sourceRootDir = libraries.get("source");
+    this.losslessRootDir = libraries.get("lossless");
+    this.lossyRootDir = libraries.get("lossy");
   }
 
-  public Stream<Album> getSourceAlbums() {
-    // TODO implement
-    return Stream.empty();
+  public List<Album> getSourceAlbums() {
+    try (var stream = Files.walk(sourceRootDir)) {
+      return stream
+          .filter(Files::isRegularFile)
+          .map(Path::getParent)
+          .distinct()
+          .map(metadata::parseDir)
+          .filter(album -> !album.getAudioToCues().isEmpty())
+          .collect(Collectors.toList());
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
   public boolean isPrepped(Album album) {
-    // TODO implement
-    return false;
+    return album.getAudioToMetadata().entrySet().stream()
+        .allMatch(entry -> entry.getValue().getTagValue("musicbrainz_releaseid").isPresent());
   }
 
   public Album prepAlbum(Album album) {
@@ -49,23 +64,8 @@ public final class LibraryService {
     return album;
   }
 
-  public boolean isUpToDate(Album album) {
-
-//    var destTime = Stream.of(losslessDir, lossyDir)
-//        .map(this::getFileTimes)
-//        .flatMap(List::stream)
-//        .min(Comparator.naturalOrder()).orElse(FileTime.from(Instant.MIN));
-//
-//    var sourceTime = getFileTimes(meta.getSourceFile()).stream()
-//        .max(Comparator.naturalOrder()).orElse(FileTime.from(Instant.MIN));
-//
-//    return sourceTime.compareTo(destTime) <= 0;
-    return false;
-  }
-
-  public void convert(Album album, List<Metadata> metadata, Path losslessRootDir, Path lossyRootDir) {
+  public void convert(Album album, List<Metadata> metadata, boolean force) {
     // prep directory names
-
     var artistName = metadata.stream()
         .findAny()
         .flatMap(meta -> meta.getTagValue("albumartist"))
@@ -81,6 +81,11 @@ public final class LibraryService {
     var losslessDir = losslessRootDir.resolve(artistName).resolve(albumName);
     var lossyDir = lossyRootDir.resolve(artistName).resolve(albumName);
 
+    if (!force && isUpToDate(album, metadata, losslessDir, lossyDir)) {
+      // TODO log
+      return;
+    }
+
     emptyDir(losslessDir);
     emptyDir(lossyDir);
 
@@ -92,6 +97,19 @@ public final class LibraryService {
       var lossyFile = lossyDir.resolve(losslessFile.getFileName().toString().replace(".flac", ".opus"));
       opusenc.encode(losslessFile, lossyFile);
     });
+  }
+
+  private boolean isUpToDate(Album album, List<Metadata> metadata, Path losslessDir, Path lossyDir) {
+    var destTime = Stream.of(getFileTimes(losslessDir), getFileTimes(lossyDir))
+        .flatMap(List::stream)
+        .min(Comparator.naturalOrder())
+        .orElse(FileTime.from(Instant.MIN));
+
+    var sourceTime = getFileTimes(album.getDir()).stream()
+        .max(Comparator.naturalOrder())
+        .orElse(FileTime.from(Instant.MIN));
+
+    return sourceTime.compareTo(destTime) < 0;
   }
 
   private String toPathSafe(String value) {

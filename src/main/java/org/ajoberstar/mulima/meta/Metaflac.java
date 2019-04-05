@@ -1,12 +1,12 @@
 package org.ajoberstar.mulima.meta;
 
-import org.ajoberstar.mulima.service.ProcessService;
-
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.ajoberstar.mulima.service.ProcessService;
 
 public final class Metaflac implements MetadataParser, MetadataWriter {
   private static final Pattern REGEX = Pattern.compile("comment\\[\\d+\\]: (?<tag>.+?)=(?<value>.+)");

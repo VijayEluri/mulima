@@ -1,13 +1,13 @@
 package org.ajoberstar.mulima.meta;
 
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
 
 public final class Album {
   private final Path dir;

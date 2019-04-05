@@ -58,10 +58,6 @@ spotless {
     removeUnusedImports()
     eclipse().configFile(project.rootProject.file('gradle/eclipse-java-formatter.xml'))
   }
-  groovyGradle {
-    target '**/*.gradle'
-    greclipse().configFile(project.rootProject.file('gradle/eclipse-java-formatter.xml'))
-  }
 }
 
 jar.version = null

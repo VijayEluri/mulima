@@ -3,18 +3,13 @@ package org.ajoberstar.mulima.meta;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -71,10 +66,9 @@ public final class Metadata {
       return tags;
     } else {
       return tags.entrySet().stream()
-          .flatMap(entry ->
-            getTagMapping("generic", toDialect, entry.getKey())
-                .map(tagName -> Map.entry(tagName, entry.getValue()))
-                .stream())
+          .flatMap(entry -> getTagMapping("generic", toDialect, entry.getKey())
+              .map(tagName -> Map.entry(tagName, entry.getValue()))
+              .stream())
           .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
   }
@@ -129,12 +123,12 @@ public final class Metadata {
       return this;
     }
 
-//    public Builder addAllTags(Map<String, List<String>> tags) {
-//      tags.forEach((name, values) -> {
-//        values.forEach(value -> addTag(name, value));
-//      });
-//      return this;
-//    }
+    // public Builder addAllTags(Map<String, List<String>> tags) {
+    // tags.forEach((name, values) -> {
+    // values.forEach(value -> addTag(name, value));
+    // });
+    // return this;
+    // }
 
     public Metadata build() {
       return new Metadata(tags);

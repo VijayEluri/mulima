@@ -7,14 +7,12 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.ajoberstar.mulima.meta.Album;
 import org.ajoberstar.mulima.meta.CueSheet;
 import org.ajoberstar.mulima.meta.Metadata;
-import org.ajoberstar.mulima.meta.MetadataParser;
 import org.ajoberstar.mulima.meta.Metaflac;
 import org.ajoberstar.mulima.meta.OpusInfo;
 import org.apache.logging.log4j.LogManager;
@@ -68,8 +66,7 @@ public final class MetadataService {
 
   private Stream<Path> findFiles(List<Path> dirFiles, String... extensions) {
     return dirFiles.stream()
-        .filter(file ->
-          Arrays.stream(extensions)
-              .anyMatch(ext -> file.getFileName().toString().endsWith(ext)));
+        .filter(file -> Arrays.stream(extensions)
+            .anyMatch(ext -> file.getFileName().toString().endsWith(ext)));
   }
 }

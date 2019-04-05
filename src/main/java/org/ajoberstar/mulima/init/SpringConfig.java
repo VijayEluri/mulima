@@ -1,5 +1,9 @@
 package org.ajoberstar.mulima.init;
 
+import java.net.http.HttpClient;
+import java.nio.file.Paths;
+import java.util.Map;
+
 import org.ajoberstar.mulima.MulimaService;
 import org.ajoberstar.mulima.audio.Flac;
 import org.ajoberstar.mulima.audio.OpusEnc;
@@ -15,9 +19,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-
-import java.net.http.HttpClient;
-import java.nio.file.Paths;
 
 @Configuration
 @PropertySource("file:///${APPDATA}/mulima/mulima.properties")
@@ -74,7 +75,14 @@ public class SpringConfig {
 
   @Bean
   public LibraryService library(MetadataService metadata, MusicBrainzService musicbrainz, Flac flac, OpusEnc opusenc) {
-    return new LibraryService(metadata, musicbrainz, flac, opusenc);
+    var sourceDir = Paths.get(env.getProperty("library.source.path"));
+    var losslessDir = Paths.get(env.getProperty("library.lossless.path"));
+    var lossyDir = Paths.get(env.getProperty("library.lossy.path"));
+    var libraries = Map.of(
+        "source", sourceDir,
+        "lossless", losslessDir,
+        "lossy", lossyDir);
+    return new LibraryService(metadata, musicbrainz, flac, opusenc, libraries);
   }
 
   @Bean

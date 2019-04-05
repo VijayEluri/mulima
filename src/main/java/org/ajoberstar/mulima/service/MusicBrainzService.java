@@ -1,15 +1,6 @@
 package org.ajoberstar.mulima.service;
 
-import org.ajoberstar.mulima.meta.CuePoint;
-import org.ajoberstar.mulima.meta.Metadata;
-import org.ajoberstar.mulima.meta.Metaflac;
-import org.ajoberstar.mulima.util.XmlDocuments;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
+import static org.ajoberstar.mulima.util.XmlDocuments.getText;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,7 +18,16 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.ajoberstar.mulima.util.XmlDocuments.getText;
+import org.ajoberstar.mulima.meta.CuePoint;
+import org.ajoberstar.mulima.meta.Metadata;
+import org.ajoberstar.mulima.meta.Metaflac;
+import org.ajoberstar.mulima.util.XmlDocuments;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
 public final class MusicBrainzService {
   private static final Logger logger = LogManager.getLogger(MusicBrainzService.class);
@@ -225,7 +225,7 @@ public final class MusicBrainzService {
               .filter(alias -> "en".equals(XmlDocuments.getText(alias, "@locale").orElse("noten")))
               .map(alias -> XmlDocuments.getAttribute(alias, "sort-name"))
               .findFirst()
-              .or(() -> XmlDocuments.getText(nameCredit, "artist",  "sort-name"))
+              .or(() -> XmlDocuments.getText(nameCredit, "artist", "sort-name"))
               .orElse("Unknown");
           var join = XmlDocuments.getText(nameCredit, "@joinphrase").orElse("");
           return sortName + join;
