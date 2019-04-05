@@ -5,3 +5,6 @@ import org.ajoberstar.mulima.meta.*;
 import org.ajoberstar.mulima.service.*;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 var context = new AnnotationConfigApplicationContext(SpringConfig.class);
+var meta = context.getBean(MetadataService.class);
+var mb = context.getBean(MusicBrainzService.class);
+var lib = context.getBean(LibraryService.class);

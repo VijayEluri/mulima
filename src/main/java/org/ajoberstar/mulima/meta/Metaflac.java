@@ -55,7 +55,7 @@ public final class Metaflac implements MetadataParser, MetadataWriter {
         .flatMap(entry -> {
           var tag = entry.getKey();
           return entry.getValue().stream()
-              .map(value -> String.format("--set-tag=%s=%s", tag, value));
+              .map(value -> String.format("--set-tag=%s=%s", tag, value.replace("\"", "\\\"")));
         }).forEach(command::add);
     command.add(file.toString());
 

@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.ajoberstar.mulima.meta.Album;
 import org.ajoberstar.mulima.meta.CuePoint;
 import org.ajoberstar.mulima.meta.Metadata;
 import org.ajoberstar.mulima.meta.Metaflac;
@@ -78,120 +79,89 @@ public class Flac implements AudioEncoder, AudioDecoder, AudioSplitter {
   }
 
   @Override
-  public Metadata split(Metadata meta, Path destDir) {
-//    var tracksByDisc = meta.getChildren().stream()
-//        .collect(Collectors.groupingBy(this::toDiscNumber));
-//
-//    tracksByDisc.values().forEach(tracks -> {
-//      var audioFiles = tracks.stream()
-//          .map(Metadata::getAudioFile)
-//          .flatMap(Optional::stream)
-//          .collect(Collectors.toSet());
-//
-//      if (audioFiles.size() == 1) {
-//        split(tracks, audioFiles.iterator().next(), destDir);
-//      } else {
-//        throw new IllegalArgumentException("Disc's tracks are source from different audio files: " + tracks);
-//      }
-//    });
-//
-//    return tagSplitFiles(meta, destDir);
-    return null;
+  public List<Path> split(Album album, List<Metadata> metadata, Path destDir) {
+    album.getAudioToCues().forEach((sourceFile, cues) -> {
+      var discNum = toDiscNumber(album.getAudioToMetadata().get(sourceFile));
+      split(sourceFile, discNum, cues, destDir);
+    });
+    return tagSplitFiles(destDir, metadata);
   }
 
-  private void split(List<Metadata> tracks, Path sourceFile, Path destDir) {
-//    var command = new ArrayList<String>();
-//    command.add(shntoolPath);
-//    command.add("split");
-//    command.add("-q"); // quiet output
-//
-//    // input format
-//    command.add("-i");
-//    command.add(String.format("flac %s -c -s -d %%f", flacPath));
-//
-//    // output format
-//    command.add("-o");
-//    command.add(String.format("flac ext=flac %s -s -%d -o %%f -", flacPath, compressionLevel));
-//
-//    // don't overwrite files
-//    command.add("-O");
-//    command.add("never");
-//
-//    // destination dir
-//    command.add("-d");
-//    command.add(destDir.toString());
-//
-//    // assumes all metadata is for one disc
-//    var discNum = tracks.stream()
-//        .map(Metadata::getTags)
-//        .flatMap(tags -> tags.getOrDefault("discnumber", List.of()).stream())
-//        .map(Integer::parseInt)
-//        .findFirst()
-//        .orElse(1);
-//
-//    // start filenames from num
-//    command.add("-a");
-//    command.add(String.format("D%02dT", discNum));
-//
-//    Function<Metadata, Stream<CuePoint>> toSplitPoint = track -> track.getCues().stream().filter(cue -> cue.getIndex() == 1);
-//
-//    var startsAtTrack1 = tracks.stream()
-//        .flatMap(toSplitPoint)
-//        .map(CuePoint::getTime)
-//        .anyMatch("00:00:00"::equals);
-//
-//    // start num
-//    command.add("-c");
-//    command.add(startsAtTrack1 ? "1" : "0");
-//
-//    // source file
-//    command.add(sourceFile.toString());
-//
-//    var input = tracks.stream()
-//        .flatMap(toSplitPoint)
-//        .sorted(Comparator.comparing(CuePoint::getTime))
-//        .map(cue -> cue.getTime().replaceAll(":([^:\\.]+)$", ".$1"))
-//        .collect(Collectors.joining(System.lineSeparator()));
-//
-//    process.execute(command, input).assertSuccess();
+  private void split(Path sourceFile, int discNum, List<CuePoint> cues, Path destDir) {
+    var command = new ArrayList<String>();
+    command.add(shntoolPath);
+    command.add("split");
+    command.add("-q"); // quiet output
+
+    // input format
+    command.add("-i");
+    command.add(String.format("flac %s -c -s -d %%f", flacPath));
+
+    // output format
+    command.add("-o");
+    command.add(String.format("flac ext=flac %s -s -%d -o %%f -", flacPath, compressionLevel));
+
+    // don't overwrite files
+    command.add("-O");
+    command.add("never");
+
+    // destination dir
+    command.add("-d");
+    command.add(destDir.toString());
+
+    // start filenames from num
+    command.add("-a");
+    command.add(String.format("D%02dT", discNum));
+
+    var startsAtTrack1 = cues.stream()
+        .map(CuePoint::getTime)
+        .anyMatch("00:00:00"::equals);
+
+    // start num
+    command.add("-c");
+    command.add(startsAtTrack1 ? "1" : "0");
+
+    // source file
+    command.add(sourceFile.toString());
+
+    var input = cues.stream()
+        .sorted(Comparator.comparing(CuePoint::getTime))
+        .map(cue -> cue.getTime().replaceAll(":([^:\\.]+)$", ".$1"))
+        .collect(Collectors.joining(System.lineSeparator()));
+
+    process.execute(command, input).assertSuccess();
   }
 
-  private Metadata tagSplitFiles(Metadata meta, Path directory) {
-//    var metaByDiscAndTrack = meta.getChildren().stream()
-//        .collect(Collectors.groupingBy(this::toDiscNumber, Collectors.toMap(this::toTrackNumber, Function.identity())));
-//
-//    try (var stream = Files.list(directory)) {
-//      var builder = Metadata.builder("generic");
-//      builder.setSourceFile(directory);
-//
-//      stream.flatMap(file -> {
-//        var matcher = FILE_PATTERN.matcher(file.getFileName().toString());
-//        if (matcher.matches()) {
-//          var disc = Integer.parseInt(matcher.group("disc"));
-//          var track = Integer.parseInt(matcher.group("track"));
-//
-//          if (track == 0) {
-//            try {
-//              Files.delete(file);
-//              return Stream.empty();
-//            } catch (IOException e) {
-//              throw new UncheckedIOException(e);
-//            }
-//          } else {
-//            var trackMeta = metaByDiscAndTrack.get(disc).get(track);
-//            metaflac.write(trackMeta, file);
-//            return Stream.of(metaflac.parse(file));
-//          }
-//        } else {
-//          return Stream.empty();
-//        }
-//      }).forEach(builder::addChild);
-//
-//      return builder.build();
-//    } catch (IOException e) {
-//      throw new UncheckedIOException(e);
-//    }
-    return null;
+  private List<Path> tagSplitFiles(Path directory, List<Metadata> tracks) {
+    var metaByDiscAndTrack = tracks.stream()
+        .collect(Collectors.groupingBy(this::toDiscNumber, Collectors.toMap(this::toTrackNumber, Function.identity())));
+
+    try (var stream = Files.list(directory)) {
+      return stream.flatMap(file -> {
+        var matcher = FILE_PATTERN.matcher(file.getFileName().toString());
+        if (matcher.matches()) {
+          var disc = Integer.parseInt(matcher.group("disc"));
+          var track = Integer.parseInt(matcher.group("track"));
+
+          if (track == 0) {
+            try {
+              Files.delete(file);
+              return Stream.empty();
+            } catch (IOException e) {
+              throw new UncheckedIOException(e);
+            }
+          } else {
+            var trackMeta = metaByDiscAndTrack.get(disc).get(track);
+            metaflac.write(trackMeta, file);
+            return Stream.of(file);
+          }
+        } else {
+          return Stream.empty();
+        }
+      }).collect(Collectors.toList());
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 
   private Integer toDiscNumber(Metadata meta) {
