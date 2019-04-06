@@ -1,5 +1,6 @@
 package org.ajoberstar.mulima.meta;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -7,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.ajoberstar.mulima.service.ProcessService;
 
@@ -27,12 +29,13 @@ public final class Metaflac implements MetadataParser, MetadataWriter {
     command.add(path);
     command.add("--list");
     command.add("--block-type=VORBIS_COMMENT");
+    command.add("--no-utf8-convert");
     command.add(file.toString());
 
     var result = process.execute(command).assertSuccess();
 
     var builder = Metadata.builder("vorbis");
-    result.getOutput().lines()
+    result.getOutput(StandardCharsets.UTF_8).lines()
         .map(String::trim)
         .map(REGEX::matcher)
         .filter(Matcher::matches)
@@ -49,22 +52,32 @@ public final class Metaflac implements MetadataParser, MetadataWriter {
     List<String> command = new ArrayList<>();
     command.add(path);
     command.add("--remove-all-tags");
+    command.add("--no-utf8-convert");
 
     meta.getArtwork().ifPresent(artwork -> {
       command.add(String.format("--import-picture-from=%s", artwork));
     });
 
+    command.add("--import-tags-from=-");
+
     var translated = meta.translateTags("vorbis");
-    translated.entrySet().stream()
+    var inputStr = translated.entrySet().stream()
         .sorted(Comparator.comparing(Map.Entry::getKey))
         .flatMap(entry -> {
           var tag = entry.getKey();
           return entry.getValue().stream()
-              .map(value -> String.format("--set-tag=%s=%s", tag, value.replace("\"", "\\\"")));
-        }).forEach(command::add);
+              .map(value -> String.format("%s=%s%s", tag, value.replace("\"", "\\\""), System.lineSeparator()));
+        }).collect(Collectors.joining());
+
     command.add(file.toString());
 
-    process.execute(command).assertSuccess();
+    process.execute(command, inputStr).assertSuccess();
+  }
+
+  public long getTotalFrames(Path file) {
+    var sampleRate = getSampleRate(file);
+    var sampleTotal = getTotalSamples(file);
+    return sampleTotal * 75 / sampleRate;
   }
 
   public long getSampleRate(Path file) {

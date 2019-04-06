@@ -1,18 +1,19 @@
 package org.ajoberstar.mulima.service;
 
+import java.nio.charset.Charset;
 import java.util.List;
 
 public class ProcessResult {
   private final String command;
   private final int exitVal;
-  private final String output;
-  private final String error;
+  private final byte[] output;
+  private final byte[] error;
 
-  public ProcessResult(List<String> command, int exitVal, String output, String error) {
+  public ProcessResult(List<String> command, int exitVal, byte[] output, byte[] error) {
     this(String.join(" ", command), exitVal, output, error);
   }
 
-  public ProcessResult(String command, int exitVal, String output, String error) {
+  public ProcessResult(String command, int exitVal, byte[] output, byte[] error) {
     this.command = command;
     this.exitVal = exitVal;
     this.output = output;
@@ -28,11 +29,15 @@ public class ProcessResult {
   }
 
   public String getOutput() {
-    return output;
+    return new String(output);
+  }
+
+  public String getOutput(Charset charset) {
+    return new String(output, charset);
   }
 
   public String getError() {
-    return error;
+    return new String(error);
   }
 
   public ProcessResult assertSuccess() {
@@ -43,10 +48,10 @@ public class ProcessResult {
           String.format("Process Failed (%d): %s", exitVal, command.replaceAll("%", "%%")),
           "Output:",
           "-------",
-          output,
+          getOutput(),
           "Error:",
           "------",
-          error);
+          getError());
 
       throw new IllegalStateException(String.join(System.lineSeparator(), lines));
     }

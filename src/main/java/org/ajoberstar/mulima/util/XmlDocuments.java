@@ -2,6 +2,7 @@ package org.ajoberstar.mulima.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,6 +23,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public final class XmlDocuments {
@@ -43,6 +45,18 @@ public final class XmlDocuments {
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
       var builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
       return builder.parse(stream);
+    } catch (ParserConfigurationException | SAXException | IOException e) {
+      // TODO better
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static Document parse(String string) {
+    try {
+      var factory = DocumentBuilderFactory.newInstance();
+      factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+      var builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+      return builder.parse(new InputSource(new StringReader(string)));
     } catch (ParserConfigurationException | SAXException | IOException e) {
       // TODO better
       throw new RuntimeException(e);

@@ -87,48 +87,58 @@ public class Flac implements AudioEncoder, AudioDecoder, AudioSplitter {
   }
 
   private void split(Path sourceFile, int discNum, List<CuePoint> cues, Path destDir) {
-    var command = new ArrayList<String>();
-    command.add(shntoolPath);
-    command.add("split");
-    command.add("-q"); // quiet output
+    var onlyOneTrack = cues.stream().map(CuePoint::getTime).allMatch("00:00:00"::equals);
+    if (onlyOneTrack) {
+      var destFile = destDir.resolve(String.format("D%03dT01.flac", discNum));
+      try {
+        Files.copy(sourceFile, destFile);
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+    } else {
+      var command = new ArrayList<String>();
+      command.add(shntoolPath);
+      command.add("split");
+      command.add("-q"); // quiet output
 
-    // input format
-    command.add("-i");
-    command.add(String.format("flac %s -c -s -d %%f", flacPath));
+      // input format
+      command.add("-i");
+      command.add(String.format("flac %s -c -s -d %%f", flacPath));
 
-    // output format
-    command.add("-o");
-    command.add(String.format("flac ext=flac %s -s -%d -o %%f -", flacPath, compressionLevel));
+      // output format
+      command.add("-o");
+      command.add(String.format("flac ext=flac %s -s -%d -o %%f -", flacPath, compressionLevel));
 
-    // don't overwrite files
-    command.add("-O");
-    command.add("never");
+      // don't overwrite files
+      command.add("-O");
+      command.add("never");
 
-    // destination dir
-    command.add("-d");
-    command.add(destDir.toString());
+      // destination dir
+      command.add("-d");
+      command.add(destDir.toString());
 
-    // start filenames from num
-    command.add("-a");
-    command.add(String.format("D%03dT", discNum));
+      // start filenames from num
+      command.add("-a");
+      command.add(String.format("D%03dT", discNum));
 
-    var startsAtTrack1 = cues.stream()
-        .map(CuePoint::getTime)
-        .anyMatch("00:00:00"::equals);
+      var startsAtTrack1 = cues.stream()
+          .map(CuePoint::getTime)
+          .anyMatch("00:00:00"::equals);
 
-    // start num
-    command.add("-c");
-    command.add(startsAtTrack1 ? "1" : "0");
+      // start num
+      command.add("-c");
+      command.add(startsAtTrack1 ? "1" : "0");
 
-    // source file
-    command.add(sourceFile.toString());
+      // source file
+      command.add(sourceFile.toString());
 
-    var input = cues.stream()
-        .sorted(Comparator.comparing(CuePoint::getTime))
-        .map(cue -> cue.getTime().replaceAll(":([^:\\.]+)$", ".$1"))
-        .collect(Collectors.joining(System.lineSeparator()));
+      var input = cues.stream()
+          .sorted(Comparator.comparing(CuePoint::getTime))
+          .map(cue -> cue.getTime().replaceAll(":([^:\\.]+)$", ".$1"))
+          .collect(Collectors.joining(System.lineSeparator()));
 
-    process.execute(command, input).assertSuccess();
+      process.execute(command, input).assertSuccess();
+    }
   }
 
   private List<Path> tagSplitFiles(Path directory, List<Metadata> tracks) {

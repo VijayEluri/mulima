@@ -5,7 +5,6 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
-import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.ajoberstar.mulima.audio.Flac;
@@ -154,7 +154,7 @@ public final class LibraryService {
     var lossyDir = lossyRootDir.resolve(artistName).resolve(albumName + releaseDate);
 
     if (!force && isUpToDate(album, metadata, losslessDir, lossyDir)) {
-      // TODO log
+      logger.debug("Album is up-to-date: {}", album.getDir());
       return;
     }
 
@@ -171,19 +171,88 @@ public final class LibraryService {
     });
   }
 
-  private boolean isUpToDate(Album album, List<Metadata> metadata, Path losslessDir, Path lossyDir) {
-    // FIXME make sure all tracks are there, have right frame size, have right tags
+  private boolean isUpToDate(Album album, List<Metadata> tracks, Path losslessDir, Path lossyDir) {
+    // check audio length
+    var accurateSplit = album.getAudioToCues().entrySet().stream().allMatch(entry -> {
+      var audio = entry.getKey();
+      var cues = entry.getValue();
 
-    var destTime = Stream.of(getFileTimes(losslessDir), getFileTimes(lossyDir))
-        .flatMap(List::stream)
-        .min(Comparator.naturalOrder())
-        .orElse(FileTime.from(Instant.MIN));
+      var trackFrames = IntStream.range(0, cues.size() - 2 + 1)
+          .mapToObj(start -> cues.subList(start, start + 2))
+          .map(pair -> pair.get(1).getOffset() - pair.get(0).getOffset())
+          .collect(Collectors.toList());
 
-    var sourceTime = getFileTimes(album.getDir()).stream()
-        .max(Comparator.naturalOrder())
-        .orElse(FileTime.from(Instant.MIN));
+      var discNum = album.getAudioToMetadata().get(audio).getTagValue("discnumber")
+          .map(Integer::parseInt)
+          .orElseThrow(() -> new IllegalArgumentException("No discnumber found for: " + audio));
 
-    return sourceTime.compareTo(destTime) < 0;
+      return IntStream.rangeClosed(1, trackFrames.size()).allMatch(trackNum -> {
+        var flacFile = losslessDir.resolve(String.format("D%03dT%02d.flac", discNum, trackNum));
+        var opusFile = lossyDir.resolve(String.format("D%03dT%02d.opus", discNum, trackNum));
+
+        if (Files.exists(flacFile) && Files.exists(opusFile)) {
+          var targetFrames = trackFrames.get(trackNum - 1);
+          var flacFrames = metadata.getTotalFrames(flacFile);
+          var opusFrames = metadata.getTotalFrames(opusFile);
+
+          if (targetFrames == flacFrames && targetFrames == opusFrames) {
+            return true;
+          } else {
+            logger.debug("Track's file length don't match cuesheet: {} or {}", flacFile, opusFile);
+            return false;
+          }
+        } else {
+          logger.debug("Track's files are missing: {} or {}", flacFile, opusFile);
+          return false;
+        }
+      });
+    });
+
+    if (!accurateSplit) {
+      logger.debug("Album's tracks are split incorrectly or missing: {}", album.getDir());
+    }
+
+    // check tags
+    var accurateTags = tracks.stream().allMatch(track -> {
+      var discNum = track.getTagValue("discnumber").map(Integer::parseInt).orElseThrow(() -> new IllegalArgumentException("No discnumber found for: " + track));
+      var trackNum = track.getTagValue("tracknumber").map(Integer::parseInt).orElseThrow(() -> new IllegalArgumentException("No tracknumber found for: " + track));
+
+      var discFound = album.getAudioToMetadata().values().stream()
+          .flatMap(disc -> disc.getTagValue("discnumber").stream())
+          .mapToInt(Integer::parseInt)
+          .anyMatch(d -> d == discNum);
+
+      if (!discFound) {
+        logger.debug("Disc {} not present in source: {}", discNum, album.getDir());
+        return true;
+      }
+
+      var flacFile = losslessDir.resolve(String.format("D%03dT%02d.flac", discNum, trackNum));
+      var opusFile = lossyDir.resolve(String.format("D%03dT%02d.opus", discNum, trackNum));
+
+      if (Files.exists(flacFile) && Files.exists(opusFile)) {
+        var flacTags = metadata.parseMetadata(flacFile).getTags();
+        var opusTags = metadata.parseMetadata(opusFile).getTags();
+
+        if (track.getTags().equals(flacTags) && track.getTags().equals(opusTags)) {
+          return true;
+        } else {
+          logger.debug("Track's file tags don't match expected metadata: {} or {}\nexpected={}\nflac    ={}\nopus    ={}", flacFile, opusFile, track.getTags(), flacTags, opusTags);
+          return false;
+        }
+      } else {
+        logger.debug("Track's files are missing: {} or {}", flacFile, opusFile);
+        return false;
+      }
+    });
+
+    if (!accurateTags) {
+      logger.debug("Album's tracks are tagged incorrectly or missing: {}", album.getDir());
+    }
+
+    // TODO check for extra files
+
+    return accurateSplit && accurateTags;
   }
 
   private String toPathSafe(String value) {

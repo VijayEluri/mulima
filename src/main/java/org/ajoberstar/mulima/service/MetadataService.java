@@ -62,9 +62,29 @@ public final class MetadataService {
     }
   }
 
+  public Metadata parseMetadata(Path file) {
+    if (file.getFileName().toString().endsWith(".flac")) {
+      return metaflac.parse(file);
+    } else if (file.getFileName().toString().endsWith(".opus")) {
+      return opusInfo.parse(file);
+    } else {
+      throw new IllegalArgumentException("Unsupported file type for writing metadata: " + file);
+    }
+  }
+
   public void writeMetadata(Path file, Metadata meta) {
     if (file.getFileName().toString().endsWith(".flac")) {
       metaflac.write(meta, file);
+    } else {
+      throw new IllegalArgumentException("Unsupported file type for writing metadata: " + file);
+    }
+  }
+
+  public long getTotalFrames(Path file) {
+    if (file.getFileName().toString().endsWith(".flac")) {
+      return metaflac.getTotalFrames(file);
+    } else if (file.getFileName().toString().endsWith(".opus")) {
+      return opusInfo.getTotalFrames(file);
     } else {
       throw new IllegalArgumentException("Unsupported file type for writing metadata: " + file);
     }

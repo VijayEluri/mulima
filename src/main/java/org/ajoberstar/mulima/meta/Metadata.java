@@ -132,12 +132,14 @@ public final class Metadata {
     }
 
     public Builder addTag(String name, String value) {
-      getTagMapping(dialect, "generic", name).ifPresent(tagName -> {
-        if (!tags.containsKey(tagName)) {
-          tags.put(tagName, new ArrayList<>());
-        }
-        tags.get(tagName).add(value);
-      });
+      if (!value.isBlank()) {
+        getTagMapping(dialect, "generic", name).ifPresent(tagName -> {
+          if (!tags.containsKey(tagName)) {
+            tags.put(tagName, new ArrayList<>());
+          }
+          tags.get(tagName).add(value);
+        });
+      }
       return this;
     }
 

@@ -2,7 +2,6 @@ package org.ajoberstar.mulima.service;
 
 import static org.ajoberstar.mulima.util.XmlDocuments.getText;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
@@ -299,28 +298,21 @@ public final class MusicBrainzService {
             .GET()
             .header("User-Agent", "mulima/0.3.0-SNAPSHOT ( https://github.com/ajoberstar/mulima )")
             .build();
-        var handler = HttpResponse.BodyHandlers.ofInputStream();
+        var handler = HttpResponse.BodyHandlers.ofString();
 
         var response = http.send(request, handler);
         if (response.statusCode() == 200) {
-          try (var stream = response.body()) {
-            var doc = XmlDocuments.parse(stream);
-            Files.createDirectories(cachePath.getParent());
-            XmlDocuments.write(doc, cachePath);
-            return Optional.of(doc);
-          } catch (IOException e) {
-            throw new UncheckedIOException(e);
-          }
+          var doc = XmlDocuments.parse(response.body());
+          Files.createDirectories(cachePath.getParent());
+          XmlDocuments.write(doc, cachePath);
+          return Optional.of(doc);
         } else if (response.statusCode() == 404) {
           logger.warn("Not found at: {}", uri);
           Files.createDirectories(notFoundPath.getParent());
           Files.createFile(notFoundPath);
           return Optional.empty();
         } else {
-          // FIXME
-          var streamStr = new ByteArrayOutputStream();
-          response.body().transferTo(streamStr);
-          logger.error("Error {} at {}: {}", response.statusCode(), uri, streamStr.toString());
+          logger.error("Error {} at {}: {}", response.statusCode(), uri, response.body());
           // TODO do better
           throw new RuntimeException("Something bad: " + response.toString());
         }

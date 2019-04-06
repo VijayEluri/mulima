@@ -14,6 +14,7 @@
       <AppenderRef ref="File" />
     </AsyncRoot>
     <AsyncLogger name="org.ajoberstar.mulima" level="INFO" />
+    <AsyncLogger name="org.ajoberstar.mulima.service.LibraryService" level="DEBUG" />
     <AsyncLogger name="org.ajoberstar.mulima.flow" level="INFO" additivity="false">
       <AppenderRef ref="File" />
     </AsyncLogger>

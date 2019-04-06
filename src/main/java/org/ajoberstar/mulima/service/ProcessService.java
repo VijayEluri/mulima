@@ -60,14 +60,14 @@ public final class ProcessService implements AutoCloseable {
     }
   }
 
-  private Supplier<String> handleStream(InputStream stream) {
+  private Supplier<byte[]> handleStream(InputStream stream) {
     return () -> {
       try (var outputStream = new ByteArrayOutputStream(); var inputStream = stream) {
         inputStream.transferTo(outputStream);
-        return outputStream.toString(StandardCharsets.UTF_8);
+        return outputStream.toByteArray();
       } catch (IOException e) {
         logger.debug("Problem handling output stream for process.", e);
-        return "";
+        return new byte[0];
       }
     };
   }

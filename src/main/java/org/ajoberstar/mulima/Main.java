@@ -74,7 +74,7 @@ public final class Main extends Application {
         var task = map.getValue();
         Platform.runLater(() -> {
           tasks.getItems().removeIf(t -> thread.equals(t.get("name")));
-          if (task != null) {
+          if (!task.isBlank()) {
             tasks.getItems().add(Map.of("name", thread, "task", task));
           }
         });

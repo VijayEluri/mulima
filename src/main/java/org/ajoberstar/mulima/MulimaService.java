@@ -126,7 +126,7 @@ public class MulimaService extends Service implements AutoCloseable {
         logger.error("Failed to convert {}", album.getDir(), e);
         failedConversionsPublisher.submit(Map.entry(album, e.getMessage()));
       } finally {
-        progressPublisher.submit(Map.entry("task", Map.entry(Thread.currentThread().getName(), null)));
+        progressPublisher.submit(Map.entry("task", Map.entry(Thread.currentThread().getName(), "")));
       }
     });
     validAlbumPublisher.subscribe(conversionSubscriber);
