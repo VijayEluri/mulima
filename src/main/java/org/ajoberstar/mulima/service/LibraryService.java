@@ -9,6 +9,9 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,12 +45,53 @@ public final class LibraryService {
 
   public List<Album> getSourceAlbums() {
     try (var stream = Files.walk(sourceRootDir)) {
-      return stream
+      Function<Album, String> toReleaseId = album -> album.getAudioToMetadata().values().stream()
+          .flatMap(meta -> meta.getTagValue("musicbrainz_releaseid").stream())
+          // make sure they're all the same
+          .reduce((a, b) -> {
+            if (a.equals(b)) {
+              return a;
+            } else {
+              return "Unknown";
+            }
+          })
+          .orElse("Unknown");
+
+      var albums = stream
           .filter(Files::isRegularFile)
           .map(Path::getParent)
           .distinct()
           .map(metadata::parseDir)
+          .flatMap(Optional::stream)
           .filter(album -> !album.getAudioToCues().isEmpty())
+          .collect(Collectors.groupingBy(toReleaseId, Collectors.toList()));
+
+      return albums.entrySet().stream().flatMap(group -> {
+        if ("Unknown".equals(group.getKey())) {
+          return group.getValue().stream();
+        } else {
+          var dir = group.getValue().stream()
+              .map(Album::getDir)
+              .findFirst()
+              .orElseThrow(() -> new AssertionError("No albums in group."));
+          var artwork = group.getValue().stream()
+              .map(Album::getArtwork)
+              .flatMap(List::stream)
+              .collect(Collectors.toList());
+          var cues = group.getValue().stream()
+              .map(Album::getAudioToCues)
+              .map(Map::entrySet)
+              .flatMap(Set::stream)
+              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+          var meta = group.getValue().stream()
+              .map(Album::getAudioToMetadata)
+              .map(Map::entrySet)
+              .flatMap(Set::stream)
+              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+          return Stream.of(new Album(dir, artwork, cues, meta));
+        }
+      }).sorted(Comparator.comparing(Album::getDir))
           .collect(Collectors.toList());
     } catch (IOException e) {
       throw new UncheckedIOException(e);
@@ -55,8 +99,8 @@ public final class LibraryService {
   }
 
   public boolean isPrepped(Album album) {
-    return album.getAudioToMetadata().entrySet().stream()
-        .allMatch(entry -> entry.getValue().getTagValue("musicbrainz_releaseid").isPresent());
+    return album.getAudioToMetadata().values().stream()
+        .allMatch(meta -> meta.getTagValue("musicbrainz_releaseid").isPresent());
   }
 
   public Album prepAlbum(Album album) {
@@ -117,6 +161,9 @@ public final class LibraryService {
   }
 
   private List<FileTime> getFileTimes(Path dir) {
+    if (!Files.exists(dir)) {
+      return List.of();
+    }
     try (var stream = Files.list(dir)) {
       return stream
           .map(file -> {

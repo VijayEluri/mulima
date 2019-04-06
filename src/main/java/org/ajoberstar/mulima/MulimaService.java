@@ -1,6 +1,5 @@
 package org.ajoberstar.mulima;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.SubmissionPublisher;
@@ -8,6 +7,7 @@ import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 
 import org.ajoberstar.mulima.flow.Flows;
+import org.ajoberstar.mulima.meta.Album;
 import org.ajoberstar.mulima.meta.Metadata;
 import org.ajoberstar.mulima.service.LibraryService;
 import org.ajoberstar.mulima.service.MetadataService;
@@ -18,61 +18,50 @@ import org.apache.logging.log4j.Logger;
 public class MulimaService extends Service implements AutoCloseable {
   private static final Logger logger = LogManager.getLogger(MulimaService.class);
 
-  private final SubmissionPublisher<Path> sourceDirPublisher = Flows.publisher("source-dir-publisher", 25);
-  private final SubmissionPublisher<Metadata> discoveredAlbumPublisher = Flows.publisher("discovered-album-publisher", 25);
-  private final SubmissionPublisher<Metadata> invalidAlbumPublisher = Flows.publisher("invalid-album-publisher", 25);
-  private final SubmissionPublisher<Map.Entry<Metadata, List<Metadata>>> choicePublisher = Flows.publisher("choice-publisher", 25);
-  private final SubmissionPublisher<Map<String, Object>> decisionPublisher = Flows.publisher("decision-publisher", 25);
-  private final SubmissionPublisher<Metadata> validAlbumPublisher = Flows.publisher("valid-album-publisher", 1000);
-  private final SubmissionPublisher<Metadata> successfulConversionsPublisher = Flows.publisher("successful-conversion-publisher", 25);
-  private final SubmissionPublisher<Metadata> failedConversionsPublisher = Flows.publisher("failed-conversion-publisher", 25);
+  private final SubmissionPublisher<Album> albumPublisher = Flows.publisher("album-publisher", 25);
+  private final SubmissionPublisher<Album> invalidAlbumPublisher = Flows.publisher("invalid-album-publisher", 25);
+  private final SubmissionPublisher<Map.Entry<Album, List<List<Metadata>>>> choicePublisher = Flows.publisher("choice-publisher", 25);
+  private final SubmissionPublisher<Map.Entry<Album, List<Metadata>>> validAlbumPublisher = Flows.publisher("valid-album-publisher", 1000);
+  private final SubmissionPublisher<Album> successfulConversionsPublisher = Flows.publisher("successful-conversion-publisher", 25);
+  private final SubmissionPublisher<Map.Entry<Album, String>> failedConversionsPublisher = Flows.publisher("failed-conversion-publisher", 25);
+  private final SubmissionPublisher<Map.Entry<String, Object>> progressPublisher = Flows.publisher("progress-publisher", 25);
 
   private final LibraryService library;
   private final MetadataService metadata;
   private final MusicBrainzService musicbrainz;
-  private final Path sourceDir;
-  private final Path losslessDir;
-  private final Path lossyDir;
 
-  public MulimaService(LibraryService library, MetadataService metadata, MusicBrainzService musicbrainz, Path sourceDir, Path losslessDir, Path lossyDir) {
+  public MulimaService(LibraryService library, MetadataService metadata, MusicBrainzService musicbrainz) {
     this.library = library;
     this.metadata = metadata;
     this.musicbrainz = musicbrainz;
-    this.sourceDir = sourceDir;
-    this.losslessDir = losslessDir;
-    this.lossyDir = lossyDir;
   }
 
-  public SubmissionPublisher<Path> getSourceDirPublisher() {
-    return sourceDirPublisher;
+  public SubmissionPublisher<Album> getAlbumPublisher() {
+    return albumPublisher;
   }
 
-  public SubmissionPublisher<Metadata> getDiscoveredAlbumPublisher() {
-    return discoveredAlbumPublisher;
-  }
-
-  public SubmissionPublisher<Metadata> getInvalidAlbumPublisher() {
+  public SubmissionPublisher<Album> getInvalidAlbumPublisher() {
     return invalidAlbumPublisher;
   }
 
-  public SubmissionPublisher<Map.Entry<Metadata, List<Metadata>>> getChoicePublisher() {
+  public SubmissionPublisher<Map.Entry<Album, List<List<Metadata>>>> getChoicePublisher() {
     return choicePublisher;
   }
 
-  public SubmissionPublisher<Map<String, Object>> getDecisionPublisher() {
-    return decisionPublisher;
-  }
-
-  public SubmissionPublisher<Metadata> getValidAlbumPublisher() {
+  public SubmissionPublisher<Map.Entry<Album, List<Metadata>>> getValidAlbumPublisher() {
     return validAlbumPublisher;
   }
 
-  public SubmissionPublisher<Metadata> getSuccessfulConversionsPublisher() {
+  public SubmissionPublisher<Album> getSuccessfulConversionsPublisher() {
     return successfulConversionsPublisher;
   }
 
-  public SubmissionPublisher<Metadata> getFailedConversionsPublisher() {
+  public SubmissionPublisher<Map.Entry<Album, String>> getFailedConversionsPublisher() {
     return failedConversionsPublisher;
+  }
+
+  public SubmissionPublisher<Map.Entry<String, Object>> getProgressPublisher() {
+    return progressPublisher;
   }
 
   @Override
@@ -87,32 +76,31 @@ public class MulimaService extends Service implements AutoCloseable {
   }
 
   private void process() {
-    // // directory scanner
-    // var sourceDirScannerSubscriber = Flows.<Path>subscriber("source-directory-scanner-subscriber", 1,
-    // dir -> {
-    // try {
-    // var result = metadata.parseDir(dir);
-    // if (!result.getChildren().isEmpty()) {
-    // discoveredAlbumPublisher.submit(result);
-    // }
-    // } catch (Exception e) {
-    // logger.error("Invalid metadata in dir: {}", dir, e);
-    // }
-    // });
-    // sourceDirPublisher.subscribe(sourceDirScannerSubscriber);
-    //
-    // // validator
-    // var validatorSubscriber = Flows.<Metadata>subscriber("metadata-validator-subscriber", 1, meta ->
-    // {
-    // var hasMusicBrainzData = meta.getCommonTagValue("musicbrainz_albumid").isPresent();
-    // if (hasMusicBrainzData) {
-    // validAlbumPublisher.submit(meta);
-    // } else {
-    // invalidAlbumPublisher.submit(meta);
-    // }
-    // });
-    // discoveredAlbumPublisher.subscribe(validatorSubscriber);
-    //
+    // validator
+    var albumSubscriber = Flows.<Album>subscriber("album-subscriber", 1, album -> {
+      try {
+        if (library.isPrepped(album)) {
+          var releaseId = album.getAudioToMetadata().values().stream()
+              .flatMap(meta -> meta.getTagValue("musicbrainz_releaseid").stream())
+              .findAny()
+              .orElseThrow(() -> new IllegalStateException("Album does not have release ID: " + album.getDir()));
+          musicbrainz.lookupByReleaseId(releaseId).ifPresentOrElse(meta -> {
+            validAlbumPublisher.submit(Map.entry(album, meta));
+          }, () -> {
+            // TODO should this go to invalid album instead?
+            failedConversionsPublisher.submit(Map.entry(album, "Could not find metadata for release ID: " + releaseId));
+          });
+        } else {
+          // TODO
+          logger.warn("Invalid album: {}", album.getDir());
+          // invalidAlbumPublisher.submit(album);
+        }
+      } catch (Exception e) {
+        logger.error("Failed to determine if album is prepped: {}", album.getDir(), e);
+      }
+    });
+    albumPublisher.subscribe(albumSubscriber);
+
     // // musicbrainz lookup
     // var musicbrainzLookupSubscriber = Flows.<Metadata>subscriber("musicbrainz-lookup-subscriber", 1,
     // meta -> {
@@ -127,59 +115,49 @@ public class MulimaService extends Service implements AutoCloseable {
     // }
     // });
     // invalidAlbumPublisher.subscribe(musicbrainzLookupSubscriber);
-    //
-    // var decisionSubscriber = Flows.<Map<String, Object>>subscriber("decision-subscriber", 1, decision
-    // -> {
-    // var meta = (Metadata) decision.get("original");
-    // var choice = (Metadata) decision.get("choice");
-    // var destYaml = meta.getSourceFile().resolve("metadata.yaml");
-    // metadata.writeFile(choice, destYaml);
-    // validAlbumPublisher.submit(choice);
-    // });
-    // decisionPublisher.subscribe(decisionSubscriber);
-    //
-    // // converter
-    // var conversionSubscriber = Flows.<Metadata>subscriber("album-conversion-subscriber",
-    // Math.max(Runtime.getRuntime().availableProcessors() / 2, 1), meta -> {
-    // logger.info("Starting conversion of: {}", meta.getSourceFile());
-    // try {
-    // library.convert(meta, losslessDir, lossyDir);
-    // logger.info("Successfully converted: {}", meta.getSourceFile());
-    // // successfulConversionsPublisher.submit(meta);
-    // } catch (Exception e) {
-    // logger.error("Failed to convert: {}", meta.getSourceFile(), e);
-    // // failedConversionsPublisher.submit(meta);
-    // }
-    // });
-    // validAlbumPublisher.subscribe(conversionSubscriber);
-    //
-    // // success logger
-    // var successSubscriber = Flows.<Metadata>subscriber("successful-conversion-subscriber", 1, meta ->
-    // {
-    // logger.info("Successfully converted: {}", meta.getSourceFile());
-    // });
-    // successfulConversionsPublisher.subscribe(successSubscriber);
-    //
-    // // failure logger
-    // var failureSubscriber = Flows.<Metadata>subscriber("failed-conversion-subscriber", 1, meta -> {
-    // logger.error("Failed to convert: {}", meta.getSourceFile());
-    // });
-    // failedConversionsPublisher.subscribe(failureSubscriber);
-    //
-    // // lets get this party started
-    // try (var fileStream = Files.walk(sourceDir)) {
-    // fileStream
-    // .filter(Files::isDirectory)
-    // .forEach(sourceDirPublisher::submit);
-    // } catch (IOException e) {
-    // throw new UncheckedIOException(e);
-    // }
+
+    // converter
+    var conversionSubscriber = Flows.<Map.Entry<Album, List<Metadata>>>subscriber("album-conversion-subscriber", Math.max(Runtime.getRuntime().availableProcessors() / 2, 1), entry -> {
+      var album = entry.getKey();
+      var metadata = entry.getValue();
+      logger.info("Beginning conversion of {}", album.getDir());
+      progressPublisher.submit(Map.entry("task", Map.entry(Thread.currentThread().getName(), album.getDir().toString())));
+      try {
+        library.convert(album, metadata, false);
+        logger.info("Successfully converted {}", album.getDir());
+        successfulConversionsPublisher.submit(album);
+      } catch (Exception e) {
+        logger.error("Failed to convert {}", album.getDir(), e);
+        failedConversionsPublisher.submit(Map.entry(album, e.getMessage()));
+      } finally {
+        progressPublisher.submit(Map.entry("task", Map.entry(Thread.currentThread().getName(), null)));
+      }
+    });
+    validAlbumPublisher.subscribe(conversionSubscriber);
+
+    // success handler
+    var successSubscriber = Flows.<Album>subscriber("successful-conversion-subscriber", 1, album -> {
+      progressPublisher.submit(Map.entry("complete", 1));
+    });
+    successfulConversionsPublisher.subscribe(successSubscriber);
+
+    // failure handler
+    var failureSubscriber = Flows.<Map.Entry<Album, String>>subscriber("failed-conversion-subscriber", 1, entry -> {
+      progressPublisher.submit(Map.entry("complete", 1));
+    });
+    failedConversionsPublisher.subscribe(failureSubscriber);
+
+    // let's get this party started
+    progressPublisher.submit(Map.entry("message", "Scanning for source albums."));
+    var albums = library.getSourceAlbums();
+    progressPublisher.submit(Map.entry("message", "Converting albums."));
+    progressPublisher.submit(Map.entry("total", albums.size()));
+    albums.forEach(albumPublisher::submit);
   }
 
   @Override
   public void close() {
-    sourceDirPublisher.close();
-    discoveredAlbumPublisher.close();
+    albumPublisher.close();
     invalidAlbumPublisher.close();
     choicePublisher.close();
     validAlbumPublisher.close();

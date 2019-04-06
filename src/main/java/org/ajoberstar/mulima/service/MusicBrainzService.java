@@ -288,7 +288,7 @@ public final class MusicBrainzService {
     } else {
       rateLimitLock.lock();
       try {
-        logger.info("Requesting URI, as it is not cached: {}", uri);
+        logger.debug("Requesting URI, as it is not cached: {}", uri);
         var request = HttpRequest.newBuilder(uri)
             .GET()
             .header("User-Agent", "mulima/0.3.0-SNAPSHOT ( https://github.com/ajoberstar/mulima )")
@@ -299,6 +299,7 @@ public final class MusicBrainzService {
         if (response.statusCode() == 200) {
           try (var stream = response.body()) {
             var doc = XmlDocuments.parse(stream);
+            Files.createDirectories(cachePath.getParent());
             XmlDocuments.write(doc, cachePath);
             return Optional.of(doc);
           } catch (IOException e) {
@@ -306,6 +307,7 @@ public final class MusicBrainzService {
           }
         } else if (response.statusCode() == 404) {
           logger.warn("Not found at: {}", uri);
+          Files.createDirectories(notFoundPath.getParent());
           Files.createFile(notFoundPath);
           return Optional.empty();
         } else {

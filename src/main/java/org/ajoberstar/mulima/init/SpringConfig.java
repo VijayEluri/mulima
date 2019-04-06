@@ -87,9 +87,6 @@ public class SpringConfig {
 
   @Bean
   public MulimaService mulima(LibraryService library, MetadataService metadata, MusicBrainzService musicbrainz) {
-    var sourceDir = Paths.get(env.getProperty("library.source.path"));
-    var losslessDir = Paths.get(env.getProperty("library.lossless.path"));
-    var lossyDir = Paths.get(env.getProperty("library.lossy.path"));
-    return new MulimaService(library, metadata, musicbrainz, sourceDir, losslessDir, lossyDir);
+    return new MulimaService(library, metadata, musicbrainz);
   }
 }

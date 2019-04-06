@@ -110,7 +110,7 @@ public class Flac implements AudioEncoder, AudioDecoder, AudioSplitter {
 
     // start filenames from num
     command.add("-a");
-    command.add(String.format("D%02dT", discNum));
+    command.add(String.format("D%03dT", discNum));
 
     var startsAtTrack1 = cues.stream()
         .map(CuePoint::getTime)

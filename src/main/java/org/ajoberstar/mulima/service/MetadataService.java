@@ -1,12 +1,11 @@
 package org.ajoberstar.mulima.service;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -31,7 +30,7 @@ public final class MetadataService {
     this.opusInfo = opusInfo;
   }
 
-  public Album parseDir(Path dir) {
+  public Optional<Album> parseDir(Path dir) {
     try (var fileStream = Files.list(dir)) {
       var files = fileStream.collect(Collectors.toList());
 
@@ -50,9 +49,10 @@ public final class MetadataService {
       var meta = Stream.concat(flacs, opuses)
           .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-      return new Album(dir, artwork, cues, meta);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
+      return Optional.of(new Album(dir, artwork, cues, meta));
+    } catch (Exception e) {
+      logger.error("Issue parsing dir: " + dir, e);
+      return Optional.empty();
     }
   }
 
