@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,8 +35,6 @@ public final class MetadataService {
     try (var fileStream = Files.list(dir)) {
       var files = fileStream.collect(Collectors.toList());
 
-      var artwork = findFiles(files, ".jpeg", ".jpg", ".png").collect(Collectors.toList());
-
       var cues = findFiles(files, ".cue")
           .map(file -> {
             var flacName = file.getFileName().toString().replace(".cue", ".flac");
@@ -48,6 +47,13 @@ public final class MetadataService {
           .map(file -> Map.entry(file, opusInfo.parse(file)));
       var meta = Stream.concat(flacs, opuses)
           .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+      var artwork = findFiles(files, ".jpeg", ".jpg", ".png")
+          .filter(file -> file.getFileName().toString().startsWith("thumb"))
+          .findFirst()
+          .map(file -> meta.keySet().stream()
+              .collect(Collectors.toMap(Function.identity(), x -> file)))
+          .orElse(Map.of());
 
       return Optional.of(new Album(dir, artwork, cues, meta));
     } catch (Exception e) {

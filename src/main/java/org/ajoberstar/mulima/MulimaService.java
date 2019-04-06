@@ -80,15 +80,11 @@ public class MulimaService extends Service implements AutoCloseable {
     var albumSubscriber = Flows.<Album>subscriber("album-subscriber", 1, album -> {
       try {
         if (library.isPrepped(album)) {
-          var releaseId = album.getAudioToMetadata().values().stream()
-              .flatMap(meta -> meta.getTagValue("musicbrainz_releaseid").stream())
-              .findAny()
-              .orElseThrow(() -> new IllegalStateException("Album does not have release ID: " + album.getDir()));
-          musicbrainz.lookupByReleaseId(releaseId).ifPresentOrElse(meta -> {
+          library.findMetadata(album).ifPresentOrElse(meta -> {
             validAlbumPublisher.submit(Map.entry(album, meta));
           }, () -> {
             // TODO should this go to invalid album instead?
-            failedConversionsPublisher.submit(Map.entry(album, "Could not find metadata for release ID: " + releaseId));
+            failedConversionsPublisher.submit(Map.entry(album, "Could not find metadata for album: " + album.getDir()));
           });
         } else {
           // TODO

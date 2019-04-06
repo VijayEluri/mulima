@@ -3,6 +3,7 @@ package org.ajoberstar.mulima.meta;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,10 +42,16 @@ public final class Metadata {
     }
   }
 
+  private final Path artwork;
   private final Map<String, List<String>> tags;
 
-  private Metadata(Map<String, List<String>> tags) {
+  private Metadata(Path artwork, Map<String, List<String>> tags) {
+    this.artwork = artwork;
     this.tags = Collections.unmodifiableMap(tags);
+  }
+
+  public Optional<Path> getArtwork() {
+    return Optional.ofNullable(artwork);
   }
 
   public Map<String, List<String>> getTags() {
@@ -89,11 +96,11 @@ public final class Metadata {
   }
 
   public Builder copy() {
-    return new Builder("generic", new HashMap<>(tags));
+    return new Builder("generic", artwork, new HashMap<>(tags));
   }
 
   public static Builder builder(String dialect) {
-    return new Builder(dialect, new HashMap<>());
+    return new Builder(dialect, null, new HashMap<>());
   }
 
   private static Optional<String> getTagMapping(String fromDialect, String toDialect, String fromName) {
@@ -106,11 +113,22 @@ public final class Metadata {
 
   public static class Builder {
     private String dialect;
+    private Path artwork;
     private Map<String, List<String>> tags;
 
-    private Builder(String dialect, Map<String, List<String>> tags) {
+    private Builder(String dialect, Path artwork, Map<String, List<String>> tags) {
       this.dialect = dialect;
+      this.artwork = artwork;
       this.tags = tags;
+    }
+
+    public Builder setArtwork(Path artwork) {
+      this.artwork = artwork;
+      return this;
+    }
+
+    public boolean hasTag(String name) {
+      return tags.containsKey(name);
     }
 
     public Builder addTag(String name, String value) {
@@ -123,15 +141,8 @@ public final class Metadata {
       return this;
     }
 
-    // public Builder addAllTags(Map<String, List<String>> tags) {
-    // tags.forEach((name, values) -> {
-    // values.forEach(value -> addTag(name, value));
-    // });
-    // return this;
-    // }
-
     public Metadata build() {
-      return new Metadata(tags);
+      return new Metadata(artwork, tags);
     }
   }
 }

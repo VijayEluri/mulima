@@ -92,11 +92,12 @@ public final class MusicBrainzService {
 
     getText(release, "@id").ifPresent(value -> builder.addTag("musicbrainz_releaseid", value));
     getText(release, "title").ifPresent(value -> builder.addTag("album", value)); // TODO disambiguation
-    getText(release, "date").ifPresent(value -> builder.addTag("date", value));
+    getText(release, "date").ifPresent(value -> builder.addTag("releasedate", value));
     getText(release, "barcode").ifPresent(value -> builder.addTag("barcode", value));
 
     getText(release, "release-group", "@id").ifPresent(value -> builder.addTag("musicbrainz_releasegroupid", value));
     getText(release, "release-group", "first-release-date").ifPresent(value -> builder.addTag("originaldate", value));
+    getText(release, "release-group", "first-release-date").ifPresent(value -> builder.addTag("logicaldate", value));
 
     var primaryReleaseType = getText(release, "release-group", "primary-type");
     var secondaryReleaseTypes = XmlDocuments.getChildren(release, "release-group", "secondary-type-list", "secondary-type")
@@ -156,6 +157,11 @@ public final class MusicBrainzService {
 
   private void handleRecording(Node recording, Metadata.Builder builder) {
     getText(recording, "@id").ifPresent(value -> builder.addTag("musicbrainz_recordingid", value));
+
+    if (!builder.hasTag("artist")) {
+      XmlDocuments.getChildren(recording, "artist-credit")
+          .forEach(credit -> handleArtistCredit(credit, builder));
+    }
 
     XmlDocuments.getChildren(recording, "relation-list")
         .filter(relList -> "artist".equals(XmlDocuments.getAttribute(relList, "target-type")))
@@ -231,7 +237,7 @@ public final class MusicBrainzService {
           return sortName + join;
         }).collect(Collectors.joining());
 
-    meta.addTag("albumartistsort", joinedName);
+    meta.addTag("albumartistsort", joinedSortName);
   }
 
   private void handleArtistCredit(Node credit, Metadata.Builder meta) {
@@ -267,7 +273,7 @@ public final class MusicBrainzService {
           return sortName + join;
         }).collect(Collectors.joining());
 
-    meta.addTag("artistsort", joinedName);
+    meta.addTag("artistsort", joinedSortName);
   }
 
   private Optional<Document> getXml(String uriFormat, Object... uriArgs) {

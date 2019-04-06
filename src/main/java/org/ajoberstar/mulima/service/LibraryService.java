@@ -75,9 +75,10 @@ public final class LibraryService {
               .findFirst()
               .orElseThrow(() -> new AssertionError("No albums in group."));
           var artwork = group.getValue().stream()
-              .map(Album::getArtwork)
-              .flatMap(List::stream)
-              .collect(Collectors.toList());
+              .map(Album::getAudioToArtwork)
+              .map(Map::entrySet)
+              .flatMap(Set::stream)
+              .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
           var cues = group.getValue().stream()
               .map(Album::getAudioToCues)
               .map(Map::entrySet)
@@ -108,11 +109,33 @@ public final class LibraryService {
     return album;
   }
 
+  public Optional<List<Metadata>> findMetadata(Album album) {
+    var releaseId = album.getAudioToMetadata().values().stream()
+        .flatMap(meta -> meta.getTagValue("musicbrainz_releaseid").stream())
+        .findAny()
+        .orElseThrow(() -> new IllegalStateException("Album does not have release ID: " + album.getDir()));
+
+    return musicbrainz.lookupByReleaseId(releaseId).map(tracks -> {
+      Function<Metadata, Integer> toDiscNum = meta -> meta.getTagValue("discnumber").map(Integer::parseInt).orElse(-1);
+      var discToAudio = album.getAudioToMetadata().entrySet().stream()
+          .collect(Collectors.toMap(entry -> toDiscNum.apply(entry.getValue()), Map.Entry::getKey));
+
+      return tracks.stream().map(track -> {
+        var discNum = toDiscNum.apply(track);
+        var audio = discToAudio.get(discNum);
+        var artwork = album.getAudioToArtwork().get(audio);
+        return track.copy()
+            .setArtwork(artwork)
+            .build();
+      }).collect(Collectors.toList());
+    });
+  }
+
   public void convert(Album album, List<Metadata> metadata, boolean force) {
     // prep directory names
     var artistName = metadata.stream()
         .findAny()
-        .flatMap(meta -> meta.getTagValue("albumartist"))
+        .flatMap(meta -> meta.getTagValue("albumartistsort"))
         .map(this::toPathSafe)
         .orElseThrow(() -> new IllegalArgumentException("Album must have albumartist: " + album.getDir()));
     var albumName = metadata.stream()
@@ -120,10 +143,15 @@ public final class LibraryService {
         .flatMap(meta -> meta.getTagValue("album"))
         .map(this::toPathSafe)
         .orElseThrow(() -> new IllegalArgumentException("Album must have album: " + album.getDir()));
+    var releaseDate = metadata.stream()
+        .findAny()
+        .flatMap(meta -> meta.getTagValue("releasedate"))
+        .map(d -> String.format(" (%s)", d))
+        .orElse("");
 
     // create dest directories
-    var losslessDir = losslessRootDir.resolve(artistName).resolve(albumName);
-    var lossyDir = lossyRootDir.resolve(artistName).resolve(albumName);
+    var losslessDir = losslessRootDir.resolve(artistName).resolve(albumName + releaseDate);
+    var lossyDir = lossyRootDir.resolve(artistName).resolve(albumName + releaseDate);
 
     if (!force && isUpToDate(album, metadata, losslessDir, lossyDir)) {
       // TODO log
@@ -144,6 +172,8 @@ public final class LibraryService {
   }
 
   private boolean isUpToDate(Album album, List<Metadata> metadata, Path losslessDir, Path lossyDir) {
+    // FIXME make sure all tracks are there, have right frame size, have right tags
+
     var destTime = Stream.of(getFileTimes(losslessDir), getFileTimes(lossyDir))
         .flatMap(List::stream)
         .min(Comparator.naturalOrder())

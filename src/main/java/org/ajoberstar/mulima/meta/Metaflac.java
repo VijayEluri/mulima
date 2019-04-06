@@ -2,7 +2,9 @@ package org.ajoberstar.mulima.meta;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,10 +50,13 @@ public final class Metaflac implements MetadataParser, MetadataWriter {
     command.add(path);
     command.add("--remove-all-tags");
 
-    // FIXME add the artwork
+    meta.getArtwork().ifPresent(artwork -> {
+      command.add(String.format("--import-picture-from=%s", artwork));
+    });
 
     var translated = meta.translateTags("vorbis");
     translated.entrySet().stream()
+        .sorted(Comparator.comparing(Map.Entry::getKey))
         .flatMap(entry -> {
           var tag = entry.getKey();
           return entry.getValue().stream()

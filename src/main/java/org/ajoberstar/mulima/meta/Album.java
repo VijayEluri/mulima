@@ -11,13 +11,13 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 public final class Album {
   private final Path dir;
-  private final List<Path> artwork;
+  private final Map<Path, Path> audioToArtwork;
   private final Map<Path, List<CuePoint>> audioToCues;
   private final Map<Path, Metadata> audioToMetadata;
 
-  public Album(Path dir, List<Path> artwork, Map<Path, List<CuePoint>> audioToCues, Map<Path, Metadata> audioToMetadata) {
+  public Album(Path dir, Map<Path, Path> audioToArtwork, Map<Path, List<CuePoint>> audioToCues, Map<Path, Metadata> audioToMetadata) {
     this.dir = dir;
-    this.artwork = artwork;
+    this.audioToArtwork = audioToArtwork;
     this.audioToCues = audioToCues;
     this.audioToMetadata = audioToMetadata;
   }
@@ -26,8 +26,8 @@ public final class Album {
     return dir;
   }
 
-  public List<Path> getArtwork() {
-    return artwork;
+  public Map<Path, Path> getAudioToArtwork() {
+    return audioToArtwork;
   }
 
   public Map<Path, List<CuePoint>> getAudioToCues() {
