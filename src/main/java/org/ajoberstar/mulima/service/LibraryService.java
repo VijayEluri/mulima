@@ -5,6 +5,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
+import java.text.Normalizer;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -256,7 +257,7 @@ public final class LibraryService {
   }
 
   private String toPathSafe(String value) {
-    return value.replaceAll("[<>:\"\\*\\?\\|/\\\\]+", "_");
+    return value.replaceAll("[<>:\"“‟‘‛”’\\*\\?\\|/\\\\]+", "_");
   }
 
   private List<FileTime> getFileTimes(Path dir) {

@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -40,21 +41,21 @@ public final class Main extends Application {
 
     var pane = new VBox();
 
-    var status = new Text();
-    status.prefWidth(550);
-    pane.getChildren().add(status);
-
     var progress = new ProgressBar();
     progress.setPrefWidth(550);
     pane.getChildren().add(progress);
 
     var tasks = new TableView<Map>();
-    tasks.setPrefHeight(350);
+    tasks.setPrefHeight(200);
     var threadTask = new TableColumn<Map, String>("Task");
     threadTask.setCellValueFactory(new MapValueFactory<>("task"));
     threadTask.setPrefWidth(550);
     tasks.getColumns().addAll(threadTask);
     pane.getChildren().add(tasks);
+
+    var messages = new ListView<String>();
+    messages.setPrefHeight(500);
+    pane.getChildren().add(messages);
 
     var progressSubscriber = Flows.<Map.Entry<String, Object>>subscriber("progress-subscriber", 1, event -> {
       var kind = event.getKey();
@@ -79,14 +80,16 @@ public final class Main extends Application {
           }
         });
       } else if ("message".equals(kind)) {
-        status.setText(event.getValue().toString());
+        Platform.runLater(() -> {
+          messages.getItems().add(event.getValue().toString());
+        });
       }
     });
     mulima.getProgressPublisher().subscribe(progressSubscriber);
 
     stage.setTitle("Mulima");
 
-    var scene = new Scene(pane, 550, 400);
+    var scene = new Scene(pane, 550, 800);
     stage.setScene(scene);
     stage.show();
 

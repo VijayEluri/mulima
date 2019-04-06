@@ -140,15 +140,17 @@ public class MulimaService extends Service implements AutoCloseable {
     // failure handler
     var failureSubscriber = Flows.<Map.Entry<Album, String>>subscriber("failed-conversion-subscriber", 1, entry -> {
       progressPublisher.submit(Map.entry("complete", 1));
+      progressPublisher.submit(Map.entry("message", String.format("Failed to convert %s: %s", entry.getKey().getDir(), entry.getValue())));
     });
     failedConversionsPublisher.subscribe(failureSubscriber);
 
     // let's get this party started
-    progressPublisher.submit(Map.entry("message", "Scanning for source albums."));
+    progressPublisher.submit(Map.entry("message", "Scanning for source albums"));
     var albums = library.getSourceAlbums();
-    progressPublisher.submit(Map.entry("message", "Converting albums."));
+    progressPublisher.submit(Map.entry("message", "Converting albums"));
     progressPublisher.submit(Map.entry("total", albums.size()));
     albums.forEach(albumPublisher::submit);
+    progressPublisher.submit(Map.entry("message", "All albums submitted"));
   }
 
   @Override
