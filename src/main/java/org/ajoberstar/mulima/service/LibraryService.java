@@ -257,7 +257,7 @@ public final class LibraryService {
   }
 
   private String toPathSafe(String value) {
-    return value.replaceAll("[<>:\"“‟‘‛”’\\*\\?\\|/\\\\]+", "_");
+    return value.replaceAll("[<>:\"“‟‘‛”’″\\*\\?\\|/\\\\]+", "_");
   }
 
   private List<FileTime> getFileTimes(Path dir) {
