@@ -181,13 +181,15 @@ public final class LibraryService {
   private void emptyDir(Path dir) {
     try {
       if (Files.exists(dir)) {
-        Files.list(dir).forEach(file -> {
-          try {
-            Files.delete(file);
-          } catch (IOException e) {
-            throw new UncheckedIOException(e);
-          }
-        });
+        try (var files = Files.list(dir)) {
+          files.forEach(file -> {
+            try {
+              Files.delete(file);
+            } catch (IOException e) {
+              throw new UncheckedIOException(e);
+            }
+          });
+        }
       } else {
         Files.createDirectories(dir);
       }
